@@ -1,4 +1,29 @@
+# Ubuntu/Linux server setup
+sudo apt update
+sudo apt install -y python3 python3-venv python3-pip unzip
+
+# Clone repo
+git clone <your-repo-url> CNN-in-CMOSE
+cd CNN-in-CMOSE
+
+# Python environment
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+pip install "huggingface_hub[cli]"
+
+# Download CMOSE dataset files
 mkdir -p data/CMOSE
 hf download cwuau/CMOSE --repo-type dataset --local-dir ./data/CMOSE
 unzip -o data/CMOSE/secondFeature.zip -d data/CMOSE/secondFeature
-rm data/CMOSE/secondFeature.zip
+rm -f data/CMOSE/secondFeature.zip
+
+# Run current default pipeline
+python main.py --method svd --output_dir outputs/svd_default
+
+# Run strict CMOSE split mode
+python main.py --strict_paper_protocol --method svd --output_dir outputs/svd_strict_cmose
+
+# Optional PCA run
+python main.py --strict_paper_protocol --method pca --output_dir outputs/pca_strict_cmose

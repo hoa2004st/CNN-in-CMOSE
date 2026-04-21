@@ -83,6 +83,14 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Also include entries marked as 'unlabel' in final_data_1.json.",
     )
+    parser.add_argument(
+        "--strict_paper_protocol",
+        action="store_true",
+        help=(
+            "Use the original labeled CMOSE dataset without paper-style subset "
+            "selection or SMOTE, and split before normalization."
+        ),
+    )
     parser.add_argument("--epochs", type=int, default=1600)
     parser.add_argument("--batch_size", type=int, default=8)
     parser.add_argument("--lr", type=float, default=1e-4)
@@ -110,63 +118,138 @@ def main(argv: list[str] | None = None) -> None:
         args.feature_dir,
         allowed_splits=allowed_splits,
     )
-    selected_records = select_paper_style_subset(records)
+    if args.strict_paper_protocol:
+        selected_records = records
+        train_records = [record for record in selected_records if record.split == "train"]
+        test_records = [record for record in selected_records if record.split == "test"]
+    else:
+        selected_records = select_paper_style_subset(records)
+        train_records = []
+        test_records = []
 
     selection_summary = {
+        "mode": "strict_paper_protocol" if args.strict_paper_protocol else "paper_style_subset",
         "before_selection": describe_selection(records),
         "after_selection": describe_selection(selected_records),
         "assumptions": {
-            "selection_group": "base_video_id",
+            "selection_group": None if args.strict_paper_protocol else "base_video_id",
             "fixed_frame_count": args.target_frames,
             "dimensionality_reduction_fit": "per-sample",
-            "normalization": "per-sample min-max to [0,1]",
-            "smote_position": "before final 80/20 split",
+            "normalization": (
+                "per-sample min-max to [0,1] after split"
+                if args.strict_paper_protocol
+                else "per-sample min-max to [0,1] before final split"
+            ),
+            "smote_position": None if args.strict_paper_protocol else "before final 80/20 split",
+            "dataset_scope": (
+                "original labeled CMOSE train/test samples"
+                if args.strict_paper_protocol
+                else "paper-style subset selection on labeled CMOSE samples"
+            ),
             "train_eval_split_usage": (
-                "single held-out 20% split is reused for early stopping and final evaluation"
+                "original CMOSE train/test split"
+                if args.strict_paper_protocol
+                else "single held-out 20% split is reused for early stopping and final evaluation"
             ),
         },
     }
     save_json(selection_summary, output_dir / "selection_summary.json")
 
     logger.info("Loading %d selected samples", len(selected_records))
-    matrices, labels, sample_ids = load_dataset_matrices(
-        selected_records,
-        target_frames=args.target_frames,
-    )
-
-    logger.info("Applying %s reduction to %d components", args.method.upper(), args.n_components)
-    processed, explained = preprocess_dataset(
-        matrices,
-        method=args.method,
-        n_components=args.n_components,
-    )
-    save_json(
-        {
-            "sample_count": len(sample_ids),
-            "mean_explained_variance": float(explained.mean()),
-            "min_explained_variance": float(explained.min()),
-            "max_explained_variance": float(explained.max()),
-        },
-        output_dir / "preprocessing_summary.json",
-    )
-
-    X_flat = flatten_matrices(processed)
-    X_balanced, y_balanced = apply_smote(X_flat, labels, random_state=args.seed)
-    save_json(
-        {
-            "before_smote": {ID_TO_LABEL[i]: int((labels == i).sum()) for i in sorted(ID_TO_LABEL)},
-            "after_smote": {
-                ID_TO_LABEL[i]: int((y_balanced == i).sum()) for i in sorted(ID_TO_LABEL)
+    if args.strict_paper_protocol:
+        logger.info(
+            "Using original CMOSE split: %d train / %d test samples",
+            len(train_records),
+            len(test_records),
+        )
+        X_train_raw, y_train, train_sample_ids = load_dataset_matrices(
+            train_records,
+            target_frames=args.target_frames,
+        )
+        X_test_raw, y_test, test_sample_ids = load_dataset_matrices(
+            test_records,
+            target_frames=args.target_frames,
+        )
+        logger.info(
+            "Applying %s reduction to %d components after split",
+            args.method.upper(),
+            args.n_components,
+        )
+        X_train_processed, train_explained = preprocess_dataset(
+            X_train_raw,
+            method=args.method,
+            n_components=args.n_components,
+        )
+        X_test_processed, test_explained = preprocess_dataset(
+            X_test_raw,
+            method=args.method,
+            n_components=args.n_components,
+        )
+        save_json(
+            {
+                "sample_count": len(train_sample_ids) + len(test_sample_ids),
+                "train_sample_count": len(train_sample_ids),
+                "test_sample_count": len(test_sample_ids),
+                "train_mean_explained_variance": float(train_explained.mean()),
+                "train_min_explained_variance": float(train_explained.min()),
+                "train_max_explained_variance": float(train_explained.max()),
+                "test_mean_explained_variance": float(test_explained.mean()),
+                "test_min_explained_variance": float(test_explained.min()),
+                "test_max_explained_variance": float(test_explained.max()),
             },
-        },
-        output_dir / "smote_summary.json",
-    )
+            output_dir / "preprocessing_summary.json",
+        )
+        save_json(
+            {
+                "before_smote": {
+                    "train": {ID_TO_LABEL[i]: int((y_train == i).sum()) for i in sorted(ID_TO_LABEL)},
+                    "test": {ID_TO_LABEL[i]: int((y_test == i).sum()) for i in sorted(ID_TO_LABEL)},
+                },
+                "after_smote": None,
+            },
+            output_dir / "smote_summary.json",
+        )
+        X_train = flatten_matrices(X_train_processed)
+        X_test = flatten_matrices(X_test_processed)
+    else:
+        matrices, labels, sample_ids = load_dataset_matrices(
+            selected_records,
+            target_frames=args.target_frames,
+        )
+        logger.info("Applying %s reduction to %d components", args.method.upper(), args.n_components)
+        processed, explained = preprocess_dataset(
+            matrices,
+            method=args.method,
+            n_components=args.n_components,
+        )
+        save_json(
+            {
+                "sample_count": len(sample_ids),
+                "mean_explained_variance": float(explained.mean()),
+                "min_explained_variance": float(explained.min()),
+                "max_explained_variance": float(explained.max()),
+            },
+            output_dir / "preprocessing_summary.json",
+        )
 
-    X_train, X_test, y_train, y_test = split_after_smote(
-        X_balanced,
-        y_balanced,
-        random_state=args.seed,
-    )
+        X_flat = flatten_matrices(processed)
+        X_balanced, y_balanced = apply_smote(X_flat, labels, random_state=args.seed)
+        save_json(
+            {
+                "before_smote": {ID_TO_LABEL[i]: int((labels == i).sum()) for i in sorted(ID_TO_LABEL)},
+                "after_smote": {
+                    ID_TO_LABEL[i]: int((y_balanced == i).sum()) for i in sorted(ID_TO_LABEL)
+                },
+            },
+            output_dir / "smote_summary.json",
+        )
+
+        X_train, X_test, y_train, y_test = split_after_smote(
+            X_balanced,
+            y_balanced,
+            random_state=args.seed,
+        )
+
     X_train_cnn = reshape_flattened_samples(X_train, side=args.n_components)
     X_test_cnn = reshape_flattened_samples(X_test, side=args.n_components)
 
@@ -189,6 +272,7 @@ def main(argv: list[str] | None = None) -> None:
         {
             "config": {
                 "method": args.method,
+                "strict_paper_protocol": args.strict_paper_protocol,
                 "epochs": args.epochs,
                 "batch_size": args.batch_size,
                 "lr": args.lr,
