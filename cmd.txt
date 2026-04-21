@@ -1,0 +1,4 @@
+mkdir -p data/CMOSE
+hf download cwuau/CMOSE --repo-type dataset --local-dir ./data/CMOSE
+unzip -o data/CMOSE/secondFeature.zip -d data/CMOSE/secondFeature
+rm data/CMOSE/secondFeature.zip

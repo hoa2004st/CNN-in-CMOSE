@@ -1,0 +1,46 @@
+{
+  "before_selection": {
+    "labels": {
+      "Highly Disengage": 285,
+      "Disengage": 1812,
+      "Engage": 6946,
+      "Highly Engage": 961
+    },
+    "splits": {
+      "train": 8783,
+      "test": 1221
+    },
+    "base_videos": {
+      "unique": 1702
+    },
+    "samples": {
+      "total": 10004
+    }
+  },
+  "after_selection": {
+    "labels": {
+      "Highly Disengage": 285,
+      "Disengage": 285,
+      "Engage": 286,
+      "Highly Engage": 285
+    },
+    "splits": {
+      "test": 145,
+      "train": 996
+    },
+    "base_videos": {
+      "unique": 889
+    },
+    "samples": {
+      "total": 1141
+    }
+  },
+  "assumptions": {
+    "selection_group": "base_video_id",
+    "fixed_frame_count": 300,
+    "dimensionality_reduction_fit": "per-sample",
+    "normalization": "per-sample min-max to [0,1]",
+    "smote_position": "before final 80/20 split",
+    "train_eval_split_usage": "single held-out 20% split is reused for early stopping and final evaluation"
+  }
+}

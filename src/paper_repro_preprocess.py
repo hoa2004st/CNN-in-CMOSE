@@ -1,0 +1,112 @@
+"""Preprocessing for the paper-faithful PCA/SVD + CNN pipeline."""
+
+from __future__ import annotations
+
+from collections import Counter
+
+import numpy as np
+from sklearn.decomposition import PCA, TruncatedSVD
+from sklearn.neighbors import NearestNeighbors
+
+
+def reduce_sample_matrix(
+    matrix: np.ndarray,
+    *,
+    method: str = "svd",
+    n_components: int = 300,
+) -> tuple[np.ndarray, float]:
+    """Reduce one ``frames x features`` matrix to ``frames x n_components``."""
+    if method == "pca":
+        reducer = PCA(n_components=n_components)
+    elif method == "svd":
+        reducer = TruncatedSVD(n_components=n_components)
+    else:
+        raise ValueError(f"Unknown reduction method: {method}")
+
+    reduced = reducer.fit_transform(matrix)
+    explained = float(np.sum(getattr(reducer, "explained_variance_ratio_", 0.0)))
+    return reduced.astype(np.float32), explained
+
+
+def minmax_normalize_per_sample(matrix: np.ndarray) -> np.ndarray:
+    """Normalize one matrix to the paper's [0, 1] range."""
+    min_value = float(matrix.min())
+    max_value = float(matrix.max())
+    if max_value <= min_value:
+        return np.zeros_like(matrix, dtype=np.float32)
+    normalized = (matrix - min_value) / (max_value - min_value)
+    return normalized.astype(np.float32)
+
+
+def preprocess_dataset(
+    matrices: np.ndarray,
+    *,
+    method: str = "svd",
+    n_components: int = 300,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Apply paper-style reduction and normalization to all samples."""
+    processed = []
+    explained = []
+    for matrix in matrices:
+        reduced, evr = reduce_sample_matrix(matrix, method=method, n_components=n_components)
+        processed.append(minmax_normalize_per_sample(reduced))
+        explained.append(evr)
+    return np.stack(processed, axis=0), np.array(explained, dtype=np.float32)
+
+
+def flatten_matrices(matrices: np.ndarray) -> np.ndarray:
+    """Flatten ``n x h x w`` matrices for SMOTE."""
+    return matrices.reshape(matrices.shape[0], -1)
+
+
+def reshape_flattened_samples(flattened: np.ndarray, *, side: int = 300) -> np.ndarray:
+    """Restore flattened samples to ``n x 1 x side x side`` for CNN input."""
+    return flattened.reshape(flattened.shape[0], 1, side, side).astype(np.float32)
+
+
+def apply_smote(
+    X: np.ndarray,
+    y: np.ndarray,
+    *,
+    random_state: int = 42,
+    k_neighbors: int = 5,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Apply a lightweight multi-class SMOTE implementation.
+
+    The paper balances every class to the majority count before the final split.
+    """
+    rng = np.random.default_rng(random_state)
+    class_counts = Counter(int(label) for label in y.tolist())
+    target_count = max(class_counts.values())
+
+    synthetic_samples = [X]
+    synthetic_labels = [y]
+
+    for label, count in sorted(class_counts.items()):
+        if count >= target_count:
+            continue
+
+        class_samples = X[y == label]
+        if len(class_samples) < 2:
+            raise ValueError(f"SMOTE requires at least 2 samples for class {label}")
+
+        n_neighbors = min(k_neighbors, len(class_samples) - 1)
+        nn = NearestNeighbors(n_neighbors=n_neighbors + 1)
+        nn.fit(class_samples)
+        neighbor_indices = nn.kneighbors(class_samples, return_distance=False)[:, 1:]
+
+        needed = target_count - count
+        generated = np.empty((needed, X.shape[1]), dtype=np.float32)
+        for idx in range(needed):
+            base_idx = int(rng.integers(0, len(class_samples)))
+            neighbor_pool = neighbor_indices[base_idx]
+            neighbor_idx = int(neighbor_pool[rng.integers(0, len(neighbor_pool))])
+            lam = float(rng.random())
+            generated[idx] = class_samples[base_idx] + lam * (
+                class_samples[neighbor_idx] - class_samples[base_idx]
+            )
+
+        synthetic_samples.append(generated)
+        synthetic_labels.append(np.full(needed, label, dtype=np.int64))
+
+    return np.concatenate(synthetic_samples, axis=0), np.concatenate(synthetic_labels, axis=0)
