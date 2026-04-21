@@ -186,7 +186,7 @@ class Preprocessor:
             return float(np.sum(evr))
         return None
 
-    def __repr__(self) -> str:  # pragma: no cover
+    def __repr__(self) -> str:
         return (
             f"Preprocessor(n_components={self.n_components}, "
             f"use_svd={self.use_svd}, fitted={self._fitted})"

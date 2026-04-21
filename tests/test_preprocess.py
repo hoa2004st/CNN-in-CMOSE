@@ -126,3 +126,16 @@ class TestPreprocessor:
             pickle.dump({"not": "a preprocessor"}, fh)
         with pytest.raises(TypeError, match="Expected Preprocessor"):
             Preprocessor.load(p)
+
+    def test_repr_unfitted(self) -> None:
+        prep = Preprocessor(n_components=32, use_svd=True)
+        r = repr(prep)
+        assert "n_components=32" in r
+        assert "use_svd=True" in r
+        assert "fitted=False" in r
+
+    def test_repr_fitted(self, dummy_data: tuple) -> None:
+        X_train, _ = dummy_data
+        prep = Preprocessor(n_components=8)
+        prep.fit(X_train)
+        assert "fitted=True" in repr(prep)

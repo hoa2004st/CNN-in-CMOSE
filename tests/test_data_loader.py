@@ -68,8 +68,8 @@ class TestLoadOpenfaceCSV:
 
     def test_filters_low_confidence(self, tmp_path: Path) -> None:
         cols = ["frame", "confidence", "success"] + DEFAULT_FEATURE_COLS[:3]
-        rows = ["0,0.5,1"] + ["0"] * len(DEFAULT_FEATURE_COLS[:3])  # low confidence
-        content = ",".join(cols) + "\n" + ",".join(rows) + "\n"
+        row = ",".join(["0", "0.5", "1"] + ["0"] * len(DEFAULT_FEATURE_COLS[:3]))
+        content = ",".join(cols) + "\n" + row + "\n"
         p = tmp_path / "low_conf.csv"
         p.write_text(content)
         arr = _load_openface_csv(p, DEFAULT_FEATURE_COLS[:3])
@@ -81,8 +81,8 @@ class TestLoadOpenfaceCSV:
 
     def test_filters_failed_tracking(self, tmp_path: Path) -> None:
         cols = ["frame", "confidence", "success"] + DEFAULT_FEATURE_COLS[:2]
-        row = ["0,0.95,0"] + ["0.0"] * len(DEFAULT_FEATURE_COLS[:2])
-        content = ",".join(cols) + "\n" + ",".join(row) + "\n"
+        row = ",".join(["0", "0.95", "0"] + ["0.0"] * len(DEFAULT_FEATURE_COLS[:2]))
+        content = ",".join(cols) + "\n" + row + "\n"
         p = tmp_path / "fail.csv"
         p.write_text(content)
         arr = _load_openface_csv(p, DEFAULT_FEATURE_COLS[:2])

@@ -19,7 +19,6 @@ from __future__ import annotations
 
 import argparse
 import logging
-import math
 import sys
 from pathlib import Path
 
@@ -27,7 +26,7 @@ import numpy as np
 import torch
 
 from src.data_loader import load_split, DEFAULT_FEATURE_COLS
-from src.preprocess import Preprocessor
+from src.preprocess import Preprocessor, _square_factors
 from src.model import EngagementCNN
 from src.train import train as train_model
 from src.evaluate import evaluate, predict
@@ -135,7 +134,7 @@ def main(argv: list[str] | None = None) -> None:
     preprocessor.save(output_dir / "preprocessor.pkl")
 
     # ── 3. Reshape for CNN ──────────────────────────────────────────────────
-    grid_h, grid_w = _best_grid(args.n_components)
+    grid_h, grid_w = _square_factors(args.n_components)
     logger.info("CNN input grid: %d × %d", grid_h, grid_w)
 
     X_train_cnn = Preprocessor.reshape_for_cnn(X_train_r, grid_h, grid_w)
@@ -178,20 +177,6 @@ def main(argv: list[str] | None = None) -> None:
     print(f"  F1 (weighted) : {metrics['f1_weighted']:.4f}")
     print("\nClassification Report:")
     print(metrics["report"])
-
-
-# ---------------------------------------------------------------------------
-# Utilities
-# ---------------------------------------------------------------------------
-
-def _best_grid(n: int) -> tuple[int, int]:
-    """Return the most square-like (h, w) factorisation with h <= w."""
-    h = int(math.isqrt(n))
-    while h >= 1:
-        if n % h == 0:
-            return h, n // h
-        h -= 1
-    return 1, n
 
 
 if __name__ == "__main__":
