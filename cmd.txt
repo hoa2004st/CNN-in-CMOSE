@@ -43,8 +43,11 @@ python main.py --model transformer --device cuda --amp --output_dir outputs/tran
 # Loss-function variants for imbalanced training
 python main.py --model temporal_cnn --device cuda --amp --loss weighted_cross_entropy --output_dir outputs/temporal_cnn_weighted_ce
 python main.py --model temporal_cnn --device cuda --amp --loss focal --focal_gamma 2.0 --output_dir outputs/temporal_cnn_focal
+python main.py --model temporal_cnn --device cuda --amp --loss ordinal --output_dir outputs/temporal_cnn_ordinal
 python main.py --model lstm --device cuda --amp --loss weighted_cross_entropy --output_dir outputs/lstm_weighted_ce
+python main.py --model lstm --device cuda --amp --loss ordinal --output_dir outputs/lstm_ordinal
 python main.py --model transformer --device cuda --amp --loss focal --focal_gamma 2.0 --output_dir outputs/transformer_focal
+python main.py --model transformer --device cuda --amp --loss ordinal --output_dir outputs/transformer_ordinal
 
 # Run all 4 comparison models sequentially with separate logs
 chmod +x scripts/run_comparison_models.sh

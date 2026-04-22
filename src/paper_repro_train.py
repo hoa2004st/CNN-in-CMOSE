@@ -40,6 +40,27 @@ class FocalLoss(nn.Module):
         return focal.mean()
 
 
+class OrdinalEMDLoss(nn.Module):
+    """Ordinal loss via squared CDF distance between predicted and target classes."""
+
+    def __init__(self, *, weight: torch.Tensor | None = None) -> None:
+        super().__init__()
+        if weight is None:
+            self.register_buffer("weight", None, persistent=False)
+        else:
+            self.register_buffer("weight", weight.float(), persistent=False)
+
+    def forward(self, logits: torch.Tensor, targets: torch.Tensor) -> torch.Tensor:
+        probs = torch.softmax(logits, dim=1)
+        pred_cdf = torch.cumsum(probs, dim=1)
+        target_one_hot = F.one_hot(targets, num_classes=logits.shape[1]).float()
+        target_cdf = torch.cumsum(target_one_hot, dim=1)
+        loss_per_sample = torch.mean((pred_cdf - target_cdf) ** 2, dim=1)
+        if self.weight is not None:
+            loss_per_sample = loss_per_sample * self.weight[targets]
+        return loss_per_sample.mean()
+
+
 def compute_class_weights(y: np.ndarray) -> np.ndarray:
     """Compute inverse-frequency class weights normalized to mean 1."""
     class_counts = np.bincount(y.astype(np.int64))
@@ -72,6 +93,8 @@ def build_loss(
         return nn.CrossEntropyLoss(weight=weight_tensor), class_weights.tolist()
     if loss_name == "focal":
         return FocalLoss(gamma=focal_gamma, weight=weight_tensor), class_weights.tolist()
+    if loss_name == "ordinal":
+        return OrdinalEMDLoss(weight=weight_tensor), class_weights.tolist()
     raise ValueError(f"Unknown loss_name: {loss_name}")
 
 

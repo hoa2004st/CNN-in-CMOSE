@@ -148,7 +148,7 @@ def test_model_factory_output_shapes() -> None:
     assert transformer_out.shape == (2, 4)
 
 
-def test_loss_factory_builds_weighted_and_focal_losses() -> None:
+def test_loss_factory_builds_weighted_focal_and_ordinal_losses() -> None:
     import torch
 
     y_train = np.array([0, 0, 1, 2, 2, 2, 3], dtype=np.int64)
@@ -177,6 +177,15 @@ def test_loss_factory_builds_weighted_and_focal_losses() -> None:
     assert focal_loss.__class__.__name__ == "FocalLoss"
     assert focal_weights is not None
 
+    ordinal_loss, ordinal_weights = build_loss(
+        y_train,
+        loss_name="ordinal",
+        focal_gamma=2.0,
+        device=torch.device("cpu"),
+    )
+    assert ordinal_loss.__class__.__name__ == "OrdinalEMDLoss"
+    assert ordinal_weights is not None
+
 
 def test_resolve_output_dir_uses_loss_specific_default_paths() -> None:
     assert resolve_output_dir(
@@ -197,3 +206,9 @@ def test_resolve_output_dir_uses_loss_specific_default_paths() -> None:
         loss_name="focal",
         focal_gamma=1.5,
     ) == Path("outputs/transformer_focal_g1p5")
+    assert resolve_output_dir(
+        None,
+        model_name="lstm",
+        loss_name="ordinal",
+        focal_gamma=2.0,
+    ) == Path("outputs/lstm_ordinal")

@@ -52,6 +52,8 @@ def _format_loss_suffix(loss_name: str, focal_gamma: float) -> str:
         return "cross_entropy"
     if loss_name == "weighted_cross_entropy":
         return "weighted_cross_entropy"
+    if loss_name == "ordinal":
+        return "ordinal"
     if loss_name == "focal":
         gamma_str = str(focal_gamma).replace(".", "p")
         return f"focal_g{gamma_str}"
@@ -129,7 +131,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--patience", type=int, default=50)
     parser.add_argument(
         "--loss",
-        choices=["cross_entropy", "weighted_cross_entropy", "focal"],
+        choices=["cross_entropy", "weighted_cross_entropy", "focal", "ordinal"],
         default="cross_entropy",
     )
     parser.add_argument("--focal_gamma", type=float, default=2.0)
