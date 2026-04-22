@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import json
 import math
+import time
+from collections.abc import Callable
 from pathlib import Path
 
 import numpy as np
@@ -58,6 +60,8 @@ def train_model(
     checkpoint_path: str | Path,
     device: torch.device | None = None,
     min_delta: float = 0.0,
+    epoch_log_interval: int = 1,
+    progress_callback: Callable[[str], None] | None = None,
 ) -> dict:
     """Train using Adam, checkpointing, and early stopping.
 
@@ -66,6 +70,7 @@ def train_model(
     if device is None:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+    epoch_log_interval = max(1, int(epoch_log_interval))
     model.to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
@@ -86,9 +91,18 @@ def train_model(
         "eval_accuracies": [],
         "best_epoch": 0,
         "patience": patience,
+        "stopped_early": False,
     }
 
+    if progress_callback is not None:
+        progress_callback(
+            "Training setup complete: "
+            f"device={device.type}, train_samples={len(X_train)}, eval_samples={len(X_eval)}, "
+            f"epochs={epochs}, batch_size={batch_size}, lr={lr}, patience={patience}"
+        )
+
     for epoch in range(1, epochs + 1):
+        epoch_start = time.perf_counter()
         model.train()
         train_loss = 0.0
         train_total = 0
@@ -117,12 +131,39 @@ def train_model(
             history["best_epoch"] = epoch
             stale_epochs = 0
             torch.save(model.state_dict(), checkpoint_path)
+            if progress_callback is not None:
+                progress_callback(
+                    "Checkpoint updated: "
+                    f"epoch={epoch}, eval_loss={eval_loss:.6f}, eval_acc={eval_acc:.4f}"
+                )
         else:
             stale_epochs += 1
             if stale_epochs >= patience:
+                history["stopped_early"] = True
+                if progress_callback is not None:
+                    progress_callback(
+                        "Early stopping triggered: "
+                        f"epoch={epoch}, best_epoch={history['best_epoch']}, "
+                        f"stale_epochs={stale_epochs}"
+                    )
                 break
 
+        if progress_callback is not None and (
+            epoch == 1 or epoch % epoch_log_interval == 0 or epoch == epochs
+        ):
+            epoch_seconds = time.perf_counter() - epoch_start
+            progress_callback(
+                "Epoch complete: "
+                f"{epoch}/{epochs}, train_loss={train_loss:.6f}, "
+                f"eval_loss={eval_loss:.6f}, eval_acc={eval_acc:.4f}, "
+                f"stale_epochs={stale_epochs}, epoch_time_s={epoch_seconds:.2f}"
+            )
+
     if checkpoint_path.exists():
+        if progress_callback is not None:
+            progress_callback(
+                f"Loading best checkpoint from epoch {history['best_epoch']} at {checkpoint_path}"
+            )
         model.load_state_dict(torch.load(checkpoint_path, map_location=device))
     return history
 
@@ -133,6 +174,7 @@ def predict(
     *,
     batch_size: int = 8,
     device: torch.device | None = None,
+    progress_callback: Callable[[str], None] | None = None,
 ) -> np.ndarray:
     if device is None:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -146,10 +188,19 @@ def predict(
         shuffle=False,
     )
     outputs: list[np.ndarray] = []
+    if progress_callback is not None:
+        progress_callback(
+            f"Starting prediction: samples={len(X)}, batch_size={batch_size}, device={device.type}"
+        )
     with torch.no_grad():
-        for X_batch, _ in loader:
+        total_batches = len(loader)
+        for batch_idx, (X_batch, _) in enumerate(loader, start=1):
             logits = model(X_batch.to(device))
             outputs.append(logits.argmax(dim=1).cpu().numpy())
+            if progress_callback is not None and (
+                batch_idx == 1 or batch_idx == total_batches or batch_idx % 10 == 0
+            ):
+                progress_callback(f"Prediction progress: batch {batch_idx}/{total_batches}")
     return np.concatenate(outputs)
 
 

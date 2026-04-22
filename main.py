@@ -42,6 +42,10 @@ def _log_chunk_progress(done: int, total: int) -> None:
     logger.info("Normalization progress: %d/%d samples", done, total)
 
 
+def _log_step(message: str) -> None:
+    logger.info("%s", message)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Run the strict CMOSE comparison pipeline on baseline and raw-sequence models.",
@@ -133,6 +137,7 @@ def main(argv: list[str] | None = None) -> None:
         },
     }
     save_json(selection_summary, output_dir / "selection_summary.json")
+    logger.info("Saved selection summary to %s", output_dir / "selection_summary.json")
 
     logger.info("Loading %d selected samples", len(selected_records))
     logger.info(
@@ -239,6 +244,7 @@ def main(argv: list[str] | None = None) -> None:
         }
 
     save_json(preprocessing_summary, output_dir / "preprocessing_summary.json")
+    logger.info("Saved preprocessing summary to %s", output_dir / "preprocessing_summary.json")
     save_json(
         {
             "before_smote": {
@@ -249,6 +255,8 @@ def main(argv: list[str] | None = None) -> None:
         },
         output_dir / "smote_summary.json",
     )
+    logger.info("Saved class-count summary to %s", output_dir / "smote_summary.json")
+    logger.info("Starting model training for %s", args.model)
     history = train_model(
         model,
         X_train_input,
@@ -259,9 +267,23 @@ def main(argv: list[str] | None = None) -> None:
         batch_size=args.batch_size,
         lr=args.lr,
         checkpoint_path=output_dir / "best_model.pth",
+        progress_callback=_log_step,
+    )
+    logger.info(
+        "Training finished for %s: best_epoch=%d, stopped_early=%s",
+        args.model,
+        history["best_epoch"],
+        history.get("stopped_early", False),
     )
 
-    y_pred = predict(model, X_test_input, batch_size=args.batch_size)
+    logger.info("Starting final prediction on the held-out test split")
+    y_pred = predict(
+        model,
+        X_test_input,
+        batch_size=args.batch_size,
+        progress_callback=_log_step,
+    )
+    logger.info("Prediction finished; computing metrics")
     metrics = evaluate_predictions(y_test, y_pred)
     save_json(
         {
@@ -279,6 +301,7 @@ def main(argv: list[str] | None = None) -> None:
         },
         output_dir / "metrics.json",
     )
+    logger.info("Saved metrics to %s", output_dir / "metrics.json")
 
     print("\n" + "=" * 60)
     print("STRICT CMOSE REPRODUCTION RESULTS")
