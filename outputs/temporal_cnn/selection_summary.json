@@ -1,0 +1,49 @@
+{
+  "mode": "strict_cmose_split",
+  "before_selection": {
+    "labels": {
+      "Highly Disengage": 285,
+      "Disengage": 1812,
+      "Engage": 6946,
+      "Highly Engage": 961
+    },
+    "splits": {
+      "train": 8783,
+      "test": 1221
+    },
+    "base_videos": {
+      "unique": 1702
+    },
+    "samples": {
+      "total": 10004
+    }
+  },
+  "after_selection": {
+    "labels": {
+      "Highly Disengage": 285,
+      "Disengage": 1812,
+      "Engage": 6946,
+      "Highly Engage": 961
+    },
+    "splits": {
+      "train": 8783,
+      "test": 1221
+    },
+    "base_videos": {
+      "unique": 1702
+    },
+    "samples": {
+      "total": 10004
+    }
+  },
+  "assumptions": {
+    "selection_group": null,
+    "fixed_frame_count": 300,
+    "dimensionality_reduction_fit": null,
+    "normalization": "per-sample min-max to [0,1] after split",
+    "smote_position": null,
+    "dataset_scope": "original labeled CMOSE train/test samples",
+    "train_eval_split_usage": "original CMOSE train/test split",
+    "model": "temporal_cnn"
+  }
+}
