@@ -1,4 +1,4 @@
-"""Main entry point for the paper-faithful CMOSE reproduction pipeline."""
+"""Main entry point for the strict CMOSE comparison pipeline."""
 
 from __future__ import annotations
 
@@ -14,20 +14,17 @@ from src.paper_repro_data import (
     describe_selection,
     load_cmose_metadata,
     load_dataset_matrices,
-    select_paper_style_subset,
 )
-from src.paper_repro_model import PaperEngagementCNN
+from src.paper_repro_model import build_model
 from src.paper_repro_preprocess import (
-    apply_smote,
-    flatten_matrices,
+    add_channel_dim,
+    normalize_dataset_per_sample,
     preprocess_dataset,
-    reshape_flattened_samples,
 )
 from src.paper_repro_train import (
     evaluate_predictions,
     predict,
     save_json,
-    split_after_smote,
     train_model,
 )
 
@@ -42,7 +39,7 @@ logger = logging.getLogger(__name__)
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Reproduce the paper's PCA/SVD + CNN pipeline on CMOSE.",
+        description="Run the strict CMOSE comparison pipeline on baseline and raw-sequence models.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
@@ -61,10 +58,16 @@ def build_parser() -> argparse.ArgumentParser:
         help="Path to the CMOSE label JSON aligned with the feature CSVs.",
     )
     parser.add_argument(
+        "--model",
+        choices=["paper_cnn", "temporal_cnn", "rectangular_cnn", "lstm", "transformer"],
+        default="paper_cnn",
+        help="Model architecture to train under the strict CMOSE split.",
+    )
+    parser.add_argument(
         "--method",
         choices=["pca", "svd"],
         default="svd",
-        help="Dimensionality reduction branch to run.",
+        help="Dimensionality reduction branch used only by paper_cnn.",
     )
     parser.add_argument(
         "--n_components",
@@ -77,19 +80,6 @@ def build_parser() -> argparse.ArgumentParser:
         type=int,
         default=300,
         help="Fixed frame count per sample before reduction.",
-    )
-    parser.add_argument(
-        "--include_unlabel",
-        action="store_true",
-        help="Also include entries marked as 'unlabel' in final_data_1.json.",
-    )
-    parser.add_argument(
-        "--strict_paper_protocol",
-        action="store_true",
-        help=(
-            "Use the original labeled CMOSE dataset without paper-style subset "
-            "selection or SMOTE, and split before normalization."
-        ),
     )
     parser.add_argument("--epochs", type=int, default=1600)
     parser.add_argument("--batch_size", type=int, default=8)
@@ -108,74 +98,67 @@ def main(argv: list[str] | None = None) -> None:
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    allowed_splits = ["train", "test"]
-    if args.include_unlabel:
-        allowed_splits.append("unlabel")
-
     logger.info("Loading metadata from %s", args.labels_json)
     records = load_cmose_metadata(
         args.labels_json,
         args.feature_dir,
-        allowed_splits=allowed_splits,
+        allowed_splits=("train", "test"),
     )
-    if args.strict_paper_protocol:
-        selected_records = records
-        train_records = [record for record in selected_records if record.split == "train"]
-        test_records = [record for record in selected_records if record.split == "test"]
-    else:
-        selected_records = select_paper_style_subset(records)
-        train_records = []
-        test_records = []
+    selected_records = records
+    train_records = [record for record in selected_records if record.split == "train"]
+    test_records = [record for record in selected_records if record.split == "test"]
 
     selection_summary = {
-        "mode": "strict_paper_protocol" if args.strict_paper_protocol else "paper_style_subset",
+        "mode": "strict_cmose_split",
         "before_selection": describe_selection(records),
         "after_selection": describe_selection(selected_records),
         "assumptions": {
-            "selection_group": None if args.strict_paper_protocol else "base_video_id",
+            "selection_group": None,
             "fixed_frame_count": args.target_frames,
-            "dimensionality_reduction_fit": "per-sample",
-            "normalization": (
-                "per-sample min-max to [0,1] after split"
-                if args.strict_paper_protocol
-                else "per-sample min-max to [0,1] before final split"
+            "dimensionality_reduction_fit": (
+                "per-sample"
+                if args.model == "paper_cnn"
+                else None
             ),
-            "smote_position": None if args.strict_paper_protocol else "before final 80/20 split",
-            "dataset_scope": (
-                "original labeled CMOSE train/test samples"
-                if args.strict_paper_protocol
-                else "paper-style subset selection on labeled CMOSE samples"
-            ),
-            "train_eval_split_usage": (
-                "original CMOSE train/test split"
-                if args.strict_paper_protocol
-                else "single held-out 20% split is reused for early stopping and final evaluation"
-            ),
+            "normalization": "per-sample min-max to [0,1] after split",
+            "smote_position": None,
+            "dataset_scope": "original labeled CMOSE train/test samples",
+            "train_eval_split_usage": "original CMOSE train/test split",
+            "model": args.model,
         },
     }
     save_json(selection_summary, output_dir / "selection_summary.json")
 
     logger.info("Loading %d selected samples", len(selected_records))
-    if args.strict_paper_protocol:
+    logger.info(
+        "Using original CMOSE split: %d train / %d test samples",
+        len(train_records),
+        len(test_records),
+    )
+    X_train_raw, y_train, train_sample_ids = load_dataset_matrices(
+        train_records,
+        target_frames=args.target_frames,
+        progress_desc="Loading train samples",
+    )
+    X_test_raw, y_test, test_sample_ids = load_dataset_matrices(
+        test_records,
+        target_frames=args.target_frames,
+        progress_desc="Loading test samples",
+    )
+    input_features = int(X_train_raw.shape[-1])
+    model, model_spec = build_model(
+        args.model,
+        input_size=args.n_components,
+        input_features=input_features,
+        num_classes=len(ID_TO_LABEL),
+    )
+
+    if model_spec.input_kind == "square_matrix":
         logger.info(
-            "Using original CMOSE split: %d train / %d test samples",
-            len(train_records),
-            len(test_records),
-        )
-        X_train_raw, y_train, train_sample_ids = load_dataset_matrices(
-            train_records,
-            target_frames=args.target_frames,
-            progress_desc="Loading train samples",
-        )
-        X_test_raw, y_test, test_sample_ids = load_dataset_matrices(
-            test_records,
-            target_frames=args.target_frames,
-            progress_desc="Loading test samples",
-        )
-        logger.info(
-            "Applying %s reduction to %d components after split",
+            "Applying %s reduction to %d components after split for %s",
             args.method.upper(),
             args.n_components,
+            args.model,
         )
         X_train_processed, train_explained = preprocess_dataset(
             X_train_raw,
@@ -189,82 +172,66 @@ def main(argv: list[str] | None = None) -> None:
             n_components=args.n_components,
             progress_desc=f"{args.method.upper()} test samples",
         )
-        save_json(
-            {
-                "sample_count": len(train_sample_ids) + len(test_sample_ids),
-                "train_sample_count": len(train_sample_ids),
-                "test_sample_count": len(test_sample_ids),
-                "train_mean_explained_variance": float(train_explained.mean()),
-                "train_min_explained_variance": float(train_explained.min()),
-                "train_max_explained_variance": float(train_explained.max()),
-                "test_mean_explained_variance": float(test_explained.mean()),
-                "test_min_explained_variance": float(test_explained.min()),
-                "test_max_explained_variance": float(test_explained.max()),
-            },
-            output_dir / "preprocessing_summary.json",
-        )
-        save_json(
-            {
-                "before_smote": {
-                    "train": {ID_TO_LABEL[i]: int((y_train == i).sum()) for i in sorted(ID_TO_LABEL)},
-                    "test": {ID_TO_LABEL[i]: int((y_test == i).sum()) for i in sorted(ID_TO_LABEL)},
-                },
-                "after_smote": None,
-            },
-            output_dir / "smote_summary.json",
-        )
-        X_train = flatten_matrices(X_train_processed)
-        X_test = flatten_matrices(X_test_processed)
+        X_train_input = add_channel_dim(X_train_processed)
+        X_test_input = add_channel_dim(X_test_processed)
+        preprocessing_summary = {
+            "model": args.model,
+            "sample_count": len(train_sample_ids) + len(test_sample_ids),
+            "train_sample_count": len(train_sample_ids),
+            "test_sample_count": len(test_sample_ids),
+            "reduction_method": args.method,
+            "reduced_feature_count": args.n_components,
+            "train_mean_explained_variance": float(train_explained.mean()),
+            "train_min_explained_variance": float(train_explained.min()),
+            "train_max_explained_variance": float(train_explained.max()),
+            "test_mean_explained_variance": float(test_explained.mean()),
+            "test_min_explained_variance": float(test_explained.min()),
+            "test_max_explained_variance": float(test_explained.max()),
+        }
     else:
-        matrices, labels, sample_ids = load_dataset_matrices(
-            selected_records,
-            target_frames=args.target_frames,
-            progress_desc="Loading selected samples",
+        logger.info("Normalizing raw frame-feature sequences after split for %s", args.model)
+        X_train_processed = normalize_dataset_per_sample(
+            X_train_raw,
+            progress_desc="Normalizing train samples",
         )
-        logger.info("Applying %s reduction to %d components", args.method.upper(), args.n_components)
-        processed, explained = preprocess_dataset(
-            matrices,
-            method=args.method,
-            n_components=args.n_components,
-            progress_desc=f"{args.method.upper()} selected samples",
+        X_test_processed = normalize_dataset_per_sample(
+            X_test_raw,
+            progress_desc="Normalizing test samples",
         )
-        save_json(
-            {
-                "sample_count": len(sample_ids),
-                "mean_explained_variance": float(explained.mean()),
-                "min_explained_variance": float(explained.min()),
-                "max_explained_variance": float(explained.max()),
+        if model_spec.input_kind == "frame_feature_map":
+            X_train_input = add_channel_dim(X_train_processed)
+            X_test_input = add_channel_dim(X_test_processed)
+        else:
+            X_train_input = X_train_processed.astype(np.float32)
+            X_test_input = X_test_processed.astype(np.float32)
+        preprocessing_summary = {
+            "model": args.model,
+            "sample_count": len(train_sample_ids) + len(test_sample_ids),
+            "train_sample_count": len(train_sample_ids),
+            "test_sample_count": len(test_sample_ids),
+            "reduction_method": None,
+            "reduced_feature_count": None,
+            "raw_feature_count": input_features,
+            "target_frames": args.target_frames,
+            "normalization": "per-sample min-max to [0,1]",
+        }
+
+    save_json(preprocessing_summary, output_dir / "preprocessing_summary.json")
+    save_json(
+        {
+            "before_smote": {
+                "train": {ID_TO_LABEL[i]: int((y_train == i).sum()) for i in sorted(ID_TO_LABEL)},
+                "test": {ID_TO_LABEL[i]: int((y_test == i).sum()) for i in sorted(ID_TO_LABEL)},
             },
-            output_dir / "preprocessing_summary.json",
-        )
-
-        X_flat = flatten_matrices(processed)
-        X_balanced, y_balanced = apply_smote(X_flat, labels, random_state=args.seed)
-        save_json(
-            {
-                "before_smote": {ID_TO_LABEL[i]: int((labels == i).sum()) for i in sorted(ID_TO_LABEL)},
-                "after_smote": {
-                    ID_TO_LABEL[i]: int((y_balanced == i).sum()) for i in sorted(ID_TO_LABEL)
-                },
-            },
-            output_dir / "smote_summary.json",
-        )
-
-        X_train, X_test, y_train, y_test = split_after_smote(
-            X_balanced,
-            y_balanced,
-            random_state=args.seed,
-        )
-
-    X_train_cnn = reshape_flattened_samples(X_train, side=args.n_components)
-    X_test_cnn = reshape_flattened_samples(X_test, side=args.n_components)
-
-    model = PaperEngagementCNN(input_size=args.n_components)
+            "after_smote": None,
+        },
+        output_dir / "smote_summary.json",
+    )
     history = train_model(
         model,
-        X_train_cnn,
+        X_train_input,
         y_train,
-        X_test_cnn,
+        X_test_input,
         y_test,
         epochs=args.epochs,
         batch_size=args.batch_size,
@@ -272,13 +239,14 @@ def main(argv: list[str] | None = None) -> None:
         checkpoint_path=output_dir / "best_model.pth",
     )
 
-    y_pred = predict(model, X_test_cnn, batch_size=args.batch_size)
+    y_pred = predict(model, X_test_input, batch_size=args.batch_size)
     metrics = evaluate_predictions(y_test, y_pred)
     save_json(
         {
             "config": {
-                "method": args.method,
-                "strict_paper_protocol": args.strict_paper_protocol,
+                "model": args.model,
+                "method": args.method if args.model == "paper_cnn" else None,
+                "protocol": "strict_cmose_split",
                 "epochs": args.epochs,
                 "batch_size": args.batch_size,
                 "lr": args.lr,
@@ -291,9 +259,10 @@ def main(argv: list[str] | None = None) -> None:
     )
 
     print("\n" + "=" * 60)
-    print("PAPER-STYLE REPRODUCTION RESULTS")
+    print("STRICT CMOSE REPRODUCTION RESULTS")
     print("=" * 60)
-    print(f"  Method        : {args.method.upper()}")
+    print(f"  Model         : {args.model}")
+    print(f"  Method        : {args.method.upper() if args.model == 'paper_cnn' else 'N/A'}")
     print(f"  Accuracy      : {metrics['accuracy']:.4f}")
     print(f"  F1 (macro)    : {metrics['f1_macro']:.4f}")
     print(f"  F1 (weighted) : {metrics['f1_weighted']:.4f}")

@@ -1,4 +1,4 @@
-"""Preprocessing for the paper-faithful PCA/SVD + CNN pipeline."""
+"""Preprocessing utilities for the strict CMOSE comparison pipeline."""
 
 from __future__ import annotations
 
@@ -39,6 +39,24 @@ def minmax_normalize_per_sample(matrix: np.ndarray) -> np.ndarray:
     return normalized.astype(np.float32)
 
 
+def normalize_dataset_per_sample(
+    matrices: np.ndarray,
+    *,
+    progress_desc: str | None = None,
+) -> np.ndarray:
+    """Normalize every sample matrix independently to [0, 1]."""
+    normalized = [
+        minmax_normalize_per_sample(matrix)
+        for matrix in tqdm(
+            matrices,
+            desc=progress_desc or "Normalizing samples",
+            unit="sample",
+            leave=False,
+        )
+    ]
+    return np.stack(normalized, axis=0)
+
+
 def preprocess_dataset(
     matrices: np.ndarray,
     *,
@@ -69,6 +87,11 @@ def flatten_matrices(matrices: np.ndarray) -> np.ndarray:
 def reshape_flattened_samples(flattened: np.ndarray, *, side: int = 300) -> np.ndarray:
     """Restore flattened samples to ``n x 1 x side x side`` for CNN input."""
     return flattened.reshape(flattened.shape[0], 1, side, side).astype(np.float32)
+
+
+def add_channel_dim(matrices: np.ndarray) -> np.ndarray:
+    """Convert ``n x h x w`` inputs into ``n x 1 x h x w`` for 2-D CNNs."""
+    return matrices[:, np.newaxis, :, :].astype(np.float32)
 
 
 def apply_smote(

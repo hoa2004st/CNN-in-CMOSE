@@ -13,11 +13,11 @@ from src.paper_repro_data import (
     resample_frames,
     select_paper_style_subset,
 )
-from src.paper_repro_model import PaperEngagementCNN
+from src.paper_repro_model import build_model
 from src.paper_repro_preprocess import (
-    flatten_matrices,
+    add_channel_dim,
     minmax_normalize_per_sample,
-    reshape_flattened_samples,
+    normalize_dataset_per_sample,
 )
 
 
@@ -87,7 +87,7 @@ def test_select_paper_style_subset_balances_classes(tmp_path: Path) -> None:
     assert counts["Highly Engage"] == 2
 
 
-def test_minmax_flatten_and_reshape_shapes() -> None:
+def test_normalize_dataset_and_add_channel_dim_shapes() -> None:
     rng = np.random.default_rng(0)
     matrix = rng.normal(size=(16, 16)).astype(np.float32)
     processed = minmax_normalize_per_sample(matrix)
@@ -95,17 +95,42 @@ def test_minmax_flatten_and_reshape_shapes() -> None:
     assert np.all((processed >= 0.0) & (processed <= 1.0))
 
     samples = np.stack([processed + idx for idx in range(8)], axis=0)
-    X_flat = flatten_matrices(samples)
-    assert X_flat.shape == (8, 256)
+    normalized = normalize_dataset_per_sample(samples, progress_desc="test")
+    assert normalized.shape == (8, 16, 16)
+    assert np.all((normalized >= 0.0) & (normalized <= 1.0))
 
-    cnn_input = reshape_flattened_samples(X_flat, side=16)
-    assert cnn_input.shape[1:] == (1, 16, 16)
+    cnn_input = add_channel_dim(normalized)
+    assert cnn_input.shape == (8, 1, 16, 16)
 
 
-def test_paper_model_output_shape() -> None:
-    model = PaperEngagementCNN(input_size=32)
-    x = np.random.randn(2, 1, 32, 32).astype(np.float32)
+def test_model_factory_output_shapes() -> None:
     import torch
 
-    out = model(torch.from_numpy(x))
-    assert out.shape == (2, 4)
+    square_model, square_spec = build_model("paper_cnn", input_size=32)
+    square_out = square_model(torch.from_numpy(np.random.randn(2, 1, 32, 32).astype(np.float32)))
+    assert square_spec.input_kind == "square_matrix"
+    assert square_out.shape == (2, 4)
+
+    temporal_model, temporal_spec = build_model("temporal_cnn", input_features=32)
+    temporal_out = temporal_model(torch.from_numpy(np.random.randn(2, 20, 32).astype(np.float32)))
+    assert temporal_spec.input_kind == "sequence"
+    assert temporal_out.shape == (2, 4)
+
+    rectangular_model, rectangular_spec = build_model("rectangular_cnn")
+    rectangular_out = rectangular_model(
+        torch.from_numpy(np.random.randn(2, 1, 20, 32).astype(np.float32))
+    )
+    assert rectangular_spec.input_kind == "frame_feature_map"
+    assert rectangular_out.shape == (2, 4)
+
+    lstm_model, lstm_spec = build_model("lstm", input_features=32)
+    lstm_out = lstm_model(torch.from_numpy(np.random.randn(2, 20, 32).astype(np.float32)))
+    assert lstm_spec.input_kind == "sequence"
+    assert lstm_out.shape == (2, 4)
+
+    transformer_model, transformer_spec = build_model("transformer", input_features=32)
+    transformer_out = transformer_model(
+        torch.from_numpy(np.random.randn(2, 20, 32).astype(np.float32))
+    )
+    assert transformer_spec.input_kind == "sequence"
+    assert transformer_out.shape == (2, 4)

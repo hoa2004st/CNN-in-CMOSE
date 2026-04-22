@@ -1,6 +1,6 @@
 # Ubuntu/Linux server setup
 apt update
-apt install -y python3 python3-venv python3-pip unzip
+apt install -y python3 python3-venv python3-pip git unzip
 
 # Clone repo
 git clone https://github.com/hoa2004st/CNN-in-CMOSE
@@ -19,11 +19,22 @@ hf download cwuau/CMOSE --repo-type dataset --local-dir ./data/CMOSE
 unzip -o data/CMOSE/secondFeature.zip -d data/CMOSE/secondFeature
 rm -f data/CMOSE/secondFeature.zip
 
-# Run current default pipeline
-python main.py --method svd --output_dir outputs/svd_default
+# Quick smoke test on one raw-sequence model
+python main.py --model temporal_cnn --epochs 2 --batch_size 4 --output_dir outputs/smoke_temporal_cnn
 
-# Run strict CMOSE split mode
-python main.py --strict_paper_protocol --method svd --output_dir outputs/svd_strict_cmose
+# Baseline runs under the strict no-leakage protocol
+python main.py --model paper_cnn --method svd --output_dir outputs/paper_cnn_svd
+python main.py --model paper_cnn --method pca --output_dir outputs/paper_cnn_pca
 
-# Optional PCA run
-python main.py --strict_paper_protocol --method pca --output_dir outputs/pca_strict_cmose
+# Single comparison-model runs
+python main.py --model temporal_cnn --output_dir outputs/temporal_cnn
+python main.py --model rectangular_cnn --output_dir outputs/rectangular_cnn
+python main.py --model lstm --output_dir outputs/lstm
+python main.py --model transformer --output_dir outputs/transformer
+
+# Run all 4 comparison models sequentially with separate logs
+chmod +x scripts/run_comparison_models.sh
+bash scripts/run_comparison_models.sh
+
+# Optional custom output root for the batch launcher
+bash scripts/run_comparison_models.sh outputs/comparison_runs/server_a_run_01
