@@ -46,6 +46,14 @@ def _log_step(message: str) -> None:
     logger.info("%s", message)
 
 
+def resolve_device(device_name: str) -> torch.device:
+    if device_name == "auto":
+        return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    if device_name == "cuda" and not torch.cuda.is_available():
+        raise RuntimeError("CUDA was requested but torch.cuda.is_available() is False.")
+    return torch.device(device_name)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Run the strict CMOSE comparison pipeline on baseline and raw-sequence models.",
@@ -93,6 +101,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--epochs", type=int, default=1600)
     parser.add_argument("--batch_size", type=int, default=8)
     parser.add_argument("--lr", type=float, default=1e-4)
+    parser.add_argument("--device", choices=["auto", "cpu", "cuda"], default="auto")
+    parser.add_argument("--num_workers", type=int, default=4)
+    parser.add_argument("--amp", action="store_true", help="Use automatic mixed precision on CUDA.")
     parser.add_argument("--output_dir", default="outputs")
     parser.add_argument("--seed", type=int, default=42)
     return parser
@@ -103,6 +114,20 @@ def main(argv: list[str] | None = None) -> None:
 
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
+    if torch.cuda.is_available():
+        torch.backends.cudnn.benchmark = True
+        torch.set_float32_matmul_precision("high")
+
+    device = resolve_device(args.device)
+    logger.info(
+        "Runtime device: requested=%s resolved=%s cuda_available=%s cuda_device_count=%d",
+        args.device,
+        device.type,
+        torch.cuda.is_available(),
+        torch.cuda.device_count(),
+    )
+    if device.type == "cuda":
+        logger.info("Using CUDA device: %s", torch.cuda.get_device_name(device))
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -267,6 +292,9 @@ def main(argv: list[str] | None = None) -> None:
         batch_size=args.batch_size,
         lr=args.lr,
         checkpoint_path=output_dir / "best_model.pth",
+        device=device,
+        num_workers=args.num_workers,
+        use_amp=args.amp,
         progress_callback=_log_step,
     )
     logger.info(
@@ -281,6 +309,9 @@ def main(argv: list[str] | None = None) -> None:
         model,
         X_test_input,
         batch_size=args.batch_size,
+        device=device,
+        num_workers=args.num_workers,
+        use_amp=args.amp,
         progress_callback=_log_step,
     )
     logger.info("Prediction finished; computing metrics")
@@ -294,6 +325,9 @@ def main(argv: list[str] | None = None) -> None:
                 "epochs": args.epochs,
                 "batch_size": args.batch_size,
                 "lr": args.lr,
+                "device": device.type,
+                "num_workers": args.num_workers,
+                "amp": args.amp,
                 "seed": args.seed,
             },
             "history": history,

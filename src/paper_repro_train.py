@@ -7,30 +7,13 @@ import math
 import time
 from collections.abc import Callable
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import torch
 import torch.nn as nn
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, f1_score
-from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader, TensorDataset
-
-
-def split_after_smote(
-    X: np.ndarray,
-    y: np.ndarray,
-    *,
-    test_size: float = 0.2,
-    random_state: int = 42,
-) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """Perform the paper's final 80/20 split after balancing."""
-    return train_test_split(
-        X,
-        y,
-        test_size=test_size,
-        random_state=random_state,
-        stratify=y,
-    )
 
 
 def make_dataloader(
@@ -39,12 +22,22 @@ def make_dataloader(
     *,
     batch_size: int,
     shuffle: bool,
+    num_workers: int = 0,
+    pin_memory: bool = False,
 ) -> DataLoader:
     dataset = TensorDataset(
         torch.from_numpy(X).float(),
         torch.from_numpy(y).long(),
     )
-    return DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
+    loader_kwargs: dict[str, Any] = {
+        "batch_size": batch_size,
+        "shuffle": shuffle,
+        "num_workers": max(0, int(num_workers)),
+        "pin_memory": pin_memory,
+    }
+    if loader_kwargs["num_workers"] > 0:
+        loader_kwargs["persistent_workers"] = True
+    return DataLoader(dataset, **loader_kwargs)
 
 
 def train_model(
@@ -61,6 +54,8 @@ def train_model(
     device: torch.device | None = None,
     min_delta: float = 0.0,
     epoch_log_interval: int = 1,
+    num_workers: int = 0,
+    use_amp: bool = False,
     progress_callback: Callable[[str], None] | None = None,
 ) -> dict:
     """Train using Adam, checkpointing, and early stopping.
@@ -71,12 +66,29 @@ def train_model(
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     epoch_log_interval = max(1, int(epoch_log_interval))
+    use_amp = bool(use_amp and device.type == "cuda")
+    pin_memory = device.type == "cuda"
     model.to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    scaler = torch.amp.GradScaler("cuda", enabled=use_amp)
 
-    train_loader = make_dataloader(X_train, y_train, batch_size=batch_size, shuffle=True)
-    eval_loader = make_dataloader(X_eval, y_eval, batch_size=batch_size, shuffle=False)
+    train_loader = make_dataloader(
+        X_train,
+        y_train,
+        batch_size=batch_size,
+        shuffle=True,
+        num_workers=num_workers,
+        pin_memory=pin_memory,
+    )
+    eval_loader = make_dataloader(
+        X_eval,
+        y_eval,
+        batch_size=batch_size,
+        shuffle=False,
+        num_workers=num_workers,
+        pin_memory=pin_memory,
+    )
 
     checkpoint_path = Path(checkpoint_path)
     checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
@@ -98,7 +110,8 @@ def train_model(
         progress_callback(
             "Training setup complete: "
             f"device={device.type}, train_samples={len(X_train)}, eval_samples={len(X_eval)}, "
-            f"epochs={epochs}, batch_size={batch_size}, lr={lr}, patience={patience}"
+            f"epochs={epochs}, batch_size={batch_size}, lr={lr}, patience={patience}, "
+            f"num_workers={num_workers}, amp={use_amp}"
         )
 
     for epoch in range(1, epochs + 1):
@@ -107,19 +120,28 @@ def train_model(
         train_loss = 0.0
         train_total = 0
         for X_batch, y_batch in train_loader:
-            X_batch = X_batch.to(device)
-            y_batch = y_batch.to(device)
+            X_batch = X_batch.to(device, non_blocking=pin_memory)
+            y_batch = y_batch.to(device, non_blocking=pin_memory)
 
             optimizer.zero_grad()
-            logits = model(X_batch)
-            loss = criterion(logits, y_batch)
-            loss.backward()
-            optimizer.step()
+            with torch.amp.autocast("cuda", enabled=use_amp):
+                logits = model(X_batch)
+                loss = criterion(logits, y_batch)
+            scaler.scale(loss).backward()
+            scaler.step(optimizer)
+            scaler.update()
 
             train_loss += loss.item() * len(y_batch)
             train_total += len(y_batch)
 
-        eval_loss, eval_acc = _evaluate_loss_accuracy(model, eval_loader, criterion, device)
+        eval_loss, eval_acc = _evaluate_loss_accuracy(
+            model,
+            eval_loader,
+            criterion,
+            device,
+            use_amp=use_amp,
+            pin_memory=pin_memory,
+        )
         train_loss /= max(train_total, 1)
 
         history["train_losses"].append(train_loss)
@@ -174,10 +196,14 @@ def predict(
     *,
     batch_size: int = 8,
     device: torch.device | None = None,
+    num_workers: int = 0,
+    use_amp: bool = False,
     progress_callback: Callable[[str], None] | None = None,
 ) -> np.ndarray:
     if device is None:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    use_amp = bool(use_amp and device.type == "cuda")
+    pin_memory = device.type == "cuda"
     model.to(device)
     model.eval()
 
@@ -186,16 +212,22 @@ def predict(
         np.zeros(len(X), dtype=np.int64),
         batch_size=batch_size,
         shuffle=False,
+        num_workers=num_workers,
+        pin_memory=pin_memory,
     )
     outputs: list[np.ndarray] = []
     if progress_callback is not None:
         progress_callback(
-            f"Starting prediction: samples={len(X)}, batch_size={batch_size}, device={device.type}"
+            "Starting prediction: "
+            f"samples={len(X)}, batch_size={batch_size}, device={device.type}, "
+            f"num_workers={num_workers}, amp={use_amp}"
         )
     with torch.no_grad():
         total_batches = len(loader)
         for batch_idx, (X_batch, _) in enumerate(loader, start=1):
-            logits = model(X_batch.to(device))
+            X_batch = X_batch.to(device, non_blocking=pin_memory)
+            with torch.amp.autocast("cuda", enabled=use_amp):
+                logits = model(X_batch)
             outputs.append(logits.argmax(dim=1).cpu().numpy())
             if progress_callback is not None and (
                 batch_idx == 1 or batch_idx == total_batches or batch_idx % 10 == 0
@@ -225,6 +257,9 @@ def _evaluate_loss_accuracy(
     loader: DataLoader,
     criterion: nn.Module,
     device: torch.device,
+    *,
+    use_amp: bool = False,
+    pin_memory: bool = False,
 ) -> tuple[float, float]:
     model.eval()
     total_loss = 0.0
@@ -232,10 +267,11 @@ def _evaluate_loss_accuracy(
     total_samples = 0
     with torch.no_grad():
         for X_batch, y_batch in loader:
-            X_batch = X_batch.to(device)
-            y_batch = y_batch.to(device)
-            logits = model(X_batch)
-            loss = criterion(logits, y_batch)
+            X_batch = X_batch.to(device, non_blocking=pin_memory)
+            y_batch = y_batch.to(device, non_blocking=pin_memory)
+            with torch.amp.autocast("cuda", enabled=use_amp):
+                logits = model(X_batch)
+                loss = criterion(logits, y_batch)
             total_loss += loss.item() * len(y_batch)
             total_correct += (logits.argmax(dim=1) == y_batch).sum().item()
             total_samples += len(y_batch)
