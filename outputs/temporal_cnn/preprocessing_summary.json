@@ -7,5 +7,5 @@
   "reduced_feature_count": null,
   "raw_feature_count": 709,
   "target_frames": 300,
-  "normalization": "per-sample min-max to [0,1]"
+  "normalization": "per-feature z-score using train-set statistics"
 }
