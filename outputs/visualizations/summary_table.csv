@@ -1,0 +1,4 @@
+run_name,model_label,model,method,best_epoch,accuracy,f1_macro,f1_weighted,epochs_requested,batch_size,lr,device,amp
+temporal_cnn,temporal_cnn,temporal_cnn,,425,0.7133497133497133,0.39025301536682533,0.6513174658232715,1600,256,0.0001,cuda,True
+lstm,lstm,lstm,,458,0.7117117117117117,0.3603938225257858,0.636696950582433,1600,256,0.0001,cuda,True
+transformer,transformer,transformer,,164,0.7035217035217035,0.3194471775817028,0.6148144774331966,1600,256,0.0001,cuda,True
