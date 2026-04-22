@@ -47,6 +47,30 @@ def _log_step(message: str) -> None:
     logger.info("%s", message)
 
 
+def _format_loss_suffix(loss_name: str, focal_gamma: float) -> str:
+    if loss_name == "cross_entropy":
+        return "cross_entropy"
+    if loss_name == "weighted_cross_entropy":
+        return "weighted_cross_entropy"
+    if loss_name == "focal":
+        gamma_str = str(focal_gamma).replace(".", "p")
+        return f"focal_g{gamma_str}"
+    raise ValueError(f"Unknown loss name: {loss_name}")
+
+
+def resolve_output_dir(
+    output_dir_arg: str | None,
+    *,
+    model_name: str,
+    loss_name: str,
+    focal_gamma: float,
+) -> Path:
+    if output_dir_arg:
+        return Path(output_dir_arg)
+    loss_suffix = _format_loss_suffix(loss_name, focal_gamma)
+    return Path("outputs") / f"{model_name}_{loss_suffix}"
+
+
 def resolve_device(device_name: str) -> torch.device:
     if device_name == "auto":
         return torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -103,10 +127,16 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--batch_size", type=int, default=128)
     parser.add_argument("--lr", type=float, default=1e-4)
     parser.add_argument("--patience", type=int, default=50)
+    parser.add_argument(
+        "--loss",
+        choices=["cross_entropy", "weighted_cross_entropy", "focal"],
+        default="cross_entropy",
+    )
+    parser.add_argument("--focal_gamma", type=float, default=2.0)
     parser.add_argument("--device", choices=["auto", "cpu", "cuda"], default="auto")
     parser.add_argument("--num_workers", type=int, default=4)
     parser.add_argument("--amp", action="store_true", help="Use automatic mixed precision on CUDA.")
-    parser.add_argument("--output_dir", default="outputs")
+    parser.add_argument("--output_dir")
     parser.add_argument("--seed", type=int, default=42)
     return parser
 
@@ -131,7 +161,12 @@ def main(argv: list[str] | None = None) -> None:
     if device.type == "cuda":
         logger.info("Using CUDA device: %s", torch.cuda.get_device_name(device))
 
-    output_dir = Path(args.output_dir)
+    output_dir = resolve_output_dir(
+        args.output_dir,
+        model_name=args.model,
+        loss_name=args.loss,
+        focal_gamma=args.focal_gamma,
+    )
     output_dir.mkdir(parents=True, exist_ok=True)
 
     logger.info("Loading metadata from %s", args.labels_json)
@@ -156,11 +191,16 @@ def main(argv: list[str] | None = None) -> None:
                 if args.model == "paper_cnn"
                 else None
             ),
-            "normalization": "per-sample min-max to [0,1] after split",
+            "normalization": (
+                "per-sample z-score after per-sample PCA/SVD"
+                if args.model == "paper_cnn"
+                else "per-feature z-score using train-set statistics"
+            ),
             "smote_position": None,
             "dataset_scope": "original labeled CMOSE train/test samples",
             "train_eval_split_usage": "original CMOSE train/test split",
             "model": args.model,
+            "loss": args.loss,
         },
     }
     save_json(selection_summary, output_dir / "selection_summary.json")
@@ -302,6 +342,8 @@ def main(argv: list[str] | None = None) -> None:
         batch_size=args.batch_size,
         lr=args.lr,
         patience=args.patience,
+        loss_name=args.loss,
+        focal_gamma=args.focal_gamma,
         checkpoint_path=output_dir / "best_model.pth",
         device=device,
         num_workers=args.num_workers,
@@ -337,6 +379,8 @@ def main(argv: list[str] | None = None) -> None:
                 "batch_size": args.batch_size,
                 "lr": args.lr,
                 "patience": args.patience,
+                "loss": args.loss,
+                "focal_gamma": args.focal_gamma if args.loss == "focal" else None,
                 "device": device.type,
                 "num_workers": args.num_workers,
                 "amp": args.amp,
