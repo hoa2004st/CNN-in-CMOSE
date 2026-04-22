@@ -1,9 +1,9 @@
 # Ubuntu/Linux server setup
-sudo apt update
-sudo apt install -y python3 python3-venv python3-pip unzip
+apt update
+apt install -y python3 python3-venv python3-pip unzip
 
 # Clone repo
-git clone <your-repo-url> CNN-in-CMOSE
+git clone https://github.com/hoa2004st/CNN-in-CMOSE
 cd CNN-in-CMOSE
 
 # Python environment
