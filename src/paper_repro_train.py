@@ -12,8 +12,90 @@ from typing import Any
 import numpy as np
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, f1_score
 from torch.utils.data import DataLoader, TensorDataset
+
+
+class FocalLoss(nn.Module):
+    """Multi-class focal loss with optional class weights."""
+
+    def __init__(
+        self,
+        *,
+        gamma: float = 2.0,
+        weight: torch.Tensor | None = None,
+    ) -> None:
+        super().__init__()
+        self.gamma = float(gamma)
+        if weight is None:
+            self.register_buffer("weight", None, persistent=False)
+        else:
+            self.register_buffer("weight", weight.float(), persistent=False)
+
+    def forward(self, logits: torch.Tensor, targets: torch.Tensor) -> torch.Tensor:
+        ce = F.cross_entropy(logits, targets, weight=self.weight, reduction="none")
+        pt = torch.exp(-ce)
+        focal = ((1.0 - pt) ** self.gamma) * ce
+        return focal.mean()
+
+
+class OrdinalEMDLoss(nn.Module):
+    """Ordinal loss via squared CDF distance between predicted and target classes."""
+
+    def __init__(self, *, weight: torch.Tensor | None = None) -> None:
+        super().__init__()
+        if weight is None:
+            self.register_buffer("weight", None, persistent=False)
+        else:
+            self.register_buffer("weight", weight.float(), persistent=False)
+
+    def forward(self, logits: torch.Tensor, targets: torch.Tensor) -> torch.Tensor:
+        probs = torch.softmax(logits, dim=1)
+        pred_cdf = torch.cumsum(probs, dim=1)
+        target_one_hot = F.one_hot(targets, num_classes=logits.shape[1]).float()
+        target_cdf = torch.cumsum(target_one_hot, dim=1)
+        loss_per_sample = torch.mean((pred_cdf - target_cdf) ** 2, dim=1)
+        if self.weight is not None:
+            loss_per_sample = loss_per_sample * self.weight[targets]
+        return loss_per_sample.mean()
+
+
+def compute_class_weights(y: np.ndarray) -> np.ndarray:
+    """Compute inverse-frequency class weights normalized to mean 1."""
+    class_counts = np.bincount(y.astype(np.int64))
+    if class_counts.size == 0:
+        raise ValueError("Cannot compute class weights for an empty target array")
+
+    weights = np.zeros_like(class_counts, dtype=np.float32)
+    nonzero = class_counts > 0
+    weights[nonzero] = 1.0 / class_counts[nonzero].astype(np.float32)
+    if np.any(nonzero):
+        weights[nonzero] *= float(nonzero.sum()) / float(weights[nonzero].sum())
+    return weights
+
+
+def build_loss(
+    y_train: np.ndarray,
+    *,
+    loss_name: str,
+    focal_gamma: float = 2.0,
+    device: torch.device,
+) -> tuple[nn.Module, list[float] | None]:
+    """Create the requested classification loss and optional class-weight summary."""
+    if loss_name == "cross_entropy":
+        return nn.CrossEntropyLoss(), None
+
+    class_weights = compute_class_weights(y_train)
+    weight_tensor = torch.tensor(class_weights, dtype=torch.float32, device=device)
+
+    if loss_name == "weighted_cross_entropy":
+        return nn.CrossEntropyLoss(weight=weight_tensor), class_weights.tolist()
+    if loss_name == "focal":
+        return FocalLoss(gamma=focal_gamma, weight=weight_tensor), class_weights.tolist()
+    if loss_name == "ordinal":
+        return OrdinalEMDLoss(weight=weight_tensor), class_weights.tolist()
+    raise ValueError(f"Unknown loss_name: {loss_name}")
 
 
 def make_dataloader(
@@ -51,6 +133,8 @@ def train_model(
     batch_size: int,
     lr: float,
     patience: int,
+    loss_name: str,
+    focal_gamma: float,
     checkpoint_path: str | Path,
     device: torch.device | None = None,
     min_delta: float = 0.0,
@@ -67,7 +151,12 @@ def train_model(
     use_amp = bool(use_amp and device.type == "cuda")
     pin_memory = device.type == "cuda"
     model.to(device)
-    criterion = nn.CrossEntropyLoss()
+    criterion, class_weights = build_loss(
+        y_train,
+        loss_name=loss_name,
+        focal_gamma=focal_gamma,
+        device=device,
+    )
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     scaler = torch.amp.GradScaler("cuda", enabled=use_amp)
 
@@ -102,6 +191,9 @@ def train_model(
         "best_epoch": 0,
         "patience": patience,
         "stopped_early": False,
+        "loss_name": loss_name,
+        "focal_gamma": focal_gamma if loss_name == "focal" else None,
+        "class_weights": class_weights,
     }
 
     if progress_callback is not None:
@@ -109,7 +201,7 @@ def train_model(
             "Training setup complete: "
             f"device={device.type}, train_samples={len(X_train)}, eval_samples={len(X_eval)}, "
             f"epochs={epochs}, batch_size={batch_size}, lr={lr}, patience={patience}, "
-            f"num_workers={num_workers}, amp={use_amp}"
+            f"loss={loss_name}, focal_gamma={focal_gamma}, num_workers={num_workers}, amp={use_amp}"
         )
 
     for epoch in range(1, epochs + 1):

@@ -8,6 +8,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from main import resolve_output_dir
 from src.paper_repro_data import (
     load_cmose_metadata,
     resample_frames,
@@ -19,6 +20,7 @@ from src.paper_repro_preprocess import (
     fit_feature_normalizer,
     normalize_dataset_per_feature,
 )
+from src.paper_repro_train import build_loss, compute_class_weights
 
 
 def _make_openface_csv(path: Path, *, rows: int = 20) -> None:
@@ -144,3 +146,69 @@ def test_model_factory_output_shapes() -> None:
     )
     assert transformer_spec.input_kind == "sequence"
     assert transformer_out.shape == (2, 4)
+
+
+def test_loss_factory_builds_weighted_focal_and_ordinal_losses() -> None:
+    import torch
+
+    y_train = np.array([0, 0, 1, 2, 2, 2, 3], dtype=np.int64)
+    weights = compute_class_weights(y_train)
+
+    assert weights.shape == (4,)
+    assert np.isclose(weights.mean(), 1.0)
+    assert weights[1] > weights[2]
+
+    weighted_ce, ce_weights = build_loss(
+        y_train,
+        loss_name="weighted_cross_entropy",
+        focal_gamma=2.0,
+        device=torch.device("cpu"),
+    )
+    assert isinstance(weighted_ce, torch.nn.CrossEntropyLoss)
+    assert ce_weights is not None
+    np.testing.assert_allclose(np.array(ce_weights), weights)
+
+    focal_loss, focal_weights = build_loss(
+        y_train,
+        loss_name="focal",
+        focal_gamma=2.0,
+        device=torch.device("cpu"),
+    )
+    assert focal_loss.__class__.__name__ == "FocalLoss"
+    assert focal_weights is not None
+
+    ordinal_loss, ordinal_weights = build_loss(
+        y_train,
+        loss_name="ordinal",
+        focal_gamma=2.0,
+        device=torch.device("cpu"),
+    )
+    assert ordinal_loss.__class__.__name__ == "OrdinalEMDLoss"
+    assert ordinal_weights is not None
+
+
+def test_resolve_output_dir_uses_loss_specific_default_paths() -> None:
+    assert resolve_output_dir(
+        None,
+        model_name="temporal_cnn",
+        loss_name="cross_entropy",
+        focal_gamma=2.0,
+    ) == Path("outputs/temporal_cnn_cross_entropy")
+    assert resolve_output_dir(
+        None,
+        model_name="temporal_cnn",
+        loss_name="weighted_cross_entropy",
+        focal_gamma=2.0,
+    ) == Path("outputs/temporal_cnn_weighted_cross_entropy")
+    assert resolve_output_dir(
+        None,
+        model_name="transformer",
+        loss_name="focal",
+        focal_gamma=1.5,
+    ) == Path("outputs/transformer_focal_g1p5")
+    assert resolve_output_dir(
+        None,
+        model_name="lstm",
+        loss_name="ordinal",
+        focal_gamma=2.0,
+    ) == Path("outputs/lstm_ordinal")
