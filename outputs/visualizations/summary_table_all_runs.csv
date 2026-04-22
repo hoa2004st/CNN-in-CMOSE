@@ -1,0 +1,6 @@
+run_name,model_label,base_model,variant_label,model,method,loss,focal_gamma,best_epoch,accuracy,f1_macro,f1_weighted,epochs_requested,batch_size,lr,device,amp
+temporal_cnn,temporal_cnn,temporal_cnn,baseline,temporal_cnn,,cross_entropy,,38,0.7682227682227682,0.5646932147765625,0.74486261459676,800,128,0.0001,cuda,True
+temporal_cnn_weighted_ce,temporal_cnn,temporal_cnn,weighted_cross_entropy,temporal_cnn,,weighted_cross_entropy,,60,0.6707616707616708,0.5591932855723241,0.6908645359452483,800,128,0.0001,cuda,True
+transformer,transformer,transformer,baseline,transformer,,cross_entropy,,30,0.7444717444717445,0.5441372285668498,0.7224292848629683,800,128,0.0001,cuda,True
+lstm,lstm,lstm,baseline,lstm,,cross_entropy,,11,0.6994266994266994,0.4356646942485436,0.6693494679508781,800,128,0.0001,cuda,True
+temporal_cnn_focal,temporal_cnn,temporal_cnn,focal(g=2.0),temporal_cnn,,focal,2.0,26,0.16871416871416872,0.1880579441209155,0.08474419282933454,800,128,0.0001,cuda,True
