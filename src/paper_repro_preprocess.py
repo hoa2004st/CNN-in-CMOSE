@@ -30,26 +30,38 @@ def reduce_sample_matrix(
     return reduced.astype(np.float32), explained
 
 
-def minmax_normalize_per_sample(matrix: np.ndarray) -> np.ndarray:
-    """Normalize one matrix to the paper's [0, 1] range."""
-    min_value = float(matrix.min())
-    max_value = float(matrix.max())
-    if max_value <= min_value:
-        return np.zeros_like(matrix, dtype=np.float32)
-    normalized = (matrix - min_value) / (max_value - min_value)
-    return normalized.astype(np.float32)
+def fit_feature_normalizer(
+    matrices: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Fit per-feature train-set mean/std statistics on ``n x frames x features`` arrays."""
+    if matrices.ndim != 3:
+        raise ValueError(f"Expected a 3-D array, got shape {matrices.shape}")
+
+    mean = matrices.mean(axis=(0, 1), dtype=np.float64).astype(np.float32)
+    std = matrices.std(axis=(0, 1), dtype=np.float64).astype(np.float32)
+    std[std <= 0.0] = 1.0
+    return mean, std
 
 
-def normalize_dataset_per_sample(
+def normalize_dataset_per_feature(
     matrices: np.ndarray,
     *,
+    mean: np.ndarray,
+    std: np.ndarray,
     progress_desc: str | None = None,
     chunk_size: int = 64,
     progress_callback: Callable[[int, int], None] | None = None,
 ) -> np.ndarray:
-    """Normalize every sample matrix independently to [0, 1]."""
+    """Normalize every sample using train-fit per-feature mean/std statistics."""
     if matrices.ndim != 3:
         raise ValueError(f"Expected a 3-D array, got shape {matrices.shape}")
+    if mean.ndim != 1 or std.ndim != 1:
+        raise ValueError("Expected 1-D mean/std arrays for per-feature normalization")
+    if matrices.shape[2] != mean.shape[0] or mean.shape != std.shape:
+        raise ValueError(
+            "Feature statistics shape mismatch: "
+            f"matrices={matrices.shape}, mean={mean.shape}, std={std.shape}"
+        )
 
     total_samples = matrices.shape[0]
     if total_samples == 0:
@@ -58,6 +70,8 @@ def normalize_dataset_per_sample(
     normalized = np.empty_like(matrices, dtype=np.float32)
     chunk_size = max(1, int(chunk_size))
     desc = progress_desc or "Normalizing samples"
+    mean_reshaped = mean.reshape(1, 1, -1)
+    std_reshaped = std.reshape(1, 1, -1)
 
     for start_idx in tqdm(
         range(0, total_samples, chunk_size),
@@ -67,21 +81,10 @@ def normalize_dataset_per_sample(
     ):
         end_idx = min(start_idx + chunk_size, total_samples)
         chunk = matrices[start_idx:end_idx].astype(np.float32, copy=False)
-        min_values = chunk.min(axis=(1, 2), keepdims=True)
-        max_values = chunk.max(axis=(1, 2), keepdims=True)
-        ranges = max_values - min_values
 
         chunk_out = normalized[start_idx:end_idx]
-        np.subtract(chunk, min_values, out=chunk_out)
-
-        zero_mask = ranges <= 0.0
-        safe_ranges = ranges.copy()
-        safe_ranges[zero_mask] = 1.0
-        np.divide(chunk_out, safe_ranges, out=chunk_out)
-
-        if np.any(zero_mask):
-            zero_mask_2d = zero_mask.reshape(-1)
-            chunk_out[zero_mask_2d] = 0.0
+        np.subtract(chunk, mean_reshaped, out=chunk_out)
+        np.divide(chunk_out, std_reshaped, out=chunk_out)
 
         if progress_callback is not None:
             progress_callback(end_idx, total_samples)
@@ -106,7 +109,12 @@ def preprocess_dataset(
         leave=False,
     ):
         reduced, evr = reduce_sample_matrix(matrix, method=method, n_components=n_components)
-        processed.append(minmax_normalize_per_sample(reduced))
+        reduced_mean = float(reduced.mean())
+        reduced_std = float(reduced.std())
+        if reduced_std <= 0.0:
+            processed.append(np.zeros_like(reduced, dtype=np.float32))
+        else:
+            processed.append(((reduced - reduced_mean) / reduced_std).astype(np.float32))
         explained.append(evr)
     return np.stack(processed, axis=0), np.array(explained, dtype=np.float32)
 

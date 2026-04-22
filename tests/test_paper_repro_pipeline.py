@@ -16,8 +16,8 @@ from src.paper_repro_data import (
 from src.paper_repro_model import build_model
 from src.paper_repro_preprocess import (
     add_channel_dim,
-    minmax_normalize_per_sample,
-    normalize_dataset_per_sample,
+    fit_feature_normalizer,
+    normalize_dataset_per_feature,
 )
 
 
@@ -89,15 +89,25 @@ def test_select_paper_style_subset_balances_classes(tmp_path: Path) -> None:
 
 def test_normalize_dataset_and_add_channel_dim_shapes() -> None:
     rng = np.random.default_rng(0)
-    matrix = rng.normal(size=(16, 16)).astype(np.float32)
-    processed = minmax_normalize_per_sample(matrix)
-    assert processed.shape == (16, 16)
-    assert np.all((processed >= 0.0) & (processed <= 1.0))
+    train_samples = rng.normal(size=(8, 16, 16)).astype(np.float32)
+    mean, std = fit_feature_normalizer(train_samples)
 
-    samples = np.stack([processed + idx for idx in range(8)], axis=0)
-    normalized = normalize_dataset_per_sample(samples, progress_desc="test")
+    assert mean.shape == (16,)
+    assert std.shape == (16,)
+    assert np.all(std > 0.0)
+
+    normalized = normalize_dataset_per_feature(
+        train_samples,
+        mean=mean,
+        std=std,
+        progress_desc="test",
+    )
     assert normalized.shape == (8, 16, 16)
-    assert np.all((normalized >= 0.0) & (normalized <= 1.0))
+    np.testing.assert_allclose(
+        normalized.mean(axis=(0, 1)),
+        np.zeros(16, dtype=np.float32),
+        atol=1e-5,
+    )
 
     cnn_input = add_channel_dim(normalized)
     assert cnn_input.shape == (8, 1, 16, 16)

@@ -50,6 +50,7 @@ def train_model(
     epochs: int,
     batch_size: int,
     lr: float,
+    patience: int,
     checkpoint_path: str | Path,
     device: torch.device | None = None,
     min_delta: float = 0.0,
@@ -58,10 +59,7 @@ def train_model(
     use_amp: bool = False,
     progress_callback: Callable[[str], None] | None = None,
 ) -> dict:
-    """Train using Adam, checkpointing, and early stopping.
-
-    The paper states patience equals half the number of epochs.
-    """
+    """Train using Adam, checkpointing, and configurable early stopping."""
     if device is None:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -94,7 +92,7 @@ def train_model(
     checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
 
     best_loss = math.inf
-    patience = max(1, epochs // 2)
+    patience = max(1, int(patience))
     stale_epochs = 0
 
     history = {

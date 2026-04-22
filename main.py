@@ -19,7 +19,8 @@ from src.paper_repro_data import (
 from src.paper_repro_model import build_model
 from src.paper_repro_preprocess import (
     add_channel_dim,
-    normalize_dataset_per_sample,
+    fit_feature_normalizer,
+    normalize_dataset_per_feature,
     preprocess_dataset,
 )
 from src.paper_repro_train import (
@@ -98,9 +99,10 @@ def build_parser() -> argparse.ArgumentParser:
         default=300,
         help="Fixed frame count per sample before reduction.",
     )
-    parser.add_argument("--epochs", type=int, default=1600)
-    parser.add_argument("--batch_size", type=int, default=8)
+    parser.add_argument("--epochs", type=int, default=800)
+    parser.add_argument("--batch_size", type=int, default=128)
     parser.add_argument("--lr", type=float, default=1e-4)
+    parser.add_argument("--patience", type=int, default=50)
     parser.add_argument("--device", choices=["auto", "cpu", "cuda"], default="auto")
     parser.add_argument("--num_workers", type=int, default=4)
     parser.add_argument("--amp", action="store_true", help="Use automatic mixed precision on CUDA.")
@@ -230,17 +232,25 @@ def main(argv: list[str] | None = None) -> None:
             "test_max_explained_variance": float(test_explained.max()),
         }
     else:
-        logger.info("Normalizing raw frame-feature sequences after split for %s", args.model)
-        X_train_processed = normalize_dataset_per_sample(
+        logger.info(
+            "Normalizing raw frame-feature sequences with train-fit per-feature z-score for %s",
+            args.model,
+        )
+        feature_mean, feature_std = fit_feature_normalizer(X_train_raw)
+        X_train_processed = normalize_dataset_per_feature(
             X_train_raw,
+            mean=feature_mean,
+            std=feature_std,
             progress_desc="Normalizing train samples",
             chunk_size=32,
             progress_callback=_log_chunk_progress,
         )
         del X_train_raw
         gc.collect()
-        X_test_processed = normalize_dataset_per_sample(
+        X_test_processed = normalize_dataset_per_feature(
             X_test_raw,
+            mean=feature_mean,
+            std=feature_std,
             progress_desc="Normalizing test samples",
             chunk_size=32,
             progress_callback=_log_chunk_progress,
@@ -265,7 +275,7 @@ def main(argv: list[str] | None = None) -> None:
             "reduced_feature_count": None,
             "raw_feature_count": input_features,
             "target_frames": args.target_frames,
-            "normalization": "per-sample min-max to [0,1]",
+            "normalization": "per-feature z-score using train-set statistics",
         }
 
     save_json(preprocessing_summary, output_dir / "preprocessing_summary.json")
@@ -291,6 +301,7 @@ def main(argv: list[str] | None = None) -> None:
         epochs=args.epochs,
         batch_size=args.batch_size,
         lr=args.lr,
+        patience=args.patience,
         checkpoint_path=output_dir / "best_model.pth",
         device=device,
         num_workers=args.num_workers,
@@ -325,6 +336,7 @@ def main(argv: list[str] | None = None) -> None:
                 "epochs": args.epochs,
                 "batch_size": args.batch_size,
                 "lr": args.lr,
+                "patience": args.patience,
                 "device": device.type,
                 "num_workers": args.num_workers,
                 "amp": args.amp,
