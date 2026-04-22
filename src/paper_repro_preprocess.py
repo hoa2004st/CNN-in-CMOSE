@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections import Counter
+from collections.abc import Callable
 
 import numpy as np
 from sklearn.decomposition import PCA, TruncatedSVD
@@ -43,18 +44,49 @@ def normalize_dataset_per_sample(
     matrices: np.ndarray,
     *,
     progress_desc: str | None = None,
+    chunk_size: int = 64,
+    progress_callback: Callable[[int, int], None] | None = None,
 ) -> np.ndarray:
     """Normalize every sample matrix independently to [0, 1]."""
-    normalized = [
-        minmax_normalize_per_sample(matrix)
-        for matrix in tqdm(
-            matrices,
-            desc=progress_desc or "Normalizing samples",
-            unit="sample",
-            leave=False,
-        )
-    ]
-    return np.stack(normalized, axis=0)
+    if matrices.ndim != 3:
+        raise ValueError(f"Expected a 3-D array, got shape {matrices.shape}")
+
+    total_samples = matrices.shape[0]
+    if total_samples == 0:
+        return matrices.astype(np.float32, copy=True)
+
+    normalized = np.empty_like(matrices, dtype=np.float32)
+    chunk_size = max(1, int(chunk_size))
+    desc = progress_desc or "Normalizing samples"
+
+    for start_idx in tqdm(
+        range(0, total_samples, chunk_size),
+        desc=desc,
+        unit="chunk",
+        leave=False,
+    ):
+        end_idx = min(start_idx + chunk_size, total_samples)
+        chunk = matrices[start_idx:end_idx].astype(np.float32, copy=False)
+        min_values = chunk.min(axis=(1, 2), keepdims=True)
+        max_values = chunk.max(axis=(1, 2), keepdims=True)
+        ranges = max_values - min_values
+
+        chunk_out = normalized[start_idx:end_idx]
+        np.subtract(chunk, min_values, out=chunk_out)
+
+        zero_mask = ranges <= 0.0
+        safe_ranges = ranges.copy()
+        safe_ranges[zero_mask] = 1.0
+        np.divide(chunk_out, safe_ranges, out=chunk_out)
+
+        if np.any(zero_mask):
+            zero_mask_2d = zero_mask.reshape(-1)
+            chunk_out[zero_mask_2d] = 0.0
+
+        if progress_callback is not None:
+            progress_callback(end_idx, total_samples)
+
+    return normalized
 
 
 def preprocess_dataset(

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import gc
 import logging
 from pathlib import Path
 
@@ -35,6 +36,10 @@ logging.basicConfig(
     level=logging.INFO,
 )
 logger = logging.getLogger(__name__)
+
+
+def _log_chunk_progress(done: int, total: int) -> None:
+    logger.info("Normalization progress: %d/%d samples", done, total)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -172,8 +177,14 @@ def main(argv: list[str] | None = None) -> None:
             n_components=args.n_components,
             progress_desc=f"{args.method.upper()} test samples",
         )
+        del X_train_raw
+        del X_test_raw
+        gc.collect()
         X_train_input = add_channel_dim(X_train_processed)
         X_test_input = add_channel_dim(X_test_processed)
+        del X_train_processed
+        del X_test_processed
+        gc.collect()
         preprocessing_summary = {
             "model": args.model,
             "sample_count": len(train_sample_ids) + len(test_sample_ids),
@@ -193,17 +204,28 @@ def main(argv: list[str] | None = None) -> None:
         X_train_processed = normalize_dataset_per_sample(
             X_train_raw,
             progress_desc="Normalizing train samples",
+            chunk_size=32,
+            progress_callback=_log_chunk_progress,
         )
+        del X_train_raw
+        gc.collect()
         X_test_processed = normalize_dataset_per_sample(
             X_test_raw,
             progress_desc="Normalizing test samples",
+            chunk_size=32,
+            progress_callback=_log_chunk_progress,
         )
+        del X_test_raw
+        gc.collect()
         if model_spec.input_kind == "frame_feature_map":
             X_train_input = add_channel_dim(X_train_processed)
             X_test_input = add_channel_dim(X_test_processed)
         else:
             X_train_input = X_train_processed.astype(np.float32)
             X_test_input = X_test_processed.astype(np.float32)
+        del X_train_processed
+        del X_test_processed
+        gc.collect()
         preprocessing_summary = {
             "model": args.model,
             "sample_count": len(train_sample_ids) + len(test_sample_ids),
