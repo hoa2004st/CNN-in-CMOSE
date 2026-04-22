@@ -131,6 +131,41 @@ def describe_selection(records: list[SampleMeta]) -> dict[str, dict[str, int]]:
     }
 
 
+def get_openface_feature_columns(csv_path: str | Path) -> list[str]:
+    """Return the ordered OpenFace feature columns for one CMOSE CSV."""
+    csv_path = Path(csv_path)
+    df = pd.read_csv(csv_path, nrows=0)
+    df.columns = df.columns.str.strip()
+
+    if not set(OPENFACE_META_COLS).issubset(df.columns):
+        raise ValueError(f"Missing OpenFace metadata columns in {csv_path}")
+
+    feature_cols = [column for column in df.columns if column not in OPENFACE_META_COLS]
+    if len(feature_cols) != 709:
+        raise ValueError(
+            f"Expected 709 OpenFace features in {csv_path}, found {len(feature_cols)}"
+        )
+    return feature_cols
+
+
+def resolve_feature_indices(
+    feature_columns: list[str],
+    *,
+    exact_names: list[str] | None = None,
+    prefixes: list[str] | None = None,
+) -> list[int]:
+    """Resolve feature indices by exact names and/or prefixes while preserving order."""
+    exact_names = exact_names or []
+    prefixes = prefixes or []
+    exact_name_set = set(exact_names)
+
+    indices: list[int] = []
+    for idx, column in enumerate(feature_columns):
+        if column in exact_name_set or any(column.startswith(prefix) for prefix in prefixes):
+            indices.append(idx)
+    return indices
+
+
 def load_openface_matrix(
     csv_path: str | Path,
     *,
@@ -158,7 +193,7 @@ def load_openface_matrix(
     )
     df = df.loc[frame_best_idx].sort_values("frame").reset_index(drop=True).copy()
 
-    feature_cols = [column for column in df.columns if column not in OPENFACE_META_COLS]
+    feature_cols = get_openface_feature_columns(csv_path)
     if len(feature_cols) != 709:
         raise ValueError(
             f"Expected 709 OpenFace features in {csv_path}, found {len(feature_cols)}"

@@ -4,11 +4,50 @@ from __future__ import annotations
 
 from collections import Counter
 from collections.abc import Callable
+from dataclasses import asdict, dataclass
 
 import numpy as np
+from scipy import signal as scipy_signal
 from sklearn.decomposition import PCA, TruncatedSVD
 from sklearn.neighbors import NearestNeighbors
 from tqdm.auto import tqdm
+
+from src.paper_repro_data import resolve_feature_indices
+
+
+@dataclass(frozen=True)
+class TESConfig:
+    """Configuration for TES spectral preprocessing."""
+
+    fs: float = 30.0
+    nperseg: int = 32
+    noverlap: int = 16
+    nfft: int = 64
+    window: str = "hann"
+    boundary: str = "zeros"
+    padded: bool = True
+    log_magnitude: bool = False
+
+    def to_dict(self) -> dict[str, float | int | str | bool]:
+        return asdict(self)
+
+
+DEFAULT_TES_CONFIG = TESConfig()
+
+TES_FEATURE_SET_DEFINITIONS = {
+    "head_pose": {
+        "exact_names": ["pose_Rx", "pose_Ry", "pose_Rz", "pose_Tx", "pose_Ty", "pose_Tz"],
+        "prefixes": [],
+    },
+    "gaze": {
+        "exact_names": ["gaze_angle_x", "gaze_angle_y"],
+        "prefixes": ["gaze_0_", "gaze_1_"],
+    },
+    "au_intensity": {
+        "exact_names": [],
+        "prefixes": ["AU"],
+    },
+}
 
 
 def reduce_sample_matrix(
@@ -117,6 +156,95 @@ def preprocess_dataset(
             processed.append(((reduced - reduced_mean) / reduced_std).astype(np.float32))
         explained.append(evr)
     return np.stack(processed, axis=0), np.array(explained, dtype=np.float32)
+
+
+def build_tes_feature_groups(feature_columns: list[str]) -> dict[str, list[int]]:
+    """Resolve the TES feature subset from the ordered OpenFace feature names."""
+    groups: dict[str, list[int]] = {}
+    for group_name, selectors in TES_FEATURE_SET_DEFINITIONS.items():
+        indices = resolve_feature_indices(
+            feature_columns,
+            exact_names=list(selectors["exact_names"]),
+            prefixes=list(selectors["prefixes"]),
+        )
+        if group_name == "au_intensity":
+            indices = [
+                idx
+                for idx in indices
+                if feature_columns[idx].startswith("AU") and feature_columns[idx].endswith("_r")
+            ]
+        if indices:
+            groups[group_name] = indices
+    if not groups:
+        raise ValueError("TES feature selection resolved zero features from the OpenFace columns")
+    return groups
+
+
+def flatten_feature_groups(feature_groups: dict[str, list[int]]) -> list[int]:
+    """Flatten group-index mappings into one ordered unique index list."""
+    ordered: list[int] = []
+    seen: set[int] = set()
+    for indices in feature_groups.values():
+        for idx in indices:
+            if idx not in seen:
+                ordered.append(idx)
+                seen.add(idx)
+    return ordered
+
+
+def extract_spectral_sample(
+    frame_matrix: np.ndarray,
+    *,
+    feature_indices: list[int],
+    config: TESConfig = DEFAULT_TES_CONFIG,
+) -> np.ndarray:
+    """Convert one frame-feature sample into a TES spectral tensor."""
+    if frame_matrix.ndim != 2:
+        raise ValueError(f"Expected a 2-D frame matrix, got shape {frame_matrix.shape}")
+    if not feature_indices:
+        raise ValueError("TES spectral extraction requires at least one feature index")
+
+    selected = frame_matrix[:, feature_indices].astype(np.float32, copy=False)
+    spectral_slices: list[np.ndarray] = []
+    for col_idx in range(selected.shape[1]):
+        _, _, zxx = scipy_signal.stft(
+            selected[:, col_idx],
+            fs=config.fs,
+            window=config.window,
+            nperseg=config.nperseg,
+            noverlap=config.noverlap,
+            nfft=config.nfft,
+            boundary=config.boundary,
+            padded=config.padded,
+        )
+        magnitude = np.abs(zxx).astype(np.float32, copy=False)
+        if config.log_magnitude:
+            magnitude = np.log1p(magnitude).astype(np.float32, copy=False)
+        spectral_slices.append(magnitude)
+
+    return np.stack(spectral_slices, axis=0).astype(np.float32, copy=False)
+
+
+def extract_spectral_dataset(
+    matrices: np.ndarray,
+    *,
+    feature_indices: list[int],
+    config: TESConfig = DEFAULT_TES_CONFIG,
+    progress_desc: str | None = None,
+) -> np.ndarray:
+    """Convert ``n x frames x features`` arrays into TES spectral tensors."""
+    if matrices.ndim != 3:
+        raise ValueError(f"Expected a 3-D array, got shape {matrices.shape}")
+    spectral = [
+        extract_spectral_sample(sample, feature_indices=feature_indices, config=config)
+        for sample in tqdm(
+            matrices,
+            desc=progress_desc or "Extracting TES spectral tensors",
+            unit="sample",
+            leave=False,
+        )
+    ]
+    return np.stack(spectral, axis=0).astype(np.float32, copy=False)
 
 
 def flatten_matrices(matrices: np.ndarray) -> np.ndarray:

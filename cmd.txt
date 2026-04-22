@@ -37,6 +37,7 @@ python main.py --model paper_cnn --method pca --device cuda --amp --output_dir o
 # Single comparison-model runs
 python main.py --model temporal_cnn --device cuda --amp --output_dir outputs/temporal_cnn
 python main.py --model rectangular_cnn --device cuda --amp --output_dir outputs/rectangular_cnn
+python main.py --model spectral_cnn --device cuda --amp --output_dir outputs/spectral_cnn
 python main.py --model lstm --device cuda --amp --output_dir outputs/lstm
 python main.py --model transformer --device cuda --amp --output_dir outputs/transformer
 

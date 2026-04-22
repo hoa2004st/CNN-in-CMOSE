@@ -13,13 +13,18 @@ import torch
 from src.paper_repro_data import (
     ID_TO_LABEL,
     describe_selection,
+    get_openface_feature_columns,
     load_cmose_metadata,
     load_dataset_matrices,
 )
 from src.paper_repro_model import build_model
 from src.paper_repro_preprocess import (
+    DEFAULT_TES_CONFIG,
     add_channel_dim,
+    build_tes_feature_groups,
+    extract_spectral_dataset,
     fit_feature_normalizer,
+    flatten_feature_groups,
     normalize_dataset_per_feature,
     preprocess_dataset,
 )
@@ -103,7 +108,14 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--model",
-        choices=["paper_cnn", "temporal_cnn", "rectangular_cnn", "lstm", "transformer"],
+        choices=[
+            "paper_cnn",
+            "temporal_cnn",
+            "rectangular_cnn",
+            "spectral_cnn",
+            "lstm",
+            "transformer",
+        ],
         default="paper_cnn",
         help="Model architecture to train under the strict CMOSE split.",
     )
@@ -224,7 +236,20 @@ def main(argv: list[str] | None = None) -> None:
         target_frames=args.target_frames,
         progress_desc="Loading test samples",
     )
-    input_features = int(X_train_raw.shape[-1])
+    raw_input_features = int(X_train_raw.shape[-1])
+    input_features = raw_input_features
+    feature_columns: list[str] | None = None
+    tes_feature_groups: dict[str, list[int]] | None = None
+    tes_feature_indices: list[int] | None = None
+    if args.model == "spectral_cnn":
+        if not train_records:
+            raise ValueError("TES requires at least one training record to resolve feature names")
+        feature_columns = get_openface_feature_columns(train_records[0].csv_path)
+        tes_feature_groups = build_tes_feature_groups(feature_columns)
+        tes_feature_indices = flatten_feature_groups(tes_feature_groups)
+        if not tes_feature_indices:
+            raise ValueError("TES feature selection produced zero feature indices")
+        input_features = len(tes_feature_indices)
     model, model_spec = build_model(
         args.model,
         input_size=args.n_components,
@@ -302,6 +327,25 @@ def main(argv: list[str] | None = None) -> None:
         if model_spec.input_kind == "frame_feature_map":
             X_train_input = add_channel_dim(X_train_processed)
             X_test_input = add_channel_dim(X_test_processed)
+        elif model_spec.input_kind == "spectral_tensor":
+            if tes_feature_indices is None or tes_feature_groups is None or feature_columns is None:
+                raise RuntimeError("TES preprocessing metadata was not initialized")
+            logger.info(
+                "Extracting TES spectral tensors from %d selected OpenFace features",
+                len(tes_feature_indices),
+            )
+            X_train_input = extract_spectral_dataset(
+                X_train_processed,
+                feature_indices=tes_feature_indices,
+                config=DEFAULT_TES_CONFIG,
+                progress_desc="TES spectral train samples",
+            )
+            X_test_input = extract_spectral_dataset(
+                X_test_processed,
+                feature_indices=tes_feature_indices,
+                config=DEFAULT_TES_CONFIG,
+                progress_desc="TES spectral test samples",
+            )
         else:
             X_train_input = X_train_processed.astype(np.float32)
             X_test_input = X_test_processed.astype(np.float32)
@@ -315,10 +359,25 @@ def main(argv: list[str] | None = None) -> None:
             "test_sample_count": len(test_sample_ids),
             "reduction_method": None,
             "reduced_feature_count": None,
-            "raw_feature_count": input_features,
+            "raw_feature_count": raw_input_features,
             "target_frames": args.target_frames,
             "normalization": "per-feature z-score using train-set statistics",
         }
+        if model_spec.input_kind == "spectral_tensor":
+            selected_feature_names = [feature_columns[idx] for idx in tes_feature_indices]
+            preprocessing_summary.update(
+                {
+                    "selected_feature_count": len(tes_feature_indices),
+                    "selected_feature_names": selected_feature_names,
+                    "selected_feature_groups": {
+                        group_name: [feature_columns[idx] for idx in indices]
+                        for group_name, indices in tes_feature_groups.items()
+                    },
+                    "stft": DEFAULT_TES_CONFIG.to_dict(),
+                    "spectral_tensor_shape": list(map(int, X_train_input.shape[1:])),
+                    "normalization": "per-feature z-score using train-set statistics before TES STFT",
+                }
+            )
 
     save_json(preprocessing_summary, output_dir / "preprocessing_summary.json")
     logger.info("Saved preprocessing summary to %s", output_dir / "preprocessing_summary.json")

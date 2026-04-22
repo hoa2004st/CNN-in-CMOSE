@@ -10,14 +10,20 @@ import pandas as pd
 
 from main import resolve_output_dir
 from src.paper_repro_data import (
+    get_openface_feature_columns,
     load_cmose_metadata,
     resample_frames,
+    resolve_feature_indices,
     select_paper_style_subset,
 )
 from src.paper_repro_model import build_model
 from src.paper_repro_preprocess import (
+    DEFAULT_TES_CONFIG,
     add_channel_dim,
+    build_tes_feature_groups,
+    extract_spectral_dataset,
     fit_feature_normalizer,
+    flatten_feature_groups,
     normalize_dataset_per_feature,
 )
 from src.paper_repro_train import build_loss, compute_class_weights
@@ -115,6 +121,55 @@ def test_normalize_dataset_and_add_channel_dim_shapes() -> None:
     assert cnn_input.shape == (8, 1, 16, 16)
 
 
+def test_get_openface_feature_columns_and_resolve_indices(tmp_path: Path) -> None:
+    feature_dir = tmp_path / "features"
+    feature_dir.mkdir()
+    csv_path = feature_dir / "sample.csv"
+    _make_openface_csv(csv_path, rows=10)
+
+    feature_columns = get_openface_feature_columns(csv_path)
+    assert len(feature_columns) == 709
+    assert "frame" not in feature_columns
+    assert feature_columns[0] == "f_0"
+
+    indices = resolve_feature_indices(
+        feature_columns,
+        exact_names=["f_3", "f_10"],
+        prefixes=["f_2"],
+    )
+    assert indices[:2] == [2, 3]
+    assert 10 in indices
+
+
+def test_tes_preprocessing_shape_and_feature_groups() -> None:
+    feature_columns = [
+        "pose_Rx",
+        "pose_Ry",
+        "pose_Rz",
+        "gaze_0_x",
+        "gaze_1_y",
+        "gaze_angle_x",
+        "AU01_r",
+        "AU12_r",
+    ]
+    groups = build_tes_feature_groups(feature_columns)
+    assert sorted(groups) == ["au_intensity", "gaze", "head_pose"]
+
+    feature_indices = flatten_feature_groups(groups)
+    assert feature_indices == list(range(len(feature_columns)))
+
+    rng = np.random.default_rng(0)
+    samples = rng.normal(size=(2, 300, len(feature_columns))).astype(np.float32)
+    spectral = extract_spectral_dataset(
+        samples,
+        feature_indices=feature_indices,
+        config=DEFAULT_TES_CONFIG,
+        progress_desc="test tes",
+    )
+    assert spectral.dtype == np.float32
+    assert spectral.shape == (2, len(feature_columns), 33, 20)
+
+
 def test_model_factory_output_shapes() -> None:
     import torch
 
@@ -146,6 +201,13 @@ def test_model_factory_output_shapes() -> None:
     )
     assert transformer_spec.input_kind == "sequence"
     assert transformer_out.shape == (2, 4)
+
+    spectral_model, spectral_spec = build_model("spectral_cnn", input_features=8)
+    spectral_out = spectral_model(
+        torch.from_numpy(np.random.randn(2, 8, 33, 20).astype(np.float32))
+    )
+    assert spectral_spec.input_kind == "spectral_tensor"
+    assert spectral_out.shape == (2, 4)
 
 
 def test_loss_factory_builds_weighted_focal_and_ordinal_losses() -> None:
@@ -212,3 +274,9 @@ def test_resolve_output_dir_uses_loss_specific_default_paths() -> None:
         loss_name="ordinal",
         focal_gamma=2.0,
     ) == Path("outputs/lstm_ordinal")
+    assert resolve_output_dir(
+        None,
+        model_name="spectral_cnn",
+        loss_name="cross_entropy",
+        focal_gamma=2.0,
+    ) == Path("outputs/spectral_cnn_cross_entropy")

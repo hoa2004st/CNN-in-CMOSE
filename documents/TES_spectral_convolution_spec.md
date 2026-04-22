@@ -1,767 +1,445 @@
-# Temporal Engagement Signatures (TES) via Spectral Convolution
+# TES Spectral Convolution Implementation Checklist
 
-## 1. Overview and Motivation
+This document turns the TES idea into a concrete implementation plan for the current codebase.
 
-### Problem Statement
-Current temporal models (Temporal CNN, LSTM, Transformer) treat engagement as a static classification problem over a fixed 300-frame sequence. However, engagement is inherently **oscillatory** and **dynamic**:
+Current pipeline entry points:
 
-- **Engaged students** display stable facial behavior: consistent gaze, minimal head jitter, smooth AU patterns
-- **Disengaged students** display frequent state changes: fidgeting, looking away, rapid expression changes
-- **Moderately engaged students** show intermediate frequency of behavioral changes
+- `main.py`: CLI, split handling, preprocessing dispatch, training, metrics export
+- `src/paper_repro_data.py`: CMOSE metadata loading, OpenFace CSV loading, frame resampling
+- `src/paper_repro_preprocess.py`: normalization and per-sample reduction utilities
+- `src/paper_repro_model.py`: model definitions and `build_model(...)`
+- `src/paper_repro_train.py`: training loop, loss selection, prediction, metrics
+- `scripts/visualize_results.py`: post-run plots and summary reports
+- `tests/test_paper_repro_pipeline.py`: smoke tests for data, models, preprocessing, and losses
 
-The key insight: **engagement manifests as specific temporal frequency signatures in facial features**.
-
-### Hypothesis
-By analyzing facial features in the **frequency domain** (not just time domain), we can:
-1. Extract which temporal frequencies correlate with engagement levels
-2. Capture engagement-relevant patterns that raw temporal convolution misses
-3. Provide interpretable outputs ("students show low-frequency head stability when engaged")
-
-### Expected Contribution
-- **Novel**: Spectral analysis rarely applied to facial engagement detection (common in speech/EEG but untested for facial)
-- **Interpretable**: Frequency decomposition reveals *how* engagement manifests temporally
-- **Potentially superior**: Engagement patterns may be more separable in frequency domain than time domain
+The checklist below is written to match those files directly.
 
 ---
 
-## 2. Theoretical Foundation
+## 1. Phase 0: Lock the TES Scope
 
-### 2.1 Why Spectral Analysis?
+- [ ] Keep the first TES target narrow: `head pose + gaze + AU intensities`; do not start with all 709 features.
+- [ ] Treat TES as a new raw-sequence branch, not an extension of `paper_cnn`.
+- [ ] Define the first TES success target against the current best baseline:
+  - beat or match `temporal_cnn` on macro-F1
+  - improve class-0 and/or class-3 recall
+  - preserve interpretable outputs
+- [ ] Use the existing strict CMOSE train/test split exactly as in `main.py`; do not reintroduce paper-style subset selection or SMOTE.
 
-Consider two hypothetical students over 10 seconds (300 frames):
+Definition of done:
 
-**Student A (Engaged):**
-- Head pose: smooth, slow changes (low frequency)
-- Gaze direction: stable (very low frequency, high power at DC component)
-- Facial AU intensity: steady (low frequency)
-
-**Student B (Disengaged):**
-- Head pose: frequent fidgeting, head tilts (high frequency, energy spread)
-- Gaze direction: rapid shifts, looking away (mid-high frequency)
-- Facial AU intensity: rapid micro-expressions (high frequency)
-
-**Standard temporal models** see sequences of similar values; they miss that **the *rate* of change differs**. Spectral decomposition directly captures this.
-
-### 2.2 Short-Time Fourier Transform (STFT)
-
-We use **STFT** rather than global FFT because:
-- Global FFT loses temporal localization (we lose "when" engagement changes)
-- STFT preserves time-frequency localization: tells us engagement signature *over the clip*
-- Sliding window (e.g., 32-frame window, 50% overlap) creates feature maps
-
-**STFT Formula:**
-```
-X_stft[t, f] = sum_{n} x[n] * w[n - t] * exp(-2πi*f*n/N)
-```
-Where:
-- `t` = time frame (0 to ~100 windows for 300 total frames)
-- `f` = frequency bin (0 to ~16 Hz for engagement; facial changes are slow)
-- `x[n]` = input feature (e.g., head pose yaw)
-- `w[n]` = window function (Hann window)
-
-**Output**: magnitude spectrogram of shape `(time_windows, frequency_bins)` per feature.
-
-### 2.3 Physics of Engagement in Frequency Space
-
-**Rough frequency bands for facial features:**
-
-| Frequency Band | Phenomenon | Engagement Association |
-|---|---|---|
-| **0.1 - 0.5 Hz** (period: 2-10 sec) | Overall engagement level shifts | Sustained attention ↔ Disengagement transition |
-| **0.5 - 2 Hz** (period: 0.5-2 sec) | Micro-expressions, blink cycles, slow AU changes | Moderate concentration |
-| **2 - 5 Hz** (period: 0.2-0.5 sec) | Rapid fidgeting, head jitter, tremor | Disengagement, anxiety |
-| **5+ Hz** | Noise, facial muscle tremor | Measurement noise |
-
-**Hypothesis**: Engaged students will have **high power in 0.1-0.5 Hz** (stable long-term); disengaged will have **high power in 2-5 Hz** (fidgeting).
+- [ ] A short TES feature subset list exists in code, not only in prose.
+- [ ] The baseline to beat is explicitly `temporal_cnn`, with `rectangular_cnn` as the secondary comparison.
 
 ---
 
-## 3. Implementation Architecture
+## 2. Phase 1: Expose Real OpenFace Feature Names
 
-### 3.1 High-Level Pipeline
+Problem in the current code:
 
-```
-Raw OpenFace (300 frames × 709 features)
-    ↓
-[NORMALIZATION] (z-score per feature using train stats)
-    ↓
-[FEATURE GROUPING] (select subset of 709 for spectral analysis)
-    ├─ Group 1: Head Pose (3 features: yaw, pitch, roll)
-    ├─ Group 2: Gaze (4 features: gaze_0, gaze_1, gaze_angle_x, gaze_angle_y)
-    ├─ Group 3: Action Units (17 AU intensities: AU01, AU02, ... AU45)
-    └─ Group 4: Eye Landmarks (72 coordinates: landmarks_x, landmarks_y for 36 points)
-    ↓
-[STFT PER FEATURE] for each of ~100 selected features
-    → output: (n_features, n_time_windows, n_freq_bins)
-    ↓
-[SPECTRAL CONV LAYERS] 
-    → Learn filters over frequency dimension and time-frequency patterns
-    → Output: (128 channels)
-    ↓
-[TEMPORAL CONV LAYERS] 
-    → Learn temporal dynamics in *frequency space*
-    → Output: (256 channels)
-    ↓
-[ADAPTIVE POOLING + CLASSIFIER]
-    → 4-class engagement prediction
-    ↓
-Logits → Softmax → Output class (0, 1, 2, 3)
-```
+- `src/paper_repro_data.py` loads feature values but does not expose the ordered OpenFace feature column names anywhere outside `load_openface_matrix(...)`.
+- TES cannot reliably select head pose, gaze, and AU features until the feature-name order is accessible.
 
-### 3.2 Architecture Details
+Implementation tasks:
 
-#### Phase 1: STFT Feature Extraction
+- [ ] In `src/paper_repro_data.py`, add a helper that returns the ordered OpenFace feature column names from one CSV after removing `OPENFACE_META_COLS`.
+- [ ] Reuse the same feature-order logic already used inside `load_openface_matrix(...)` so TES indices and loaded tensors stay aligned.
+- [ ] Add a second helper that maps a list of feature names or prefixes to column indices.
+- [ ] Decide whether TES feature selection should be:
+  - exact-name based
+  - prefix-based
+  - or a fixed hand-written index list generated once from the real column names
 
-**Input**: `X_train_normalized` shape `(n_samples, 300, 709)` – already z-score normalized
+Recommended implementation target:
 
-**Process per sample**:
-```python
-def extract_stft_features(frame_sequence, feature_indices):
-    """
-    Args:
-        frame_sequence: (300, 709) – 300 frames of 709 OpenFace features
-        feature_indices: list of selected feature columns to compute STFT on
-    
-    Returns:
-        stft_magnitude: (len(feature_indices), n_time_windows, n_freq_bins)
-    """
-    selected_features = frame_sequence[:, feature_indices]  # (300, n_selected)
-    
-    stft_list = []
-    for feature_idx in range(selected_features.shape[1]):
-        signal = selected_features[:, feature_idx]  # (300,)
-        
-        # STFT parameters:
-        # - nperseg = 32 frames → ~1 sec window (at 30 fps)
-        # - noverlap = 16 frames → 50% overlap
-        # - nfft = 64 → zero-pad to 64 for frequency resolution
-        f, t, Zxx = scipy.signal.stft(
-            signal,
-            fs=30,  # 30 fps
-            nperseg=32,
-            noverlap=16,
-            nfft=64,
-            window='hann'
-        )
-        # Zxx shape: (33 freq_bins, ~9 time_windows) for 300 frames
-        # Magnitude: |Zxx|
-        stft_mag = np.abs(Zxx)  # (33, 9)
-        stft_list.append(stft_mag)
-    
-    # Stack: (n_selected, 33, 9)
-    return np.array(stft_list)
-```
+- [ ] Add `get_openface_feature_columns(csv_path: str | Path) -> list[str]`
+- [ ] Add `resolve_feature_indices(feature_columns: list[str], *, exact_names: list[str] | None = None, prefixes: list[str] | None = None) -> list[int]`
 
-**Key decisions**:
-- **nperseg=32**: 32 frames = ~1 second at 30 fps; captures meaningful engagement transitions
-- **noverlap=16**: 50% overlap avoids discontinuities
-- **nfft=64**: Provides ~0.5 Hz frequency resolution (30 Hz / 64 = 0.47 Hz per bin)
-- **Take magnitude only**: Phase is less informative for engagement
+Tests:
 
-**Output shape**: `(n_samples, n_selected_features, n_freq_bins=33, n_time_windows=9)`
+- [ ] Add a test in `tests/test_paper_repro_pipeline.py` that creates a fake CSV and verifies the returned feature-column order excludes metadata columns and preserves all 709 feature columns.
 
-**Feature selection** (subset of 709 for efficiency):
-```python
-SELECTED_FEATURES = {
-    'head_pose': ['pose_Tx', 'pose_Ty', 'pose_Rz'],  # 3
-    'gaze': ['gaze_0', 'gaze_1', 'gaze_angle_x', 'gaze_angle_y'],  # 4
-    'aus': [f'AU{i:02d}_r' for i in [1, 2, 4, 5, 6, 7, 9, 10, 12, 14, 15, 17, 20, 23, 25, 26, 43]],  # 17 AUs
-    'eye_landmarks': [f'x_{i}' for i in range(0, 144, 2)] + [f'y_{i}' for i in range(1, 144, 2)],  # ~72 coords
-}
-# Total: ~100 features (adjust based on availability in your CSV)
-```
+Definition of done:
+
+- [ ] TES feature groups can be selected from actual column names without guessing column numbers in the thesis text.
 
 ---
 
-#### Phase 2: Spectral CNN Architecture
+## 3. Phase 2: Add Spectral Preprocessing Utilities
 
-**Goal**: Learn filters over frequency (and time-frequency patterns) that separate engagement levels.
+Primary file:
 
-```python
-class SpectralConvNet(nn.Module):
-    """
-    Input: (batch, n_features, n_freq_bins, n_time_windows)
-           e.g., (8, 100, 33, 9)
-    """
-    def __init__(self, n_input_features=100, n_freq_bins=33, num_classes=4):
-        super().__init__()
-        
-        # SPECTRAL BLOCK 1: Learn frequency-domain patterns
-        # Kernel shape: (height=n_freq_bins, width=3)
-        # This learns how different frequencies contribute
-        self.spec_conv1 = nn.Conv2d(
-            in_channels=n_input_features,
-            out_channels=64,
-            kernel_size=(5, 3),  # (freq_kernel=5, time_kernel=3)
-            padding=(2, 1),
-            stride=(1, 1)
-        )
-        self.spec_bn1 = nn.BatchNorm2d(64)
-        self.spec_relu1 = nn.ReLU(inplace=True)
-        
-        # Max pool only on time dimension (preserve frequency structure)
-        self.spec_pool1 = nn.MaxPool2d(kernel_size=(1, 2), stride=(1, 2))
-        
-        # SPECTRAL BLOCK 2: Learn joint freq-time patterns
-        self.spec_conv2 = nn.Conv2d(
-            in_channels=64,
-            out_channels=128,
-            kernel_size=(3, 3),
-            padding=(1, 1),
-            stride=(1, 1)
-        )
-        self.spec_bn2 = nn.BatchNorm2d(128)
-        self.spec_relu2 = nn.ReLU(inplace=True)
-        self.spec_pool2 = nn.MaxPool2d(kernel_size=(2, 2), stride=(2, 2))
-        
-        # SPECTRAL BLOCK 3: Aggregate frequency information
-        self.spec_conv3 = nn.Conv2d(
-            in_channels=128,
-            out_channels=128,
-            kernel_size=(3, 3),
-            padding=(1, 1)
-        )
-        self.spec_bn3 = nn.BatchNorm2d(128)
-        self.spec_relu3 = nn.ReLU(inplace=True)
-        
-        # Global average pooling over frequency and time
-        self.global_pool = nn.AdaptiveAvgPool2d((1, 1))
-        
-        # Classifier head
-        self.dropout = nn.Dropout(p=0.3)
-        self.fc1 = nn.Linear(128, 128)
-        self.fc_relu = nn.ReLU(inplace=True)
-        self.fc_dropout = nn.Dropout(p=0.3)
-        self.fc2 = nn.Linear(128, num_classes)
-    
-    def forward(self, x):
-        """
-        Args:
-            x: (batch, n_features, n_freq_bins, n_time_windows)
-        """
-        # Spectral conv path
-        x = self.spec_conv1(x)  # (batch, 64, 33, 9)
-        x = self.spec_bn1(x)
-        x = self.spec_relu1(x)
-        x = self.spec_pool1(x)  # (batch, 64, 33, 4)
-        
-        x = self.spec_conv2(x)  # (batch, 128, 33, 4)
-        x = self.spec_bn2(x)
-        x = self.spec_relu2(x)
-        x = self.spec_pool2(x)  # (batch, 128, 16, 2)
-        
-        x = self.spec_conv3(x)  # (batch, 128, 16, 2)
-        x = self.spec_bn3(x)
-        x = self.spec_relu3(x)
-        
-        # Global aggregation
-        x = self.global_pool(x)  # (batch, 128, 1, 1)
-        x = x.view(x.size(0), -1)  # (batch, 128)
-        
-        # Classification
-        x = self.dropout(x)
-        x = self.fc1(x)  # (batch, 128)
-        x = self.fc_relu(x)
-        x = self.fc_dropout(x)
-        x = self.fc2(x)  # (batch, 4)
-        
-        return x
-```
+- `src/paper_repro_preprocess.py`
 
-**Key design choices**:
-- **Asymmetric kernels**: `(5, 3)` → prioritize frequency patterns, but also capture time dynamics
-- **Pool only on time**: Preserve frequency dimension (engagement signature lives in frequency space)
-- **Batch norm**: Helps stabilization; spectral magnitudes can have high variance
-- **Global average pool**: Aggregate all frequency-time information without spatial bias
+Dependency gap:
+
+- [ ] Add `scipy` to `requirements.txt` because STFT is not available in the current dependency list.
+
+Implementation tasks:
+
+- [ ] Add a small TES config container or constant block for:
+  - `fs`
+  - `nperseg`
+  - `noverlap`
+  - `nfft`
+  - feature-group definitions
+- [ ] Implement a per-sample STFT function that converts one `(frames, features)` sample into a spectral tensor.
+- [ ] Keep output order explicit and stable:
+  - input: `(frames, selected_features)`
+  - output: `(selected_features, freq_bins, time_windows)`
+- [ ] Decide and document the STFT boundary behavior explicitly. The current spec assumes SciPy default padding, which gives `33 x 20` for `300` frames at `30 fps` with `nperseg=32`, `noverlap=16`, `nfft=64`.
+- [ ] Convert outputs to `float32`.
+- [ ] Add a dataset-level wrapper that transforms all train/test samples using the same TES config.
+- [ ] Add optional log scaling only if the raw magnitude range is unstable in practice; do not add it blindly.
+
+Recommended function additions:
+
+- [ ] `extract_spectral_sample(...)`
+- [ ] `extract_spectral_dataset(...)`
+- [ ] `build_tes_feature_groups(feature_columns: list[str]) -> dict[str, list[int]]`
+- [ ] `flatten_feature_groups(feature_groups: dict[str, list[int]]) -> list[int]`
+
+Suggested shape contract:
+
+- [ ] Input to TES preprocessing: `(n_samples, 300, 709)`
+- [ ] Output from TES preprocessing: `(n_samples, n_selected_features, 33, 20)` for the initial STFT design
+
+Tests:
+
+- [ ] Add a preprocessing test that feeds a dummy `(2, 300, 8)` tensor into TES preprocessing and checks:
+  - dtype is `float32`
+  - first dimension stays `2`
+  - second dimension equals the selected feature count
+  - frequency bins are `33`
+  - time windows are `20` if using default SciPy boundary handling
+- [ ] Add a test that verifies TES preprocessing is deterministic for a fixed input.
+
+Definition of done:
+
+- [ ] A raw train/test tensor can be converted into a spectral tensor with no manual notebook steps.
 
 ---
 
-### 3.3 Data Pipeline
+## 4. Phase 3: Add the Spectral Model
 
-**Preprocessing modifications** (extends existing pipeline):
+Primary file:
 
-```python
-class SpectralPreprocessor:
-    """
-    Converts raw 300 × 709 frame-feature matrices to spectral tensors.
-    """
-    
-    def __init__(self, feature_indices=None, n_fft=64, nperseg=32, noverlap=16):
-        self.feature_indices = feature_indices or self._default_indices()
-        self.n_fft = n_fft
-        self.nperseg = nperseg
-        self.noverlap = noverlap
-        self.fs = 30  # 30 fps
-    
-    def _default_indices(self):
-        """Return indices of 709 features to use for STFT."""
-        # This depends on actual OpenFace CSV column order
-        # Example mapping (ADJUST FOR YOUR CSV):
-        indices = []
-        
-        # Head pose: columns 4-6 (pitch, roll, yaw)
-        indices.extend([4, 5, 6])
-        
-        # Gaze: columns 7-10
-        indices.extend([7, 8, 9, 10])
-        
-        # AUs: columns 15-31 (example: 17 AUs)
-        indices.extend(range(15, 32))
-        
-        # Facial landmarks X,Y: columns 50-193 (example: 72 coordinates)
-        indices.extend(range(50, 194))
-        
-        return indices
-    
-    def process_sample(self, frame_matrix):
-        """
-        Args:
-            frame_matrix: (300, 709) numpy array
-        
-        Returns:
-            stft_tensor: (n_features, n_freq_bins, n_time_windows)
-        """
-        selected = frame_matrix[:, self.feature_indices]  # (300, n_selected)
-        
-        stft_mags = []
-        for col_idx in range(selected.shape[1]):
-            signal = selected[:, col_idx]
-            
-            f, t, Zxx = scipy.signal.stft(
-                signal,
-                fs=self.fs,
-                nperseg=self.nperseg,
-                noverlap=self.noverlap,
-                nfft=self.n_fft,
-                window='hann'
-            )
-            mag = np.abs(Zxx)  # (n_freq_bins, n_time_windows)
-            stft_mags.append(mag)
-        
-        # (n_features, n_freq_bins, n_time_windows)
-        return np.array(stft_mags, dtype=np.float32)
-    
-    def process_dataset(self, X):
-        """
-        Args:
-            X: (n_samples, 300, 709)
-        
-        Returns:
-            X_spectral: (n_samples, n_features, n_freq_bins, n_time_windows)
-        """
-        spectral_list = []
-        for i in range(X.shape[0]):
-            spec = self.process_sample(X[i])
-            spectral_list.append(spec)
-        
-        return np.array(spectral_list, dtype=np.float32)
-```
+- `src/paper_repro_model.py`
 
-**Integration into main pipeline**:
+Implementation tasks:
 
-```python
-# In main.py, add new mode:
-if args.model == "spectral_cnn":
-    logger.info("Extracting STFT features for spectral CNN...")
-    
-    spec_processor = SpectralPreprocessor(
-        feature_indices=None,  # use defaults
-        n_fft=64,
-        nperseg=32,
-        noverlap=16
-    )
-    
-    X_train_spectral = spec_processor.process_dataset(X_train_normalized)
-    X_test_spectral = spec_processor.process_dataset(X_test_normalized)
-    
-    # X_train_spectral shape: (n_train, n_features, 33, n_time_windows)
-    X_train_input = X_train_spectral
-    X_test_input = X_test_spectral
-```
+- [ ] Add a new model class, likely `SpectralConvNet`.
+- [ ] Add a new `build_model(...)` branch for `model_name == "spectral_cnn"`.
+- [ ] Introduce a dedicated `ModelSpec.input_kind` for TES, for example:
+  - `spectral_tensor`
+- [ ] Do not overload `frame_feature_map`; TES input has semantic channels equal to selected features, not a singleton image channel.
+- [ ] Keep the first TES model modest:
+  - 2 to 3 conv blocks
+  - adaptive pooling
+  - small MLP head
+- [ ] Pass the selected feature count into the model constructor as `in_channels`.
+
+Recommended model interface:
+
+- [ ] `SpectralConvNet(n_input_features: int, num_classes: int = 4)`
+- [ ] Expected forward input: `(batch, n_selected_features, 33, 20)`
+
+Tests:
+
+- [ ] Extend `test_model_factory_output_shapes()` in `tests/test_paper_repro_pipeline.py` with:
+  - `build_model("spectral_cnn", input_features=<selected_feature_count>)`
+  - dummy input shaped like `(2, selected_feature_count, 33, 20)`
+  - output shape `(2, 4)`
+  - `input_kind == "spectral_tensor"`
+
+Definition of done:
+
+- [ ] `build_model("spectral_cnn", ...)` works exactly like the existing model registry.
 
 ---
 
-## 4. Training Strategy
+## 5. Phase 4: Wire TES into `main.py`
 
-### 4.1 Loss Function
-Use **standard cross-entropy** initially:
-```python
-criterion = nn.CrossEntropyLoss()
-```
+Primary file:
 
-If class imbalance persists, optionally add **weighted CE**:
-```python
-class_weights = compute_class_weights(y_train)
-criterion = nn.CrossEntropyLoss(weight=torch.tensor(class_weights))
-```
+- `main.py`
 
-### 4.2 Hyperparameters (Recommended Starting Values)
+Implementation tasks:
 
-```yaml
-epochs: 200
-batch_size: 16
-learning_rate: 1e-4
-optimizer: Adam (beta1=0.9, beta2=0.999)
-patience: 30  # early stopping
-weight_decay: 1e-5
-gradient_clip: 1.0  # prevent exploding gradients
-```
+- [ ] Add `"spectral_cnn"` to the `--model` choices in `build_parser()`.
+- [ ] Add TES-specific CLI options only if they are genuinely needed for repeatable experiments. Good candidates:
+  - `--spectral_feature_set`
+  - `--stft_nperseg`
+  - `--stft_noverlap`
+  - `--stft_nfft`
+- [ ] Keep defaults aligned with the first thesis experiment to avoid excessive CLI complexity.
+- [ ] After loading raw train/test matrices, branch preprocessing by `model_spec.input_kind`.
+- [ ] Add a TES preprocessing path that:
+  - fits train-set z-score normalization using the existing `fit_feature_normalizer(...)`
+  - normalizes train and test with `normalize_dataset_per_feature(...)`
+  - resolves TES feature indices from real feature names
+  - transforms normalized tensors into spectral tensors
+- [ ] Preserve the existing `paper_cnn` and raw-model branches without regression.
+- [ ] Extend `preprocessing_summary.json` with TES-specific metadata:
+  - selected feature count
+  - selected feature names or groups
+  - STFT parameters
+  - resulting tensor shape
+  - boundary policy
 
-**Why these values**:
-- **Smaller learning rate (1e-4)**: Spectral features are more sensitive to learning rate
-- **Larger batch size (16 vs 8)**: Spectral tensors are smaller in spatial dims; need batch averaging
-- **Shorter patience (30 vs 50)**: Spectral features learn faster (fewer parameters than temporal CNN)
+Important repo-specific note:
 
-### 4.3 Training Loop (Pseudo-code)
+- [ ] The current pipeline already normalizes raw models using train-fit per-feature z-score. TES should reuse that path before STFT so comparisons remain fair.
 
-```python
-def train_spectral_cnn(model, train_loader, val_loader, epochs, device, patience):
-    optimizer = torch.optim.Adam(model.parameters(), lr=1e-4, weight_decay=1e-5)
-    criterion = nn.CrossEntropyLoss()
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-        optimizer, mode='min', factor=0.5, patience=10, verbose=True
-    )
-    
-    best_val_loss = float('inf')
-    patience_counter = 0
-    best_model_state = None
-    
-    for epoch in range(epochs):
-        # Training
-        model.train()
-        train_loss = 0
-        for batch_idx, (X_batch, y_batch) in enumerate(train_loader):
-            X_batch = X_batch.to(device)  # (batch, n_features, 33, n_time_windows)
-            y_batch = y_batch.to(device)
-            
-            logits = model(X_batch)
-            loss = criterion(logits, y_batch)
-            
-            optimizer.zero_grad()
-            loss.backward()
-            torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-            optimizer.step()
-            
-            train_loss += loss.item()
-        
-        # Validation
-        model.eval()
-        val_loss = 0
-        with torch.no_grad():
-            for X_batch, y_batch in val_loader:
-                X_batch = X_batch.to(device)
-                y_batch = y_batch.to(device)
-                logits = model(X_batch)
-                loss = criterion(logits, y_batch)
-                val_loss += loss.item()
-        
-        avg_train_loss = train_loss / len(train_loader)
-        avg_val_loss = val_loss / len(val_loader)
-        
-        scheduler.step(avg_val_loss)
-        
-        # Early stopping
-        if avg_val_loss < best_val_loss:
-            best_val_loss = avg_val_loss
-            patience_counter = 0
-            best_model_state = model.state_dict()
-            torch.save(best_model_state, 'spectral_best.pth')
-        else:
-            patience_counter += 1
-            if patience_counter >= patience:
-                print(f"Early stopping at epoch {epoch}")
-                break
-        
-        if (epoch + 1) % 10 == 0:
-            print(f"Epoch {epoch+1}/{epochs}: train_loss={avg_train_loss:.4f}, val_loss={avg_val_loss:.4f}")
-    
-    model.load_state_dict(best_model_state)
-    return model
-```
+Output-dir decision:
+
+- [ ] Decide whether to use the current default output naming logic from `resolve_output_dir(...)`.
+- [ ] If you want the folder name to match current baseline folders like `outputs/temporal_cnn`, run TES with an explicit `--output_dir outputs/spectral_cnn`.
+- [ ] If you keep the default loss-specific naming scheme, the default TES folder will be `outputs/spectral_cnn_cross_entropy`.
+
+Tests:
+
+- [ ] Add a test for `resolve_output_dir(...)` covering `spectral_cnn`.
+- [ ] Add a smoke test that verifies TES preprocessing metadata can be serialized into `preprocessing_summary.json`.
+
+Definition of done:
+
+- [ ] `python main.py --model spectral_cnn --output_dir outputs/spectral_cnn ...` runs end to end through preprocessing, training, prediction, and metrics export.
 
 ---
 
-## 5. Evaluation and Interpretability
+## 6. Phase 5: Reuse the Existing Training Stack
 
-### 5.1 Standard Metrics
-Same as existing pipeline:
-- **Accuracy**, **Macro-F1**, **Weighted-F1**
-- **Per-class Precision/Recall/F1**
-- **Confusion Matrix**
+Primary file:
 
-### 5.2 Spectral-Specific Analysis
+- `src/paper_repro_train.py`
 
-**Visualization 1: Activation Maps**
-```python
-def visualize_spectral_activations(model, X_sample):
-    """
-    Show which frequency ranges activate for each engagement class.
-    """
-    # Extract intermediate activations (after spec_conv2)
-    # Shape: (1, 128, 16, 2) for different freq/time regions
-    # Visualize: heatmap of which freq bins are most active per class
-    
-    # For each class, show average activation map
-    # X-axis: frequency (0 Hz to 15 Hz)
-    # Y-axis: time (0 to 10 sec)
-    # Color: activation magnitude
+Good news:
+
+- [ ] No major training-loop rewrite should be needed.
+- [ ] TES can reuse the current:
+  - `train_model(...)`
+  - `predict(...)`
+  - `build_loss(...)`
+  - `evaluate_predictions(...)`
+
+Implementation tasks:
+
+- [ ] Verify TES tensors work with the existing `TensorDataset` and `DataLoader` path.
+- [ ] Start with `cross_entropy`.
+- [ ] After the baseline TES run is stable, try `weighted_cross_entropy`.
+- [ ] Do not start with focal loss for TES given the current collapse in `temporal_cnn_focal`.
+
+Definition of done:
+
+- [ ] TES trains through the existing trainer with no TES-specific hacks inside `paper_repro_train.py`.
+
+---
+
+## 7. Phase 6: Update Visualization and Reporting
+
+Primary files:
+
+- `scripts/visualize_results.py`
+- optionally `documents/TES_spectral_convolution_spec.md`
+- optionally `README.md`
+
+Current status:
+
+- `scripts/visualize_results.py` should already include `spectral_cnn` automatically once `metrics.json` exists and `config.model` is set correctly.
+
+Checklist:
+
+- [ ] Confirm that TES appears correctly in:
+  - `summary_table_all_runs.csv`
+  - `summary_table_best_per_model.csv`
+  - `comparison_report.md`
+- [ ] Add TES-specific interpretability artifacts if needed outside the generic visualizer, for example:
+  - average class spectrograms
+  - band-energy summaries
+  - feature-group ablations
+- [ ] Decide whether to extend `scripts/visualize_results.py` or create a TES-specific analysis script under `scripts/`.
+
+Recommended split:
+
+- [ ] Keep the current `visualize_results.py` unchanged for generic comparison plots.
+- [ ] Add a separate TES analysis script if you need spectrogram- or band-specific figures.
+
+Documentation cleanup:
+
+- [ ] Update `README.md` once TES is implemented.
+- [ ] Fix stale README statements that no longer match the codebase:
+  - raw models are z-score normalized, not min-max normalized
+  - current CLI defaults in README are outdated relative to `main.py`
+
+Definition of done:
+
+- [ ] TES appears in the normal comparison tables, and TES-specific interpretability figures can be generated in a repeatable way.
+
+---
+
+## 8. Phase 7: Add Regression Tests
+
+Primary file:
+
+- `tests/test_paper_repro_pipeline.py`
+
+Minimum TES test additions:
+
+- [ ] Feature-column extraction test
+- [ ] Feature-index resolution test
+- [ ] STFT preprocessing shape test
+- [ ] `build_model("spectral_cnn", ...)` output-shape test
+- [ ] `resolve_output_dir(...)` test for TES
+
+Nice-to-have tests:
+
+- [ ] Test that TES preprocessing raises a clear error if no requested feature names are found.
+- [ ] Test that TES preprocessing handles constant-valued feature channels without NaNs.
+- [ ] Test that TES preprocessing metadata includes STFT parameters.
+
+Definition of done:
+
+- [ ] `pytest` covers the new TES branch well enough to catch broken tensor shapes and missing CLI/model wiring.
+
+---
+
+## 9. Phase 8: First Experimental Run
+
+Suggested first run:
+
+```bash
+python main.py \
+  --model spectral_cnn \
+  --output_dir outputs/spectral_cnn \
+  --epochs 800 \
+  --batch_size 128 \
+  --lr 1e-4 \
+  --patience 50 \
+  --loss cross_entropy \
+  --amp
 ```
 
-**Visualization 2: Spectrograms per Engagement Class**
-```python
-def plot_class_spectrograms(X_train, y_train, feature_idx=0):
-    """
-    Show average STFT spectrogram for each engagement class.
-    
-    For feature_idx (e.g., 0 = head yaw):
-    - Plot 4 subplots (one per class)
-    - Each subplot: 2D heatmap (frequency × time)
-    - Interpretation: engaged students show power concentrated at low frequencies;
-      disengaged show spread across high frequencies
-    """
-    for class_id in range(4):
-        class_mask = y_train == class_id
-        class_spectral = X_train[class_mask, feature_idx, :, :]  # (n_samples, freq, time)
-        avg_spec = class_spectral.mean(axis=0)  # (freq, time)
-        plt.subplot(2, 2, class_id + 1)
-        plt.imshow(avg_spec, aspect='auto', origin='lower')
-        plt.colorbar()
-        plt.title(f"Class {class_id}: {ENGAGEMENT_LABELS[class_id]}")
-        plt.xlabel("Time Windows")
-        plt.ylabel("Frequency Bin (~0.5 Hz per bin)")
+Checklist:
+
+- [ ] Run TES once with the same general training regime used by the current best baselines.
+- [ ] Inspect:
+  - `outputs/spectral_cnn/preprocessing_summary.json`
+  - `outputs/spectral_cnn/metrics.json`
+  - `outputs/spectral_cnn/selection_summary.json`
+- [ ] Verify tensor shape, selected feature count, and STFT parameters were recorded correctly.
+- [ ] Run:
+
+```bash
+python scripts/visualize_results.py
 ```
 
-**Visualization 3: Feature Importance by Frequency**
-```python
-def freq_importance_per_class(model, X_test, y_test):
-    """
-    Measure: which frequency bands are most important for classification?
-    
-    Method: Compute gradient of logits w.r.t. spectral input, per frequency.
-    
-    Output: Bar chart
-    - X-axis: frequency band (low/mid/high)
-    - Y-axis: average gradient magnitude per engagement class
-    - Interpretation: "Engaged detection relies on low-frequency stability"
-    """
-```
+- [ ] Confirm TES appears in the comparison outputs under `outputs/visualizations/`.
 
-### 5.3 Comparison Report
+Definition of done:
 
-Create a comparison table:
-
-| Metric | Paper CNN | Temporal CNN | Spectral CNN |
-|--------|-----------|-------------|-------------|
-| Accuracy | ~71% | 76.8% | **Expected: 75-80%** |
-| Macro-F1 | ~78% | 0.565 | **Expected: 0.58-0.68** |
-| Class-0 Recall | ? | 0.37 | **Expected improvement** |
-| Class-3 Recall | ? | 0.28 | **Expected improvement** |
-| Inference time (ms/sample) | ? | ? | ~2-3 ms (faster than Transformer) |
-| Model interpretability | Low | Low | **High** (frequency analysis) |
+- [ ] TES has one clean baseline run with comparable logging and outputs to the existing models.
 
 ---
 
-## 6. Implementation Checklist
+## 10. Phase 9: Thesis-Useful Experiments
 
-### Phase 1: Feature Extraction (Week 1)
-- [ ] Finalize feature indices mapping (extract from actual OpenFace CSV)
-- [ ] Implement `SpectralPreprocessor.process_sample()` 
-- [ ] Test STFT output shape: `(100, 33, 9)` expected
-- [ ] Verify magnitude spectrograms look reasonable (visual inspection)
-- [ ] Batch process train/test sets; save to disk for reuse
+After the first TES run is stable:
 
-### Phase 2: Model Architecture (Week 1-2)
-- [ ] Implement `SpectralConvNet` class
-- [ ] Verify forward pass: `(batch, 100, 33, 9)` → `(batch, 4)` ✓
-- [ ] Count parameters (should be ~200K-500K)
-- [ ] Unit test with random input
+- [ ] Run TES with `weighted_cross_entropy`.
+- [ ] Run at least one feature-group ablation:
+  - head pose only
+  - gaze only
+  - AU only
+  - head pose + gaze + AU
+- [ ] Compare TES directly against:
+  - `temporal_cnn`
+  - `rectangular_cnn`
+- [ ] Record per-class recall differences, especially for class 0 and class 3.
 
-### Phase 3: Integration (Week 2)
-- [ ] Add `--model spectral_cnn` to argparse
-- [ ] Add spectral preprocessing to main pipeline
-- [ ] Test end-to-end: load data → preprocess → train → evaluate
+Interpretability tasks:
 
-### Phase 4: Training & Experiments (Week 2-3)
-- [ ] Train baseline spectral CNN (cross-entropy loss)
-- [ ] Train with weighted cross-entropy
-- [ ] Compare vs temporal CNN
-- [ ] Hyperparameter search: learning_rate, batch_size
-- [ ] Early stopping with patience=30
+- [ ] Compute average class spectrograms for a few selected channels.
+- [ ] Summarize energy over coarse bands such as:
+  - `0 to 1 Hz`
+  - `1 to 3 Hz`
+  - `3 to 5 Hz`
+- [ ] Avoid overstating physiology; treat these as empirical analysis bands.
 
-### Phase 5: Analysis & Visualization (Week 3-4)
-- [ ] Generate spectrograms per class
-- [ ] Visualize frequency importance
-- [ ] Compute frequency-domain statistics
-- [ ] Write comparison report
+Definition of done:
 
-### Phase 6: Thesis Documentation (Week 4)
-- [ ] Write results section (implementation + findings)
-- [ ] Create figures for thesis
-- [ ] Analyze: does spectral approach improve minority classes?
-- [ ] Interpret: what frequencies matter for engagement?
+- [ ] TES results answer the thesis question with evidence on macro-F1, minority-class recall, and interpretability.
 
 ---
 
-## 7. Expected Challenges & Solutions
+## 11. File-by-File Change Checklist
 
-| Challenge | Solution |
-|-----------|----------|
-| STFT output has NaN values | Clip signals to [-1e3, 1e3]; ensure normalization happens first |
-| Spectral tensor memory is large | Reduce selected features from 100 to 50; use float32 not float64 |
-| Model underfits (train/val loss both high) | Reduce dropout; increase model capacity (add channels) |
-| Model overfits (train loss ↓, val loss ↑) | Increase dropout to 0.4-0.5; add L2 regularization |
-| Macro-F1 still low (minority classes fail) | Add weighted loss or focal loss on top of spectral features |
-| Training is slow | Pre-compute all spectral tensors; save to HDF5 for fast loading |
+### `requirements.txt`
 
----
+- [ ] Add `scipy`
 
-## 8. Code Skeleton (Complete Implementation Template)
+### `src/paper_repro_data.py`
 
-Create a new file: `src/spectral_model.py`
+- [ ] Expose ordered feature-column names
+- [ ] Add TES feature-index resolution helpers
 
-```python
-"""Spectral CNN model for engagement classification."""
+### `src/paper_repro_preprocess.py`
 
-import numpy as np
-import scipy.signal
-import torch
-import torch.nn as nn
+- [ ] Add STFT-based TES preprocessing
+- [ ] Add TES feature-group selection helpers
+- [ ] Ensure deterministic `float32` outputs
 
+### `src/paper_repro_model.py`
 
-class SpectralPreprocessor:
-    """Convert raw frame-feature sequences to spectral tensors via STFT."""
-    
-    def __init__(self, feature_indices=None, n_fft=64, nperseg=32, noverlap=16, fs=30):
-        self.feature_indices = feature_indices or self._get_default_indices()
-        self.n_fft = n_fft
-        self.nperseg = nperseg
-        self.noverlap = noverlap
-        self.fs = fs
-    
-    def _get_default_indices(self):
-        """Return indices of 709 features to extract STFT from."""
-        # TODO: Fill in based on your actual OpenFace CSV column mapping
-        indices = []
-        indices.extend([4, 5, 6])  # head pose
-        indices.extend([7, 8, 9, 10])  # gaze
-        indices.extend(range(15, 32))  # AUs
-        # Add more as needed
-        return indices
-    
-    def process_sample(self, frame_matrix):
-        """
-        Args: frame_matrix (300, 709)
-        Returns: (n_selected_features, n_freq_bins, n_time_windows)
-        """
-        selected = frame_matrix[:, self.feature_indices]
-        stft_mags = []
-        
-        for col in range(selected.shape[1]):
-            signal = selected[:, col]
-            f, t, Zxx = scipy.signal.stft(
-                signal, fs=self.fs, nperseg=self.nperseg,
-                noverlap=self.noverlap, nfft=self.n_fft, window='hann'
-            )
-            stft_mags.append(np.abs(Zxx))
-        
-        return np.array(stft_mags, dtype=np.float32)
-    
-    def process_dataset(self, X):
-        """Args: X (n_samples, 300, 709)
-        Returns: (n_samples, n_features, n_freq_bins, n_time_windows)
-        """
-        return np.array([self.process_sample(X[i]) for i in range(X.shape[0])])
+- [ ] Add `SpectralConvNet`
+- [ ] Add `build_model("spectral_cnn", ...)`
+- [ ] Add `input_kind="spectral_tensor"`
 
+### `main.py`
 
-class SpectralConvNet(nn.Module):
-    """CNN over frequency-domain spectral features."""
-    
-    def __init__(self, n_input_features=100, n_freq_bins=33, num_classes=4):
-        super().__init__()
-        self.spec_conv1 = nn.Conv2d(n_input_features, 64, kernel_size=(5, 3), padding=(2, 1))
-        self.spec_bn1 = nn.BatchNorm2d(64)
-        self.spec_pool1 = nn.MaxPool2d((1, 2), stride=(1, 2))
-        
-        self.spec_conv2 = nn.Conv2d(64, 128, kernel_size=(3, 3), padding=(1, 1))
-        self.spec_bn2 = nn.BatchNorm2d(128)
-        self.spec_pool2 = nn.MaxPool2d((2, 2), stride=(2, 2))
-        
-        self.spec_conv3 = nn.Conv2d(128, 128, kernel_size=(3, 3), padding=(1, 1))
-        self.spec_bn3 = nn.BatchNorm2d(128)
-        
-        self.global_pool = nn.AdaptiveAvgPool2d((1, 1))
-        self.dropout = nn.Dropout(0.3)
-        self.fc1 = nn.Linear(128, 128)
-        self.fc_dropout = nn.Dropout(0.3)
-        self.fc2 = nn.Linear(128, num_classes)
-    
-    def forward(self, x):
-        x = torch.relu(self.spec_bn1(self.spec_conv1(x)))
-        x = self.spec_pool1(x)
-        
-        x = torch.relu(self.spec_bn2(self.spec_conv2(x)))
-        x = self.spec_pool2(x)
-        
-        x = torch.relu(self.spec_bn3(self.spec_conv3(x)))
-        x = self.global_pool(x).view(x.size(0), -1)
-        
-        x = self.dropout(x)
-        x = torch.relu(self.fc1(x))
-        x = self.fc_dropout(x)
-        return self.fc2(x)
-```
+- [ ] Add `spectral_cnn` CLI support
+- [ ] Add TES preprocessing branch
+- [ ] Save TES preprocessing metadata
 
-Then in `src/paper_repro_model.py`:
-```python
-def build_model(model_name, **kwargs):
-    # ... existing code ...
-    if model_name == "spectral_cnn":
-        from src.spectral_model import SpectralConvNet
-        return (
-            SpectralConvNet(
-                n_input_features=kwargs.get('n_input_features', 100),
-                n_freq_bins=kwargs.get('n_freq_bins', 33),
-                num_classes=4
-            ),
-            ModelSpec(name=model_name, input_kind="spectral")
-        )
-```
+### `tests/test_paper_repro_pipeline.py`
+
+- [ ] Add TES feature-name, STFT, model-shape, and output-dir tests
+
+### `scripts/visualize_results.py`
+
+- [ ] Verify TES works unchanged
+- [ ] Add TES-specific analysis only if generic plots are not enough
+
+### `README.md`
+
+- [ ] Add TES run example
+- [ ] Fix stale normalization/default-option text
 
 ---
 
-## 9. Success Criteria
+## 12. Recommended Order of Work
 
-The implementation is **successful** if:
+- [ ] Step 1: add `scipy`
+- [ ] Step 2: expose feature names in `paper_repro_data.py`
+- [ ] Step 3: implement TES preprocessing in `paper_repro_preprocess.py`
+- [ ] Step 4: add `SpectralConvNet` and model registration
+- [ ] Step 5: wire TES into `main.py`
+- [ ] Step 6: add tests
+- [ ] Step 7: run one TES baseline experiment
+- [ ] Step 8: run visualization and inspect outputs
+- [ ] Step 9: run weighted-loss and ablation experiments
 
-✅ **Accuracy**: ≥ 74% (comparable to temporal CNN)
-✅ **Macro-F1**: ≥ 0.55 (improves on temporal CNN's 0.565)
-✅ **Class-0/3 Recall**: > 40% each (vs temporal's 37%/28%)
-✅ **Interpretability**: Spectrograms show distinct patterns per class (frequency differences visible)
-✅ **Speed**: Inference ≤ 5 ms/sample (reasonable for deployment)
-
-**Bonus (thesis-level contribution)**:
-- Frequency analysis reveals engagement signatures (e.g., "engaged = low-frequency head stability")
-- Comparison visualization shows spectral CNN learns different patterns than temporal CNN
-- Ablation study: remove certain frequency bands, measure performance drop
-
----
-
-## 10. References & Inspiration
-
-- **Spectral analysis in speech**: [Reference to voice emotion recognition]
-- **EEG frequency bands**: [Theta, alpha, beta bands in attention studies]
-- **Facial engagement papers**: Check if any use frequency-domain analysis
-- **STFT implementations**: `scipy.signal.stft`, `librosa.stft`
+This order minimizes integration risk because it solves the feature-selection and tensor-shape problems before touching training or thesis analysis.
 
 ---
 
-## Summary
+## 13. Final Acceptance Criteria
 
-This specification provides a complete roadmap for implementing Temporal Engagement Signatures (TES) via spectral convolution. The approach is:
-- **Novel**: Spectral analysis for facial engagement is underexplored
-- **Interpretable**: Frequency bands reveal *how* engagement manifests
-- **Feasible**: ~4-5 weeks implementation + evaluation
-- **Publishable**: Unique angle; can generate interpretable visualizations
+TES is integrated into the current repo when all of the following are true:
 
-The implementation builds on your existing pipeline with minimal changes, and the spectral preprocessing can be integrated as an optional mode alongside temporal/rectangular CNN models.
-
+- [ ] `python main.py --model spectral_cnn ...` runs successfully
+- [ ] `metrics.json`, `preprocessing_summary.json`, and `best_model.pth` are produced
+- [ ] TES appears in `scripts/visualize_results.py` outputs
+- [ ] `pytest` passes with TES coverage added
+- [ ] At least one TES run is directly comparable to `temporal_cnn` and `rectangular_cnn`
+- [ ] The run produces enough information to discuss macro-F1, minority-class recall, and interpretable spectral patterns in the thesis

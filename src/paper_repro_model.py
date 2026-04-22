@@ -120,6 +120,38 @@ class RectangularFilterCNN(nn.Module):
         return self.classifier(self.features(x))
 
 
+class SpectralConvNet(nn.Module):
+    """CNN over TES time-frequency tensors."""
+
+    def __init__(self, *, n_input_features: int, num_classes: int = 4) -> None:
+        super().__init__()
+        self.features = nn.Sequential(
+            nn.Conv2d(n_input_features, 64, kernel_size=(5, 3), padding=(2, 1)),
+            nn.BatchNorm2d(64),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=(1, 2), stride=(1, 2)),
+            nn.Conv2d(64, 128, kernel_size=(3, 3), padding=(1, 1)),
+            nn.BatchNorm2d(128),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=(2, 2), stride=(2, 2)),
+            nn.Conv2d(128, 128, kernel_size=(3, 3), padding=(1, 1)),
+            nn.BatchNorm2d(128),
+            nn.ReLU(inplace=True),
+            nn.AdaptiveAvgPool2d((1, 1)),
+        )
+        self.classifier = nn.Sequential(
+            nn.Flatten(),
+            nn.Dropout(p=0.3),
+            nn.Linear(128, 128),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.3),
+            nn.Linear(128, num_classes),
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.classifier(self.features(x))
+
+
 class SequenceLSTM(nn.Module):
     """LSTM classifier over frame-level OpenFace features."""
 
@@ -234,6 +266,11 @@ def build_model(
         return (
             RectangularFilterCNN(num_classes=num_classes),
             ModelSpec(name=model_name, input_kind="frame_feature_map"),
+        )
+    if model_name == "spectral_cnn":
+        return (
+            SpectralConvNet(n_input_features=input_features, num_classes=num_classes),
+            ModelSpec(name=model_name, input_kind="spectral_tensor"),
         )
     if model_name == "lstm":
         return (
