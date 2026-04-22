@@ -21,6 +21,7 @@ from typing import Iterable
 
 import numpy as np
 import pandas as pd
+from tqdm.auto import tqdm
 
 
 LABEL_MAP = {
@@ -196,11 +197,17 @@ def load_dataset_matrices(
     records: list[SampleMeta],
     *,
     target_frames: int = 300,
+    progress_desc: str | None = None,
 ) -> tuple[np.ndarray, np.ndarray, list[str]]:
     """Load all selected samples into a 3-D array."""
     matrices = [
         load_openface_matrix(record.csv_path, target_frames=target_frames)
-        for record in records
+        for record in tqdm(
+            records,
+            desc=progress_desc or "Loading samples",
+            unit="sample",
+            leave=False,
+        )
     ]
     sample_ids = [record.sample_id for record in records]
     labels = np.array([record.label_id for record in records], dtype=np.int64)

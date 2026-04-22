@@ -7,6 +7,7 @@ from collections import Counter
 import numpy as np
 from sklearn.decomposition import PCA, TruncatedSVD
 from sklearn.neighbors import NearestNeighbors
+from tqdm.auto import tqdm
 
 
 def reduce_sample_matrix(
@@ -43,11 +44,17 @@ def preprocess_dataset(
     *,
     method: str = "svd",
     n_components: int = 300,
+    progress_desc: str | None = None,
 ) -> tuple[np.ndarray, np.ndarray]:
     """Apply paper-style reduction and normalization to all samples."""
     processed = []
     explained = []
-    for matrix in matrices:
+    for matrix in tqdm(
+        matrices,
+        desc=progress_desc or f"{method.upper()} reduction",
+        unit="sample",
+        leave=False,
+    ):
         reduced, evr = reduce_sample_matrix(matrix, method=method, n_components=n_components)
         processed.append(minmax_normalize_per_sample(reduced))
         explained.append(evr)

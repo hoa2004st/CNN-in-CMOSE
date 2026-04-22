@@ -165,10 +165,12 @@ def main(argv: list[str] | None = None) -> None:
         X_train_raw, y_train, train_sample_ids = load_dataset_matrices(
             train_records,
             target_frames=args.target_frames,
+            progress_desc="Loading train samples",
         )
         X_test_raw, y_test, test_sample_ids = load_dataset_matrices(
             test_records,
             target_frames=args.target_frames,
+            progress_desc="Loading test samples",
         )
         logger.info(
             "Applying %s reduction to %d components after split",
@@ -179,11 +181,13 @@ def main(argv: list[str] | None = None) -> None:
             X_train_raw,
             method=args.method,
             n_components=args.n_components,
+            progress_desc=f"{args.method.upper()} train samples",
         )
         X_test_processed, test_explained = preprocess_dataset(
             X_test_raw,
             method=args.method,
             n_components=args.n_components,
+            progress_desc=f"{args.method.upper()} test samples",
         )
         save_json(
             {
@@ -215,12 +219,14 @@ def main(argv: list[str] | None = None) -> None:
         matrices, labels, sample_ids = load_dataset_matrices(
             selected_records,
             target_frames=args.target_frames,
+            progress_desc="Loading selected samples",
         )
         logger.info("Applying %s reduction to %d components", args.method.upper(), args.n_components)
         processed, explained = preprocess_dataset(
             matrices,
             method=args.method,
             n_components=args.n_components,
+            progress_desc=f"{args.method.upper()} selected samples",
         )
         save_json(
             {
