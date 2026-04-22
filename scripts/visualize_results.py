@@ -33,6 +33,27 @@ class RunResult:
             return f"{model} ({str(method).upper()})"
         return str(model)
 
+    @property
+    def base_model(self) -> str:
+        return str(self.config.get("model", self.run_name))
+
+    @property
+    def variant_label(self) -> str:
+        parts = []
+        method = self.config.get("method")
+        loss = self.config.get("loss")
+        focal_gamma = self.config.get("focal_gamma")
+        if method:
+            parts.append(str(method).upper())
+        if loss and loss != "cross_entropy":
+            if loss == "focal" and focal_gamma is not None:
+                parts.append(f"focal(g={focal_gamma})")
+            else:
+                parts.append(str(loss))
+        if not parts:
+            parts.append("baseline")
+        return " + ".join(parts)
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -68,8 +89,12 @@ def build_summary_frame(runs: list[RunResult]) -> pd.DataFrame:
             {
                 "run_name": run.run_name,
                 "model_label": run.model_label,
+                "base_model": run.base_model,
+                "variant_label": run.variant_label,
                 "model": run.config.get("model"),
                 "method": run.config.get("method"),
+                "loss": run.config.get("loss", "cross_entropy"),
+                "focal_gamma": run.config.get("focal_gamma"),
                 "best_epoch": history.get("best_epoch"),
                 "accuracy": metrics.get("accuracy"),
                 "f1_macro": metrics.get("f1_macro"),
@@ -89,11 +114,22 @@ def build_summary_frame(runs: list[RunResult]) -> pd.DataFrame:
     return frame
 
 
-def save_summary_csv(summary_df: pd.DataFrame, viz_dir: Path) -> None:
-    summary_df.to_csv(viz_dir / "summary_table.csv", index=False)
+def pick_best_run_per_model(summary_df: pd.DataFrame) -> pd.DataFrame:
+    if summary_df.empty:
+        return summary_df.copy()
+    ordered = summary_df.sort_values(
+        ["base_model", "f1_macro", "accuracy", "f1_weighted"],
+        ascending=[True, False, False, False],
+    )
+    return ordered.drop_duplicates(subset=["base_model"], keep="first").reset_index(drop=True)
 
 
-def plot_metric_bars(summary_df: pd.DataFrame, viz_dir: Path) -> None:
+def save_summary_csvs(summary_df: pd.DataFrame, best_df: pd.DataFrame, viz_dir: Path) -> None:
+    summary_df.to_csv(viz_dir / "summary_table_all_runs.csv", index=False)
+    best_df.to_csv(viz_dir / "summary_table_best_per_model.csv", index=False)
+
+
+def plot_metric_bars(summary_df: pd.DataFrame, viz_dir: Path, *, filename: str, title: str) -> None:
     if summary_df.empty:
         return
 
@@ -119,13 +155,13 @@ def plot_metric_bars(summary_df: pd.DataFrame, viz_dir: Path) -> None:
         ax.set_xlabel(title)
         ax.set_ylabel("")
         ax.set_xlim(0.0, 1.0)
-    fig.suptitle("Model Comparison Across Completed Runs", fontsize=14)
+    fig.suptitle(title, fontsize=14)
     fig.tight_layout()
-    fig.savefig(viz_dir / "comparison_metrics.png", dpi=200, bbox_inches="tight")
+    fig.savefig(viz_dir / filename, dpi=200, bbox_inches="tight")
     plt.close(fig)
 
 
-def plot_best_epoch_bars(summary_df: pd.DataFrame, viz_dir: Path) -> None:
+def plot_best_epoch_bars(summary_df: pd.DataFrame, viz_dir: Path, *, filename: str, title: str) -> None:
     if summary_df.empty:
         return
 
@@ -141,12 +177,96 @@ def plot_best_epoch_bars(summary_df: pd.DataFrame, viz_dir: Path) -> None:
         ax=ax,
         palette="flare",
     )
-    ax.set_title("Best Checkpoint Epoch by Run")
+    ax.set_title(title)
     ax.set_xlabel("Best Epoch")
     ax.set_ylabel("")
     fig.tight_layout()
-    fig.savefig(viz_dir / "best_epoch_comparison.png", dpi=200, bbox_inches="tight")
+    fig.savefig(viz_dir / filename, dpi=200, bbox_inches="tight")
     plt.close(fig)
+
+
+def plot_model_variant_comparison(summary_df: pd.DataFrame, viz_dir: Path) -> None:
+    if summary_df.empty:
+        return
+
+    multi_variant_models = [
+        model_name
+        for model_name, group in summary_df.groupby("base_model")
+        if len(group) > 1
+    ]
+    if not multi_variant_models:
+        return
+
+    metric_specs = [
+        ("accuracy", "Accuracy"),
+        ("f1_macro", "Macro F1"),
+        ("f1_weighted", "Weighted F1"),
+    ]
+    fig, axes = plt.subplots(
+        len(multi_variant_models),
+        len(metric_specs),
+        figsize=(18, 5 * len(multi_variant_models)),
+        squeeze=False,
+    )
+
+    for row_idx, model_name in enumerate(multi_variant_models):
+        model_df = summary_df[summary_df["base_model"] == model_name].sort_values(
+            ["f1_macro", "accuracy"], ascending=[False, False]
+        )
+        for col_idx, (metric, metric_title) in enumerate(metric_specs):
+            ax = axes[row_idx][col_idx]
+            ordered = model_df.sort_values(metric, ascending=False)
+            sns.barplot(
+                data=ordered,
+                x=metric,
+                y="variant_label",
+                hue="variant_label",
+                dodge=False,
+                legend=False,
+                ax=ax,
+                palette="mako",
+            )
+            ax.set_xlim(0.0, 1.0)
+            ax.set_title(f"{model_name}: {metric_title}")
+            ax.set_xlabel(metric_title)
+            ax.set_ylabel("" if col_idx else "Variant")
+
+    fig.suptitle("Within-Model Variant Comparison", fontsize=14)
+    fig.tight_layout()
+    fig.savefig(viz_dir / "same_model_variant_comparison.png", dpi=200, bbox_inches="tight")
+    plt.close(fig)
+
+
+def write_comparison_report(summary_df: pd.DataFrame, best_df: pd.DataFrame, viz_dir: Path) -> None:
+    lines = [
+        "# Comparison Summary",
+        "",
+        "## Best Run Per Model",
+        "",
+    ]
+    for _, row in best_df.sort_values(["f1_macro", "accuracy"], ascending=[False, False]).iterrows():
+        lines.extend(
+            [
+                f"- `{row['base_model']}`: run `{row['run_name']}` ({row['variant_label']})",
+                f"  Macro F1={row['f1_macro']:.4f}, Accuracy={row['accuracy']:.4f}, Best epoch={row['best_epoch']}",
+            ]
+        )
+
+    variant_models = [model for model, group in summary_df.groupby("base_model") if len(group) > 1]
+    if variant_models:
+        lines.extend(["", "## Variant Comparison By Model", ""])
+        for model_name in variant_models:
+            lines.append(f"### {model_name}")
+            model_df = summary_df[summary_df["base_model"] == model_name].sort_values(
+                ["f1_macro", "accuracy"], ascending=[False, False]
+            )
+            for _, row in model_df.iterrows():
+                lines.append(
+                    f"- `{row['variant_label']}`: run `{row['run_name']}`, Macro F1={row['f1_macro']:.4f}, Accuracy={row['accuracy']:.4f}"
+                )
+            lines.append("")
+
+    (viz_dir / "comparison_report.md").write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
 
 
 def plot_training_curves(run: RunResult, run_viz_dir: Path) -> None:
@@ -245,9 +365,22 @@ def main() -> None:
         raise SystemExit(f"No completed runs found under {outputs_dir}")
 
     summary_df = build_summary_frame(runs)
-    save_summary_csv(summary_df, viz_dir)
-    plot_metric_bars(summary_df, viz_dir)
-    plot_best_epoch_bars(summary_df, viz_dir)
+    best_df = pick_best_run_per_model(summary_df)
+    save_summary_csvs(summary_df, best_df, viz_dir)
+    plot_metric_bars(
+        best_df,
+        viz_dir,
+        filename="comparison_metrics_best_per_model.png",
+        title="Best Run Comparison Across Models",
+    )
+    plot_best_epoch_bars(
+        best_df,
+        viz_dir,
+        filename="best_epoch_comparison_best_per_model.png",
+        title="Best Checkpoint Epoch for Best Run Per Model",
+    )
+    plot_model_variant_comparison(summary_df, viz_dir)
+    write_comparison_report(summary_df, best_df, viz_dir)
 
     for run in runs:
         visualize_run(run, viz_dir)
