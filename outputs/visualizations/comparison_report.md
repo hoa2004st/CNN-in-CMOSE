@@ -14,4 +14,5 @@
 ### temporal_cnn
 - `baseline`: run `temporal_cnn`, Macro F1=0.5647, Accuracy=0.7682
 - `weighted_cross_entropy`: run `temporal_cnn_weighted_ce`, Macro F1=0.5592, Accuracy=0.6708
+- `ordinal`: run `temporal_cnn_ordinal`, Macro F1=0.5305, Accuracy=0.6257
 - `focal(g=2.0)`: run `temporal_cnn_focal`, Macro F1=0.1881, Accuracy=0.1687
