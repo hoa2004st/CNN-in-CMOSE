@@ -150,12 +150,13 @@ def load_openface_matrix(
 
     # Paper stage 2: when multiple detections exist in one frame, keep the
     # highest-confidence row.
-    df = (
+    frame_best_idx = (
         df.sort_values(["frame", "confidence"], ascending=[True, False])
-        .groupby("frame", as_index=False)
-        .first()
-        .sort_values("frame")
+        .groupby("frame", sort=False)["confidence"]
+        .idxmax()
+        .to_numpy()
     )
+    df = df.loc[frame_best_idx].sort_values("frame").reset_index(drop=True).copy()
 
     feature_cols = [column for column in df.columns if column not in OPENFACE_META_COLS]
     if len(feature_cols) != 709:
