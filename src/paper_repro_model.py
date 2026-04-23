@@ -245,7 +245,7 @@ class SequenceTransformer(nn.Module):
 
 
 class DualStreamOpenFaceI3DModel(nn.Module):
-    """Late-fusion temporal model over OpenFace and precomputed I3D features."""
+    """Shared-fusion temporal model over OpenFace and precomputed I3D features."""
 
     def __init__(
         self,
@@ -254,8 +254,10 @@ class DualStreamOpenFaceI3DModel(nn.Module):
         i3d_features: int = 1024,
         hidden_dim: int = 128,
         num_classes: int = 4,
+        reconstruction_weight: float = 0.1,
     ) -> None:
         super().__init__()
+        self.reconstruction_weight = float(reconstruction_weight)
         self.openface_encoder = nn.Sequential(
             nn.Conv1d(openface_features, 256, kernel_size=5, padding=2),
             nn.ReLU(inplace=True),
@@ -275,7 +277,15 @@ class DualStreamOpenFaceI3DModel(nn.Module):
             nn.Conv1d(hidden_dim, hidden_dim, kernel_size=3, padding=1),
             nn.ReLU(inplace=True),
         )
-        self.gate = nn.Linear(hidden_dim * 2, hidden_dim)
+        self.shared_fusion = nn.Sequential(
+            nn.Linear(hidden_dim * 2, hidden_dim),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.3),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU(inplace=True),
+        )
+        self.openface_reconstruction = nn.Linear(hidden_dim, hidden_dim)
+        self.i3d_reconstruction = nn.Linear(hidden_dim, hidden_dim)
         self.classifier = nn.Sequential(
             nn.Dropout(p=0.3),
             nn.Linear(hidden_dim, 128),
@@ -284,17 +294,39 @@ class DualStreamOpenFaceI3DModel(nn.Module):
             nn.Linear(128, num_classes),
         )
 
-    def forward(self, openface_x: torch.Tensor, i3d_x: torch.Tensor) -> torch.Tensor:
+    def _encode_streams(
+        self,
+        openface_x: torch.Tensor,
+        i3d_x: torch.Tensor,
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         openface_seq = self.openface_encoder(openface_x.transpose(1, 2)).transpose(1, 2)
-
         i3d_seq = self.i3d_projection(i3d_x)
         i3d_seq = self.i3d_temporal(i3d_seq.transpose(1, 2)).transpose(1, 2)
+        return openface_seq, i3d_seq
 
+    def _fuse_sequences(self, openface_seq: torch.Tensor, i3d_seq: torch.Tensor) -> torch.Tensor:
         fused_input = torch.cat([openface_seq, i3d_seq], dim=-1)
-        gate = torch.sigmoid(self.gate(fused_input))
-        fused = gate * openface_seq + (1.0 - gate) * i3d_seq
+        return self.shared_fusion(fused_input)
+
+    def forward_with_aux(
+        self,
+        openface_x: torch.Tensor,
+        i3d_x: torch.Tensor,
+    ) -> tuple[torch.Tensor, torch.Tensor]:
+        openface_seq, i3d_seq = self._encode_streams(openface_x, i3d_x)
+        fused = self._fuse_sequences(openface_seq, i3d_seq)
+        openface_recon = self.openface_reconstruction(fused)
+        i3d_recon = self.i3d_reconstruction(fused)
+        aux_loss = self.reconstruction_weight * (
+            torch.mean((openface_recon - openface_seq) ** 2)
+            + torch.mean((i3d_recon - i3d_seq) ** 2)
+        )
         pooled = fused.mean(dim=1)
-        return self.classifier(pooled)
+        return self.classifier(pooled), aux_loss
+
+    def forward(self, openface_x: torch.Tensor, i3d_x: torch.Tensor) -> torch.Tensor:
+        logits, _ = self.forward_with_aux(openface_x, i3d_x)
+        return logits
 
 
 def build_model(

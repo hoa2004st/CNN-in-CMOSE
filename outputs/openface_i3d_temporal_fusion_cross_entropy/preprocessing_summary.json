@@ -19,12 +19,5 @@
     "openface": "per-feature z-score using train-set statistics",
     "i3d": "per-feature z-score using train-set statistics"
   },
-  "i3d_materialization": {
-    "source_json": "data/CMOSE/final_data_1.json",
-    "output_dir": "data/CMOSE/i3d",
-    "embedding_dim": 1024,
-    "written_files": 12197,
-    "replaced_empty_embeddings": 295,
-    "skipped_invalid_records": 0
-  }
+  "i3d_materialization": null
 }

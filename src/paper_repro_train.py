@@ -225,8 +225,8 @@ def train_model(
 
             optimizer.zero_grad()
             with torch.amp.autocast("cuda", enabled=use_amp):
-                logits = _forward_model(model, feature_batches)
-                loss = criterion(logits, y_batch)
+                logits, aux_loss = _forward_model_with_aux(model, feature_batches)
+                loss = criterion(logits, y_batch) + aux_loss
             scaler.scale(loss).backward()
             scaler.step(optimizer)
             scaler.update()
@@ -375,8 +375,8 @@ def _evaluate_loss_accuracy(
             ]
             y_batch = y_batch.to(device, non_blocking=pin_memory)
             with torch.amp.autocast("cuda", enabled=use_amp):
-                logits = _forward_model(model, feature_batches)
-                loss = criterion(logits, y_batch)
+                logits, aux_loss = _forward_model_with_aux(model, feature_batches)
+                loss = criterion(logits, y_batch) + aux_loss
             total_loss += loss.item() * len(y_batch)
             total_correct += (logits.argmax(dim=1) == y_batch).sum().item()
             total_samples += len(y_batch)
@@ -404,3 +404,17 @@ def _forward_model(model: nn.Module, feature_batches: list[torch.Tensor]) -> tor
     if len(feature_batches) == 1:
         return model(feature_batches[0])
     return model(*feature_batches)
+
+
+def _forward_model_with_aux(
+    model: nn.Module,
+    feature_batches: list[torch.Tensor],
+) -> tuple[torch.Tensor, torch.Tensor]:
+    if hasattr(model, "forward_with_aux"):
+        if len(feature_batches) == 1:
+            logits, aux_loss = model.forward_with_aux(feature_batches[0])
+        else:
+            logits, aux_loss = model.forward_with_aux(*feature_batches)
+        return logits, aux_loss
+    logits = _forward_model(model, feature_batches)
+    return logits, logits.new_zeros(())

@@ -272,8 +272,15 @@ def test_model_factory_output_shapes() -> None:
         torch.from_numpy(np.random.randn(2, 15, 32).astype(np.float32)),
         torch.from_numpy(np.random.randn(2, 15, 64).astype(np.float32)),
     )
+    fusion_logits, fusion_aux = fusion_model.forward_with_aux(
+        torch.from_numpy(np.random.randn(2, 15, 32).astype(np.float32)),
+        torch.from_numpy(np.random.randn(2, 15, 64).astype(np.float32)),
+    )
     assert fusion_spec.input_kind == "multimodal_sequence"
     assert fusion_out.shape == (2, 4)
+    assert fusion_logits.shape == (2, 4)
+    assert fusion_aux.ndim == 0
+    assert float(fusion_aux.item()) >= 0.0
 
 
 def test_loss_factory_builds_weighted_focal_and_ordinal_losses() -> None:
