@@ -10,6 +10,8 @@
   Macro F1=0.5441, Accuracy=0.7445, Best epoch=30
 - `lstm`: run `lstm` (baseline)
   Macro F1=0.4357, Accuracy=0.6994, Best epoch=11
+- `spectral_cnn`: run `spectral_cnn` (baseline)
+  Macro F1=0.4122, Accuracy=0.7404, Best epoch=10
 - `paper_cnn`: run `paper_cnn_svd` (SVD)
   Macro F1=0.2189, Accuracy=0.6945, Best epoch=23
 
