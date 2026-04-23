@@ -1,7 +1,7 @@
 # temporal_cnn
 
 - Run folder: `temporal_cnn_weighted_ce`
-- Metrics file: `outputs\temporal_cnn_weighted_ce\metrics.json`
+- Metrics file: `outputs/temporal_cnn_weighted_ce/metrics.json`
 - Accuracy: 0.6708
 - Macro F1: 0.5592
 - Weighted F1: 0.6909

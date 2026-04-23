@@ -1,7 +1,7 @@
 # rectangular_cnn
 
 - Run folder: `rectangular_cnn`
-- Metrics file: `outputs\rectangular_cnn\metrics.json`
+- Metrics file: `outputs/rectangular_cnn/metrics.json`
 - Accuracy: 0.7699
 - Macro F1: 0.5633
 - Weighted F1: 0.7489

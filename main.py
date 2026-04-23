@@ -16,6 +16,9 @@ from src.paper_repro_data import (
     get_openface_feature_columns,
     load_cmose_metadata,
     load_dataset_matrices,
+    load_i3d_dataset_matrices,
+    materialize_i3d_features_from_json,
+    resample_frames,
 )
 from src.paper_repro_model import build_model
 from src.paper_repro_preprocess import (
@@ -50,6 +53,22 @@ def _log_chunk_progress(done: int, total: int) -> None:
 
 def _log_step(message: str) -> None:
     logger.info("%s", message)
+
+
+def _resample_sample_batch(matrices: np.ndarray, *, target_frames: int) -> np.ndarray:
+    if matrices.shape[1] == target_frames:
+        return matrices.astype(np.float32, copy=False)
+    return np.stack(
+        [resample_frames(sample, target_frames=target_frames) for sample in matrices],
+        axis=0,
+    ).astype(np.float32, copy=False)
+
+
+def _has_materialized_i3d_features(feature_dir: str | Path) -> bool:
+    feature_dir = Path(feature_dir)
+    if not feature_dir.exists() or not feature_dir.is_dir():
+        return False
+    return any(feature_dir.glob("*.npy")) or any(feature_dir.glob("*.npz")) or any(feature_dir.glob("*.pt"))
 
 
 def _format_loss_suffix(loss_name: str, focal_gamma: float) -> str:
@@ -115,6 +134,7 @@ def build_parser() -> argparse.ArgumentParser:
             "spectral_cnn",
             "lstm",
             "transformer",
+            "openface_i3d_temporal_fusion",
         ],
         default="paper_cnn",
         help="Model architecture to train under the strict CMOSE split.",
@@ -136,6 +156,17 @@ def build_parser() -> argparse.ArgumentParser:
         type=int,
         default=300,
         help="Fixed frame count per sample before reduction.",
+    )
+    parser.add_argument(
+        "--i3d_feature_dir",
+        default="data/CMOSE/i3d",
+        help="Directory containing one precomputed I3D feature file per sample id.",
+    )
+    parser.add_argument(
+        "--fusion_frames",
+        type=int,
+        default=75,
+        help="Shared temporal length used by the OpenFace+I3D fusion model.",
     )
     parser.add_argument("--epochs", type=int, default=800)
     parser.add_argument("--batch_size", type=int, default=128)
@@ -208,13 +239,18 @@ def main(argv: list[str] | None = None) -> None:
             "normalization": (
                 "per-sample z-score after per-sample PCA/SVD"
                 if args.model == "paper_cnn"
-                else "per-feature z-score using train-set statistics"
+                else (
+                    "separate per-feature z-score using train-set statistics for OpenFace and I3D"
+                    if args.model == "openface_i3d_temporal_fusion"
+                    else "per-feature z-score using train-set statistics"
+                )
             ),
             "smote_position": None,
             "dataset_scope": "original labeled CMOSE train/test samples",
             "train_eval_split_usage": "original CMOSE train/test split",
             "model": args.model,
             "loss": args.loss,
+            "fusion_frames": args.fusion_frames if args.model == "openface_i3d_temporal_fusion" else None,
         },
     }
     save_json(selection_summary, output_dir / "selection_summary.json")
@@ -238,9 +274,13 @@ def main(argv: list[str] | None = None) -> None:
     )
     raw_input_features = int(X_train_raw.shape[-1])
     input_features = raw_input_features
+    i3d_input_features: int | None = None
     feature_columns: list[str] | None = None
     tes_feature_groups: dict[str, list[int]] | None = None
     tes_feature_indices: list[int] | None = None
+    X_train_i3d_raw: np.ndarray | None = None
+    X_test_i3d_raw: np.ndarray | None = None
+    i3d_materialization_summary: dict[str, int | str] | None = None
     if args.model == "spectral_cnn":
         if not train_records:
             raise ValueError("TES requires at least one training record to resolve feature names")
@@ -250,10 +290,41 @@ def main(argv: list[str] | None = None) -> None:
         if not tes_feature_indices:
             raise ValueError("TES feature selection produced zero feature indices")
         input_features = len(tes_feature_indices)
+    elif args.model == "openface_i3d_temporal_fusion":
+        if not _has_materialized_i3d_features(args.i3d_feature_dir):
+            logger.info(
+                "No materialized I3D feature directory detected at %s; extracting from %s",
+                args.i3d_feature_dir,
+                args.labels_json,
+            )
+            i3d_materialization_summary = materialize_i3d_features_from_json(
+                args.labels_json,
+                args.i3d_feature_dir,
+            )
+            logger.info(
+                "Materialized %d I3D feature files to %s",
+                i3d_materialization_summary["written_files"],
+                args.i3d_feature_dir,
+            )
+        logger.info("Loading aligned I3D features from %s", args.i3d_feature_dir)
+        X_train_i3d_raw = load_i3d_dataset_matrices(
+            train_sample_ids,
+            feature_dir=args.i3d_feature_dir,
+            target_frames=args.fusion_frames,
+            progress_desc="Loading train I3D features",
+        )
+        X_test_i3d_raw = load_i3d_dataset_matrices(
+            test_sample_ids,
+            feature_dir=args.i3d_feature_dir,
+            target_frames=args.fusion_frames,
+            progress_desc="Loading test I3D features",
+        )
+        i3d_input_features = int(X_train_i3d_raw.shape[-1])
     model, model_spec = build_model(
         args.model,
         input_size=args.n_components,
         input_features=input_features,
+        i3d_input_features=i3d_input_features,
         num_classes=len(ID_TO_LABEL),
     )
 
@@ -297,6 +368,78 @@ def main(argv: list[str] | None = None) -> None:
             "test_mean_explained_variance": float(test_explained.mean()),
             "test_min_explained_variance": float(test_explained.min()),
             "test_max_explained_variance": float(test_explained.max()),
+        }
+    elif model_spec.input_kind == "multimodal_sequence":
+        if X_train_i3d_raw is None or X_test_i3d_raw is None:
+            raise RuntimeError("I3D features were not loaded for the multimodal model")
+        logger.info(
+            "Normalizing OpenFace and I3D features with train-fit per-feature z-score for %s",
+            args.model,
+        )
+        openface_mean, openface_std = fit_feature_normalizer(X_train_raw)
+        X_train_openface = normalize_dataset_per_feature(
+            X_train_raw,
+            mean=openface_mean,
+            std=openface_std,
+            progress_desc="Normalizing train OpenFace samples",
+            chunk_size=32,
+            progress_callback=_log_chunk_progress,
+        )
+        del X_train_raw
+        gc.collect()
+        X_test_openface = normalize_dataset_per_feature(
+            X_test_raw,
+            mean=openface_mean,
+            std=openface_std,
+            progress_desc="Normalizing test OpenFace samples",
+            chunk_size=32,
+            progress_callback=_log_chunk_progress,
+        )
+        del X_test_raw
+        gc.collect()
+        X_train_openface = _resample_sample_batch(X_train_openface, target_frames=args.fusion_frames)
+        X_test_openface = _resample_sample_batch(X_test_openface, target_frames=args.fusion_frames)
+
+        i3d_mean, i3d_std = fit_feature_normalizer(X_train_i3d_raw)
+        X_train_i3d = normalize_dataset_per_feature(
+            X_train_i3d_raw,
+            mean=i3d_mean,
+            std=i3d_std,
+            progress_desc="Normalizing train I3D features",
+            chunk_size=32,
+            progress_callback=_log_chunk_progress,
+        )
+        del X_train_i3d_raw
+        gc.collect()
+        X_test_i3d = normalize_dataset_per_feature(
+            X_test_i3d_raw,
+            mean=i3d_mean,
+            std=i3d_std,
+            progress_desc="Normalizing test I3D features",
+            chunk_size=32,
+            progress_callback=_log_chunk_progress,
+        )
+        del X_test_i3d_raw
+        gc.collect()
+
+        X_train_input = (X_train_openface.astype(np.float32), X_train_i3d.astype(np.float32))
+        X_test_input = (X_test_openface.astype(np.float32), X_test_i3d.astype(np.float32))
+        preprocessing_summary = {
+            "model": args.model,
+            "sample_count": len(train_sample_ids) + len(test_sample_ids),
+            "train_sample_count": len(train_sample_ids),
+            "test_sample_count": len(test_sample_ids),
+            "openface_feature_count": raw_input_features,
+            "i3d_feature_count": i3d_input_features,
+            "openface_input_frames": args.target_frames,
+            "fusion_frames": args.fusion_frames,
+            "openface_shape": list(map(int, X_train_input[0].shape[1:])),
+            "i3d_shape": list(map(int, X_train_input[1].shape[1:])),
+            "normalization": {
+                "openface": "per-feature z-score using train-set statistics",
+                "i3d": "per-feature z-score using train-set statistics",
+            },
+            "i3d_materialization": i3d_materialization_summary,
         }
     else:
         logger.info(
@@ -446,6 +589,10 @@ def main(argv: list[str] | None = None) -> None:
                 "num_workers": args.num_workers,
                 "amp": args.amp,
                 "seed": args.seed,
+                "i3d_feature_dir": (
+                    args.i3d_feature_dir if args.model == "openface_i3d_temporal_fusion" else None
+                ),
+                "fusion_frames": args.fusion_frames if args.model == "openface_i3d_temporal_fusion" else None,
             },
             "history": history,
             "metrics": metrics,

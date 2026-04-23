@@ -1,7 +1,7 @@
 # paper_cnn (SVD)
 
 - Run folder: `paper_cnn_svd`
-- Metrics file: `outputs\paper_cnn_svd\metrics.json`
+- Metrics file: `outputs/paper_cnn_svd/metrics.json`
 - Accuracy: 0.6945
 - Macro F1: 0.2189
 - Weighted F1: 0.5704

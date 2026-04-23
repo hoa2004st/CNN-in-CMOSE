@@ -8,6 +8,8 @@
   Macro F1=0.5633, Accuracy=0.7699, Best epoch=357
 - `transformer`: run `transformer` (baseline)
   Macro F1=0.5441, Accuracy=0.7445, Best epoch=30
+- `openface_i3d_temporal_fusion`: run `openface_i3d_temporal_fusion_cross_entropy` (baseline)
+  Macro F1=0.5226, Accuracy=0.7658, Best epoch=6
 - `lstm`: run `lstm` (baseline)
   Macro F1=0.4357, Accuracy=0.6994, Best epoch=11
 - `spectral_cnn`: run `spectral_cnn` (baseline)

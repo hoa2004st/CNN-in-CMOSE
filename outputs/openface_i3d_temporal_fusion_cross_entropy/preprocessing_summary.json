@@ -1,0 +1,30 @@
+{
+  "model": "openface_i3d_temporal_fusion",
+  "sample_count": 10004,
+  "train_sample_count": 8783,
+  "test_sample_count": 1221,
+  "openface_feature_count": 709,
+  "i3d_feature_count": 1024,
+  "openface_input_frames": 300,
+  "fusion_frames": 75,
+  "openface_shape": [
+    75,
+    709
+  ],
+  "i3d_shape": [
+    75,
+    1024
+  ],
+  "normalization": {
+    "openface": "per-feature z-score using train-set statistics",
+    "i3d": "per-feature z-score using train-set statistics"
+  },
+  "i3d_materialization": {
+    "source_json": "data/CMOSE/final_data_1.json",
+    "output_dir": "data/CMOSE/i3d",
+    "embedding_dim": 1024,
+    "written_files": 12197,
+    "replaced_empty_embeddings": 295,
+    "skipped_invalid_records": 0
+  }
+}

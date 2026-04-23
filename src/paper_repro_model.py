@@ -244,11 +244,65 @@ class SequenceTransformer(nn.Module):
         return self.classifier(x)
 
 
+class DualStreamOpenFaceI3DModel(nn.Module):
+    """Late-fusion temporal model over OpenFace and precomputed I3D features."""
+
+    def __init__(
+        self,
+        *,
+        openface_features: int = 709,
+        i3d_features: int = 1024,
+        hidden_dim: int = 128,
+        num_classes: int = 4,
+    ) -> None:
+        super().__init__()
+        self.openface_encoder = nn.Sequential(
+            nn.Conv1d(openface_features, 256, kernel_size=5, padding=2),
+            nn.ReLU(inplace=True),
+            nn.Conv1d(256, 128, kernel_size=5, padding=2),
+            nn.ReLU(inplace=True),
+            nn.Conv1d(128, hidden_dim, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+        )
+        self.i3d_projection = nn.Sequential(
+            nn.Linear(i3d_features, 256),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.3),
+            nn.Linear(256, hidden_dim),
+            nn.ReLU(inplace=True),
+        )
+        self.i3d_temporal = nn.Sequential(
+            nn.Conv1d(hidden_dim, hidden_dim, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+        )
+        self.gate = nn.Linear(hidden_dim * 2, hidden_dim)
+        self.classifier = nn.Sequential(
+            nn.Dropout(p=0.3),
+            nn.Linear(hidden_dim, 128),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.3),
+            nn.Linear(128, num_classes),
+        )
+
+    def forward(self, openface_x: torch.Tensor, i3d_x: torch.Tensor) -> torch.Tensor:
+        openface_seq = self.openface_encoder(openface_x.transpose(1, 2)).transpose(1, 2)
+
+        i3d_seq = self.i3d_projection(i3d_x)
+        i3d_seq = self.i3d_temporal(i3d_seq.transpose(1, 2)).transpose(1, 2)
+
+        fused_input = torch.cat([openface_seq, i3d_seq], dim=-1)
+        gate = torch.sigmoid(self.gate(fused_input))
+        fused = gate * openface_seq + (1.0 - gate) * i3d_seq
+        pooled = fused.mean(dim=1)
+        return self.classifier(pooled)
+
+
 def build_model(
     model_name: str,
     *,
     input_size: int = 300,
     input_features: int = 709,
+    i3d_input_features: int | None = None,
     num_classes: int = 4,
 ) -> tuple[nn.Module, ModelSpec]:
     """Create a model and describe its expected input format."""
@@ -281,5 +335,16 @@ def build_model(
         return (
             SequenceTransformer(input_features=input_features, num_classes=num_classes),
             ModelSpec(name=model_name, input_kind="sequence"),
+        )
+    if model_name == "openface_i3d_temporal_fusion":
+        if i3d_input_features is None:
+            raise ValueError("i3d_input_features is required for openface_i3d_temporal_fusion")
+        return (
+            DualStreamOpenFaceI3DModel(
+                openface_features=input_features,
+                i3d_features=i3d_input_features,
+                num_classes=num_classes,
+            ),
+            ModelSpec(name=model_name, input_kind="multimodal_sequence"),
         )
     raise ValueError(f"Unknown model: {model_name}")

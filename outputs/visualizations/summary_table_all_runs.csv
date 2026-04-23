@@ -4,6 +4,7 @@ rectangular_cnn,rectangular_cnn,rectangular_cnn,baseline,rectangular_cnn,,cross_
 temporal_cnn_weighted_ce,temporal_cnn,temporal_cnn,weighted_cross_entropy,temporal_cnn,,weighted_cross_entropy,,60,0.6707616707616708,0.5591932855723241,0.6908645359452483,800,128,0.0001,cuda,True
 transformer,transformer,transformer,baseline,transformer,,cross_entropy,,30,0.7444717444717445,0.5441372285668498,0.7224292848629683,800,128,0.0001,cuda,True
 temporal_cnn_ordinal,temporal_cnn,temporal_cnn,ordinal,temporal_cnn,,ordinal,,58,0.6257166257166257,0.5304511020113694,0.6506669439965733,800,128,0.0001,cuda,True
+openface_i3d_temporal_fusion_cross_entropy,openface_i3d_temporal_fusion,openface_i3d_temporal_fusion,baseline,openface_i3d_temporal_fusion,,cross_entropy,,6,0.7657657657657657,0.5226098637132546,0.7500189927948777,800,128,0.0001,cuda,False
 lstm,lstm,lstm,baseline,lstm,,cross_entropy,,11,0.6994266994266994,0.4356646942485436,0.6693494679508781,800,128,0.0001,cuda,True
 spectral_cnn,spectral_cnn,spectral_cnn,baseline,spectral_cnn,,cross_entropy,,10,0.7403767403767404,0.4121830592725565,0.6903402349113894,800,128,0.0001,cuda,True
 paper_cnn_svd,paper_cnn (SVD),paper_cnn,SVD,paper_cnn,svd,cross_entropy,,23,0.6945126945126945,0.21887436807572336,0.5703810384352495,800,128,0.0001,cuda,True

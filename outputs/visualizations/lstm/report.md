@@ -1,7 +1,7 @@
 # lstm
 
 - Run folder: `lstm`
-- Metrics file: `outputs\lstm\metrics.json`
+- Metrics file: `outputs/lstm/metrics.json`
 - Accuracy: 0.6994
 - Macro F1: 0.4357
 - Weighted F1: 0.6693

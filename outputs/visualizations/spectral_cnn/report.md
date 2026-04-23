@@ -1,7 +1,7 @@
 # spectral_cnn
 
 - Run folder: `spectral_cnn`
-- Metrics file: `outputs\spectral_cnn\metrics.json`
+- Metrics file: `outputs/spectral_cnn/metrics.json`
 - Accuracy: 0.7404
 - Macro F1: 0.4122
 - Weighted F1: 0.6903

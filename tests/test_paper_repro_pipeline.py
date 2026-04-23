@@ -8,12 +8,15 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from main import resolve_output_dir
+from main import _has_materialized_i3d_features, resolve_output_dir
 from src.paper_repro_data import (
     get_openface_feature_columns,
     load_cmose_metadata,
     resample_frames,
     resolve_feature_indices,
+    load_i3d_dataset_matrices,
+    load_i3d_matrix,
+    materialize_i3d_features_from_json,
     select_paper_style_subset,
 )
 from src.paper_repro_model import build_model
@@ -26,7 +29,7 @@ from src.paper_repro_preprocess import (
     flatten_feature_groups,
     normalize_dataset_per_feature,
 )
-from src.paper_repro_train import build_loss, compute_class_weights
+from src.paper_repro_train import build_loss, compute_class_weights, predict, train_model
 
 
 def _make_openface_csv(path: Path, *, rows: int = 20) -> None:
@@ -44,6 +47,19 @@ def _make_openface_csv(path: Path, *, rows: int = 20) -> None:
         row = {**base, **{name: float(frame + idx) for idx, name in enumerate(feature_cols)}}
         records.append(row)
     pd.DataFrame.from_records(records, columns=meta_cols + feature_cols).to_csv(path, index=False)
+
+
+def _make_i3d_npy(path: Path, *, steps: int = 12, features: int = 16) -> None:
+    values = np.arange(steps * features, dtype=np.float32).reshape(steps, features)
+    np.save(path, values)
+
+
+def _make_labels_with_embeds(path: Path) -> None:
+    payload = {
+        "sample_a": {"split": "train", "label": "Engage", "agreement": 1.0, "embeds": [0.1] * 8},
+        "sample_b": {"split": "test", "label": "Disengage", "agreement": 0.9, "embeds": []},
+    }
+    path.write_text(json.dumps(payload), encoding="utf-8")
 
 
 def test_resample_frames_changes_length() -> None:
@@ -141,6 +157,44 @@ def test_get_openface_feature_columns_and_resolve_indices(tmp_path: Path) -> Non
     assert 10 in indices
 
 
+def test_load_i3d_matrix_and_dataset_alignment(tmp_path: Path) -> None:
+    feature_dir = tmp_path / "i3d"
+    feature_dir.mkdir()
+    _make_i3d_npy(feature_dir / "sample_a.npy", steps=10, features=8)
+    _make_i3d_npy(feature_dir / "sample_b.npy", steps=14, features=8)
+
+    sample_a = load_i3d_matrix(feature_dir / "sample_a.npy", target_frames=6)
+    assert sample_a.shape == (6, 8)
+    assert sample_a.dtype == np.float32
+
+    stacked = load_i3d_dataset_matrices(
+        ["sample_a", "sample_b"],
+        feature_dir=feature_dir,
+        target_frames=5,
+        progress_desc="test i3d",
+    )
+    assert stacked.shape == (2, 5, 8)
+    assert stacked.dtype == np.float32
+
+
+def test_materialize_i3d_features_from_json(tmp_path: Path) -> None:
+    labels_path = tmp_path / "labels.json"
+    output_dir = tmp_path / "i3d"
+    _make_labels_with_embeds(labels_path)
+
+    summary = materialize_i3d_features_from_json(labels_path, output_dir)
+    assert summary["written_files"] == 2
+    assert summary["embedding_dim"] == 8
+    assert summary["replaced_empty_embeddings"] == 1
+    assert _has_materialized_i3d_features(output_dir)
+
+    sample_a = load_i3d_matrix(output_dir / "sample_a.npy")
+    sample_b = load_i3d_matrix(output_dir / "sample_b.npy")
+    assert sample_a.shape == (1, 8)
+    assert sample_b.shape == (1, 8)
+    np.testing.assert_allclose(sample_b, np.zeros((1, 8), dtype=np.float32))
+
+
 def test_tes_preprocessing_shape_and_feature_groups() -> None:
     feature_columns = [
         "pose_Rx",
@@ -208,6 +262,18 @@ def test_model_factory_output_shapes() -> None:
     )
     assert spectral_spec.input_kind == "spectral_tensor"
     assert spectral_out.shape == (2, 4)
+
+    fusion_model, fusion_spec = build_model(
+        "openface_i3d_temporal_fusion",
+        input_features=32,
+        i3d_input_features=64,
+    )
+    fusion_out = fusion_model(
+        torch.from_numpy(np.random.randn(2, 15, 32).astype(np.float32)),
+        torch.from_numpy(np.random.randn(2, 15, 64).astype(np.float32)),
+    )
+    assert fusion_spec.input_kind == "multimodal_sequence"
+    assert fusion_out.shape == (2, 4)
 
 
 def test_loss_factory_builds_weighted_focal_and_ordinal_losses() -> None:
@@ -280,3 +346,51 @@ def test_resolve_output_dir_uses_loss_specific_default_paths() -> None:
         loss_name="cross_entropy",
         focal_gamma=2.0,
     ) == Path("outputs/spectral_cnn_cross_entropy")
+
+
+def test_train_and_predict_support_multimodal_batches(tmp_path: Path) -> None:
+    import torch
+
+    rng = np.random.default_rng(0)
+    X_openface_train = rng.normal(size=(8, 12, 6)).astype(np.float32)
+    X_i3d_train = rng.normal(size=(8, 12, 10)).astype(np.float32)
+    y_train = np.array([0, 1, 2, 3, 0, 1, 2, 3], dtype=np.int64)
+
+    X_openface_eval = rng.normal(size=(4, 12, 6)).astype(np.float32)
+    X_i3d_eval = rng.normal(size=(4, 12, 10)).astype(np.float32)
+    y_eval = np.array([0, 1, 2, 3], dtype=np.int64)
+
+    model, _ = build_model(
+        "openface_i3d_temporal_fusion",
+        input_features=6,
+        i3d_input_features=10,
+    )
+
+    history = train_model(
+        model,
+        (X_openface_train, X_i3d_train),
+        y_train,
+        (X_openface_eval, X_i3d_eval),
+        y_eval,
+        epochs=2,
+        batch_size=4,
+        lr=1e-3,
+        patience=2,
+        loss_name="cross_entropy",
+        focal_gamma=2.0,
+        checkpoint_path=tmp_path / "fusion_model.pth",
+        device=torch.device("cpu"),
+        num_workers=0,
+        use_amp=False,
+    )
+    assert history["best_epoch"] >= 1
+
+    preds = predict(
+        model,
+        (X_openface_eval, X_i3d_eval),
+        batch_size=2,
+        device=torch.device("cpu"),
+        num_workers=0,
+        use_amp=False,
+    )
+    assert preds.shape == (4,)

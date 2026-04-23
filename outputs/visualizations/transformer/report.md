@@ -1,7 +1,7 @@
 # transformer
 
 - Run folder: `transformer`
-- Metrics file: `outputs\transformer\metrics.json`
+- Metrics file: `outputs/transformer/metrics.json`
 - Accuracy: 0.7445
 - Macro F1: 0.5441
 - Weighted F1: 0.7224

@@ -16,6 +16,8 @@ import torch.nn.functional as F
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, f1_score
 from torch.utils.data import DataLoader, TensorDataset
 
+ArrayInput = np.ndarray | tuple[np.ndarray, ...]
+
 
 class FocalLoss(nn.Module):
     """Multi-class focal loss with optional class weights."""
@@ -99,7 +101,7 @@ def build_loss(
 
 
 def make_dataloader(
-    X: np.ndarray,
+    X: ArrayInput,
     y: np.ndarray,
     *,
     batch_size: int,
@@ -107,8 +109,13 @@ def make_dataloader(
     num_workers: int = 0,
     pin_memory: bool = False,
 ) -> DataLoader:
+    feature_arrays = _as_feature_arrays(X)
+    sample_count = _num_samples(X)
+    if sample_count != len(y):
+        raise ValueError(f"Feature/label size mismatch: X={sample_count}, y={len(y)}")
+
     dataset = TensorDataset(
-        torch.from_numpy(X).float(),
+        *(torch.from_numpy(array).float() for array in feature_arrays),
         torch.from_numpy(y).long(),
     )
     loader_kwargs: dict[str, Any] = {
@@ -124,9 +131,9 @@ def make_dataloader(
 
 def train_model(
     model: nn.Module,
-    X_train: np.ndarray,
+    X_train: ArrayInput,
     y_train: np.ndarray,
-    X_eval: np.ndarray,
+    X_eval: ArrayInput,
     y_eval: np.ndarray,
     *,
     epochs: int,
@@ -199,7 +206,8 @@ def train_model(
     if progress_callback is not None:
         progress_callback(
             "Training setup complete: "
-            f"device={device.type}, train_samples={len(X_train)}, eval_samples={len(X_eval)}, "
+            f"device={device.type}, train_samples={_num_samples(X_train)}, "
+            f"eval_samples={_num_samples(X_eval)}, "
             f"epochs={epochs}, batch_size={batch_size}, lr={lr}, patience={patience}, "
             f"loss={loss_name}, focal_gamma={focal_gamma}, num_workers={num_workers}, amp={use_amp}"
         )
@@ -209,13 +217,15 @@ def train_model(
         model.train()
         train_loss = 0.0
         train_total = 0
-        for X_batch, y_batch in train_loader:
-            X_batch = X_batch.to(device, non_blocking=pin_memory)
+        for *feature_batches, y_batch in train_loader:
+            feature_batches = [
+                tensor.to(device, non_blocking=pin_memory) for tensor in feature_batches
+            ]
             y_batch = y_batch.to(device, non_blocking=pin_memory)
 
             optimizer.zero_grad()
             with torch.amp.autocast("cuda", enabled=use_amp):
-                logits = model(X_batch)
+                logits = _forward_model(model, feature_batches)
                 loss = criterion(logits, y_batch)
             scaler.scale(loss).backward()
             scaler.step(optimizer)
@@ -282,7 +292,7 @@ def train_model(
 
 def predict(
     model: nn.Module,
-    X: np.ndarray,
+    X: ArrayInput,
     *,
     batch_size: int = 8,
     device: torch.device | None = None,
@@ -299,7 +309,7 @@ def predict(
 
     loader = make_dataloader(
         X,
-        np.zeros(len(X), dtype=np.int64),
+        np.zeros(_num_samples(X), dtype=np.int64),
         batch_size=batch_size,
         shuffle=False,
         num_workers=num_workers,
@@ -309,15 +319,18 @@ def predict(
     if progress_callback is not None:
         progress_callback(
             "Starting prediction: "
-            f"samples={len(X)}, batch_size={batch_size}, device={device.type}, "
+            f"samples={_num_samples(X)}, batch_size={batch_size}, device={device.type}, "
             f"num_workers={num_workers}, amp={use_amp}"
         )
     with torch.no_grad():
         total_batches = len(loader)
-        for batch_idx, (X_batch, _) in enumerate(loader, start=1):
-            X_batch = X_batch.to(device, non_blocking=pin_memory)
+        for batch_idx, batch in enumerate(loader, start=1):
+            *feature_batches, _ = batch
+            feature_batches = [
+                tensor.to(device, non_blocking=pin_memory) for tensor in feature_batches
+            ]
             with torch.amp.autocast("cuda", enabled=use_amp):
-                logits = model(X_batch)
+                logits = _forward_model(model, feature_batches)
             outputs.append(logits.argmax(dim=1).cpu().numpy())
             if progress_callback is not None and (
                 batch_idx == 1 or batch_idx == total_batches or batch_idx % 10 == 0
@@ -356,13 +369,38 @@ def _evaluate_loss_accuracy(
     total_correct = 0
     total_samples = 0
     with torch.no_grad():
-        for X_batch, y_batch in loader:
-            X_batch = X_batch.to(device, non_blocking=pin_memory)
+        for *feature_batches, y_batch in loader:
+            feature_batches = [
+                tensor.to(device, non_blocking=pin_memory) for tensor in feature_batches
+            ]
             y_batch = y_batch.to(device, non_blocking=pin_memory)
             with torch.amp.autocast("cuda", enabled=use_amp):
-                logits = model(X_batch)
+                logits = _forward_model(model, feature_batches)
                 loss = criterion(logits, y_batch)
             total_loss += loss.item() * len(y_batch)
             total_correct += (logits.argmax(dim=1) == y_batch).sum().item()
             total_samples += len(y_batch)
     return total_loss / max(total_samples, 1), total_correct / max(total_samples, 1)
+
+
+def _as_feature_arrays(X: ArrayInput) -> tuple[np.ndarray, ...]:
+    if isinstance(X, tuple):
+        return X
+    return (X,)
+
+
+def _num_samples(X: ArrayInput) -> int:
+    feature_arrays = _as_feature_arrays(X)
+    if not feature_arrays:
+        return 0
+    sample_count = len(feature_arrays[0])
+    for array in feature_arrays[1:]:
+        if len(array) != sample_count:
+            raise ValueError("All feature arrays must contain the same number of samples")
+    return sample_count
+
+
+def _forward_model(model: nn.Module, feature_batches: list[torch.Tensor]) -> torch.Tensor:
+    if len(feature_batches) == 1:
+        return model(feature_batches[0])
+    return model(*feature_batches)

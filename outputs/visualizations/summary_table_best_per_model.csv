@@ -1,5 +1,6 @@
 run_name,model_label,base_model,variant_label,model,method,loss,focal_gamma,best_epoch,accuracy,f1_macro,f1_weighted,epochs_requested,batch_size,lr,device,amp
 lstm,lstm,lstm,baseline,lstm,,cross_entropy,,11,0.6994266994266994,0.4356646942485436,0.6693494679508781,800,128,0.0001,cuda,True
+openface_i3d_temporal_fusion_cross_entropy,openface_i3d_temporal_fusion,openface_i3d_temporal_fusion,baseline,openface_i3d_temporal_fusion,,cross_entropy,,6,0.7657657657657657,0.5226098637132546,0.7500189927948777,800,128,0.0001,cuda,False
 paper_cnn_svd,paper_cnn (SVD),paper_cnn,SVD,paper_cnn,svd,cross_entropy,,23,0.6945126945126945,0.21887436807572336,0.5703810384352495,800,128,0.0001,cuda,True
 rectangular_cnn,rectangular_cnn,rectangular_cnn,baseline,rectangular_cnn,,cross_entropy,,357,0.7698607698607699,0.563252276871883,0.7488777414697662,800,128,0.0001,cuda,True
 spectral_cnn,spectral_cnn,spectral_cnn,baseline,spectral_cnn,,cross_entropy,,10,0.7403767403767404,0.4121830592725565,0.6903402349113894,800,128,0.0001,cuda,True
