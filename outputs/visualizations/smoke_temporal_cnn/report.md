@@ -1,4 +1,4 @@
-# temporal_cnn [CE]
+# tcn [CE]
 
 - Run folder: `smoke_temporal_cnn`
 - Metrics file: `outputs\smoke_temporal_cnn\metrics.json`

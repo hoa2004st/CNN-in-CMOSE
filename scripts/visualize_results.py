@@ -32,6 +32,22 @@ LOSS_SLUGS = {
     "weighted_ce": "weighted_cross_entropy",
     "ordinal": "ordinal",
 }
+MODEL_ORDER = [
+    "openface_mlp",
+    "lstm",
+    "transformer",
+    "temporal_cnn",
+    "i3d_mlp",
+    "openface_tcn_i3d_fusion",
+]
+MODEL_DISPLAY_NAMES = {
+    "openface_mlp": "openface_mlp",
+    "lstm": "lstm",
+    "transformer": "transformer",
+    "temporal_cnn": "tcn",
+    "i3d_mlp": "i3d_mlp",
+    "openface_tcn_i3d_fusion": "fusion",
+}
 
 
 @dataclass
@@ -61,15 +77,34 @@ class RunResult:
 
     @property
     def model_label(self) -> str:
-        return self.base_model
+        return MODEL_DISPLAY_NAMES.get(self.base_model, self.base_model)
 
     @property
     def comparison_label(self) -> str:
-        return f"{self.base_model} [{self.loss_label}]"
+        return f"{self.model_label} [{self.loss_label}]"
 
     @property
     def variant_label(self) -> str:
         return self.loss_label
+
+
+def model_sort_key(model_name: str) -> tuple[int, str]:
+    try:
+        return (MODEL_ORDER.index(model_name), model_name)
+    except ValueError:
+        return (len(MODEL_ORDER), model_name)
+
+
+def apply_model_order(frame: pd.DataFrame) -> pd.DataFrame:
+    if frame.empty or "base_model" not in frame.columns:
+        return frame
+    ordered = frame.copy()
+    ordered["base_model"] = pd.Categorical(
+        ordered["base_model"],
+        categories=MODEL_ORDER,
+        ordered=True,
+    )
+    return ordered.sort_values(["base_model", "loss_label", "run_name"], na_position="last").reset_index(drop=True)
 
 
 def parse_args() -> argparse.Namespace:
@@ -134,10 +169,10 @@ def build_summary_frame(runs: list[RunResult]) -> pd.DataFrame:
         )
     frame = pd.DataFrame.from_records(rows)
     if not frame.empty:
-        frame = frame.sort_values(
-            ["f1_macro", "macro_accuracy", "accuracy", "f1_weighted"],
-            ascending=[False, False, False, False],
-        ).reset_index(drop=True)
+        frame["base_model_display"] = frame["base_model"].map(
+            lambda name: MODEL_DISPLAY_NAMES.get(str(name), str(name))
+        )
+        frame = apply_model_order(frame)
     return frame
 
 
@@ -148,7 +183,9 @@ def pick_best_run_per_model(summary_df: pd.DataFrame) -> pd.DataFrame:
         ["base_model", "f1_macro", "macro_accuracy", "accuracy", "f1_weighted"],
         ascending=[True, False, False, False, False],
     )
-    return ordered.drop_duplicates(subset=["base_model"], keep="first").reset_index(drop=True)
+    return apply_model_order(
+        ordered.drop_duplicates(subset=["base_model"], keep="first").reset_index(drop=True)
+    )
 
 
 def save_summary_csvs(summary_df: pd.DataFrame, best_df: pd.DataFrame, viz_dir: Path) -> None:
@@ -169,7 +206,7 @@ def plot_metric_bars(
 
     fig, axes = plt.subplots(2, 2, figsize=(18, 12))
     for ax, (column, metric_title) in zip(axes.flat, METRIC_SPECS, strict=False):
-        ordered = summary_df.sort_values(column, ascending=False)
+        ordered = apply_model_order(summary_df)
         sns.barplot(
             data=ordered,
             x=column,
@@ -194,7 +231,7 @@ def plot_best_epoch_bars(summary_df: pd.DataFrame, viz_dir: Path, *, filename: s
     if summary_df.empty or summary_df["best_epoch"].isna().all():
         return
 
-    ordered = summary_df.sort_values("best_epoch", ascending=False)
+    ordered = apply_model_order(summary_df)
     fig, ax = plt.subplots(figsize=(12, 8))
     sns.barplot(
         data=ordered,
@@ -211,45 +248,6 @@ def plot_best_epoch_bars(summary_df: pd.DataFrame, viz_dir: Path, *, filename: s
     ax.set_ylabel("")
     fig.tight_layout()
     fig.savefig(viz_dir / filename, dpi=200, bbox_inches="tight")
-    plt.close(fig)
-
-
-def plot_loss_comparison_within_model(summary_df: pd.DataFrame, viz_dir: Path) -> None:
-    if summary_df.empty:
-        return
-
-    model_names = [name for name, group in summary_df.groupby("base_model") if len(group) > 1]
-    if not model_names:
-        return
-
-    fig, axes = plt.subplots(
-        len(model_names),
-        len(METRIC_SPECS),
-        figsize=(22, 5 * len(model_names)),
-        squeeze=False,
-    )
-    for row_idx, model_name in enumerate(model_names):
-        model_df = summary_df[summary_df["base_model"] == model_name]
-        for col_idx, (metric, metric_title) in enumerate(METRIC_SPECS):
-            ax = axes[row_idx][col_idx]
-            ordered = model_df.sort_values(metric, ascending=False)
-            sns.barplot(
-                data=ordered,
-                x=metric,
-                y="loss_label",
-                hue="loss_label",
-                dodge=False,
-                legend=False,
-                ax=ax,
-                palette="mako",
-            )
-            ax.set_xlim(0.0, 1.0)
-            ax.set_title(f"{model_name}: {metric_title}")
-            ax.set_xlabel(metric_title)
-            ax.set_ylabel("" if col_idx else "Loss")
-    fig.suptitle("Loss Comparison Within Each Model", fontsize=14)
-    fig.tight_layout()
-    fig.savefig(viz_dir / "loss_comparison_within_model.png", dpi=200, bbox_inches="tight")
     plt.close(fig)
 
 
@@ -272,12 +270,12 @@ def plot_model_comparison_within_loss(summary_df: pd.DataFrame, viz_dir: Path) -
         loss_label = LOSS_LABELS.get(loss_name, loss_name)
         for col_idx, (metric, metric_title) in enumerate(METRIC_SPECS):
             ax = axes[row_idx][col_idx]
-            ordered = loss_df.sort_values(metric, ascending=False)
+            ordered = apply_model_order(loss_df)
             sns.barplot(
                 data=ordered,
                 x=metric,
-                y="base_model",
-                hue="base_model",
+                y="base_model_display",
+                hue="base_model_display",
                 dodge=False,
                 legend=False,
                 ax=ax,
@@ -301,6 +299,8 @@ def plot_metric_heatmaps(summary_df: pd.DataFrame, viz_dir: Path) -> None:
         pivot = summary_df.pivot_table(index="base_model", columns="loss_label", values=metric, aggfunc="max")
         if pivot.empty:
             continue
+        pivot = pivot.reindex(MODEL_ORDER).dropna(how="all")
+        pivot.index = [MODEL_DISPLAY_NAMES.get(str(index), str(index)) for index in pivot.index]
         fig, ax = plt.subplots(figsize=(8, max(4, len(pivot) * 0.8)))
         sns.heatmap(
             pivot,
@@ -328,12 +328,10 @@ def write_comparison_report(summary_df: pd.DataFrame, best_df: pd.DataFrame, viz
         "## Best Run Per Model",
         "",
     ]
-    for _, row in best_df.sort_values(
-        ["f1_macro", "macro_accuracy", "accuracy"], ascending=[False, False, False]
-    ).iterrows():
+    for _, row in apply_model_order(best_df).iterrows():
         lines.extend(
             [
-                f"- `{row['base_model']}`: run `{row['run_name']}` ({row['loss_label']})",
+                f"- `{row['base_model_display']}`: run `{row['run_name']}` ({row['loss_label']})",
                 f"  Macro F1={row['f1_macro']:.4f}, Macro Accuracy={row['macro_accuracy']:.4f}, Accuracy={row['accuracy']:.4f}, Weighted F1={row['f1_weighted']:.4f}, Best epoch={row['best_epoch']}",
             ]
         )
@@ -359,10 +357,10 @@ def write_comparison_report(summary_df: pd.DataFrame, best_df: pd.DataFrame, viz
     variant_models = [model for model, group in summary_df.groupby("base_model") if len(group) > 1]
     if variant_models:
         lines.extend(["", "## Loss Comparison By Model", ""])
-        for model_name in variant_models:
-            lines.append(f"### {model_name}")
+        for model_name in sorted(variant_models, key=model_sort_key):
+            lines.append(f"### {MODEL_DISPLAY_NAMES.get(model_name, model_name)}")
             model_df = summary_df[summary_df["base_model"] == model_name].sort_values(
-                ["f1_macro", "macro_accuracy", "accuracy"], ascending=[False, False, False]
+                ["loss_label"]
             )
             for _, row in model_df.iterrows():
                 lines.append(
@@ -376,12 +374,10 @@ def write_comparison_report(summary_df: pd.DataFrame, best_df: pd.DataFrame, viz
         for loss_name in grouped_losses:
             loss_label = LOSS_LABELS.get(loss_name, loss_name)
             lines.append(f"### {loss_label}")
-            loss_df = summary_df[summary_df["loss"] == loss_name].sort_values(
-                ["f1_macro", "macro_accuracy", "accuracy"], ascending=[False, False, False]
-            )
+            loss_df = apply_model_order(summary_df[summary_df["loss"] == loss_name])
             for _, row in loss_df.iterrows():
                 lines.append(
-                    f"- `{row['base_model']}`: run `{row['run_name']}`, Macro F1={row['f1_macro']:.4f}, Macro Accuracy={row['macro_accuracy']:.4f}, Accuracy={row['accuracy']:.4f}, Weighted F1={row['f1_weighted']:.4f}"
+                    f"- `{row['base_model_display']}`: run `{row['run_name']}`, Macro F1={row['f1_macro']:.4f}, Macro Accuracy={row['macro_accuracy']:.4f}, Accuracy={row['accuracy']:.4f}, Weighted F1={row['f1_weighted']:.4f}"
                 )
             lines.append("")
 
@@ -523,7 +519,7 @@ def main() -> None:
         viz_dir,
         filename="comparison_metrics_best_per_model.png",
         title="Best Run Comparison Across Models",
-        label_column="base_model",
+        label_column="base_model_display",
     )
     plot_metric_bars(
         summary_df,
@@ -538,7 +534,6 @@ def main() -> None:
         filename="best_epoch_comparison_all_runs.png",
         title="Best Checkpoint Epoch Across All Runs",
     )
-    plot_loss_comparison_within_model(summary_df, viz_dir)
     plot_model_comparison_within_loss(summary_df, viz_dir)
     plot_metric_heatmaps(summary_df, viz_dir)
     write_comparison_report(summary_df, best_df, viz_dir)

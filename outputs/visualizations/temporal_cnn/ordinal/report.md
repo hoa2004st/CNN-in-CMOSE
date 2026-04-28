@@ -1,4 +1,4 @@
-# temporal_cnn [Ordinal]
+# tcn [Ordinal]
 
 - Run folder: `temporal_cnn/ordinal`
 - Metrics file: `outputs\temporal_cnn\ordinal\metrics.json`

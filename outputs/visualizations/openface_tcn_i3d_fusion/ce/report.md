@@ -1,4 +1,4 @@
-# openface_tcn_i3d_fusion [CE]
+# fusion [CE]
 
 - Run folder: `openface_tcn_i3d_fusion/ce`
 - Metrics file: `outputs\openface_tcn_i3d_fusion\ce\metrics.json`

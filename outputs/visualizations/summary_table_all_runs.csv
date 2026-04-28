@@ -1,19 +1,19 @@
-run_name,model_label,comparison_label,base_model,variant_label,loss,loss_label,best_epoch,accuracy,macro_accuracy,f1_macro,f1_weighted,epochs_requested,batch_size,lr,device,amp
-openface_tcn_i3d_fusion/ce,openface_tcn_i3d_fusion,openface_tcn_i3d_fusion [CE],openface_tcn_i3d_fusion,CE,cross_entropy,CE,6,0.7698607698607699,0.5637376174084232,0.5972155073759607,0.7555015643930407,400,64,0.0001,cuda,False
-i3d_mlp/ce,i3d_mlp,i3d_mlp [CE],i3d_mlp,CE,cross_entropy,CE,6,0.7682227682227682,0.5367667726092452,0.5889255245634077,0.7533620425936851,400,64,0.0001,cuda,False
-temporal_cnn/weighted_ce,temporal_cnn,temporal_cnn [Weighted CE],temporal_cnn,Weighted CE,weighted_cross_entropy,Weighted CE,61,0.6945126945126945,0.620047015433583,0.5723056530799828,0.7084731518768674,400,64,0.0001,cuda,False
-i3d_mlp/ordinal,i3d_mlp,i3d_mlp [Ordinal],i3d_mlp,Ordinal,ordinal,Ordinal,23,0.6756756756756757,0.6227013356443248,0.5575794839631268,0.6928217311895697,400,64,0.0001,cuda,False
-i3d_mlp/weighted_ce,i3d_mlp,i3d_mlp [Weighted CE],i3d_mlp,Weighted CE,weighted_cross_entropy,Weighted CE,13,0.6732186732186732,0.6254549877748463,0.5566719982784964,0.6923909560929581,400,64,0.0001,cuda,False
-openface_tcn_i3d_fusion/weighted_ce,openface_tcn_i3d_fusion,openface_tcn_i3d_fusion [Weighted CE],openface_tcn_i3d_fusion,Weighted CE,weighted_cross_entropy,Weighted CE,6,0.6592956592956593,0.6337428523619949,0.5541671189263279,0.679035986494557,400,64,0.0001,cuda,False
-temporal_cnn/ce,temporal_cnn,temporal_cnn [CE],temporal_cnn,CE,cross_entropy,CE,43,0.764946764946765,0.5012426461420388,0.5477955788617536,0.742262129415845,400,64,0.0001,cuda,False
-transformer/ce,transformer,transformer [CE],transformer,CE,cross_entropy,CE,25,0.7485667485667485,0.49845308548063916,0.5440902512504544,0.7289245975325428,400,64,0.0001,cuda,False
-temporal_cnn/ordinal,temporal_cnn,temporal_cnn [Ordinal],temporal_cnn,Ordinal,ordinal,Ordinal,65,0.6248976248976249,0.6259962280083733,0.51924528021586,0.649758936266343,400,64,0.0001,cuda,False
-openface_mlp/weighted_ce,openface_mlp,openface_mlp [Weighted CE],openface_mlp,Weighted CE,weighted_cross_entropy,Weighted CE,95,0.6101556101556102,0.5376420212616171,0.49282718573859696,0.6295081175055155,400,64,0.0001,cuda,False
-transformer/weighted_ce,transformer,transformer [Weighted CE],transformer,Weighted CE,weighted_cross_entropy,Weighted CE,37,0.5798525798525799,0.5685405933683827,0.47123559277011684,0.6098655772952195,400,64,0.0001,cuda,False
-openface_mlp/ce,openface_mlp,openface_mlp [CE],openface_mlp,CE,cross_entropy,CE,44,0.7346437346437347,0.41631857220998886,0.46076095445845777,0.6995374191679516,400,64,0.0001,cuda,False
-openface_tcn_i3d_fusion/ordinal,openface_tcn_i3d_fusion,openface_tcn_i3d_fusion [Ordinal],openface_tcn_i3d_fusion,Ordinal,ordinal,Ordinal,5,0.5626535626535627,0.593316422542381,0.45909661338152363,0.5918871333788374,400,64,0.0001,cuda,False
-lstm/weighted_ce,lstm,lstm [Weighted CE],lstm,Weighted CE,weighted_cross_entropy,Weighted CE,31,0.5700245700245701,0.5205989265877782,0.45018849258646826,0.5962654265936966,400,64,0.0001,cuda,False
-transformer/ordinal,transformer,transformer [Ordinal],transformer,Ordinal,ordinal,Ordinal,38,0.5331695331695332,0.5714313783741863,0.4441129241585646,0.5664613992540365,400,64,0.0001,cuda,False
-lstm/ce,lstm,lstm [CE],lstm,CE,cross_entropy,CE,13,0.7051597051597052,0.4139256148546459,0.4428814844777025,0.6754353946567517,400,64,0.0001,cuda,False
-lstm/ordinal,lstm,lstm [Ordinal],lstm,Ordinal,ordinal,Ordinal,12,0.48075348075348073,0.5119632701206163,0.3963855360846373,0.5148675534847796,400,64,0.0001,cuda,False
-openface_mlp/ordinal,openface_mlp,openface_mlp [Ordinal],openface_mlp,Ordinal,ordinal,Ordinal,152,0.5282555282555282,0.36964846763858816,0.33946520597073054,0.5473077145873632,400,64,0.0001,cuda,False
+run_name,model_label,comparison_label,base_model,variant_label,loss,loss_label,best_epoch,accuracy,macro_accuracy,f1_macro,f1_weighted,epochs_requested,batch_size,lr,device,amp,base_model_display
+openface_mlp/ce,openface_mlp,openface_mlp [CE],openface_mlp,CE,cross_entropy,CE,44,0.7346437346437347,0.41631857220998886,0.46076095445845777,0.6995374191679516,400,64,0.0001,cuda,False,openface_mlp
+openface_mlp/ordinal,openface_mlp,openface_mlp [Ordinal],openface_mlp,Ordinal,ordinal,Ordinal,152,0.5282555282555282,0.36964846763858816,0.33946520597073054,0.5473077145873632,400,64,0.0001,cuda,False,openface_mlp
+openface_mlp/weighted_ce,openface_mlp,openface_mlp [Weighted CE],openface_mlp,Weighted CE,weighted_cross_entropy,Weighted CE,95,0.6101556101556102,0.5376420212616171,0.49282718573859696,0.6295081175055155,400,64,0.0001,cuda,False,openface_mlp
+lstm/ce,lstm,lstm [CE],lstm,CE,cross_entropy,CE,13,0.7051597051597052,0.4139256148546459,0.4428814844777025,0.6754353946567517,400,64,0.0001,cuda,False,lstm
+lstm/ordinal,lstm,lstm [Ordinal],lstm,Ordinal,ordinal,Ordinal,12,0.48075348075348073,0.5119632701206163,0.3963855360846373,0.5148675534847796,400,64,0.0001,cuda,False,lstm
+lstm/weighted_ce,lstm,lstm [Weighted CE],lstm,Weighted CE,weighted_cross_entropy,Weighted CE,31,0.5700245700245701,0.5205989265877782,0.45018849258646826,0.5962654265936966,400,64,0.0001,cuda,False,lstm
+transformer/ce,transformer,transformer [CE],transformer,CE,cross_entropy,CE,25,0.7485667485667485,0.49845308548063916,0.5440902512504544,0.7289245975325428,400,64,0.0001,cuda,False,transformer
+transformer/ordinal,transformer,transformer [Ordinal],transformer,Ordinal,ordinal,Ordinal,38,0.5331695331695332,0.5714313783741863,0.4441129241585646,0.5664613992540365,400,64,0.0001,cuda,False,transformer
+transformer/weighted_ce,transformer,transformer [Weighted CE],transformer,Weighted CE,weighted_cross_entropy,Weighted CE,37,0.5798525798525799,0.5685405933683827,0.47123559277011684,0.6098655772952195,400,64,0.0001,cuda,False,transformer
+temporal_cnn/ce,tcn,tcn [CE],temporal_cnn,CE,cross_entropy,CE,43,0.764946764946765,0.5012426461420388,0.5477955788617536,0.742262129415845,400,64,0.0001,cuda,False,tcn
+temporal_cnn/ordinal,tcn,tcn [Ordinal],temporal_cnn,Ordinal,ordinal,Ordinal,65,0.6248976248976249,0.6259962280083733,0.51924528021586,0.649758936266343,400,64,0.0001,cuda,False,tcn
+temporal_cnn/weighted_ce,tcn,tcn [Weighted CE],temporal_cnn,Weighted CE,weighted_cross_entropy,Weighted CE,61,0.6945126945126945,0.620047015433583,0.5723056530799828,0.7084731518768674,400,64,0.0001,cuda,False,tcn
+i3d_mlp/ce,i3d_mlp,i3d_mlp [CE],i3d_mlp,CE,cross_entropy,CE,6,0.7682227682227682,0.5367667726092452,0.5889255245634077,0.7533620425936851,400,64,0.0001,cuda,False,i3d_mlp
+i3d_mlp/ordinal,i3d_mlp,i3d_mlp [Ordinal],i3d_mlp,Ordinal,ordinal,Ordinal,23,0.6756756756756757,0.6227013356443248,0.5575794839631268,0.6928217311895697,400,64,0.0001,cuda,False,i3d_mlp
+i3d_mlp/weighted_ce,i3d_mlp,i3d_mlp [Weighted CE],i3d_mlp,Weighted CE,weighted_cross_entropy,Weighted CE,13,0.6732186732186732,0.6254549877748463,0.5566719982784964,0.6923909560929581,400,64,0.0001,cuda,False,i3d_mlp
+openface_tcn_i3d_fusion/ce,fusion,fusion [CE],openface_tcn_i3d_fusion,CE,cross_entropy,CE,6,0.7698607698607699,0.5637376174084232,0.5972155073759607,0.7555015643930407,400,64,0.0001,cuda,False,fusion
+openface_tcn_i3d_fusion/ordinal,fusion,fusion [Ordinal],openface_tcn_i3d_fusion,Ordinal,ordinal,Ordinal,5,0.5626535626535627,0.593316422542381,0.45909661338152363,0.5918871333788374,400,64,0.0001,cuda,False,fusion
+openface_tcn_i3d_fusion/weighted_ce,fusion,fusion [Weighted CE],openface_tcn_i3d_fusion,Weighted CE,weighted_cross_entropy,Weighted CE,6,0.6592956592956593,0.6337428523619949,0.5541671189263279,0.679035986494557,400,64,0.0001,cuda,False,fusion

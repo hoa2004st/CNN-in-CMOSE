@@ -1,4 +1,4 @@
-# temporal_cnn [CE]
+# tcn [CE]
 
 - Run folder: `temporal_cnn/ce`
 - Metrics file: `outputs\temporal_cnn\ce\metrics.json`

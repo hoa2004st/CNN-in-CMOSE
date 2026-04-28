@@ -1,4 +1,4 @@
-# temporal_cnn [Weighted CE]
+# tcn [Weighted CE]
 
 - Run folder: `temporal_cnn/weighted_ce`
 - Metrics file: `outputs\temporal_cnn\weighted_ce\metrics.json`

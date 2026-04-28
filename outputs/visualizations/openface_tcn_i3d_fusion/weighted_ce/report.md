@@ -1,4 +1,4 @@
-# openface_tcn_i3d_fusion [Weighted CE]
+# fusion [Weighted CE]
 
 - Run folder: `openface_tcn_i3d_fusion/weighted_ce`
 - Metrics file: `outputs\openface_tcn_i3d_fusion\weighted_ce\metrics.json`

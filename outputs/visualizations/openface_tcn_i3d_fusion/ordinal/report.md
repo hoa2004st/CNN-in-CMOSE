@@ -1,4 +1,4 @@
-# openface_tcn_i3d_fusion [Ordinal]
+# fusion [Ordinal]
 
 - Run folder: `openface_tcn_i3d_fusion/ordinal`
 - Metrics file: `outputs\openface_tcn_i3d_fusion\ordinal\metrics.json`
