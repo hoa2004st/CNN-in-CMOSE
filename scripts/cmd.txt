@@ -33,9 +33,29 @@ python main.py --model temporal_cnn --device cuda --amp --epochs 2 --batch_size 
 # Full comparison run via the shell script
 bash scripts/run_comparison_models.sh
 
-# python main.py --model openface_mlp --output_dir outputs/openface_mlp --epochs 400 --batch_size 64 --lr 1e-4 2>&1 | tee -a outputs/logs/openface_mlp.log
-# python main.py --model temporal_cnn --output_dir outputs/temporal_cnn --epochs 400 --batch_size 64 --lr 1e-4 2>&1 | tee -a outputs/logs/temporal_cnn.log
-# python main.py --model lstm --output_dir outputs/lstm --epochs 400 --batch_size 64 --lr 1e-4 2>&1 | tee -a outputs/logs/lstm.log
-# python main.py --model transformer --output_dir outputs/transformer --epochs 400 --batch_size 64 --lr 1e-4 2>&1 | tee -a outputs/logs/transformer.log
-# python main.py --model i3d_mlp --output_dir outputs/i3d_mlp --epochs 400 --batch_size 64 --lr 1e-4 2>&1 | tee -a outputs/logs/i3d_mlp.log
-# python main.py --model openface_tcn_i3d_fusion --output_dir outputs/openface_tcn_i3d_fusion --epochs 400 --batch_size 64 --lr 1e-4 2>&1 | tee -a outputs/logs/openface_tcn_i3d_fusion.log
+# Full comparison run with the same logic expanded inline
+mkdir -p outputs/logs
+
+python main.py --model openface_mlp --loss cross_entropy --output_dir outputs/openface_mlp/ce --epochs 400 --batch_size 64 --lr 1e-4 2>&1 | tee -a outputs/logs/openface_mlp_ce.log
+python main.py --model openface_mlp --loss weighted_cross_entropy --output_dir outputs/openface_mlp/weighted_ce --epochs 400 --batch_size 64 --lr 1e-4 2>&1 | tee -a outputs/logs/openface_mlp_weighted_ce.log
+python main.py --model openface_mlp --loss ordinal --output_dir outputs/openface_mlp/ordinal --epochs 400 --batch_size 64 --lr 1e-4 2>&1 | tee -a outputs/logs/openface_mlp_ordinal.log
+
+python main.py --model temporal_cnn --loss cross_entropy --output_dir outputs/temporal_cnn/ce --epochs 400 --batch_size 64 --lr 1e-4 2>&1 | tee -a outputs/logs/temporal_cnn_ce.log
+python main.py --model temporal_cnn --loss weighted_cross_entropy --output_dir outputs/temporal_cnn/weighted_ce --epochs 400 --batch_size 64 --lr 1e-4 2>&1 | tee -a outputs/logs/temporal_cnn_weighted_ce.log
+python main.py --model temporal_cnn --loss ordinal --output_dir outputs/temporal_cnn/ordinal --epochs 400 --batch_size 64 --lr 1e-4 2>&1 | tee -a outputs/logs/temporal_cnn_ordinal.log
+
+python main.py --model lstm --loss cross_entropy --output_dir outputs/lstm/ce --epochs 400 --batch_size 64 --lr 1e-4 2>&1 | tee -a outputs/logs/lstm_ce.log
+python main.py --model lstm --loss weighted_cross_entropy --output_dir outputs/lstm/weighted_ce --epochs 400 --batch_size 64 --lr 1e-4 2>&1 | tee -a outputs/logs/lstm_weighted_ce.log
+python main.py --model lstm --loss ordinal --output_dir outputs/lstm/ordinal --epochs 400 --batch_size 64 --lr 1e-4 2>&1 | tee -a outputs/logs/lstm_ordinal.log
+
+python main.py --model transformer --loss cross_entropy --output_dir outputs/transformer/ce --epochs 400 --batch_size 64 --lr 1e-4 2>&1 | tee -a outputs/logs/transformer_ce.log
+python main.py --model transformer --loss weighted_cross_entropy --output_dir outputs/transformer/weighted_ce --epochs 400 --batch_size 64 --lr 1e-4 2>&1 | tee -a outputs/logs/transformer_weighted_ce.log
+python main.py --model transformer --loss ordinal --output_dir outputs/transformer/ordinal --epochs 400 --batch_size 64 --lr 1e-4 2>&1 | tee -a outputs/logs/transformer_ordinal.log
+
+python main.py --model i3d_mlp --loss cross_entropy --output_dir outputs/i3d_mlp/ce --epochs 400 --batch_size 64 --lr 1e-4 2>&1 | tee -a outputs/logs/i3d_mlp_ce.log
+python main.py --model i3d_mlp --loss weighted_cross_entropy --output_dir outputs/i3d_mlp/weighted_ce --epochs 400 --batch_size 64 --lr 1e-4 2>&1 | tee -a outputs/logs/i3d_mlp_weighted_ce.log
+python main.py --model i3d_mlp --loss ordinal --output_dir outputs/i3d_mlp/ordinal --epochs 400 --batch_size 64 --lr 1e-4 2>&1 | tee -a outputs/logs/i3d_mlp_ordinal.log
+
+python main.py --model openface_tcn_i3d_fusion --loss cross_entropy --output_dir outputs/openface_tcn_i3d_fusion/ce --epochs 400 --batch_size 64 --lr 1e-4 2>&1 | tee -a outputs/logs/openface_tcn_i3d_fusion_ce.log
+python main.py --model openface_tcn_i3d_fusion --loss weighted_cross_entropy --output_dir outputs/openface_tcn_i3d_fusion/weighted_ce --epochs 400 --batch_size 64 --lr 1e-4 2>&1 | tee -a outputs/logs/openface_tcn_i3d_fusion_weighted_ce.log
+python main.py --model openface_tcn_i3d_fusion --loss ordinal --output_dir outputs/openface_tcn_i3d_fusion/ordinal --epochs 400 --batch_size 64 --lr 1e-4 2>&1 | tee -a outputs/logs/openface_tcn_i3d_fusion_ordinal.log
