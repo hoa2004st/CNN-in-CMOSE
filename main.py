@@ -45,6 +45,8 @@ CMOSE_TEST_SPLIT_KEY = "test"
 I3D_ONLY_MODELS = {"i3d_mlp"}
 MULTIMODAL_MODELS = {"openface_tcn_i3d_fusion"}
 I3D_ENABLED_MODELS = I3D_ONLY_MODELS | MULTIMODAL_MODELS
+_OPENFACE_SPLIT_CACHE: dict[tuple[str, str, int], dict[str, object]] = {}
+_I3D_SPLIT_CACHE: dict[tuple[str, int, tuple[str, ...], tuple[str, ...], tuple[str, ...]], dict[str, object]] = {}
 
 
 def _log_chunk_progress(done: int, total: int) -> None:
@@ -98,6 +100,142 @@ def resolve_device(device_name: str) -> torch.device:
     if device_name == "cuda" and not torch.cuda.is_available():
         raise RuntimeError("CUDA was requested but torch.cuda.is_available() is False.")
     return torch.device(device_name)
+
+
+def _load_openface_splits_cached(
+    *,
+    labels_json: str,
+    feature_dir: str,
+    target_frames: int,
+) -> dict[str, object]:
+    cache_key = (
+        str(Path(labels_json).resolve()),
+        str(Path(feature_dir).resolve()),
+        int(target_frames),
+    )
+    cached = _OPENFACE_SPLIT_CACHE.get(cache_key)
+    if cached is not None:
+        logger.info("Reusing cached OpenFace splits for target_frames=%d", target_frames)
+        return cached
+
+    logger.info("Loading metadata from %s", labels_json)
+    records = load_cmose_metadata(
+        labels_json,
+        feature_dir,
+        allowed_splits=(CMOSE_TRAIN_SPLIT, CMOSE_EVAL_SPLIT_KEY, CMOSE_TEST_SPLIT_KEY),
+    )
+    selected_records = records
+    train_records, eval_records, test_records = split_cmose_records_by_usage(selected_records)
+
+    logger.info("Loading %d selected samples", len(selected_records))
+    logger.info(
+        "Using CMOSE train/evaluation/test split: %d train / %d evaluation / %d test samples (source keys: %s/%s/%s)",
+        len(train_records),
+        len(eval_records),
+        len(test_records),
+        CMOSE_TRAIN_SPLIT,
+        CMOSE_EVAL_SPLIT_KEY,
+        CMOSE_TEST_SPLIT_KEY,
+    )
+    X_train_raw, y_train, train_sample_ids = load_dataset_matrices(
+        train_records,
+        target_frames=target_frames,
+        progress_desc="Loading train samples",
+    )
+    X_eval_raw, y_eval, eval_sample_ids = load_dataset_matrices(
+        eval_records,
+        target_frames=target_frames,
+        progress_desc="Loading evaluation samples",
+    )
+    X_test_raw, y_test, test_sample_ids = load_dataset_matrices(
+        test_records,
+        target_frames=target_frames,
+        progress_desc="Loading test samples",
+    )
+    cached = {
+        "records": records,
+        "selected_records": selected_records,
+        "train_records": train_records,
+        "eval_records": eval_records,
+        "test_records": test_records,
+        "X_train_raw": X_train_raw,
+        "y_train": y_train,
+        "train_sample_ids": train_sample_ids,
+        "X_eval_raw": X_eval_raw,
+        "y_eval": y_eval,
+        "eval_sample_ids": eval_sample_ids,
+        "X_test_raw": X_test_raw,
+        "y_test": y_test,
+        "test_sample_ids": test_sample_ids,
+    }
+    _OPENFACE_SPLIT_CACHE[cache_key] = cached
+    return cached
+
+
+def _load_i3d_splits_cached(
+    *,
+    labels_json: str,
+    i3d_feature_dir: str,
+    target_frames: int,
+    train_sample_ids: list[str],
+    eval_sample_ids: list[str],
+    test_sample_ids: list[str],
+) -> dict[str, object]:
+    cache_key = (
+        str(Path(i3d_feature_dir).resolve()),
+        int(target_frames),
+        tuple(train_sample_ids),
+        tuple(eval_sample_ids),
+        tuple(test_sample_ids),
+    )
+    cached = _I3D_SPLIT_CACHE.get(cache_key)
+    if cached is not None:
+        logger.info("Reusing cached I3D splits for fusion_frames=%d", target_frames)
+        return cached
+
+    i3d_materialization_summary: dict[str, int | str] | None = None
+    if not _has_materialized_i3d_features(i3d_feature_dir):
+        logger.info(
+            "No materialized I3D feature directory detected at %s; extracting from %s",
+            i3d_feature_dir,
+            labels_json,
+        )
+        i3d_materialization_summary = materialize_i3d_features_from_json(
+            labels_json,
+            i3d_feature_dir,
+        )
+        logger.info(
+            "Materialized %d I3D feature files to %s",
+            i3d_materialization_summary["written_files"],
+            i3d_feature_dir,
+        )
+    logger.info("Loading aligned I3D features from %s", i3d_feature_dir)
+    X_train_i3d_raw = load_i3d_dataset_matrices(
+        train_sample_ids,
+        feature_dir=i3d_feature_dir,
+        target_frames=target_frames,
+        progress_desc="Loading train I3D features",
+    )
+    X_eval_i3d_raw = load_i3d_dataset_matrices(
+        eval_sample_ids,
+        feature_dir=i3d_feature_dir,
+        target_frames=target_frames,
+        progress_desc="Loading evaluation I3D features",
+    )
+    X_test_i3d_raw = load_i3d_dataset_matrices(
+        test_sample_ids,
+        feature_dir=i3d_feature_dir,
+        target_frames=target_frames,
+        progress_desc="Loading test I3D features",
+    )
+    cached = {
+        "X_train_i3d_raw": X_train_i3d_raw,
+        "X_eval_i3d_raw": X_eval_i3d_raw,
+        "X_test_i3d_raw": X_test_i3d_raw,
+        "i3d_materialization_summary": i3d_materialization_summary,
+    }
+    _I3D_SPLIT_CACHE[cache_key] = cached
+    return cached
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -163,9 +301,7 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main(argv: list[str] | None = None) -> None:
-    args = build_parser().parse_args(argv)
-
+def run_experiment(args: argparse.Namespace) -> None:
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
     if torch.cuda.is_available():
@@ -191,14 +327,16 @@ def main(argv: list[str] | None = None) -> None:
     )
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    logger.info("Loading metadata from %s", args.labels_json)
-    records = load_cmose_metadata(
-        args.labels_json,
-        args.feature_dir,
-        allowed_splits=(CMOSE_TRAIN_SPLIT, CMOSE_EVAL_SPLIT_KEY, CMOSE_TEST_SPLIT_KEY),
+    openface_splits = _load_openface_splits_cached(
+        labels_json=args.labels_json,
+        feature_dir=args.feature_dir,
+        target_frames=args.target_frames,
     )
-    selected_records = records
-    train_records, eval_records, test_records = split_cmose_records_by_usage(selected_records)
+    records = openface_splits["records"]
+    selected_records = openface_splits["selected_records"]
+    train_records = openface_splits["train_records"]
+    eval_records = openface_splits["eval_records"]
+    test_records = openface_splits["test_records"]
 
     selection_summary = {
         "mode": "cmose_train_eval_test_split",
@@ -239,31 +377,15 @@ def main(argv: list[str] | None = None) -> None:
     save_json(selection_summary, output_dir / "selection_summary.json")
     logger.info("Saved selection summary to %s", output_dir / "selection_summary.json")
 
-    logger.info("Loading %d selected samples", len(selected_records))
-    logger.info(
-        "Using CMOSE train/evaluation/test split: %d train / %d evaluation / %d test samples (source keys: %s/%s/%s)",
-        len(train_records),
-        len(eval_records),
-        len(test_records),
-        CMOSE_TRAIN_SPLIT,
-        CMOSE_EVAL_SPLIT_KEY,
-        CMOSE_TEST_SPLIT_KEY,
-    )
-    X_train_raw, y_train, train_sample_ids = load_dataset_matrices(
-        train_records,
-        target_frames=args.target_frames,
-        progress_desc="Loading train samples",
-    )
-    X_eval_raw, y_eval, eval_sample_ids = load_dataset_matrices(
-        eval_records,
-        target_frames=args.target_frames,
-        progress_desc="Loading evaluation samples",
-    )
-    X_test_raw, y_test, test_sample_ids = load_dataset_matrices(
-        test_records,
-        target_frames=args.target_frames,
-        progress_desc="Loading test samples",
-    )
+    X_train_raw = openface_splits["X_train_raw"]
+    y_train = openface_splits["y_train"]
+    train_sample_ids = openface_splits["train_sample_ids"]
+    X_eval_raw = openface_splits["X_eval_raw"]
+    y_eval = openface_splits["y_eval"]
+    eval_sample_ids = openface_splits["eval_sample_ids"]
+    X_test_raw = openface_splits["X_test_raw"]
+    y_test = openface_splits["y_test"]
+    test_sample_ids = openface_splits["test_sample_ids"]
     raw_input_features = int(X_train_raw.shape[-1])
     input_features = raw_input_features
     i3d_input_features: int | None = None
@@ -272,40 +394,18 @@ def main(argv: list[str] | None = None) -> None:
     X_test_i3d_raw: np.ndarray | None = None
     i3d_materialization_summary: dict[str, int | str] | None = None
     if args.model in I3D_ENABLED_MODELS:
-        if not _has_materialized_i3d_features(args.i3d_feature_dir):
-            logger.info(
-                "No materialized I3D feature directory detected at %s; extracting from %s",
-                args.i3d_feature_dir,
-                args.labels_json,
-            )
-            i3d_materialization_summary = materialize_i3d_features_from_json(
-                args.labels_json,
-                args.i3d_feature_dir,
-            )
-            logger.info(
-                "Materialized %d I3D feature files to %s",
-                i3d_materialization_summary["written_files"],
-                args.i3d_feature_dir,
-            )
-        logger.info("Loading aligned I3D features from %s", args.i3d_feature_dir)
-        X_train_i3d_raw = load_i3d_dataset_matrices(
-            train_sample_ids,
-            feature_dir=args.i3d_feature_dir,
+        i3d_splits = _load_i3d_splits_cached(
+            labels_json=args.labels_json,
+            i3d_feature_dir=args.i3d_feature_dir,
             target_frames=args.fusion_frames,
-            progress_desc="Loading train I3D features",
+            train_sample_ids=train_sample_ids,
+            eval_sample_ids=eval_sample_ids,
+            test_sample_ids=test_sample_ids,
         )
-        X_eval_i3d_raw = load_i3d_dataset_matrices(
-            eval_sample_ids,
-            feature_dir=args.i3d_feature_dir,
-            target_frames=args.fusion_frames,
-            progress_desc="Loading evaluation I3D features",
-        )
-        X_test_i3d_raw = load_i3d_dataset_matrices(
-            test_sample_ids,
-            feature_dir=args.i3d_feature_dir,
-            target_frames=args.fusion_frames,
-            progress_desc="Loading test I3D features",
-        )
+        X_train_i3d_raw = i3d_splits["X_train_i3d_raw"]
+        X_eval_i3d_raw = i3d_splits["X_eval_i3d_raw"]
+        X_test_i3d_raw = i3d_splits["X_test_i3d_raw"]
+        i3d_materialization_summary = i3d_splits["i3d_materialization_summary"]
         i3d_input_features = int(X_train_i3d_raw.shape[-1])
     model, model_spec = build_model(
         args.model,
@@ -635,6 +735,11 @@ def main(argv: list[str] | None = None) -> None:
     print(f"  Best epoch    : {history['best_epoch']}")
     print("\nClassification Report:")
     print(metrics["classification_report"])
+
+
+def main(argv: list[str] | None = None) -> None:
+    args = build_parser().parse_args(argv)
+    run_experiment(args)
 
 
 if __name__ == "__main__":
