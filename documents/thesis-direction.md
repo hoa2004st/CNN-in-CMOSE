@@ -2,75 +2,53 @@
 
 ## Recommended Thesis Title
 
-**Reassessing PCA/SVD-Based CNN Engagement Classification on CMOSE Through Direct Temporal Modeling Under a Strict No-Leakage Protocol**
+**Engagement Classification on CMOSE with OpenFace and I3D Features Under a Train + Unlabeled Selection Protocol**
 
 Alternative title:
 
-**Engagement Classification from OpenFace Sequences on CMOSE: Revisiting Reduced-Matrix CNN and Direct Temporal Models**
+**A Narrowed Comparison of OpenFace and I3D Baselines for CMOSE Engagement Classification**
 
 ## Final Thesis Statement
 
-This thesis reassesses engagement classification from OpenFace-based facial behavior features on the CMOSE dataset by examining whether the reproduced `PCA/SVD -> reduced matrix -> CNN` pipeline is necessary under a strict no-leakage evaluation setting. Specifically, it compares the baseline reduced-matrix CNN with direct temporal architectures, including temporal CNN, rectangular-filter CNN, LSTM, and Transformer models, to determine whether preserving the original frame-feature sequence improves classification performance, robustness, and methodological validity while reducing preprocessing complexity.
+This thesis studies engagement classification on the CMOSE dataset with a deliberately narrowed model scope. It compares OpenFace-only baselines (`openface_mlp`, `temporal_cnn`, `lstm`, `transformer`), an I3D-only baseline (`i3d_mlp`), and a multimodal fusion model (`openface_tcn_i3d_fusion`) under a train + unlabeled selection protocol, where the dataset's source split key `test` is used for early stopping and checkpoint selection.
 
 ## Research Problem
 
-The reproduced baseline follows a pipeline in which raw frame-level OpenFace features are transformed through PCA or SVD into a reduced square matrix before CNN classification. Although this design is faithful to the source paper, it imposes two assumptions that are not yet well justified for CMOSE:
+The core question is no longer whether paper-style dimensionality reduction or spectral feature engineering is necessary. The narrowed problem is to determine how much predictive value comes from:
 
-- dimensionality reduction is necessary before effective learning can occur
-- converting a temporal feature sequence into an image-like matrix is a suitable representation for engagement classification
-
-As a result, the key research problem is not merely which model achieves the highest score, but whether the baseline representation itself is appropriate and necessary when evaluated under a stricter and more defensible protocol.
+- simple OpenFace baselines
+- temporal modeling over OpenFace sequences
+- I3D-only appearance-motion features
+- multimodal fusion of OpenFace and I3D
 
 ## Research Objectives
 
-1. Reproduce the baseline PCA-CNN and SVD-CNN engagement-classification pipeline on CMOSE using the original train/test split and a strict no-leakage setup.
-2. Design and implement direct temporal comparison models that operate on the original frame-feature sequence without PCA or SVD, including temporal CNN, rectangular-filter CNN, LSTM, and Transformer architectures.
-3. Compare the baseline and direct temporal models using accuracy, macro-F1, per-class performance, robustness across runs, and preprocessing complexity.
-4. Assess whether preserving the original temporal structure of OpenFace features provides a more methodologically valid and practically efficient approach to engagement classification on CMOSE.
-5. Identify which architecture family offers the best tradeoff between predictive performance, stability, and implementation cost for thesis-level engagement-recognition research.
+1. Establish lightweight sanity-check baselines with `openface_mlp` and `i3d_mlp`.
+2. Compare OpenFace temporal models (`temporal_cnn`, `lstm`, `transformer`) against the OpenFace MLP baseline.
+3. Evaluate whether combining OpenFace and I3D in `openface_tcn_i3d_fusion` improves over single-modality models.
+4. Report accuracy, macro-F1, weighted F1, and per-class behavior under the same train + unlabeled selection protocol.
 
 ## Research Questions
 
-1. Is the reproduced PCA/SVD-to-CNN pipeline necessary for effective engagement classification on CMOSE, or can direct temporal models achieve comparable or better results without dimensionality reduction?
-2. Does preserving the original frame-feature sequence improve classification robustness and methodological validity compared with transforming the data into a reduced square matrix?
-3. Among temporal CNN, rectangular-filter CNN, LSTM, and Transformer models, which architecture is most suitable for engagement classification from OpenFace sequences under the strict CMOSE protocol?
+1. How far can simple OpenFace and I3D MLP baselines go on CMOSE?
+2. Do temporal OpenFace models outperform the OpenFace MLP baseline?
+3. Does `openface_tcn_i3d_fusion` improve over the strongest single-modality model?
 
 ## Hypotheses
 
-1. Direct temporal models will match or outperform the reproduced PCA/SVD-CNN baseline because they preserve the original temporal structure of the OpenFace features and avoid information distortion introduced by square-matrix conversion.
-2. Temporal CNN and rectangular-filter CNN models will provide the best overall tradeoff between performance and stability because they exploit temporal patterns directly while remaining simpler than recurrent and attention-based architectures.
-3. Transformer-based models will not necessarily produce the strongest results on CMOSE because the dataset size and task setting may favor lighter architectures with lower risk of overfitting.
+1. `temporal_cnn`, `lstm`, and `transformer` will outperform `openface_mlp` because they preserve temporal structure.
+2. `openface_tcn_i3d_fusion` will outperform both `openface_mlp` and `i3d_mlp` if the two modalities contribute complementary information.
+3. `i3d_mlp` will act as a useful sanity check but will likely be weaker than the stronger OpenFace temporal baselines unless the I3D features are especially informative.
 
 ## Model Scope
 
-The experimental comparison will cover the following model families:
+The experimental comparison is restricted to:
 
-- baseline PCA-CNN and SVD-CNN
-- raw-sequence temporal CNN
-- rectangular-filter CNN
-- single-direction LSTM
-- small Transformer encoder
+- `openface_mlp`
+- `temporal_cnn`
+- `lstm`
+- `transformer`
+- `i3d_mlp`
+- `openface_tcn_i3d_fusion`
 
-This scope is sufficient for a thesis because it tests both representation choices and architecture families without becoming too broad to evaluate rigorously.
-
-## Short Description of the Comparison Models
-
-### Temporal CNN
-
-The temporal CNN consumes the original `T x F` OpenFace sequence directly and applies convolution primarily along the time axis. Its purpose is to capture short-term and mid-range temporal patterns in facial behavior without imposing handcrafted feature reduction.
-
-### Rectangular-Filter CNN
-
-The rectangular-filter CNN treats the frame-feature matrix as an asymmetric 2D structure and applies non-square kernels so that temporal and feature dimensions are modeled differently. This architecture tests whether 2D convolution remains useful when the kernel design reflects the real structure of the data rather than a forced square representation.
-
-### LSTM
-
-The LSTM processes the frame-level feature vectors as an ordered sequence and learns temporal dependencies through recurrent memory. It serves as a strong sequential baseline for testing whether longer-range temporal modeling is more appropriate than reduced-matrix CNN classification.
-
-### Transformer
-
-The Transformer encoder models interactions across the full sequence through self-attention. Its role in this thesis is to test whether global temporal dependency modeling offers measurable benefits over simpler direct temporal architectures on CMOSE.
-
-## Expected Contribution
-
-The expected contribution of the thesis is a methodologically stricter and empirically clearer reassessment of engagement classification from OpenFace sequences on CMOSE. Rather than proposing a model only for novelty, the study is intended to show whether the field’s existing reduced-matrix CNN formulation is actually necessary, and whether direct temporal modeling provides a more faithful, simpler, and more defensible alternative.
+Anything outside this list is out of scope for the current thesis direction.

@@ -1,4 +1,4 @@
-"""Model definitions for the strict CMOSE comparison pipeline."""
+"""Model definitions for the narrowed CMOSE comparison pipeline."""
 
 from __future__ import annotations
 
@@ -17,51 +17,8 @@ class ModelSpec:
     input_kind: str
 
 
-class PaperEngagementCNN(nn.Module):
-    """4-block square-matrix CNN matching the paper summary."""
-
-    def __init__(self, *, input_size: int = 300, num_classes: int = 4) -> None:
-        super().__init__()
-        self.features = nn.Sequential(
-            nn.Conv2d(1, 32, kernel_size=5, stride=1, padding=2),
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.Conv2d(32, 64, kernel_size=5, stride=1, padding=2),
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.Conv2d(64, 128, kernel_size=5, stride=1, padding=2),
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.Conv2d(128, 256, kernel_size=5, stride=1, padding=2),
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=2, stride=2),
-        )
-
-        flat_size = self._infer_flat_size(input_size=input_size)
-        self.dropout1 = nn.Dropout(p=0.25)
-        self.fc1 = nn.Linear(flat_size, 128)
-        self.relu = nn.ReLU(inplace=True)
-        self.dropout2 = nn.Dropout(p=0.5)
-        self.fc2 = nn.Linear(128, num_classes)
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        x = self.features(x)
-        x = self.dropout1(x)
-        x = torch.flatten(x, start_dim=1)
-        x = self.fc1(x)
-        x = self.relu(x)
-        x = self.dropout2(x)
-        return self.fc2(x)
-
-    def _infer_flat_size(self, *, input_size: int) -> int:
-        with torch.no_grad():
-            dummy = torch.zeros(1, 1, input_size, input_size)
-            output = self.features(dummy)
-            return int(output.numel())
-
-
 class RawTemporalCNN(nn.Module):
-    """1-D temporal CNN over the original frame sequence."""
+    """1-D temporal CNN over frame-level OpenFace features."""
 
     def __init__(self, *, input_features: int = 709, num_classes: int = 4) -> None:
         super().__init__()
@@ -89,67 +46,6 @@ class RawTemporalCNN(nn.Module):
         x = x.transpose(1, 2)
         x = self.temporal(x)
         return self.classifier(x)
-
-
-class RectangularFilterCNN(nn.Module):
-    """2-D CNN with asymmetric kernels for frame-feature inputs."""
-
-    def __init__(self, *, num_classes: int = 4) -> None:
-        super().__init__()
-        self.features = nn.Sequential(
-            nn.Conv2d(1, 32, kernel_size=(5, 15), padding=(2, 7)),
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=(2, 2), stride=(2, 2)),
-            nn.Conv2d(32, 64, kernel_size=(5, 9), padding=(2, 4)),
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=(2, 2), stride=(2, 2)),
-            nn.Conv2d(64, 128, kernel_size=(3, 5), padding=(1, 2)),
-            nn.ReLU(inplace=True),
-            nn.AdaptiveAvgPool2d((1, 1)),
-        )
-        self.classifier = nn.Sequential(
-            nn.Flatten(),
-            nn.Dropout(p=0.3),
-            nn.Linear(128, 128),
-            nn.ReLU(inplace=True),
-            nn.Dropout(p=0.3),
-            nn.Linear(128, num_classes),
-        )
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self.classifier(self.features(x))
-
-
-class SpectralConvNet(nn.Module):
-    """CNN over TES time-frequency tensors."""
-
-    def __init__(self, *, n_input_features: int, num_classes: int = 4) -> None:
-        super().__init__()
-        self.features = nn.Sequential(
-            nn.Conv2d(n_input_features, 64, kernel_size=(5, 3), padding=(2, 1)),
-            nn.BatchNorm2d(64),
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=(1, 2), stride=(1, 2)),
-            nn.Conv2d(64, 128, kernel_size=(3, 3), padding=(1, 1)),
-            nn.BatchNorm2d(128),
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=(2, 2), stride=(2, 2)),
-            nn.Conv2d(128, 128, kernel_size=(3, 3), padding=(1, 1)),
-            nn.BatchNorm2d(128),
-            nn.ReLU(inplace=True),
-            nn.AdaptiveAvgPool2d((1, 1)),
-        )
-        self.classifier = nn.Sequential(
-            nn.Flatten(),
-            nn.Dropout(p=0.3),
-            nn.Linear(128, 128),
-            nn.ReLU(inplace=True),
-            nn.Dropout(p=0.3),
-            nn.Linear(128, num_classes),
-        )
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self.classifier(self.features(x))
 
 
 class SequenceLSTM(nn.Module):
@@ -203,7 +99,7 @@ class PositionalEncoding(nn.Module):
 
 
 class SequenceTransformer(nn.Module):
-    """Small transformer encoder for raw OpenFace sequences."""
+    """Small transformer encoder for frame-level OpenFace features."""
 
     def __init__(
         self,
@@ -244,8 +140,33 @@ class SequenceTransformer(nn.Module):
         return self.classifier(x)
 
 
-class DualStreamOpenFaceI3DModel(nn.Module):
-    """Shared-fusion temporal model over OpenFace and precomputed I3D features."""
+class FlattenMLP(nn.Module):
+    """Simple MLP baseline that flattens the input tensor for classification."""
+
+    def __init__(
+        self,
+        *,
+        hidden_dim: int = 256,
+        num_classes: int = 4,
+    ) -> None:
+        super().__init__()
+        self.network = nn.Sequential(
+            nn.Flatten(),
+            nn.LazyLinear(hidden_dim),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.3),
+            nn.Linear(hidden_dim, 128),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.3),
+            nn.Linear(128, num_classes),
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.network(x)
+
+
+class OpenFaceTCNI3DFusionModel(nn.Module):
+    """Shared-fusion model with an OpenFace TCN branch and an I3D branch."""
 
     def __init__(
         self,
@@ -332,31 +253,20 @@ class DualStreamOpenFaceI3DModel(nn.Module):
 def build_model(
     model_name: str,
     *,
-    input_size: int = 300,
     input_features: int = 709,
     i3d_input_features: int | None = None,
     num_classes: int = 4,
 ) -> tuple[nn.Module, ModelSpec]:
     """Create a model and describe its expected input format."""
-    if model_name == "paper_cnn":
+    if model_name == "openface_mlp":
         return (
-            PaperEngagementCNN(input_size=input_size, num_classes=num_classes),
-            ModelSpec(name=model_name, input_kind="square_matrix"),
+            FlattenMLP(num_classes=num_classes),
+            ModelSpec(name=model_name, input_kind="openface_flat_mlp"),
         )
     if model_name == "temporal_cnn":
         return (
             RawTemporalCNN(input_features=input_features, num_classes=num_classes),
             ModelSpec(name=model_name, input_kind="sequence"),
-        )
-    if model_name == "rectangular_cnn":
-        return (
-            RectangularFilterCNN(num_classes=num_classes),
-            ModelSpec(name=model_name, input_kind="frame_feature_map"),
-        )
-    if model_name == "spectral_cnn":
-        return (
-            SpectralConvNet(n_input_features=input_features, num_classes=num_classes),
-            ModelSpec(name=model_name, input_kind="spectral_tensor"),
         )
     if model_name == "lstm":
         return (
@@ -368,11 +278,16 @@ def build_model(
             SequenceTransformer(input_features=input_features, num_classes=num_classes),
             ModelSpec(name=model_name, input_kind="sequence"),
         )
-    if model_name == "openface_i3d_temporal_fusion":
-        if i3d_input_features is None:
-            raise ValueError("i3d_input_features is required for openface_i3d_temporal_fusion")
+    if model_name == "i3d_mlp":
         return (
-            DualStreamOpenFaceI3DModel(
+            FlattenMLP(num_classes=num_classes),
+            ModelSpec(name=model_name, input_kind="i3d_flat_mlp"),
+        )
+    if model_name == "openface_tcn_i3d_fusion":
+        if i3d_input_features is None:
+            raise ValueError("i3d_input_features is required for openface_tcn_i3d_fusion")
+        return (
+            OpenFaceTCNI3DFusionModel(
                 openface_features=input_features,
                 i3d_features=i3d_input_features,
                 num_classes=num_classes,

@@ -1,4 +1,4 @@
-# OpenFace Temporal CNN + I3D Dual-Stream Pipeline
+# OpenFace TCN + I3D Fusion Pipeline
 
 ## Goal
 
@@ -210,7 +210,7 @@ Recommended order:
 
 ### Split protocol
 
-- keep the repo's strict train/test protocol
+- keep the repo's train + unlabeled protocol
 - compute normalization statistics on train only
 - fit any temporal alignment parameters on train only
 
@@ -270,7 +270,7 @@ If this design is later implemented, the cleanest additions would be:
 
 ## Recommended Model Name
 
-`openface_i3d_temporal_fusion`
+`openface_tcn_i3d_fusion`
 
 ## Minimal Pseudocode
 

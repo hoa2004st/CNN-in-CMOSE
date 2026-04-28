@@ -1,4 +1,4 @@
-"""Tests for the paper-faithful CMOSE reproduction modules."""
+"""Tests for the narrowed CMOSE reproduction modules."""
 
 from __future__ import annotations
 
@@ -8,27 +8,19 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from main import _has_materialized_i3d_features, resolve_output_dir
+from main import _has_materialized_i3d_features, resolve_output_dir, split_cmose_records_by_usage
 from src.paper_repro_data import (
+    LABEL_MAP,
+    SampleMeta,
     get_openface_feature_columns,
     load_cmose_metadata,
-    resample_frames,
-    resolve_feature_indices,
     load_i3d_dataset_matrices,
     load_i3d_matrix,
     materialize_i3d_features_from_json,
-    select_paper_style_subset,
+    resample_frames,
 )
 from src.paper_repro_model import build_model
-from src.paper_repro_preprocess import (
-    DEFAULT_TES_CONFIG,
-    add_channel_dim,
-    build_tes_feature_groups,
-    extract_spectral_dataset,
-    fit_feature_normalizer,
-    flatten_feature_groups,
-    normalize_dataset_per_feature,
-)
+from src.paper_repro_preprocess import fit_feature_normalizer, normalize_dataset_per_feature
 from src.paper_repro_train import build_loss, compute_class_weights, predict, train_model
 
 
@@ -68,50 +60,57 @@ def test_resample_frames_changes_length() -> None:
     assert out.shape == (30, 2)
 
 
-def test_select_paper_style_subset_balances_classes(tmp_path: Path) -> None:
+def test_split_cmose_records_by_usage_treats_test_key_as_unlabeled(tmp_path: Path) -> None:
+    train_record = SampleMeta(
+        sample_id="video1_person0",
+        base_video_id="video1",
+        person_id="0",
+        label_name="Engage",
+        label_id=LABEL_MAP["Engage"],
+        split="train",
+        csv_path=tmp_path / "video1_person0.csv",
+    )
+    unlabeled_record = SampleMeta(
+        sample_id="video2_person0",
+        base_video_id="video2",
+        person_id="0",
+        label_name="Disengage",
+        label_id=LABEL_MAP["Disengage"],
+        split="test",
+        csv_path=tmp_path / "video2_person0.csv",
+    )
+
+    train_records, unlabeled_records = split_cmose_records_by_usage(
+        [train_record, unlabeled_record]
+    )
+
+    assert train_records == [train_record]
+    assert unlabeled_records == [unlabeled_record]
+
+
+def test_load_cmose_metadata_filters_by_available_csv(tmp_path: Path) -> None:
     feature_dir = tmp_path / "features"
     feature_dir.mkdir()
-    labels = {}
-    specs = {
-        "Highly Disengage": [("video1_1_person0", "train"), ("video1_2_person0", "test")],
-        "Disengage": [
-            ("video2_1_person0", "train"),
-            ("video2_2_person0", "train"),
-            ("video2_3_person0", "test"),
-        ],
-        "Engage": [
-            ("video3_1_person0", "train"),
-            ("video3_2_person0", "train"),
-            ("video3_3_person0", "test"),
-            ("video3_4_person0", "test"),
-        ],
-        "Highly Engage": [
-            ("video4_1_person0", "train"),
-            ("video4_2_person0", "test"),
-            ("video4_3_person0", "test"),
-        ],
-    }
-    for label, items in specs.items():
-        for sample_id, split in items:
-            labels[sample_id] = {"label": label, "split": split}
-            _make_openface_csv(feature_dir / f"{sample_id}.csv", rows=10)
+    _make_openface_csv(feature_dir / "video1_person0.csv", rows=10)
 
     labels_path = tmp_path / "labels.json"
-    labels_path.write_text(json.dumps(labels), encoding="utf-8")
+    labels_path.write_text(
+        json.dumps(
+            {
+                "video1_person0": {"split": "train", "label": "Engage"},
+                "video2_person0": {"split": "test", "label": "Disengage"},
+            }
+        ),
+        encoding="utf-8",
+    )
 
     records = load_cmose_metadata(labels_path, feature_dir)
-    selected = select_paper_style_subset(records)
-    counts = {}
-    for record in selected:
-        counts[record.label_name] = counts.get(record.label_name, 0) + 1
 
-    assert counts["Highly Disengage"] == 2
-    assert counts["Disengage"] == 2
-    assert counts["Engage"] == 2
-    assert counts["Highly Engage"] == 2
+    assert len(records) == 1
+    assert records[0].sample_id == "video1_person0"
 
 
-def test_normalize_dataset_and_add_channel_dim_shapes() -> None:
+def test_normalize_dataset_shapes() -> None:
     rng = np.random.default_rng(0)
     train_samples = rng.normal(size=(8, 16, 16)).astype(np.float32)
     mean, std = fit_feature_normalizer(train_samples)
@@ -133,11 +132,8 @@ def test_normalize_dataset_and_add_channel_dim_shapes() -> None:
         atol=1e-5,
     )
 
-    cnn_input = add_channel_dim(normalized)
-    assert cnn_input.shape == (8, 1, 16, 16)
 
-
-def test_get_openface_feature_columns_and_resolve_indices(tmp_path: Path) -> None:
+def test_get_openface_feature_columns(tmp_path: Path) -> None:
     feature_dir = tmp_path / "features"
     feature_dir.mkdir()
     csv_path = feature_dir / "sample.csv"
@@ -147,14 +143,6 @@ def test_get_openface_feature_columns_and_resolve_indices(tmp_path: Path) -> Non
     assert len(feature_columns) == 709
     assert "frame" not in feature_columns
     assert feature_columns[0] == "f_0"
-
-    indices = resolve_feature_indices(
-        feature_columns,
-        exact_names=["f_3", "f_10"],
-        prefixes=["f_2"],
-    )
-    assert indices[:2] == [2, 3]
-    assert 10 in indices
 
 
 def test_load_i3d_matrix_and_dataset_alignment(tmp_path: Path) -> None:
@@ -195,54 +183,20 @@ def test_materialize_i3d_features_from_json(tmp_path: Path) -> None:
     np.testing.assert_allclose(sample_b, np.zeros((1, 8), dtype=np.float32))
 
 
-def test_tes_preprocessing_shape_and_feature_groups() -> None:
-    feature_columns = [
-        "pose_Rx",
-        "pose_Ry",
-        "pose_Rz",
-        "gaze_0_x",
-        "gaze_1_y",
-        "gaze_angle_x",
-        "AU01_r",
-        "AU12_r",
-    ]
-    groups = build_tes_feature_groups(feature_columns)
-    assert sorted(groups) == ["au_intensity", "gaze", "head_pose"]
-
-    feature_indices = flatten_feature_groups(groups)
-    assert feature_indices == list(range(len(feature_columns)))
-
-    rng = np.random.default_rng(0)
-    samples = rng.normal(size=(2, 300, len(feature_columns))).astype(np.float32)
-    spectral = extract_spectral_dataset(
-        samples,
-        feature_indices=feature_indices,
-        config=DEFAULT_TES_CONFIG,
-        progress_desc="test tes",
-    )
-    assert spectral.dtype == np.float32
-    assert spectral.shape == (2, len(feature_columns), 33, 20)
-
-
 def test_model_factory_output_shapes() -> None:
     import torch
 
-    square_model, square_spec = build_model("paper_cnn", input_size=32)
-    square_out = square_model(torch.from_numpy(np.random.randn(2, 1, 32, 32).astype(np.float32)))
-    assert square_spec.input_kind == "square_matrix"
-    assert square_out.shape == (2, 4)
+    openface_mlp_model, openface_mlp_spec = build_model("openface_mlp", input_features=32)
+    openface_mlp_out = openface_mlp_model(
+        torch.from_numpy(np.random.randn(2, 20, 32).astype(np.float32))
+    )
+    assert openface_mlp_spec.input_kind == "openface_flat_mlp"
+    assert openface_mlp_out.shape == (2, 4)
 
     temporal_model, temporal_spec = build_model("temporal_cnn", input_features=32)
     temporal_out = temporal_model(torch.from_numpy(np.random.randn(2, 20, 32).astype(np.float32)))
     assert temporal_spec.input_kind == "sequence"
     assert temporal_out.shape == (2, 4)
-
-    rectangular_model, rectangular_spec = build_model("rectangular_cnn")
-    rectangular_out = rectangular_model(
-        torch.from_numpy(np.random.randn(2, 1, 20, 32).astype(np.float32))
-    )
-    assert rectangular_spec.input_kind == "frame_feature_map"
-    assert rectangular_out.shape == (2, 4)
 
     lstm_model, lstm_spec = build_model("lstm", input_features=32)
     lstm_out = lstm_model(torch.from_numpy(np.random.randn(2, 20, 32).astype(np.float32)))
@@ -256,15 +210,13 @@ def test_model_factory_output_shapes() -> None:
     assert transformer_spec.input_kind == "sequence"
     assert transformer_out.shape == (2, 4)
 
-    spectral_model, spectral_spec = build_model("spectral_cnn", input_features=8)
-    spectral_out = spectral_model(
-        torch.from_numpy(np.random.randn(2, 8, 33, 20).astype(np.float32))
-    )
-    assert spectral_spec.input_kind == "spectral_tensor"
-    assert spectral_out.shape == (2, 4)
+    i3d_mlp_model, i3d_mlp_spec = build_model("i3d_mlp", i3d_input_features=64)
+    i3d_mlp_out = i3d_mlp_model(torch.from_numpy(np.random.randn(2, 15, 64).astype(np.float32)))
+    assert i3d_mlp_spec.input_kind == "i3d_flat_mlp"
+    assert i3d_mlp_out.shape == (2, 4)
 
     fusion_model, fusion_spec = build_model(
-        "openface_i3d_temporal_fusion",
+        "openface_tcn_i3d_fusion",
         input_features=32,
         i3d_input_features=64,
     )
@@ -322,37 +274,37 @@ def test_loss_factory_builds_weighted_focal_and_ordinal_losses() -> None:
     assert ordinal_weights is not None
 
 
-def test_resolve_output_dir_uses_loss_specific_default_paths() -> None:
+def test_resolve_output_dir_uses_one_folder_per_model() -> None:
     assert resolve_output_dir(
         None,
-        model_name="temporal_cnn",
+        model_name="openface_mlp",
         loss_name="cross_entropy",
         focal_gamma=2.0,
-    ) == Path("outputs/temporal_cnn_cross_entropy")
+    ) == Path("outputs/openface_mlp")
     assert resolve_output_dir(
         None,
         model_name="temporal_cnn",
         loss_name="weighted_cross_entropy",
         focal_gamma=2.0,
-    ) == Path("outputs/temporal_cnn_weighted_cross_entropy")
+    ) == Path("outputs/temporal_cnn")
     assert resolve_output_dir(
         None,
         model_name="transformer",
         loss_name="focal",
         focal_gamma=1.5,
-    ) == Path("outputs/transformer_focal_g1p5")
+    ) == Path("outputs/transformer")
     assert resolve_output_dir(
         None,
         model_name="lstm",
         loss_name="ordinal",
         focal_gamma=2.0,
-    ) == Path("outputs/lstm_ordinal")
+    ) == Path("outputs/lstm")
     assert resolve_output_dir(
         None,
-        model_name="spectral_cnn",
+        model_name="openface_tcn_i3d_fusion",
         loss_name="cross_entropy",
         focal_gamma=2.0,
-    ) == Path("outputs/spectral_cnn_cross_entropy")
+    ) == Path("outputs/openface_tcn_i3d_fusion")
 
 
 def test_train_and_predict_support_multimodal_batches(tmp_path: Path) -> None:
@@ -368,7 +320,7 @@ def test_train_and_predict_support_multimodal_batches(tmp_path: Path) -> None:
     y_eval = np.array([0, 1, 2, 3], dtype=np.int64)
 
     model, _ = build_model(
-        "openface_i3d_temporal_fusion",
+        "openface_tcn_i3d_fusion",
         input_features=6,
         i3d_input_features=10,
     )
@@ -395,6 +347,47 @@ def test_train_and_predict_support_multimodal_batches(tmp_path: Path) -> None:
     preds = predict(
         model,
         (X_openface_eval, X_i3d_eval),
+        batch_size=2,
+        device=torch.device("cpu"),
+        num_workers=0,
+        use_amp=False,
+    )
+    assert preds.shape == (4,)
+
+
+def test_train_and_predict_support_flat_mlp_batches(tmp_path: Path) -> None:
+    import torch
+
+    rng = np.random.default_rng(0)
+    X_train = rng.normal(size=(8, 12, 6)).astype(np.float32)
+    y_train = np.array([0, 1, 2, 3, 0, 1, 2, 3], dtype=np.int64)
+    X_eval = rng.normal(size=(4, 12, 6)).astype(np.float32)
+    y_eval = np.array([0, 1, 2, 3], dtype=np.int64)
+
+    model, _ = build_model("openface_mlp", input_features=6)
+
+    history = train_model(
+        model,
+        X_train,
+        y_train,
+        X_eval,
+        y_eval,
+        epochs=2,
+        batch_size=4,
+        lr=1e-3,
+        patience=2,
+        loss_name="cross_entropy",
+        focal_gamma=2.0,
+        checkpoint_path=tmp_path / "openface_mlp_model.pth",
+        device=torch.device("cpu"),
+        num_workers=0,
+        use_amp=False,
+    )
+    assert history["best_epoch"] >= 1
+
+    preds = predict(
+        model,
+        X_eval,
         batch_size=2,
         device=torch.device("cpu"),
         num_workers=0,

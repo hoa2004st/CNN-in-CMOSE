@@ -5,17 +5,18 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
-TIMESTAMP="$(date +"%Y%m%d_%H%M%S")"
-RUN_ROOT="${1:-outputs/comparison_runs/$TIMESTAMP}"
+RUN_ROOT="${1:-outputs}"
 LOG_DIR="$RUN_ROOT/logs"
 
 mkdir -p "$LOG_DIR"
 
 MODELS=(
+  "openface_mlp"
   "temporal_cnn"
-  "rectangular_cnn"
   "lstm"
   "transformer"
+  "i3d_mlp"
+  "openface_tcn_i3d_fusion"
 )
 
 COMMON_ARGS=(

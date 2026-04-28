@@ -1,12 +1,19 @@
 # CNN-in-CMOSE
 
-Reproduce the paper-inspired PCA/SVD + CNN engagement-classification pipeline on the CMOSE dataset using the provided OpenFace feature CSVs.
+Train the narrowed CMOSE engagement-classification comparison using OpenFace and I3D features.
 
-The repo now uses the strict CMOSE train/test protocol by default. The older paper-style subset-selection plus pre-split SMOTE path has been removed to avoid leakage.
+The repo now focuses on six models only:
+
+- `openface_mlp`
+- `temporal_cnn`
+- `lstm`
+- `transformer`
+- `i3d_mlp`
+- `openface_tcn_i3d_fusion`
+
+The dataset's source split key `test` is treated as the CMOSE unlabeled/evaluation split for checkpointing and early stopping, not as a separate held-out benchmark.
 
 ## Dataset layout
-
-The current pipeline expects:
 
 ```text
 data/CMOSE/
@@ -20,50 +27,39 @@ data/CMOSE/
 
 ## Usage
 
-Default baseline run:
-
-```bash
-python main.py
-```
-
-Run one of the raw-sequence comparison models:
+Run a single model:
 
 ```bash
 python main.py --model temporal_cnn
-python main.py --model rectangular_cnn
+python main.py --model openface_mlp
 python main.py --model lstm
 python main.py --model transformer
+python main.py --model i3d_mlp
+python main.py --model openface_tcn_i3d_fusion
 ```
 
-Run all four comparison models sequentially with separate output folders and logs:
+Run the comparison suite:
 
 ```bash
 bash scripts/run_comparison_models.sh
 ```
 
-Optional custom run root:
-
-```bash
-bash scripts/run_comparison_models.sh outputs/comparison_runs/my_server_run
-```
+By default, the batch script writes one folder per kept model directly under `outputs/`, plus `outputs/logs/`.
 
 Key options:
 
 ```text
---model                  paper_cnn | temporal_cnn | rectangular_cnn | lstm | transformer
---method                 pca | svd                              (default: svd)
---n_components           Reduced features per frame             (default: 300)
---target_frames          Frames per sample after resampling     (default: 300)
---epochs                 Maximum training epochs                (default: 1600)
---batch_size             Mini-batch size                        (default: 8)
---lr                     Learning rate                          (default: 1e-4)
---output_dir             Where to save artefacts                (default: outputs/)
---seed                   Random seed                            (default: 42)
+--model                  openface_mlp | temporal_cnn | lstm | transformer | i3d_mlp | openface_tcn_i3d_fusion
+--target_frames          Frames per OpenFace sample after resampling         (default: 300)
+--fusion_frames          Frames per I3D/fusion sample after resampling       (default: 75)
+--epochs                 Maximum training epochs                             (default: 800)
+--batch_size             Mini-batch size                                     (default: 128)
+--lr                     Learning rate                                       (default: 1e-4)
+--output_dir             Where to save artefacts                             (default: outputs/<model>)
+--seed                   Random seed                                         (default: 42)
 ```
 
-`--method` and `--n_components` are used only by `paper_cnn`. The raw-sequence models operate directly on the normalized `frames x features` matrices.
-
-The batch size, learning rate, and epochs inside `scripts/run_comparison_models.sh` can be adjusted in the `COMMON_ARGS` array.
+`openface_mlp`, `temporal_cnn`, `lstm`, and `transformer` use normalized OpenFace tensors only. `i3d_mlp` uses normalized I3D tensors only. `openface_tcn_i3d_fusion` uses both modalities.
 
 ## Outputs
 
@@ -73,24 +69,9 @@ Files written under `--output_dir`:
 |---|---|
 | `best_model.pth` | Best checkpoint |
 | `metrics.json` | Final metrics and run config |
-| `selection_summary.json` | Selection mode and assumptions |
-| `preprocessing_summary.json` | Reduction or normalization summary |
-| `smote_summary.json` | Train/test class counts; SMOTE is disabled in strict mode |
-
-## Project structure
-
-```text
-CNN-in-CMOSE/
-|-- main.py
-|-- requirements.txt
-|-- src/
-|   |-- paper_repro_data.py
-|   |-- paper_repro_model.py
-|   |-- paper_repro_preprocess.py
-|   `-- paper_repro_train.py
-`-- tests/
-    `-- test_paper_repro_pipeline.py
-```
+| `selection_summary.json` | Split usage and run assumptions |
+| `preprocessing_summary.json` | Normalization and tensor-shape summary |
+| `smote_summary.json` | Train/unlabeled class counts; SMOTE is disabled |
 
 ## Pipeline summary
 
@@ -99,15 +80,15 @@ CMOSE secondFeature CSVs + final_data_1.json
     ->
 paper_repro_data.py
     ->
-fixed-size 300 x 709 per-sample matrix
+OpenFace tensors (target_frames x 709)
+and/or
+I3D tensors (fusion_frames x i3d_dim)
     ->
-strict train/test split
+train split + CMOSE unlabeled/evaluation split
     ->
 paper_repro_preprocess.py
     ->
-paper_cnn: PCA/SVD -> 300 x 300 -> square CNN
-or
-raw models: min-max normalized 300 x 709 -> temporal/rectangular/LSTM/Transformer
+selected model
     ->
 paper_repro_train.py
     ->

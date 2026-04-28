@@ -1,4 +1,4 @@
-"""Training helpers for the paper-faithful reproduction pipeline."""
+"""Training helpers for the narrowed CMOSE comparison pipeline."""
 
 from __future__ import annotations
 

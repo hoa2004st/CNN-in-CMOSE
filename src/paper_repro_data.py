@@ -1,20 +1,9 @@
-"""CMOSE data loading for the paper-faithful reproduction pipeline.
-
-This module adapts the DAiSEE-oriented paper procedure to the CMOSE feature
-dump in ``data/CMOSE/secondFeature/secondFeature``:
-
-* labels come from ``final_data_1.json``
-* each CSV already represents one person track within a base video
-* the paper's pre-balancing selection is approximated by selecting complete
-  base-video groups in ascending group-size order until reaching the minority
-  class count
-* every sample is converted to a fixed ``target_frames x 709`` matrix
-"""
+"""CMOSE data loading for the narrowed OpenFace/I3D comparison pipeline."""
 
 from __future__ import annotations
 
 import json
-from collections import Counter, defaultdict
+from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
@@ -86,39 +75,6 @@ def load_cmose_metadata(
     return records
 
 
-def select_paper_style_subset(records: list[SampleMeta]) -> list[SampleMeta]:
-    """Approximate the paper's identity-based selection using CMOSE base videos.
-
-    The original paper selects groups in ascending size until reaching the
-    minority-class count. For CMOSE the closest stable grouping is the base
-    video id, because each sample file already refers to one tracked person.
-    """
-    by_label: dict[int, list[SampleMeta]] = defaultdict(list)
-    for record in records:
-        by_label[record.label_id].append(record)
-
-    if not by_label:
-        return []
-
-    minority_count = min(len(items) for items in by_label.values())
-    selected: list[SampleMeta] = []
-
-    for label_id in sorted(by_label):
-        grouped: dict[str, list[SampleMeta]] = defaultdict(list)
-        for record in by_label[label_id]:
-            grouped[record.base_video_id].append(record)
-
-        ordered_groups = sorted(grouped.items(), key=lambda item: (len(item[1]), item[0]))
-        running = 0
-        for _, group_records in ordered_groups:
-            if running >= minority_count:
-                break
-            selected.extend(group_records)
-            running += len(group_records)
-
-    return selected
-
-
 def describe_selection(records: list[SampleMeta]) -> dict[str, dict[str, int]]:
     """Return simple counts for reporting and debugging."""
     label_counts = Counter(record.label_name for record in records)
@@ -147,24 +103,6 @@ def get_openface_feature_columns(csv_path: str | Path) -> list[str]:
             f"Expected 709 OpenFace features in {csv_path}, found {len(feature_cols)}"
         )
     return feature_cols
-
-
-def resolve_feature_indices(
-    feature_columns: list[str],
-    *,
-    exact_names: list[str] | None = None,
-    prefixes: list[str] | None = None,
-) -> list[int]:
-    """Resolve feature indices by exact names and/or prefixes while preserving order."""
-    exact_names = exact_names or []
-    prefixes = prefixes or []
-    exact_name_set = set(exact_names)
-
-    indices: list[int] = []
-    for idx, column in enumerate(feature_columns):
-        if column in exact_name_set or any(column.startswith(prefix) for prefix in prefixes):
-            indices.append(idx)
-    return indices
 
 
 def load_openface_matrix(
