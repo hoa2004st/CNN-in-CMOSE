@@ -1,2 +1,7 @@
-run_name,model_label,base_model,variant_label,model,method,loss,focal_gamma,best_epoch,accuracy,macro_accuracy,f1_macro,f1_weighted,epochs_requested,batch_size,lr,device,amp
-smoke_temporal_cnn,temporal_cnn,temporal_cnn,baseline,temporal_cnn,,cross_entropy,,0,0.7010647010647011,0.31915227435484844,0.3284855092806767,0.6411063166564158,2,4,0.0001,cuda,True
+run_name,model_label,comparison_label,base_model,variant_label,loss,loss_label,best_epoch,accuracy,macro_accuracy,f1_macro,f1_weighted,epochs_requested,batch_size,lr,device,amp
+i3d_mlp/ce,i3d_mlp,i3d_mlp [CE],i3d_mlp,CE,cross_entropy,CE,6,0.7682227682227682,0.5367667726092452,0.5889255245634077,0.7533620425936851,400,64,0.0001,cuda,False
+lstm/weighted_ce,lstm,lstm [Weighted CE],lstm,Weighted CE,weighted_cross_entropy,Weighted CE,31,0.5700245700245701,0.5205989265877782,0.45018849258646826,0.5962654265936966,400,64,0.0001,cuda,False
+openface_mlp/weighted_ce,openface_mlp,openface_mlp [Weighted CE],openface_mlp,Weighted CE,weighted_cross_entropy,Weighted CE,95,0.6101556101556102,0.5376420212616171,0.49282718573859696,0.6295081175055155,400,64,0.0001,cuda,False
+openface_tcn_i3d_fusion/ce,openface_tcn_i3d_fusion,openface_tcn_i3d_fusion [CE],openface_tcn_i3d_fusion,CE,cross_entropy,CE,6,0.7698607698607699,0.5637376174084232,0.5972155073759607,0.7555015643930407,400,64,0.0001,cuda,False
+temporal_cnn/weighted_ce,temporal_cnn,temporal_cnn [Weighted CE],temporal_cnn,Weighted CE,weighted_cross_entropy,Weighted CE,61,0.6945126945126945,0.620047015433583,0.5723056530799828,0.7084731518768674,400,64,0.0001,cuda,False
+transformer/ce,transformer,transformer [CE],transformer,CE,cross_entropy,CE,25,0.7485667485667485,0.49845308548063916,0.5440902512504544,0.7289245975325428,400,64,0.0001,cuda,False

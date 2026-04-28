@@ -28,6 +28,12 @@ from src.paper_repro_train import (
     predict,
     train_model,
 )
+from scripts.visualize_results import (
+    build_summary_frame,
+    filter_comparison_runs,
+    load_completed_runs,
+    pick_best_run_per_model,
+)
 
 
 def _make_openface_csv(path: Path, *, rows: int = 20) -> None:
@@ -429,3 +435,51 @@ def test_train_and_predict_support_flat_mlp_batches(tmp_path: Path) -> None:
         use_amp=False,
     )
     assert preds.shape == (4,)
+
+
+def test_visualization_loader_supports_nested_model_loss_outputs(tmp_path: Path) -> None:
+    outputs_dir = tmp_path / "outputs"
+    nested_run_dir = outputs_dir / "openface_mlp" / "ce"
+    nested_run_dir.mkdir(parents=True)
+    legacy_run_dir = outputs_dir / "smoke_temporal_cnn"
+    legacy_run_dir.mkdir(parents=True)
+
+    nested_payload = {
+        "config": {"model": "openface_mlp", "loss": "cross_entropy"},
+        "history": {"best_epoch": 7},
+        "metrics": {
+            "accuracy": 0.7,
+            "macro_accuracy": 0.4,
+            "f1_macro": 0.5,
+            "f1_weighted": 0.6,
+        },
+    }
+    legacy_payload = {
+        "config": {"model": "temporal_cnn", "loss": "ordinal"},
+        "history": {"best_epoch": 3},
+        "metrics": {
+            "accuracy": 0.6,
+            "macro_accuracy": 0.35,
+            "f1_macro": 0.45,
+            "f1_weighted": 0.55,
+        },
+    }
+    (nested_run_dir / "metrics.json").write_text(json.dumps(nested_payload), encoding="utf-8")
+    (legacy_run_dir / "metrics.json").write_text(json.dumps(legacy_payload), encoding="utf-8")
+
+    runs = load_completed_runs(outputs_dir)
+
+    assert [run.run_name for run in runs] == ["openface_mlp/ce", "smoke_temporal_cnn"]
+    assert runs[0].loss_name == "cross_entropy"
+    assert runs[0].loss_label == "CE"
+    assert runs[0].comparison_label == "openface_mlp [CE]"
+
+    summary_df = build_summary_frame(runs)
+    assert set(summary_df["run_name"]) == {"openface_mlp/ce", "smoke_temporal_cnn"}
+    assert set(summary_df["loss_label"]) == {"CE", "Ordinal"}
+
+    comparison_runs = filter_comparison_runs(runs)
+    assert [run.run_name for run in comparison_runs] == ["openface_mlp/ce"]
+
+    best_df = pick_best_run_per_model(summary_df)
+    assert set(best_df["base_model"]) == {"openface_mlp", "temporal_cnn"}

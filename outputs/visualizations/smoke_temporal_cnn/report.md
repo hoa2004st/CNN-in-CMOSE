@@ -1,7 +1,7 @@
-# temporal_cnn
+# temporal_cnn [CE]
 
 - Run folder: `smoke_temporal_cnn`
-- Metrics file: `outputs/smoke_temporal_cnn/metrics.json`
+- Metrics file: `outputs\smoke_temporal_cnn\metrics.json`
 - Accuracy: 0.7011
 - Macro Accuracy: 0.3192
 - Macro F1: 0.3285
