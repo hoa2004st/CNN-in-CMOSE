@@ -25,24 +25,46 @@ COMMON_ARGS=(
   "--lr" "1e-4"
 )
 
+LOSSES=(
+  "cross_entropy"
+  "weighted_cross_entropy"
+  "ordinal"
+)
+
+loss_slug() {
+  case "$1" in
+    "cross_entropy") echo "ce" ;;
+    "weighted_cross_entropy") echo "weighted_ce" ;;
+    "ordinal") echo "ordinal" ;;
+    *) echo "$1" ;;
+  esac
+}
+
 echo "Run root: $RUN_ROOT"
 echo "Logs: $LOG_DIR"
 
 for model in "${MODELS[@]}"; do
-  output_dir="$RUN_ROOT/$model"
-  log_path="$LOG_DIR/$model.log"
+  model_root="$RUN_ROOT/$model"
+  mkdir -p "$model_root"
 
-  mkdir -p "$output_dir"
+  for loss in "${LOSSES[@]}"; do
+    loss_dir_name="$(loss_slug "$loss")"
+    output_dir="$model_root/$loss_dir_name"
+    log_path="$LOG_DIR/${model}_${loss_dir_name}.log"
 
-  echo "[$(date +"%F %T")] Starting $model"
-  echo "[$(date +"%F %T")] Output: $output_dir" | tee "$log_path"
+    mkdir -p "$output_dir"
 
-  python main.py \
-    --model "$model" \
-    --output_dir "$output_dir" \
-    "${COMMON_ARGS[@]}" 2>&1 | tee -a "$log_path"
+    echo "[$(date +"%F %T")] Starting $model with loss=$loss"
+    echo "[$(date +"%F %T")] Output: $output_dir" | tee "$log_path"
 
-  echo "[$(date +"%F %T")] Finished $model" | tee -a "$log_path"
+    python main.py \
+      --model "$model" \
+      --loss "$loss" \
+      --output_dir "$output_dir" \
+      "${COMMON_ARGS[@]}" 2>&1 | tee -a "$log_path"
+
+    echo "[$(date +"%F %T")] Finished $model with loss=$loss" | tee -a "$log_path"
+  done
 done
 
 echo "All comparison runs completed."
