@@ -1,0 +1,23 @@
+{
+  "before_smote": {
+    "train": {
+      "Highly Disengage": 250,
+      "Disengage": 1591,
+      "Engage": 6099,
+      "Highly Engage": 843
+    },
+    "evaluation": {
+      "Highly Disengage": 62,
+      "Disengage": 397,
+      "Engage": 1524,
+      "Highly Engage": 210
+    },
+    "test": {
+      "Highly Disengage": 35,
+      "Disengage": 221,
+      "Engage": 847,
+      "Highly Engage": 118
+    }
+  },
+  "after_smote": null
+}

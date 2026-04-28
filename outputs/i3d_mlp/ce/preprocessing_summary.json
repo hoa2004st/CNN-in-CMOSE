@@ -1,0 +1,22 @@
+{
+  "model": "i3d_mlp",
+  "sample_count": 12197,
+  "train_sample_count": 8783,
+  "evaluation_sample_count": 2193,
+  "test_sample_count": 1221,
+  "i3d_feature_count": 1024,
+  "fusion_frames": 75,
+  "i3d_shape": [
+    75,
+    1024
+  ],
+  "normalization": "per-feature z-score using train-set statistics on I3D features",
+  "i3d_materialization": {
+    "source_json": "data/CMOSE/final_data_1.json",
+    "output_dir": "data/CMOSE/i3d",
+    "embedding_dim": 1024,
+    "written_files": 12197,
+    "replaced_empty_embeddings": 295,
+    "skipped_invalid_records": 0
+  }
+}

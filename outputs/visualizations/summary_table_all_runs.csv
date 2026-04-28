@@ -1,0 +1,2 @@
+run_name,model_label,base_model,variant_label,model,method,loss,focal_gamma,best_epoch,accuracy,macro_accuracy,f1_macro,f1_weighted,epochs_requested,batch_size,lr,device,amp
+smoke_temporal_cnn,temporal_cnn,temporal_cnn,baseline,temporal_cnn,,cross_entropy,,0,0.7010647010647011,0.31915227435484844,0.3284855092806767,0.6411063166564158,2,4,0.0001,cuda,True

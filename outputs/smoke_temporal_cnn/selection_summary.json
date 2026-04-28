@@ -1,0 +1,58 @@
+{
+  "mode": "cmose_train_eval_test_split",
+  "before_selection": {
+    "labels": {
+      "Highly Disengage": 347,
+      "Disengage": 2209,
+      "Engage": 8470,
+      "Highly Engage": 1171
+    },
+    "splits": {
+      "unlabel": 2193,
+      "train": 8783,
+      "test": 1221
+    },
+    "base_videos": {
+      "unique": 1727
+    },
+    "samples": {
+      "total": 12197
+    }
+  },
+  "after_selection": {
+    "labels": {
+      "Highly Disengage": 347,
+      "Disengage": 2209,
+      "Engage": 8470,
+      "Highly Engage": 1171
+    },
+    "splits": {
+      "unlabel": 2193,
+      "train": 8783,
+      "test": 1221
+    },
+    "base_videos": {
+      "unique": 1727
+    },
+    "samples": {
+      "total": 12197
+    }
+  },
+  "assumptions": {
+    "selection_group": null,
+    "fixed_frame_count": 300,
+    "normalization": "per-feature z-score using train-set statistics on OpenFace features",
+    "smote_position": null,
+    "dataset_scope": "original CMOSE train, unlabel (evaluation), and test samples",
+    "train_eval_split_usage": "fit on the train split; use the CMOSE unlabel split for early stopping and checkpoint selection; use the test split only for final reporting",
+    "source_split_keys": {
+      "train": "train",
+      "evaluation": "unlabel",
+      "test": "test"
+    },
+    "model": "temporal_cnn",
+    "loss": "cross_entropy",
+    "openface_frames": 300,
+    "fusion_frames": null
+  }
+}
