@@ -210,7 +210,7 @@ Recommended order:
 
 ### Split protocol
 
-- keep the repo's train + unlabeled protocol
+- keep the repo's train/evaluation/test protocol
 - compute normalization statistics on train only
 - fit any temporal alignment parameters on train only
 

@@ -1,4 +1,4 @@
-"""Main entry point for the CMOSE train + unlabeled comparison pipeline."""
+"""Main entry point for the CMOSE train/evaluation/test comparison pipeline."""
 
 from __future__ import annotations
 
@@ -40,7 +40,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 CMOSE_TRAIN_SPLIT = "train"
-CMOSE_UNLABELED_SPLIT_KEY = "test"
+CMOSE_EVAL_SPLIT_KEY = "unlabel"
+CMOSE_TEST_SPLIT_KEY = "test"
 I3D_ONLY_MODELS = {"i3d_mlp"}
 MULTIMODAL_MODELS = {"openface_tcn_i3d_fusion"}
 I3D_ENABLED_MODELS = I3D_ONLY_MODELS | MULTIMODAL_MODELS
@@ -56,10 +57,11 @@ def _log_step(message: str) -> None:
 
 def split_cmose_records_by_usage(
     records: list,
-) -> tuple[list, list]:
+) -> tuple[list, list, list]:
     train_records = [record for record in records if record.split == CMOSE_TRAIN_SPLIT]
-    unlabeled_records = [record for record in records if record.split == CMOSE_UNLABELED_SPLIT_KEY]
-    return train_records, unlabeled_records
+    eval_records = [record for record in records if record.split == CMOSE_EVAL_SPLIT_KEY]
+    test_records = [record for record in records if record.split == CMOSE_TEST_SPLIT_KEY]
+    return train_records, eval_records, test_records
 
 
 def _resample_sample_batch(matrices: np.ndarray, *, target_frames: int) -> np.ndarray:
@@ -100,7 +102,7 @@ def resolve_device(device_name: str) -> torch.device:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Run the narrowed CMOSE train + unlabeled comparison pipeline.",
+        description="Run the narrowed CMOSE train/evaluation/test comparison pipeline.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
@@ -124,7 +126,7 @@ def build_parser() -> argparse.ArgumentParser:
             "openface_tcn_i3d_fusion",
         ],
         default="temporal_cnn",
-        help="Model architecture to train under the CMOSE train + unlabeled split.",
+        help="Model architecture to train under the CMOSE train/evaluation/test split.",
     )
     parser.add_argument(
         "--target_frames",
@@ -193,13 +195,13 @@ def main(argv: list[str] | None = None) -> None:
     records = load_cmose_metadata(
         args.labels_json,
         args.feature_dir,
-        allowed_splits=(CMOSE_TRAIN_SPLIT, CMOSE_UNLABELED_SPLIT_KEY),
+        allowed_splits=(CMOSE_TRAIN_SPLIT, CMOSE_EVAL_SPLIT_KEY, CMOSE_TEST_SPLIT_KEY),
     )
     selected_records = records
-    train_records, unlabeled_records = split_cmose_records_by_usage(selected_records)
+    train_records, eval_records, test_records = split_cmose_records_by_usage(selected_records)
 
     selection_summary = {
-        "mode": "cmose_train_unlabeled_split",
+        "mode": "cmose_train_eval_test_split",
         "before_selection": describe_selection(records),
         "after_selection": describe_selection(selected_records),
         "assumptions": {
@@ -215,14 +217,18 @@ def main(argv: list[str] | None = None) -> None:
                 )
             ),
             "smote_position": None,
-            "dataset_scope": "original CMOSE train samples plus the dataset's unlabeled/evaluation split",
+            "dataset_scope": (
+                "original CMOSE train, unlabel (evaluation), and test samples"
+            ),
             "train_eval_split_usage": (
-                "fit on the train split; use the CMOSE unlabeled/evaluation split "
-                "for early stopping and checkpoint selection"
+                "fit on the train split; use the CMOSE unlabel split "
+                "for early stopping and checkpoint selection; use the test split "
+                "only for final reporting"
             ),
             "source_split_keys": {
                 "train": CMOSE_TRAIN_SPLIT,
-                "unlabeled": CMOSE_UNLABELED_SPLIT_KEY,
+                "evaluation": CMOSE_EVAL_SPLIT_KEY,
+                "test": CMOSE_TEST_SPLIT_KEY,
             },
             "model": args.model,
             "loss": args.loss,
@@ -235,27 +241,35 @@ def main(argv: list[str] | None = None) -> None:
 
     logger.info("Loading %d selected samples", len(selected_records))
     logger.info(
-        "Using CMOSE train + unlabeled split: %d train / %d unlabeled samples (source keys: %s/%s)",
+        "Using CMOSE train/evaluation/test split: %d train / %d evaluation / %d test samples (source keys: %s/%s/%s)",
         len(train_records),
-        len(unlabeled_records),
+        len(eval_records),
+        len(test_records),
         CMOSE_TRAIN_SPLIT,
-        CMOSE_UNLABELED_SPLIT_KEY,
+        CMOSE_EVAL_SPLIT_KEY,
+        CMOSE_TEST_SPLIT_KEY,
     )
     X_train_raw, y_train, train_sample_ids = load_dataset_matrices(
         train_records,
         target_frames=args.target_frames,
         progress_desc="Loading train samples",
     )
-    X_unlabeled_raw, y_unlabeled, unlabeled_sample_ids = load_dataset_matrices(
-        unlabeled_records,
+    X_eval_raw, y_eval, eval_sample_ids = load_dataset_matrices(
+        eval_records,
         target_frames=args.target_frames,
-        progress_desc="Loading unlabeled samples",
+        progress_desc="Loading evaluation samples",
+    )
+    X_test_raw, y_test, test_sample_ids = load_dataset_matrices(
+        test_records,
+        target_frames=args.target_frames,
+        progress_desc="Loading test samples",
     )
     raw_input_features = int(X_train_raw.shape[-1])
     input_features = raw_input_features
     i3d_input_features: int | None = None
     X_train_i3d_raw: np.ndarray | None = None
-    X_unlabeled_i3d_raw: np.ndarray | None = None
+    X_eval_i3d_raw: np.ndarray | None = None
+    X_test_i3d_raw: np.ndarray | None = None
     i3d_materialization_summary: dict[str, int | str] | None = None
     if args.model in I3D_ENABLED_MODELS:
         if not _has_materialized_i3d_features(args.i3d_feature_dir):
@@ -280,11 +294,17 @@ def main(argv: list[str] | None = None) -> None:
             target_frames=args.fusion_frames,
             progress_desc="Loading train I3D features",
         )
-        X_unlabeled_i3d_raw = load_i3d_dataset_matrices(
-            unlabeled_sample_ids,
+        X_eval_i3d_raw = load_i3d_dataset_matrices(
+            eval_sample_ids,
             feature_dir=args.i3d_feature_dir,
             target_frames=args.fusion_frames,
-            progress_desc="Loading unlabeled I3D features",
+            progress_desc="Loading evaluation I3D features",
+        )
+        X_test_i3d_raw = load_i3d_dataset_matrices(
+            test_sample_ids,
+            feature_dir=args.i3d_feature_dir,
+            target_frames=args.fusion_frames,
+            progress_desc="Loading test I3D features",
         )
         i3d_input_features = int(X_train_i3d_raw.shape[-1])
     model, model_spec = build_model(
@@ -295,7 +315,7 @@ def main(argv: list[str] | None = None) -> None:
     )
 
     if model_spec.input_kind == "multimodal_sequence":
-        if X_train_i3d_raw is None or X_unlabeled_i3d_raw is None:
+        if X_train_i3d_raw is None or X_eval_i3d_raw is None or X_test_i3d_raw is None:
             raise RuntimeError("I3D features were not loaded for the multimodal model")
         logger.info(
             "Normalizing OpenFace and I3D features with train-fit per-feature z-score for %s",
@@ -312,19 +332,33 @@ def main(argv: list[str] | None = None) -> None:
         )
         del X_train_raw
         gc.collect()
-        X_unlabeled_openface = normalize_dataset_per_feature(
-            X_unlabeled_raw,
+        X_eval_openface = normalize_dataset_per_feature(
+            X_eval_raw,
             mean=openface_mean,
             std=openface_std,
-            progress_desc="Normalizing unlabeled OpenFace samples",
+            progress_desc="Normalizing evaluation OpenFace samples",
             chunk_size=32,
             progress_callback=_log_chunk_progress,
         )
-        del X_unlabeled_raw
+        del X_eval_raw
+        gc.collect()
+        X_test_openface = normalize_dataset_per_feature(
+            X_test_raw,
+            mean=openface_mean,
+            std=openface_std,
+            progress_desc="Normalizing test OpenFace samples",
+            chunk_size=32,
+            progress_callback=_log_chunk_progress,
+        )
+        del X_test_raw
         gc.collect()
         X_train_openface = _resample_sample_batch(X_train_openface, target_frames=args.fusion_frames)
-        X_unlabeled_openface = _resample_sample_batch(
-            X_unlabeled_openface,
+        X_eval_openface = _resample_sample_batch(
+            X_eval_openface,
+            target_frames=args.fusion_frames,
+        )
+        X_test_openface = _resample_sample_batch(
+            X_test_openface,
             target_frames=args.fusion_frames,
         )
 
@@ -339,27 +373,42 @@ def main(argv: list[str] | None = None) -> None:
         )
         del X_train_i3d_raw
         gc.collect()
-        X_unlabeled_i3d = normalize_dataset_per_feature(
-            X_unlabeled_i3d_raw,
+        X_eval_i3d = normalize_dataset_per_feature(
+            X_eval_i3d_raw,
             mean=i3d_mean,
             std=i3d_std,
-            progress_desc="Normalizing unlabeled I3D features",
+            progress_desc="Normalizing evaluation I3D features",
             chunk_size=32,
             progress_callback=_log_chunk_progress,
         )
-        del X_unlabeled_i3d_raw
+        del X_eval_i3d_raw
+        gc.collect()
+        X_test_i3d = normalize_dataset_per_feature(
+            X_test_i3d_raw,
+            mean=i3d_mean,
+            std=i3d_std,
+            progress_desc="Normalizing test I3D features",
+            chunk_size=32,
+            progress_callback=_log_chunk_progress,
+        )
+        del X_test_i3d_raw
         gc.collect()
 
         X_train_input = (X_train_openface.astype(np.float32), X_train_i3d.astype(np.float32))
-        X_unlabeled_input = (
-            X_unlabeled_openface.astype(np.float32),
-            X_unlabeled_i3d.astype(np.float32),
+        X_eval_input = (
+            X_eval_openface.astype(np.float32),
+            X_eval_i3d.astype(np.float32),
+        )
+        X_test_input = (
+            X_test_openface.astype(np.float32),
+            X_test_i3d.astype(np.float32),
         )
         preprocessing_summary = {
             "model": args.model,
-            "sample_count": len(train_sample_ids) + len(unlabeled_sample_ids),
+            "sample_count": len(train_sample_ids) + len(eval_sample_ids) + len(test_sample_ids),
             "train_sample_count": len(train_sample_ids),
-            "unlabeled_sample_count": len(unlabeled_sample_ids),
+            "evaluation_sample_count": len(eval_sample_ids),
+            "test_sample_count": len(test_sample_ids),
             "openface_feature_count": raw_input_features,
             "i3d_feature_count": i3d_input_features,
             "openface_input_frames": args.target_frames,
@@ -373,10 +422,11 @@ def main(argv: list[str] | None = None) -> None:
             "i3d_materialization": i3d_materialization_summary,
         }
     elif model_spec.input_kind == "i3d_flat_mlp":
-        if X_train_i3d_raw is None or X_unlabeled_i3d_raw is None:
+        if X_train_i3d_raw is None or X_eval_i3d_raw is None or X_test_i3d_raw is None:
             raise RuntimeError("I3D features were not loaded for the I3D MLP model")
         del X_train_raw
-        del X_unlabeled_raw
+        del X_eval_raw
+        del X_test_raw
         gc.collect()
         logger.info(
             "Normalizing I3D features with train-fit per-feature z-score for %s",
@@ -393,23 +443,35 @@ def main(argv: list[str] | None = None) -> None:
         )
         del X_train_i3d_raw
         gc.collect()
-        X_unlabeled_i3d = normalize_dataset_per_feature(
-            X_unlabeled_i3d_raw,
+        X_eval_i3d = normalize_dataset_per_feature(
+            X_eval_i3d_raw,
             mean=i3d_mean,
             std=i3d_std,
-            progress_desc="Normalizing unlabeled I3D features",
+            progress_desc="Normalizing evaluation I3D features",
             chunk_size=32,
             progress_callback=_log_chunk_progress,
         )
-        del X_unlabeled_i3d_raw
+        del X_eval_i3d_raw
+        gc.collect()
+        X_test_i3d = normalize_dataset_per_feature(
+            X_test_i3d_raw,
+            mean=i3d_mean,
+            std=i3d_std,
+            progress_desc="Normalizing test I3D features",
+            chunk_size=32,
+            progress_callback=_log_chunk_progress,
+        )
+        del X_test_i3d_raw
         gc.collect()
         X_train_input = X_train_i3d.astype(np.float32)
-        X_unlabeled_input = X_unlabeled_i3d.astype(np.float32)
+        X_eval_input = X_eval_i3d.astype(np.float32)
+        X_test_input = X_test_i3d.astype(np.float32)
         preprocessing_summary = {
             "model": args.model,
-            "sample_count": len(train_sample_ids) + len(unlabeled_sample_ids),
+            "sample_count": len(train_sample_ids) + len(eval_sample_ids) + len(test_sample_ids),
             "train_sample_count": len(train_sample_ids),
-            "unlabeled_sample_count": len(unlabeled_sample_ids),
+            "evaluation_sample_count": len(eval_sample_ids),
+            "test_sample_count": len(test_sample_ids),
             "i3d_feature_count": i3d_input_features,
             "fusion_frames": args.fusion_frames,
             "i3d_shape": list(map(int, X_train_input.shape[1:])),
@@ -432,26 +494,39 @@ def main(argv: list[str] | None = None) -> None:
         )
         del X_train_raw
         gc.collect()
-        X_unlabeled_processed = normalize_dataset_per_feature(
-            X_unlabeled_raw,
+        X_eval_processed = normalize_dataset_per_feature(
+            X_eval_raw,
             mean=feature_mean,
             std=feature_std,
-            progress_desc="Normalizing unlabeled samples",
+            progress_desc="Normalizing evaluation samples",
             chunk_size=32,
             progress_callback=_log_chunk_progress,
         )
-        del X_unlabeled_raw
+        del X_eval_raw
+        gc.collect()
+        X_test_processed = normalize_dataset_per_feature(
+            X_test_raw,
+            mean=feature_mean,
+            std=feature_std,
+            progress_desc="Normalizing test samples",
+            chunk_size=32,
+            progress_callback=_log_chunk_progress,
+        )
+        del X_test_raw
         gc.collect()
         X_train_input = X_train_processed.astype(np.float32)
-        X_unlabeled_input = X_unlabeled_processed.astype(np.float32)
+        X_eval_input = X_eval_processed.astype(np.float32)
+        X_test_input = X_test_processed.astype(np.float32)
         del X_train_processed
-        del X_unlabeled_processed
+        del X_eval_processed
+        del X_test_processed
         gc.collect()
         preprocessing_summary = {
             "model": args.model,
-            "sample_count": len(train_sample_ids) + len(unlabeled_sample_ids),
+            "sample_count": len(train_sample_ids) + len(eval_sample_ids) + len(test_sample_ids),
             "train_sample_count": len(train_sample_ids),
-            "unlabeled_sample_count": len(unlabeled_sample_ids),
+            "evaluation_sample_count": len(eval_sample_ids),
+            "test_sample_count": len(test_sample_ids),
             "raw_feature_count": raw_input_features,
             "target_frames": args.target_frames,
             "normalization": "per-feature z-score using train-set statistics on OpenFace features",
@@ -463,8 +538,11 @@ def main(argv: list[str] | None = None) -> None:
         {
             "before_smote": {
                 "train": {ID_TO_LABEL[i]: int((y_train == i).sum()) for i in sorted(ID_TO_LABEL)},
-                "unlabeled": {
-                    ID_TO_LABEL[i]: int((y_unlabeled == i).sum()) for i in sorted(ID_TO_LABEL)
+                "evaluation": {
+                    ID_TO_LABEL[i]: int((y_eval == i).sum()) for i in sorted(ID_TO_LABEL)
+                },
+                "test": {
+                    ID_TO_LABEL[i]: int((y_test == i).sum()) for i in sorted(ID_TO_LABEL)
                 },
             },
             "after_smote": None,
@@ -477,8 +555,8 @@ def main(argv: list[str] | None = None) -> None:
         model,
         X_train_input,
         y_train,
-        X_unlabeled_input,
-        y_unlabeled,
+        X_eval_input,
+        y_eval,
         epochs=args.epochs,
         batch_size=args.batch_size,
         lr=args.lr,
@@ -491,8 +569,8 @@ def main(argv: list[str] | None = None) -> None:
         use_amp=args.amp,
         progress_callback=_log_step,
     )
-    history["selection_split_name"] = "unlabeled"
-    history["selection_split_source_key"] = CMOSE_UNLABELED_SPLIT_KEY
+    history["selection_split_name"] = "evaluation"
+    history["selection_split_source_key"] = CMOSE_EVAL_SPLIT_KEY
     logger.info(
         "Training finished for %s: best_epoch=%d, stopped_early=%s",
         args.model,
@@ -500,10 +578,10 @@ def main(argv: list[str] | None = None) -> None:
         history.get("stopped_early", False),
     )
 
-    logger.info("Starting final prediction on the CMOSE unlabeled split used for selection")
+    logger.info("Starting final prediction on the held-out CMOSE test split")
     y_pred = predict(
         model,
-        X_unlabeled_input,
+        X_test_input,
         batch_size=args.batch_size,
         device=device,
         num_workers=args.num_workers,
@@ -511,12 +589,12 @@ def main(argv: list[str] | None = None) -> None:
         progress_callback=_log_step,
     )
     logger.info("Prediction finished; computing metrics")
-    metrics = evaluate_predictions(y_unlabeled, y_pred)
+    metrics = evaluate_predictions(y_test, y_pred)
     save_json(
         {
             "config": {
                 "model": args.model,
-                "protocol": "cmose_train_unlabeled_split",
+                "protocol": "cmose_train_eval_test_split",
                 "epochs": args.epochs,
                 "batch_size": args.batch_size,
                 "lr": args.lr,
@@ -533,8 +611,10 @@ def main(argv: list[str] | None = None) -> None:
                 "fusion_frames": args.fusion_frames if args.model in I3D_ENABLED_MODELS else None,
                 "selection_split": {
                     "train_key": CMOSE_TRAIN_SPLIT,
-                    "unlabeled_key": CMOSE_UNLABELED_SPLIT_KEY,
-                    "checkpoint_and_early_stopping": "unlabeled",
+                    "evaluation_key": CMOSE_EVAL_SPLIT_KEY,
+                    "test_key": CMOSE_TEST_SPLIT_KEY,
+                    "checkpoint_and_early_stopping": "evaluation",
+                    "final_reporting": "test",
                 },
             },
             "history": history,
@@ -545,7 +625,7 @@ def main(argv: list[str] | None = None) -> None:
     logger.info("Saved metrics to %s", output_dir / "metrics.json")
 
     print("\n" + "=" * 60)
-    print("CMOSE TRAIN + UNLABELED RESULTS")
+    print("CMOSE TEST RESULTS")
     print("=" * 60)
     print(f"  Model         : {args.model}")
     print(f"  Accuracy      : {metrics['accuracy']:.4f}")

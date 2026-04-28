@@ -2,7 +2,7 @@
 
 ## Recommended Thesis Title
 
-**Engagement Classification on CMOSE with OpenFace and I3D Features Under a Train + Unlabeled Selection Protocol**
+**Engagement Classification on CMOSE with OpenFace and I3D Features Under a Train/Evaluation/Test Protocol**
 
 Alternative title:
 
@@ -10,7 +10,7 @@ Alternative title:
 
 ## Final Thesis Statement
 
-This thesis studies engagement classification on the CMOSE dataset with a deliberately narrowed model scope. It compares OpenFace-only baselines (`openface_mlp`, `temporal_cnn`, `lstm`, `transformer`), an I3D-only baseline (`i3d_mlp`), and a multimodal fusion model (`openface_tcn_i3d_fusion`) under a train + unlabeled selection protocol, where the dataset's source split key `test` is used for early stopping and checkpoint selection.
+This thesis studies engagement classification on the CMOSE dataset with a deliberately narrowed model scope. It compares OpenFace-only baselines (`openface_mlp`, `temporal_cnn`, `lstm`, `transformer`), an I3D-only baseline (`i3d_mlp`), and a multimodal fusion model (`openface_tcn_i3d_fusion`) under a train/evaluation/test protocol, where `unlabel` is used for early stopping and checkpoint selection and `test` is reserved for final reporting.
 
 ## Research Problem
 
@@ -26,7 +26,7 @@ The core question is no longer whether paper-style dimensionality reduction or s
 1. Establish lightweight sanity-check baselines with `openface_mlp` and `i3d_mlp`.
 2. Compare OpenFace temporal models (`temporal_cnn`, `lstm`, `transformer`) against the OpenFace MLP baseline.
 3. Evaluate whether combining OpenFace and I3D in `openface_tcn_i3d_fusion` improves over single-modality models.
-4. Report accuracy, macro-F1, weighted F1, and per-class behavior under the same train + unlabeled selection protocol.
+4. Report accuracy, macro-accuracy, macro-F1, weighted F1, and per-class behavior under the same train/evaluation/test protocol.
 
 ## Research Questions
 

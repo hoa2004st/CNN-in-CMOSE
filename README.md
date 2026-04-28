@@ -11,7 +11,7 @@ The repo now focuses on six models only:
 - `i3d_mlp`
 - `openface_tcn_i3d_fusion`
 
-The dataset's source split key `test` is treated as the CMOSE unlabeled/evaluation split for checkpointing and early stopping, not as a separate held-out benchmark.
+The dataset uses three source split keys: `train`, `unlabel`, and `test`. The pipeline fits on `train`, uses `unlabel` for checkpointing and early stopping, and uses `test` only for final reporting.
 
 ## Dataset layout
 
@@ -71,7 +71,7 @@ Files written under `--output_dir`:
 | `metrics.json` | Final metrics and run config |
 | `selection_summary.json` | Split usage and run assumptions |
 | `preprocessing_summary.json` | Normalization and tensor-shape summary |
-| `smote_summary.json` | Train/unlabeled class counts; SMOTE is disabled |
+| `smote_summary.json` | Train/evaluation/test class counts; SMOTE is disabled |
 
 ## Pipeline summary
 
@@ -84,7 +84,7 @@ OpenFace tensors (target_frames x 709)
 and/or
 I3D tensors (fusion_frames x i3d_dim)
     ->
-train split + CMOSE unlabeled/evaluation split
+train split + evaluation split from `unlabel` + final test split
     ->
 paper_repro_preprocess.py
     ->

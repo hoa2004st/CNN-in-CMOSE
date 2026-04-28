@@ -55,7 +55,7 @@ def _make_i3d_npy(path: Path, *, steps: int = 12, features: int = 16) -> None:
 def _make_labels_with_embeds(path: Path) -> None:
     payload = {
         "sample_a": {"split": "train", "label": "Engage", "agreement": 1.0, "embeds": [0.1] * 8},
-        "sample_b": {"split": "test", "label": "Disengage", "agreement": 0.9, "embeds": []},
+        "sample_b": {"split": "unlabel", "label": "Disengage", "agreement": 0.9, "embeds": []},
     }
     path.write_text(json.dumps(payload), encoding="utf-8")
 
@@ -66,7 +66,7 @@ def test_resample_frames_changes_length() -> None:
     assert out.shape == (30, 2)
 
 
-def test_split_cmose_records_by_usage_treats_test_key_as_unlabeled(tmp_path: Path) -> None:
+def test_split_cmose_records_by_usage_maps_unlabel_to_eval_and_test_to_test(tmp_path: Path) -> None:
     train_record = SampleMeta(
         sample_id="video1_person0",
         base_video_id="video1",
@@ -76,22 +76,32 @@ def test_split_cmose_records_by_usage_treats_test_key_as_unlabeled(tmp_path: Pat
         split="train",
         csv_path=tmp_path / "video1_person0.csv",
     )
-    unlabeled_record = SampleMeta(
+    eval_record = SampleMeta(
         sample_id="video2_person0",
         base_video_id="video2",
         person_id="0",
         label_name="Disengage",
         label_id=LABEL_MAP["Disengage"],
-        split="test",
+        split="unlabel",
         csv_path=tmp_path / "video2_person0.csv",
     )
+    test_record = SampleMeta(
+        sample_id="video3_person0",
+        base_video_id="video3",
+        person_id="0",
+        label_name="Highly Engage",
+        label_id=LABEL_MAP["Highly Engage"],
+        split="test",
+        csv_path=tmp_path / "video3_person0.csv",
+    )
 
-    train_records, unlabeled_records = split_cmose_records_by_usage(
-        [train_record, unlabeled_record]
+    train_records, eval_records, test_records = split_cmose_records_by_usage(
+        [train_record, eval_record, test_record]
     )
 
     assert train_records == [train_record]
-    assert unlabeled_records == [unlabeled_record]
+    assert eval_records == [eval_record]
+    assert test_records == [test_record]
 
 
 def test_load_cmose_metadata_filters_by_available_csv(tmp_path: Path) -> None:
@@ -104,7 +114,7 @@ def test_load_cmose_metadata_filters_by_available_csv(tmp_path: Path) -> None:
         json.dumps(
             {
                 "video1_person0": {"split": "train", "label": "Engage"},
-                "video2_person0": {"split": "test", "label": "Disengage"},
+                "video2_person0": {"split": "unlabel", "label": "Disengage"},
             }
         ),
         encoding="utf-8",
