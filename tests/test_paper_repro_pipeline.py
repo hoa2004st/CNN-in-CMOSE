@@ -21,7 +21,13 @@ from src.paper_repro_data import (
 )
 from src.paper_repro_model import build_model
 from src.paper_repro_preprocess import fit_feature_normalizer, normalize_dataset_per_feature
-from src.paper_repro_train import build_loss, compute_class_weights, predict, train_model
+from src.paper_repro_train import (
+    build_loss,
+    compute_class_weights,
+    evaluate_predictions,
+    predict,
+    train_model,
+)
 
 
 def _make_openface_csv(path: Path, *, rows: int = 20) -> None:
@@ -274,6 +280,19 @@ def test_loss_factory_builds_weighted_focal_and_ordinal_losses() -> None:
     assert ordinal_weights is not None
 
 
+def test_evaluate_predictions_reports_macro_accuracy_and_f1_scores() -> None:
+    y_true = np.array([0, 0, 1, 1, 2, 3], dtype=np.int64)
+    y_pred = np.array([0, 1, 1, 1, 2, 0], dtype=np.int64)
+
+    metrics = evaluate_predictions(y_true, y_pred)
+
+    assert "accuracy" in metrics
+    assert "macro_accuracy" in metrics
+    assert "f1_macro" in metrics
+    assert "f1_weighted" in metrics
+    assert 0.0 <= metrics["macro_accuracy"] <= 1.0
+
+
 def test_resolve_output_dir_uses_one_folder_per_model() -> None:
     assert resolve_output_dir(
         None,
@@ -343,6 +362,9 @@ def test_train_and_predict_support_multimodal_batches(tmp_path: Path) -> None:
         use_amp=False,
     )
     assert history["best_epoch"] >= 1
+    assert len(history["eval_macro_accuracies"]) == len(history["eval_losses"])
+    assert len(history["eval_f1_macros"]) == len(history["eval_losses"])
+    assert len(history["eval_f1_weighteds"]) == len(history["eval_losses"])
 
     preds = predict(
         model,
@@ -384,6 +406,9 @@ def test_train_and_predict_support_flat_mlp_batches(tmp_path: Path) -> None:
         use_amp=False,
     )
     assert history["best_epoch"] >= 1
+    assert len(history["eval_macro_accuracies"]) == len(history["eval_losses"])
+    assert len(history["eval_f1_macros"]) == len(history["eval_losses"])
+    assert len(history["eval_f1_weighteds"]) == len(history["eval_losses"])
 
     preds = predict(
         model,

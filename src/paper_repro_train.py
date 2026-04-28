@@ -13,7 +13,13 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, f1_score
+from sklearn.metrics import (
+    accuracy_score,
+    balanced_accuracy_score,
+    classification_report,
+    confusion_matrix,
+    f1_score,
+)
 from torch.utils.data import DataLoader, TensorDataset
 
 ArrayInput = np.ndarray | tuple[np.ndarray, ...]
@@ -195,6 +201,9 @@ def train_model(
         "train_losses": [],
         "eval_losses": [],
         "eval_accuracies": [],
+        "eval_macro_accuracies": [],
+        "eval_f1_macros": [],
+        "eval_f1_weighteds": [],
         "best_epoch": 0,
         "patience": patience,
         "stopped_early": False,
@@ -234,7 +243,7 @@ def train_model(
             train_loss += loss.item() * len(y_batch)
             train_total += len(y_batch)
 
-        eval_loss, eval_acc = _evaluate_loss_accuracy(
+        eval_loss, eval_metrics = _evaluate_loss_and_metrics(
             model,
             eval_loader,
             criterion,
@@ -246,7 +255,10 @@ def train_model(
 
         history["train_losses"].append(train_loss)
         history["eval_losses"].append(eval_loss)
-        history["eval_accuracies"].append(eval_acc)
+        history["eval_accuracies"].append(eval_metrics["accuracy"])
+        history["eval_macro_accuracies"].append(eval_metrics["macro_accuracy"])
+        history["eval_f1_macros"].append(eval_metrics["f1_macro"])
+        history["eval_f1_weighteds"].append(eval_metrics["f1_weighted"])
 
         if best_loss - eval_loss > min_delta:
             best_loss = eval_loss
@@ -256,7 +268,11 @@ def train_model(
             if progress_callback is not None:
                 progress_callback(
                     "Checkpoint updated: "
-                    f"epoch={epoch}, eval_loss={eval_loss:.6f}, eval_acc={eval_acc:.4f}"
+                    f"epoch={epoch}, eval_loss={eval_loss:.6f}, "
+                    f"eval_acc={eval_metrics['accuracy']:.4f}, "
+                    f"eval_macro_acc={eval_metrics['macro_accuracy']:.4f}, "
+                    f"eval_f1_macro={eval_metrics['f1_macro']:.4f}, "
+                    f"eval_f1_weighted={eval_metrics['f1_weighted']:.4f}"
                 )
         else:
             stale_epochs += 1
@@ -277,7 +293,10 @@ def train_model(
             progress_callback(
                 "Epoch complete: "
                 f"{epoch}/{epochs}, train_loss={train_loss:.6f}, "
-                f"eval_loss={eval_loss:.6f}, eval_acc={eval_acc:.4f}, "
+                f"eval_loss={eval_loss:.6f}, eval_acc={eval_metrics['accuracy']:.4f}, "
+                f"eval_macro_acc={eval_metrics['macro_accuracy']:.4f}, "
+                f"eval_f1_macro={eval_metrics['f1_macro']:.4f}, "
+                f"eval_f1_weighted={eval_metrics['f1_weighted']:.4f}, "
                 f"stale_epochs={stale_epochs}, epoch_time_s={epoch_seconds:.2f}"
             )
 
@@ -341,9 +360,7 @@ def predict(
 
 def evaluate_predictions(y_true: np.ndarray, y_pred: np.ndarray) -> dict:
     return {
-        "accuracy": float(accuracy_score(y_true, y_pred)),
-        "f1_macro": float(f1_score(y_true, y_pred, average="macro", zero_division=0)),
-        "f1_weighted": float(f1_score(y_true, y_pred, average="weighted", zero_division=0)),
+        **_compute_prediction_metrics(y_true, y_pred),
         "confusion_matrix": confusion_matrix(y_true, y_pred).tolist(),
         "classification_report": classification_report(y_true, y_pred, zero_division=0),
     }
@@ -355,7 +372,7 @@ def save_json(data: dict, path: str | Path) -> None:
     path.write_text(json.dumps(data, indent=2), encoding="utf-8")
 
 
-def _evaluate_loss_accuracy(
+def _evaluate_loss_and_metrics(
     model: nn.Module,
     loader: DataLoader,
     criterion: nn.Module,
@@ -363,11 +380,12 @@ def _evaluate_loss_accuracy(
     *,
     use_amp: bool = False,
     pin_memory: bool = False,
-) -> tuple[float, float]:
+) -> tuple[float, dict[str, float]]:
     model.eval()
     total_loss = 0.0
-    total_correct = 0
     total_samples = 0
+    y_true_batches: list[np.ndarray] = []
+    y_pred_batches: list[np.ndarray] = []
     with torch.no_grad():
         for *feature_batches, y_batch in loader:
             feature_batches = [
@@ -378,9 +396,28 @@ def _evaluate_loss_accuracy(
                 logits, aux_loss = _forward_model_with_aux(model, feature_batches)
                 loss = criterion(logits, y_batch) + aux_loss
             total_loss += loss.item() * len(y_batch)
-            total_correct += (logits.argmax(dim=1) == y_batch).sum().item()
             total_samples += len(y_batch)
-    return total_loss / max(total_samples, 1), total_correct / max(total_samples, 1)
+            y_true_batches.append(y_batch.cpu().numpy())
+            y_pred_batches.append(logits.argmax(dim=1).cpu().numpy())
+    y_true = np.concatenate(y_true_batches) if y_true_batches else np.zeros(0, dtype=np.int64)
+    y_pred = np.concatenate(y_pred_batches) if y_pred_batches else np.zeros(0, dtype=np.int64)
+    return total_loss / max(total_samples, 1), _compute_prediction_metrics(y_true, y_pred)
+
+
+def _compute_prediction_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict[str, float]:
+    if y_true.size == 0:
+        return {
+            "accuracy": 0.0,
+            "macro_accuracy": 0.0,
+            "f1_macro": 0.0,
+            "f1_weighted": 0.0,
+        }
+    return {
+        "accuracy": float(accuracy_score(y_true, y_pred)),
+        "macro_accuracy": float(balanced_accuracy_score(y_true, y_pred)),
+        "f1_macro": float(f1_score(y_true, y_pred, average="macro", zero_division=0)),
+        "f1_weighted": float(f1_score(y_true, y_pred, average="weighted", zero_division=0)),
+    }
 
 
 def _as_feature_arrays(X: ArrayInput) -> tuple[np.ndarray, ...]:

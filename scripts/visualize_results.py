@@ -97,6 +97,7 @@ def build_summary_frame(runs: list[RunResult]) -> pd.DataFrame:
                 "focal_gamma": run.config.get("focal_gamma"),
                 "best_epoch": history.get("best_epoch"),
                 "accuracy": metrics.get("accuracy"),
+                "macro_accuracy": metrics.get("macro_accuracy"),
                 "f1_macro": metrics.get("f1_macro"),
                 "f1_weighted": metrics.get("f1_weighted"),
                 "epochs_requested": run.config.get("epochs"),
@@ -108,9 +109,10 @@ def build_summary_frame(runs: list[RunResult]) -> pd.DataFrame:
         )
     frame = pd.DataFrame.from_records(rows)
     if not frame.empty:
-        frame = frame.sort_values(["f1_macro", "accuracy"], ascending=[False, False]).reset_index(
-            drop=True
-        )
+        frame = frame.sort_values(
+            ["f1_macro", "macro_accuracy", "accuracy"],
+            ascending=[False, False, False],
+        ).reset_index(drop=True)
     return frame
 
 
@@ -118,8 +120,8 @@ def pick_best_run_per_model(summary_df: pd.DataFrame) -> pd.DataFrame:
     if summary_df.empty:
         return summary_df.copy()
     ordered = summary_df.sort_values(
-        ["base_model", "f1_macro", "accuracy", "f1_weighted"],
-        ascending=[True, False, False, False],
+        ["base_model", "f1_macro", "macro_accuracy", "accuracy", "f1_weighted"],
+        ascending=[True, False, False, False, False],
     )
     return ordered.drop_duplicates(subset=["base_model"], keep="first").reset_index(drop=True)
 
@@ -135,8 +137,8 @@ def plot_metric_bars(summary_df: pd.DataFrame, viz_dir: Path, *, filename: str, 
 
     metric_specs = [
         ("accuracy", "Accuracy"),
+        ("macro_accuracy", "Macro Accuracy"),
         ("f1_macro", "Macro F1"),
-        ("f1_weighted", "Weighted F1"),
     ]
     fig, axes = plt.subplots(1, 3, figsize=(18, 6))
     for ax, (column, title) in zip(axes, metric_specs, strict=False):
@@ -199,8 +201,8 @@ def plot_model_variant_comparison(summary_df: pd.DataFrame, viz_dir: Path) -> No
 
     metric_specs = [
         ("accuracy", "Accuracy"),
+        ("macro_accuracy", "Macro Accuracy"),
         ("f1_macro", "Macro F1"),
-        ("f1_weighted", "Weighted F1"),
     ]
     fig, axes = plt.subplots(
         len(multi_variant_models),
@@ -211,7 +213,7 @@ def plot_model_variant_comparison(summary_df: pd.DataFrame, viz_dir: Path) -> No
 
     for row_idx, model_name in enumerate(multi_variant_models):
         model_df = summary_df[summary_df["base_model"] == model_name].sort_values(
-            ["f1_macro", "accuracy"], ascending=[False, False]
+            ["f1_macro", "macro_accuracy", "accuracy"], ascending=[False, False, False]
         )
         for col_idx, (metric, metric_title) in enumerate(metric_specs):
             ax = axes[row_idx][col_idx]
@@ -244,11 +246,13 @@ def write_comparison_report(summary_df: pd.DataFrame, best_df: pd.DataFrame, viz
         "## Best Run Per Model",
         "",
     ]
-    for _, row in best_df.sort_values(["f1_macro", "accuracy"], ascending=[False, False]).iterrows():
+    for _, row in best_df.sort_values(
+        ["f1_macro", "macro_accuracy", "accuracy"], ascending=[False, False, False]
+    ).iterrows():
         lines.extend(
             [
                 f"- `{row['base_model']}`: run `{row['run_name']}` ({row['variant_label']})",
-                f"  Macro F1={row['f1_macro']:.4f}, Accuracy={row['accuracy']:.4f}, Best epoch={row['best_epoch']}",
+                f"  Macro F1={row['f1_macro']:.4f}, Macro Accuracy={row['macro_accuracy']:.4f}, Accuracy={row['accuracy']:.4f}, Best epoch={row['best_epoch']}",
             ]
         )
 
@@ -258,11 +262,11 @@ def write_comparison_report(summary_df: pd.DataFrame, best_df: pd.DataFrame, viz
         for model_name in variant_models:
             lines.append(f"### {model_name}")
             model_df = summary_df[summary_df["base_model"] == model_name].sort_values(
-                ["f1_macro", "accuracy"], ascending=[False, False]
+                ["f1_macro", "macro_accuracy", "accuracy"], ascending=[False, False, False]
             )
             for _, row in model_df.iterrows():
                 lines.append(
-                    f"- `{row['variant_label']}`: run `{row['run_name']}`, Macro F1={row['f1_macro']:.4f}, Accuracy={row['accuracy']:.4f}"
+                    f"- `{row['variant_label']}`: run `{row['run_name']}`, Macro F1={row['f1_macro']:.4f}, Macro Accuracy={row['macro_accuracy']:.4f}, Accuracy={row['accuracy']:.4f}"
                 )
             lines.append("")
 
@@ -331,6 +335,7 @@ def write_run_report(run: RunResult, run_viz_dir: Path) -> None:
         f"- Run folder: `{run.run_name}`",
         f"- Metrics file: `{run.metrics_path}`",
         f"- Accuracy: {run.metrics.get('accuracy', float('nan')):.4f}",
+        f"- Macro Accuracy: {run.metrics.get('macro_accuracy', float('nan')):.4f}",
         f"- Macro F1: {run.metrics.get('f1_macro', float('nan')):.4f}",
         f"- Weighted F1: {run.metrics.get('f1_weighted', float('nan')):.4f}",
         f"- Best epoch: {run.history.get('best_epoch')}",

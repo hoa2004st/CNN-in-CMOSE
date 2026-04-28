@@ -549,6 +549,7 @@ def main(argv: list[str] | None = None) -> None:
     print("=" * 60)
     print(f"  Model         : {args.model}")
     print(f"  Accuracy      : {metrics['accuracy']:.4f}")
+    print(f"  Macro Acc     : {metrics['macro_accuracy']:.4f}")
     print(f"  F1 (macro)    : {metrics['f1_macro']:.4f}")
     print(f"  F1 (weighted) : {metrics['f1_weighted']:.4f}")
     print(f"  Best epoch    : {history['best_epoch']}")

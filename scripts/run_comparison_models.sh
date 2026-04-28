@@ -20,8 +20,8 @@ MODELS=(
 )
 
 COMMON_ARGS=(
-  "--epochs" "1600"
-  "--batch_size" "8"
+  "--epochs" "400"
+  "--batch_size" "64"
   "--lr" "1e-4"
 )
 
