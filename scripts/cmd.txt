@@ -33,6 +33,9 @@ python main.py --model temporal_cnn --device cuda --amp --epochs 2 --batch_size 
 # Full comparison run via the shell script
 bash scripts/run_comparison_models.sh
 
+# Generate visualizations only
+python scripts/visualize_results.py --outputs_dir outputs
+
 # Full comparison run with the same logic expanded inline
 mkdir -p outputs/logs
 
@@ -59,3 +62,6 @@ python main.py --model i3d_mlp --loss ordinal --output_dir outputs/i3d_mlp/ordin
 python main.py --model openface_tcn_i3d_fusion --loss cross_entropy --output_dir outputs/openface_tcn_i3d_fusion/ce --epochs 400 --batch_size 64 --lr 1e-4 2>&1 | tee -a outputs/logs/openface_tcn_i3d_fusion_ce.log
 python main.py --model openface_tcn_i3d_fusion --loss weighted_cross_entropy --output_dir outputs/openface_tcn_i3d_fusion/weighted_ce --epochs 400 --batch_size 64 --lr 1e-4 2>&1 | tee -a outputs/logs/openface_tcn_i3d_fusion_weighted_ce.log
 python main.py --model openface_tcn_i3d_fusion --loss ordinal --output_dir outputs/openface_tcn_i3d_fusion/ordinal --epochs 400 --batch_size 64 --lr 1e-4 2>&1 | tee -a outputs/logs/openface_tcn_i3d_fusion_ordinal.log
+
+# Generate visualizations after all runs
+python scripts/visualize_results.py --outputs_dir outputs 2>&1 | tee -a outputs/logs/visualize_results.log

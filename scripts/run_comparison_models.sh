@@ -67,4 +67,7 @@ for model in "${MODELS[@]}"; do
   done
 done
 
+echo "[$(date +"%F %T")] Generating visualizations for $RUN_ROOT"
+python scripts/visualize_results.py --outputs_dir "$RUN_ROOT" 2>&1 | tee -a "$LOG_DIR/visualize_results.log"
+
 echo "All comparison runs completed."
