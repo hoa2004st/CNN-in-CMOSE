@@ -18,9 +18,12 @@ The dataset uses three source split keys: `train`, `unlabel`, and `test`. The pi
 ```text
 data/CMOSE/
     final_data_1.json
-    secondFeature/
-        secondFeature/
+    labels.csv
+    features/
+        openface/
             <sample_id>.csv
+        i3d/
+            <sample_id>.npy
 ```
 
 `sample_id` is a CMOSE person-track key such as `video10_100_person0`.
@@ -76,9 +79,9 @@ Files written under `--output_dir`:
 ## Pipeline summary
 
 ```text
-CMOSE secondFeature CSVs + final_data_1.json
+CMOSE OpenFace CSVs + final_data_1.json
     ->
-paper_repro_data.py
+src/features/extract_openface.py + src/features/extract_i3d.py
     ->
 OpenFace tensors (target_frames x 709)
 and/or
@@ -86,11 +89,11 @@ I3D tensors (fusion_frames x i3d_dim)
     ->
 train split + evaluation split from `unlabel` + final test split
     ->
-paper_repro_preprocess.py
+src/training/train.py (normalization helpers)
     ->
 selected model
     ->
-paper_repro_train.py
+src/training/train.py
     ->
 metrics.json
 ```

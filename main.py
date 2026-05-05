@@ -10,22 +10,22 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from src.paper_repro_data import (
+from src.features.extract_i3d import (
+    load_i3d_dataset_matrices,
+    materialize_i3d_features_from_json,
+)
+from src.features.extract_openface import (
     ID_TO_LABEL,
     describe_selection,
     load_cmose_metadata,
     load_dataset_matrices,
-    load_i3d_dataset_matrices,
-    materialize_i3d_features_from_json,
     resample_frames,
 )
-from src.paper_repro_model import build_model
-from src.paper_repro_preprocess import (
+from src.evaluation.metrics import evaluate_predictions
+from src.models.naive_models import build_model
+from src.training.train import (
     fit_feature_normalizer,
     normalize_dataset_per_feature,
-)
-from src.paper_repro_train import (
-    evaluate_predictions,
     predict,
     save_json,
     train_model,
@@ -245,7 +245,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--feature_dir",
-        default="data/CMOSE/secondFeature/secondFeature",
+        default="data/CMOSE/features/openface",
         help="Directory containing one OpenFace CSV per person clip.",
     )
     parser.add_argument(
@@ -274,7 +274,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--i3d_feature_dir",
-        default="data/CMOSE/i3d",
+        default="data/CMOSE/features/i3d",
         help="Directory containing one precomputed I3D feature file per sample id.",
     )
     parser.add_argument(
