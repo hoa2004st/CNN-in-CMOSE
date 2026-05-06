@@ -1,0 +1,10 @@
+Input:C:\HOA\1.HUST\Thesis\CNN-in-CMOSE\data\private\clips\third_quarter_0195_10s.mp4
+Input full path:C:\HOA\1.HUST\Thesis\CNN-in-CMOSE\data\private\clips\third_quarter_0195_10s.mp4
+Camera parameters:875,875,640,360
+Output csv:third_quarter_0195_10s.csv
+Gaze: 1
+AUs: 1
+Landmarks 2D: 1
+Landmarks 3D: 0
+Pose: 1
+Shape parameters: 0

@@ -210,3 +210,6 @@ __marimo__/
 CMOSE/
 data/CMOSE/
 .tmp
+third_party/opencv-*.exe
+
+third_party/opencv-*.exe
