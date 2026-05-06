@@ -5,6 +5,6 @@ Output csv:third_quarter_0098_10s.csv
 Gaze: 1
 AUs: 1
 Landmarks 2D: 1
-Landmarks 3D: 0
+Landmarks 3D: 1
 Pose: 1
-Shape parameters: 0
+Shape parameters: 1

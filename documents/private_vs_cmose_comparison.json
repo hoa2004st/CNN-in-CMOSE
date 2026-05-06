@@ -1,0 +1,45 @@
+{
+  "openface": {
+    "private_root": "C:\\HOA\\1.HUST\\Thesis\\CNN-in-CMOSE\\data\\private\\features\\openface",
+    "cmose_root": "C:\\HOA\\1.HUST\\Thesis\\CNN-in-CMOSE\\data\\CMOSE\\secondFeature\\secondFeature",
+    "private_file_count": 808,
+    "cmose_file_count": 12197,
+    "private_total_frames_scanned": 242400,
+    "cmose_total_frames_scanned": 703552,
+    "private_feature_count_common_within_domain": 709,
+    "cmose_feature_count_common_within_domain": 709,
+    "common_feature_count": 709,
+    "private_sample_rows": 50000,
+    "cmose_sample_rows": 50000,
+    "mean_wasserstein_common": 50966.70959965263,
+    "group_wasserstein": {
+      "gaze": 158.853730014525,
+      "pose": 201.6487032543564,
+      "au": 237.08752835766296,
+      "eye_landmark_2d": 128757.50750031136,
+      "face_landmark_2d": 194.27285858046196,
+      "landmark_3d": 184.8691498414487,
+      "other": 177.57251978170171
+    },
+    "column_name_comparison": {
+      "private_sample_file": "first_quarter_0001_10s.csv",
+      "cmose_sample_file": "video10_100_person0.csv",
+      "private_column_count": 714,
+      "cmose_column_count": 714,
+      "missing_from_private_count": 0,
+      "extra_in_private_count": 0,
+      "order_identical": true,
+      "missing_from_private": [],
+      "extra_in_private": []
+    }
+  },
+  "i3d": {
+    "private_root": "C:\\HOA\\1.HUST\\Thesis\\CNN-in-CMOSE\\data\\private\\features\\i3d",
+    "cmose_json": "C:\\HOA\\1.HUST\\Thesis\\CNN-in-CMOSE\\data\\CMOSE\\final_data_1.json",
+    "private_count": 428,
+    "cmose_count": 11902,
+    "feature_dim": 1024,
+    "centroid_cosine_distance": 0.20390313863754272
+  },
+  "domain_gap_score": 18559.03418744457
+}
