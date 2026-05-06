@@ -3,13 +3,19 @@
 from __future__ import annotations
 
 import argparse
+import sys
 from datetime import datetime
 from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
 from main import build_parser, run_experiment
 
 
 MODELS = [
+    "cmose_baseline_paper",
     "openface_mlp",
     "temporal_cnn",
     "lstm",
@@ -53,6 +59,16 @@ def build_runner_parser() -> argparse.ArgumentParser:
     parser.add_argument("--i3d_feature_dir", default="data/CMOSE/features/i3d")
     parser.add_argument("--target_frames", type=int, default=300)
     parser.add_argument("--fusion_frames", type=int, default=75)
+    parser.add_argument(
+        "--naive_losses",
+        nargs="+",
+        default=["cross_entropy"],
+        choices=LOSSES,
+        help="Losses used for non-baseline naive models.",
+    )
+    parser.add_argument("--baseline_chunk_count", type=int, default=10)
+    parser.add_argument("--score_pool_size", type=int, default=2048)
+    parser.add_argument("--momentum_update", type=float, default=0.999)
     return parser
 
 
@@ -71,48 +87,54 @@ def main() -> None:
         model_root = run_root / model
         model_root.mkdir(parents=True, exist_ok=True)
 
-        for loss in LOSSES:
+        losses = ["mocorank"] if model == "cmose_baseline_paper" else list(args.naive_losses)
+        for loss in losses:
             loss_dir = model_root / loss_slug(loss)
             loss_dir.mkdir(parents=True, exist_ok=True)
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             print(f"[{timestamp}] Starting {model} with loss={loss}")
             print(f"[{timestamp}] Output: {loss_dir}")
 
-            experiment_args = main_parser.parse_args(
-                [
-                    "--model",
-                    model,
-                    "--loss",
-                    loss,
-                    "--output_dir",
-                    str(loss_dir),
-                    "--epochs",
-                    str(args.epochs),
-                    "--batch_size",
-                    str(args.batch_size),
-                    "--lr",
-                    str(args.lr),
-                    "--patience",
-                    str(args.patience),
-                    "--device",
-                    args.device,
-                    "--num_workers",
-                    str(args.num_workers),
-                    "--seed",
-                    str(args.seed),
-                    "--feature_dir",
-                    args.feature_dir,
-                    "--labels_json",
-                    args.labels_json,
-                    "--i3d_feature_dir",
-                    args.i3d_feature_dir,
-                    "--target_frames",
-                    str(args.target_frames),
-                    "--fusion_frames",
-                    str(args.fusion_frames),
-                    *(["--amp"] if args.amp else []),
-                ]
-            )
+            base_args = [
+                "--model",
+                model,
+                "--output_dir",
+                str(loss_dir),
+                "--epochs",
+                str(args.epochs),
+                "--batch_size",
+                str(args.batch_size),
+                "--lr",
+                str(args.lr),
+                "--patience",
+                str(args.patience),
+                "--device",
+                args.device,
+                "--num_workers",
+                str(args.num_workers),
+                "--seed",
+                str(args.seed),
+                "--feature_dir",
+                args.feature_dir,
+                "--labels_json",
+                args.labels_json,
+                "--i3d_feature_dir",
+                args.i3d_feature_dir,
+                "--target_frames",
+                str(args.target_frames),
+                "--fusion_frames",
+                str(args.fusion_frames),
+                "--baseline_chunk_count",
+                str(args.baseline_chunk_count),
+                "--score_pool_size",
+                str(args.score_pool_size),
+                "--momentum_update",
+                str(args.momentum_update),
+                *(["--amp"] if args.amp else []),
+            ]
+            if model != "cmose_baseline_paper":
+                base_args.extend(["--loss", loss])
+            experiment_args = main_parser.parse_args(base_args)
             run_experiment(experiment_args)
 
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")

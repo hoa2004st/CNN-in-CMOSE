@@ -114,6 +114,25 @@ def load_i3d_dataset_matrices(
     return np.stack(matrices, axis=0).astype(np.float32, copy=False)
 
 
+def load_i3d_dataset_vectors(
+    sample_ids: list[str],
+    *,
+    feature_dir: str | Path,
+    progress_desc: str | None = None,
+) -> np.ndarray:
+    """Load aligned I3D features as one vector per sample (N, F)."""
+    vectors = []
+    for sample_id in tqdm(
+        sample_ids,
+        desc=progress_desc or "Loading I3D vectors",
+        unit="sample",
+        leave=False,
+    ):
+        matrix = load_i3d_matrix(resolve_i3d_feature_path(sample_id, feature_dir), target_frames=None)
+        vectors.append(matrix.mean(axis=0).astype(np.float32, copy=False))
+    return np.stack(vectors, axis=0).astype(np.float32, copy=False)
+
+
 def materialize_i3d_features_from_json(
     labels_path: str | Path,
     output_dir: str | Path,

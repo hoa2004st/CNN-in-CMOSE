@@ -23,6 +23,64 @@ LABEL_MAP = {
 ID_TO_LABEL = {value: key for key, value in LABEL_MAP.items()}
 
 OPENFACE_META_COLS = ["frame", "face_id", "timestamp", "confidence", "success"]
+OPENFACE_BASELINE_GROUPS = {
+    "gaze": [
+        "gaze_0_x",
+        "gaze_0_y",
+        "gaze_0_z",
+        "gaze_1_x",
+        "gaze_1_y",
+        "gaze_1_z",
+        "gaze_angle_x",
+        "gaze_angle_y",
+    ],
+    "head_pose": ["pose_Tx", "pose_Ty", "pose_Tz", "pose_Rx", "pose_Ry", "pose_Rz"],
+    "au_intensity": [
+        "AU01_r",
+        "AU02_r",
+        "AU04_r",
+        "AU05_r",
+        "AU06_r",
+        "AU07_r",
+        "AU09_r",
+        "AU10_r",
+        "AU12_r",
+        "AU14_r",
+        "AU15_r",
+        "AU17_r",
+        "AU20_r",
+        "AU23_r",
+        "AU25_r",
+        "AU26_r",
+        "AU45_r",
+    ],
+    "au_presence": [
+        "AU01_c",
+        "AU02_c",
+        "AU04_c",
+        "AU05_c",
+        "AU06_c",
+        "AU07_c",
+        "AU09_c",
+        "AU10_c",
+        "AU12_c",
+        "AU14_c",
+        "AU15_c",
+        "AU17_c",
+        "AU20_c",
+        "AU23_c",
+        "AU25_c",
+        "AU26_c",
+        "AU28_c",
+        "AU45_c",
+    ],
+}
+OPENFACE_BASELINE_FEATURE_COLS = [
+    *OPENFACE_BASELINE_GROUPS["gaze"],
+    *OPENFACE_BASELINE_GROUPS["head_pose"],
+    *OPENFACE_BASELINE_GROUPS["au_intensity"],
+    *OPENFACE_BASELINE_GROUPS["au_presence"],
+]
 
 
 @dataclass(frozen=True)
@@ -47,6 +105,15 @@ def load_cmose_metadata(
     feature_dir = Path(feature_dir)
     allowed_splits = set(allowed_splits)
 
+    def resolve_csv_path(sample_id: str) -> Path | None:
+        direct = feature_dir / f"{sample_id}.csv"
+        if direct.exists():
+            return direct
+        nested = feature_dir / "secondFeature" / f"{sample_id}.csv"
+        if nested.exists():
+            return nested
+        return None
+
     raw = json.loads(labels_path.read_text(encoding="utf-8"))
     records: list[SampleMeta] = []
     for sample_id, meta in raw.items():
@@ -55,8 +122,8 @@ def load_cmose_metadata(
         if split not in allowed_splits or label_name not in LABEL_MAP:
             continue
 
-        csv_path = feature_dir / f"{sample_id}.csv"
-        if not csv_path.exists():
+        csv_path = resolve_csv_path(sample_id)
+        if csv_path is None:
             continue
 
         base_video_id, person_suffix = sample_id.rsplit("_person", 1)
@@ -174,6 +241,8 @@ def load_dataset_matrices(
     progress_desc: str | None = None,
 ) -> tuple[np.ndarray, np.ndarray, list[str]]:
     """Load all selected samples into a 3-D array."""
+    if not records:
+        raise ValueError("No records provided to load_dataset_matrices")
     matrices = [
         load_openface_matrix(record.csv_path, target_frames=target_frames)
         for record in tqdm(
@@ -186,3 +255,92 @@ def load_dataset_matrices(
     sample_ids = [record.sample_id for record in records]
     labels = np.array([record.label_id for record in records], dtype=np.int64)
     return np.stack(matrices, axis=0), labels, sample_ids
+
+
+def select_openface_baseline_features(df: pd.DataFrame) -> np.ndarray:
+    """Select paper-aligned 49 OpenFace features in a stable order."""
+    missing_cols = [name for name in OPENFACE_BASELINE_FEATURE_COLS if name not in df.columns]
+    if missing_cols:
+        raise ValueError(
+            "Missing required OpenFace baseline columns: "
+            + ", ".join(missing_cols[:8])
+            + ("..." if len(missing_cols) > 8 else "")
+        )
+    matrix = df[OPENFACE_BASELINE_FEATURE_COLS].to_numpy(dtype=np.float32, copy=True)
+    if matrix.shape[1] != 49:
+        raise ValueError(f"Expected 49 baseline OpenFace features, got {matrix.shape[1]}")
+    return matrix
+
+
+def chunk_openface_baseline(frames: np.ndarray, *, chunk_count: int = 10) -> np.ndarray:
+    """Convert frame-level 49-d OpenFace features to paper chunk stats (147, T)."""
+    if frames.ndim != 2 or frames.shape[1] != 49:
+        raise ValueError(f"Expected OpenFace frame matrix with shape (n, 49), got {frames.shape}")
+    if frames.shape[0] == 0:
+        raise ValueError("Cannot chunk an empty OpenFace matrix")
+
+    standard_frames = 250
+    while frames.shape[0] < standard_frames:
+        frames = np.concatenate([frames, frames], axis=0)
+    frames = frames[:standard_frames].astype(np.float32, copy=False)
+
+    chunks = np.array_split(frames, int(chunk_count), axis=0)
+    stats: list[np.ndarray] = []
+    for chunk in chunks:
+        stats.append(
+            np.concatenate(
+                [
+                    chunk.min(axis=0),
+                    chunk.max(axis=0),
+                    chunk.var(axis=0),
+                ],
+                axis=0,
+            )
+        )
+    return np.stack(stats, axis=1).astype(np.float32, copy=False)
+
+
+def load_baseline_openface_chunk_matrix(
+    csv_path: str | Path,
+    *,
+    chunk_count: int = 10,
+) -> np.ndarray:
+    """Load one OpenFace CSV into paper baseline chunk tensor of shape (147, T)."""
+    csv_path = Path(csv_path)
+    df = pd.read_csv(csv_path)
+    df.columns = df.columns.str.strip()
+    if not set(OPENFACE_META_COLS).issubset(df.columns):
+        raise ValueError(f"Missing OpenFace metadata columns in {csv_path}")
+
+    frame_best_idx = (
+        df.sort_values(["frame", "confidence"], ascending=[True, False])
+        .groupby("frame", sort=False)["confidence"]
+        .idxmax()
+        .to_numpy()
+    )
+    df = df.loc[frame_best_idx].sort_values("frame").reset_index(drop=True).copy()
+    frame_matrix = select_openface_baseline_features(df)
+    return chunk_openface_baseline(frame_matrix, chunk_count=chunk_count)
+
+
+def load_baseline_openface_dataset_matrices(
+    records: list[SampleMeta],
+    *,
+    chunk_count: int = 10,
+    progress_desc: str | None = None,
+) -> tuple[np.ndarray, np.ndarray, list[str]]:
+    """Load all selected samples as baseline OpenFace chunk tensors (N, 147, T)."""
+    if not records:
+        raise ValueError("No records provided to load_baseline_openface_dataset_matrices")
+    matrices = [
+        load_baseline_openface_chunk_matrix(record.csv_path, chunk_count=chunk_count)
+        for record in tqdm(
+            records,
+            desc=progress_desc or "Loading baseline OpenFace chunks",
+            unit="sample",
+            leave=False,
+        )
+    ]
+    sample_ids = [record.sample_id for record in records]
+    labels = np.array([record.label_id for record in records], dtype=np.int64)
+    return np.stack(matrices, axis=0).astype(np.float32, copy=False), labels, sample_ids
