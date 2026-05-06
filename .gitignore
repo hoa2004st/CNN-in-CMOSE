@@ -213,3 +213,6 @@ data/CMOSE/
 third_party/opencv-*.exe
 
 third_party/opencv-*.exe
+OpenFace/
+.venv-*
+artifacts/
