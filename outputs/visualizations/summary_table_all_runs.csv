@@ -17,3 +17,4 @@ i3d_mlp/weighted_ce,i3d_mlp,i3d_mlp [Weighted CE],i3d_mlp,Weighted CE,weighted_c
 openface_tcn_i3d_fusion/ce,fusion,fusion [CE],openface_tcn_i3d_fusion,CE,cross_entropy,CE,6,0.7698607698607699,0.5637376174084232,0.5972155073759607,0.7555015643930407,400,64,0.0001,cuda,False,fusion
 openface_tcn_i3d_fusion/ordinal,fusion,fusion [Ordinal],openface_tcn_i3d_fusion,Ordinal,ordinal,Ordinal,5,0.5626535626535627,0.593316422542381,0.45909661338152363,0.5918871333788374,400,64,0.0001,cuda,False,fusion
 openface_tcn_i3d_fusion/weighted_ce,fusion,fusion [Weighted CE],openface_tcn_i3d_fusion,Weighted CE,weighted_cross_entropy,Weighted CE,6,0.6592956592956593,0.6337428523619949,0.5541671189263279,0.679035986494557,400,64,0.0001,cuda,False,fusion
+cmose_baseline_paper,cmose_baseline,cmose_baseline [mocorank],cmose_baseline_paper,mocorank,mocorank,mocorank,1148,0.7223587223587223,0.429120032509863,0.445572327540369,0.6902973911163721,1200,256,0.0005,cuda,False,cmose_baseline

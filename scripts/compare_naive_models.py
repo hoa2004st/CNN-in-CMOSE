@@ -142,7 +142,7 @@ def main() -> None:
 
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print(f"[{timestamp}] Generating visualizations for {run_root}")
-    from scripts.visualize_naive_models_results import main as visualize_main
+    from scripts.visualize_models_outputs import main as visualize_main
 
     import sys
 

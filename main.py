@@ -9,6 +9,7 @@ from pathlib import Path
 
 import numpy as np
 import torch
+import yaml
 
 from src.features.extract_i3d import (
     load_i3d_dataset_matrices,
@@ -52,6 +53,14 @@ PAPER_BASELINE_MODELS = {"cmose_baseline_paper"}
 I3D_ENABLED_MODELS = I3D_ONLY_MODELS | MULTIMODAL_MODELS | PAPER_BASELINE_MODELS
 _OPENFACE_SPLIT_CACHE: dict[tuple[str, str, int], dict[str, object]] = {}
 _I3D_SPLIT_CACHE: dict[tuple[str, int, tuple[str, ...], tuple[str, ...], tuple[str, ...]], dict[str, object]] = {}
+
+
+def _load_baseline_yaml(path: str | Path) -> dict[str, object]:
+    cfg_path = Path(path)
+    raw = yaml.safe_load(cfg_path.read_text(encoding="utf-8"))
+    if not isinstance(raw, dict):
+        raise ValueError(f"Expected dict in baseline config, got {type(raw).__name__}")
+    return raw
 
 
 def _log_chunk_progress(done: int, total: int) -> None:
@@ -339,6 +348,18 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--score_pool_size", type=int, default=2048)
     parser.add_argument("--momentum_update", type=float, default=0.999)
     parser.add_argument("--baseline_chunk_count", type=int, default=10)
+    parser.add_argument("--baseline_hidden_dim", type=int, default=128)
+    parser.add_argument("--baseline_config", default="configs/baseline.yaml")
+    parser.add_argument(
+        "--strict_paper_baseline",
+        action="store_true",
+        help="Use baseline hyperparameters from --baseline_config and strict paper-style training knobs.",
+    )
+    parser.add_argument(
+        "--compile_baseline",
+        action="store_true",
+        help="Compile cmose_baseline_paper model with torch.compile for faster training.",
+    )
     return parser
 
 
@@ -367,6 +388,27 @@ def run_experiment(args: argparse.Namespace) -> None:
         focal_gamma=args.focal_gamma,
     )
     output_dir.mkdir(parents=True, exist_ok=True)
+    baseline_yaml: dict[str, object] | None = None
+    if args.model == "cmose_baseline_paper" and args.strict_paper_baseline:
+        baseline_yaml = _load_baseline_yaml(args.baseline_config)
+        args.batch_size = int(baseline_yaml.get("batch_size", args.batch_size))
+        args.epochs = int(baseline_yaml.get("epochs", args.epochs))
+        args.lr = float(baseline_yaml.get("lr_init", args.lr))
+        args.score_pool_size = int(baseline_yaml.get("score_pool_size", args.score_pool_size))
+        args.momentum_update = float(baseline_yaml.get("momentum_update", args.momentum_update))
+        args.baseline_chunk_count = int(baseline_yaml.get("T", args.baseline_chunk_count))
+        args.baseline_hidden_dim = int(baseline_yaml.get("C", args.baseline_hidden_dim))
+        args.patience = int(args.epochs)
+        logger.info(
+            "Strict paper baseline enabled via %s: epochs=%d batch=%d lr_init=%g score_pool=%d C=%d T=%d",
+            args.baseline_config,
+            args.epochs,
+            args.batch_size,
+            args.lr,
+            args.score_pool_size,
+            args.baseline_hidden_dim,
+            args.baseline_chunk_count,
+        )
 
     if args.model == "cmose_baseline_paper":
         resolved_feature_dir = _resolve_openface_feature_dir(args.feature_dir)
@@ -505,7 +547,7 @@ def run_experiment(args: argparse.Namespace) -> None:
         model = CMOSEBaselineModel(
             i3d_dim=int(X_train_i3d.shape[-1]),
             openface_dim=int(X_train_openface.shape[1]),
-            c=128,
+            c=args.baseline_hidden_dim,
             t=args.baseline_chunk_count,
         )
 
@@ -559,6 +601,18 @@ def run_experiment(args: argparse.Namespace) -> None:
             momentum_update=args.momentum_update,
             device=device,
             num_workers=args.num_workers,
+            compile_model=args.compile_baseline,
+            lr_final=(
+                float(baseline_yaml.get("lr_final", args.lr))
+                if baseline_yaml is not None
+                else args.lr
+            ),
+            scheduler_name=(
+                str(baseline_yaml.get("scheduler", "none"))
+                if baseline_yaml is not None
+                else "none"
+            ),
+            strict_pool_init=args.strict_paper_baseline,
             progress_callback=_log_step,
         )
         history["selection_split_name"] = "evaluation"
@@ -591,6 +645,10 @@ def run_experiment(args: argparse.Namespace) -> None:
                     "baseline_chunk_count": args.baseline_chunk_count,
                     "score_pool_size": args.score_pool_size,
                     "momentum_update": args.momentum_update,
+                    "baseline_hidden_dim": args.baseline_hidden_dim,
+                    "strict_paper_baseline": args.strict_paper_baseline,
+                    "baseline_config": args.baseline_config if args.strict_paper_baseline else None,
+                    "compile_baseline": args.compile_baseline,
                     "selection_split": {
                         "train_key": CMOSE_TRAIN_SPLIT,
                         "evaluation_key": CMOSE_EVAL_SPLIT_KEY,

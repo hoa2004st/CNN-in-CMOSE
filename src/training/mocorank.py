@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-from collections import deque
 from copy import deepcopy
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable
 
@@ -15,35 +13,84 @@ from sklearn.metrics import accuracy_score, balanced_accuracy_score, f1_score
 from torch.utils.data import DataLoader, TensorDataset
 
 
-@dataclass(frozen=True)
-class ScorePoolItem:
-    label: int
-    score: torch.Tensor
-    embedding: torch.Tensor
-
-
 class ScorePool:
-    """FIFO score pool used for pairwise MocoRank constraints."""
+    """FIFO score pool stored as contiguous tensors for fast pairwise loss."""
 
-    def __init__(self, *, max_size: int = 2048) -> None:
+    def __init__(
+        self,
+        *,
+        max_size: int = 2048,
+        embedding_dim: int,
+        device: torch.device,
+        score_dtype: torch.dtype = torch.float32,
+    ) -> None:
         self.max_size = int(max_size)
-        self._items: deque[ScorePoolItem] = deque(maxlen=self.max_size)
+        self.device = device
+        self.labels = torch.empty(self.max_size, dtype=torch.long, device=device)
+        self.scores = torch.empty(self.max_size, dtype=score_dtype, device=device)
+        self.embeddings = torch.empty(
+            self.max_size,
+            int(embedding_dim),
+            dtype=score_dtype,
+            device=device,
+        )
+        self._size = 0
+        self._head = 0
 
     def __len__(self) -> int:
-        return len(self._items)
+        return self._size
 
     def push_batch(self, labels: torch.Tensor, scores: torch.Tensor, embeddings: torch.Tensor) -> None:
-        for label, score, embedding in zip(labels, scores, embeddings):
-            self._items.append(
-                ScorePoolItem(
-                    label=int(label.item()),
-                    score=score.detach().clone(),
-                    embedding=embedding.detach().clone(),
-                )
-            )
+        if labels.numel() == 0:
+            return
+        labels = labels.detach().to(self.device, dtype=torch.long).flatten()
+        scores = scores.detach().to(self.device, dtype=self.scores.dtype).flatten()
+        embeddings = embeddings.detach().to(self.device, dtype=self.embeddings.dtype)
+        n = int(labels.shape[0])
+        if n >= self.max_size:
+            self.labels.copy_(labels[-self.max_size :])
+            self.scores.copy_(scores[-self.max_size :])
+            self.embeddings.copy_(embeddings[-self.max_size :])
+            self._size = self.max_size
+            self._head = 0
+            return
 
-    def items(self) -> list[ScorePoolItem]:
-        return list(self._items)
+        end = self._head + n
+        if end <= self.max_size:
+            sl = slice(self._head, end)
+            self.labels[sl] = labels
+            self.scores[sl] = scores
+            self.embeddings[sl] = embeddings
+        else:
+            first = self.max_size - self._head
+            self.labels[self._head :] = labels[:first]
+            self.scores[self._head :] = scores[:first]
+            self.embeddings[self._head :] = embeddings[:first]
+            rem = n - first
+            self.labels[:rem] = labels[first:]
+            self.scores[:rem] = scores[first:]
+            self.embeddings[:rem] = embeddings[first:]
+        self._head = (self._head + n) % self.max_size
+        self._size = min(self.max_size, self._size + n)
+
+    def tensors(self) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        if self._size == 0:
+            return (
+                self.labels[:0],
+                self.scores[:0],
+                self.embeddings[:0],
+            )
+        if self._size < self.max_size:
+            return (
+                self.labels[: self._size],
+                self.scores[: self._size],
+                self.embeddings[: self._size],
+            )
+        return (
+            torch.cat([self.labels[self._head :], self.labels[: self._head]], dim=0),
+            torch.cat([self.scores[self._head :], self.scores[: self._head]], dim=0),
+            torch.cat([self.embeddings[self._head :], self.embeddings[: self._head]], dim=0),
+        )
 
 
 @torch.no_grad()
@@ -61,39 +108,32 @@ def multi_margin_loss(
     scores_b: torch.Tensor,
     labels_b: torch.Tensor,
     embeddings_b: torch.Tensor,
-    pool_items: list[ScorePoolItem],
+    pool_labels: torch.Tensor,
+    pool_scores: torch.Tensor,
+    pool_embeddings: torch.Tensor,
 ) -> torch.Tensor:
-    if scores_b.numel() == 0 or not pool_items:
+    if scores_b.numel() == 0 or pool_labels.numel() == 0:
         return scores_b.new_zeros(())
 
-    losses: list[torch.Tensor] = []
-    for s1, l1, e1 in zip(scores_b, labels_b, embeddings_b):
-        for item in pool_items:
-            s2 = item.score.to(device=s1.device, dtype=s1.dtype)
-            e2 = item.embedding.to(device=e1.device, dtype=e1.dtype)
-            l2 = int(item.label)
+    s1 = scores_b.reshape(-1, 1)
+    l1 = labels_b.reshape(-1, 1)
+    e1 = embeddings_b
+    s2 = pool_scores.reshape(1, -1).to(device=s1.device, dtype=s1.dtype)
+    l2 = pool_labels.reshape(1, -1).to(device=l1.device)
+    e2 = pool_embeddings.to(device=e1.device, dtype=e1.dtype)
 
-            cos_sim = F.cosine_similarity(e1.unsqueeze(0), e2.unsqueeze(0))
-            sim_scaled = ((cos_sim + 1.0) / 2.0).squeeze()
-            diff = abs(int(l1.item()) - l2)
+    sim_scaled = ((F.normalize(e1, dim=1) @ F.normalize(e2, dim=1).transpose(0, 1)) + 1.0) * 0.5
+    diff = torch.abs(l1 - l2)
+    sign = torch.where(l1 > l2, 1.0, -1.0).to(dtype=s1.dtype, device=s1.device)
+    delta = sign * (s1 - s2)
 
-            if diff == 0:
-                margin_term = torch.abs(s1 - s2).squeeze()
-            elif diff == 1:
-                m = 0.5 * sim_scaled
-                margin_term = m - (s1 - s2) if int(l1.item()) > l2 else m - (s2 - s1)
-            elif diff == 2:
-                m = 0.5 + 0.5 * sim_scaled
-                margin_term = m - (s1 - s2) if int(l1.item()) > l2 else m - (s2 - s1)
-            else:
-                m = 1.0 + 0.5 * sim_scaled
-                margin_term = m - (s1 - s2) if int(l1.item()) > l2 else m - (s2 - s1)
+    margin = torch.zeros_like(delta)
+    margin = torch.where(diff == 1, 0.5 * sim_scaled, margin)
+    margin = torch.where(diff == 2, 0.5 + 0.5 * sim_scaled, margin)
+    margin = torch.where(diff >= 3, 1.0 + 0.5 * sim_scaled, margin)
 
-            losses.append(torch.clamp(margin_term.squeeze(), min=0.0))
-
-    if not losses:
-        return scores_b.new_zeros(())
-    return torch.stack(losses).mean()
+    loss = torch.where(diff == 0, torch.abs(s1 - s2), torch.clamp(margin - delta, min=0.0))
+    return loss.mean()
 
 
 def score_to_class_tensor(scores: torch.Tensor) -> torch.Tensor:
@@ -201,6 +241,10 @@ def train_cmose_baseline_mocorank(
     momentum_update: float = 0.999,
     device: torch.device | None = None,
     num_workers: int = 0,
+    compile_model: bool = False,
+    lr_final: float | None = None,
+    scheduler_name: str = "none",
+    strict_pool_init: bool = False,
     progress_callback: Callable[[str], None] | None = None,
 ) -> dict[str, Any]:
     """Train the CMOSE baseline with MocoRank loss and momentum queue."""
@@ -210,6 +254,8 @@ def train_cmose_baseline_mocorank(
 
     model.to(device)
     momentum_model = deepcopy(model).to(device)
+    if compile_model and hasattr(torch, "compile"):
+        model = torch.compile(model)
     momentum_model.eval()
     for param in momentum_model.parameters():
         param.requires_grad_(False)
@@ -224,17 +270,55 @@ def train_cmose_baseline_mocorank(
         pin_memory=pin_memory,
     )
     optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-3)
+    scheduler: torch.optim.lr_scheduler._LRScheduler | None = None
+    if str(scheduler_name).lower() == "cosineannealing":
+        eta_min = float(lr if lr_final is None else lr_final)
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+            optimizer,
+            T_max=max(1, int(epochs)),
+            eta_min=eta_min,
+        )
     checkpoint_path = Path(checkpoint_path)
     checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
 
-    pool = ScorePool(max_size=score_pool_size)
     with torch.no_grad():
-        init_openface = torch.from_numpy(X_train_openface).float().to(device)
-        init_i3d = torch.from_numpy(X_train_i3d).float().to(device)
-        init_labels = torch.from_numpy(y_train).long().to(device)
-        init_scores, init_embeddings = momentum_model(
-            init_openface, init_i3d, return_embedding=True
-        )
+        sample_openface = torch.from_numpy(X_train_openface[:1]).float().to(device)
+        sample_i3d = torch.from_numpy(X_train_i3d[:1]).float().to(device)
+        _, sample_embedding = momentum_model(sample_openface, sample_i3d, return_embedding=True)
+        embedding_dim = int(sample_embedding.shape[-1])
+    pool = ScorePool(
+        max_size=score_pool_size,
+        embedding_dim=embedding_dim,
+        device=device,
+        score_dtype=torch.float32,
+    )
+    with torch.no_grad():
+        init_openface_cpu = torch.from_numpy(X_train_openface).float()
+        init_i3d_cpu = torch.from_numpy(X_train_i3d).float()
+        init_labels_cpu = torch.from_numpy(y_train).long()
+        if strict_pool_init:
+            unique_classes = sorted(torch.unique(init_labels_cpu).tolist())
+            per_class = max(1, score_pool_size // max(1, len(unique_classes)))
+            selected: list[torch.Tensor] = []
+            for cls in unique_classes:
+                cls_idx = torch.where(init_labels_cpu == int(cls))[0]
+                if cls_idx.numel() == 0:
+                    continue
+                perm = cls_idx[torch.randperm(cls_idx.numel())]
+                selected.append(perm[: min(per_class, perm.numel())])
+            if selected:
+                selected_idx = torch.cat(selected, dim=0)
+            else:
+                selected_idx = torch.randperm(init_labels_cpu.numel())[: min(score_pool_size, init_labels_cpu.numel())]
+        else:
+            selected_idx = torch.arange(init_labels_cpu.numel())
+
+        if selected_idx.numel() > score_pool_size:
+            selected_idx = selected_idx[torch.randperm(selected_idx.numel())[:score_pool_size]]
+        init_openface = init_openface_cpu.index_select(0, selected_idx).to(device)
+        init_i3d = init_i3d_cpu.index_select(0, selected_idx).to(device)
+        init_labels = init_labels_cpu.index_select(0, selected_idx).to(device)
+        init_scores, init_embeddings = momentum_model(init_openface, init_i3d, return_embedding=True)
         pool.push_batch(init_labels, init_scores, init_embeddings)
 
     best_eval_mae = float("inf")
@@ -263,7 +347,15 @@ def train_cmose_baseline_mocorank(
 
             optimizer.zero_grad()
             scores, embeddings = model(openface_batch, i3d_batch, return_embedding=True)
-            rank_loss = multi_margin_loss(scores, y_batch, embeddings, pool.items())
+            pool_labels, pool_scores, pool_embeddings = pool.tensors()
+            rank_loss = multi_margin_loss(
+                scores,
+                y_batch,
+                embeddings,
+                pool_labels,
+                pool_scores,
+                pool_embeddings,
+            )
             rank_loss.backward()
             optimizer.step()
 
@@ -310,6 +402,8 @@ def train_cmose_baseline_mocorank(
             progress_callback(
                 f"Baseline epoch {epoch}/{epochs}: train_loss={train_loss:.6f} eval_mae={eval_loss:.6f}"
             )
+        if scheduler is not None:
+            scheduler.step()
 
     if checkpoint_path.exists():
         model.load_state_dict(torch.load(checkpoint_path, map_location=device))

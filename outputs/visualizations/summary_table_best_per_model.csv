@@ -5,3 +5,4 @@ transformer/ce,transformer,transformer [CE],transformer,CE,cross_entropy,CE,25,0
 temporal_cnn/weighted_ce,tcn,tcn [Weighted CE],temporal_cnn,Weighted CE,weighted_cross_entropy,Weighted CE,61,0.6945126945126945,0.620047015433583,0.5723056530799828,0.7084731518768674,400,64,0.0001,cuda,False,tcn
 i3d_mlp/ce,i3d_mlp,i3d_mlp [CE],i3d_mlp,CE,cross_entropy,CE,6,0.7682227682227682,0.5367667726092452,0.5889255245634077,0.7533620425936851,400,64,0.0001,cuda,False,i3d_mlp
 openface_tcn_i3d_fusion/ce,fusion,fusion [CE],openface_tcn_i3d_fusion,CE,cross_entropy,CE,6,0.7698607698607699,0.5637376174084232,0.5972155073759607,0.7555015643930407,400,64,0.0001,cuda,False,fusion
+cmose_baseline_paper,cmose_baseline,cmose_baseline [mocorank],cmose_baseline_paper,mocorank,mocorank,mocorank,1148,0.7223587223587223,0.429120032509863,0.445572327540369,0.6902973911163721,1200,256,0.0005,cuda,False,cmose_baseline

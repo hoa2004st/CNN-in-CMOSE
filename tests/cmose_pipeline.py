@@ -31,7 +31,7 @@ from src.training.train import (
     predict,
     train_model,
 )
-from scripts.visualize_naive_models_results import (
+from scripts.visualize_models_outputs import (
     build_summary_frame,
     filter_comparison_runs,
     load_completed_runs,

@@ -39,6 +39,7 @@ MODEL_ORDER = [
     "temporal_cnn",
     "i3d_mlp",
     "openface_tcn_i3d_fusion",
+    "cmose_baseline_paper"
 ]
 MODEL_DISPLAY_NAMES = {
     "openface_mlp": "openface_mlp",
@@ -47,6 +48,7 @@ MODEL_DISPLAY_NAMES = {
     "temporal_cnn": "tcn",
     "i3d_mlp": "i3d_mlp",
     "openface_tcn_i3d_fusion": "fusion",
+    "cmose_baseline_paper": "cmose_baseline"
 }
 
 
@@ -534,9 +536,9 @@ def main() -> None:
         filename="best_epoch_comparison_all_runs.png",
         title="Best Checkpoint Epoch Across All Runs",
     )
-    plot_model_comparison_within_loss(summary_df, viz_dir)
-    plot_metric_heatmaps(summary_df, viz_dir)
-    write_comparison_report(summary_df, best_df, viz_dir)
+    # plot_model_comparison_within_loss(summary_df, viz_dir)
+    # plot_metric_heatmaps(summary_df, viz_dir)
+    # write_comparison_report(summary_df, best_df, viz_dir)
 
     for run in runs:
         visualize_run(run, viz_dir)

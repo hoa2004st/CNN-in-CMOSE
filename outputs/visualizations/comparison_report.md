@@ -14,11 +14,15 @@
   Macro F1=0.5889, Macro Accuracy=0.5368, Accuracy=0.7682, Weighted F1=0.7534, Best epoch=6
 - `fusion`: run `openface_tcn_i3d_fusion/ce` (CE)
   Macro F1=0.5972, Macro Accuracy=0.5637, Accuracy=0.7699, Weighted F1=0.7555, Best epoch=6
+- `cmose_baseline_paper`: run `cmose_baseline_paper` (mocorank)
+  Macro F1=0.4456, Macro Accuracy=0.4291, Accuracy=0.7224, Weighted F1=0.6903, Best epoch=1148
 
 ## Best Run Per Loss
 
 - `CE`: `openface_tcn_i3d_fusion` (`openface_tcn_i3d_fusion/ce`)
   Macro F1=0.5972, Macro Accuracy=0.5637, Accuracy=0.7699, Weighted F1=0.7555
+- `mocorank`: `nan` (`cmose_baseline_paper`)
+  Macro F1=0.4456, Macro Accuracy=0.4291, Accuracy=0.7224, Weighted F1=0.6903
 - `Ordinal`: `i3d_mlp` (`i3d_mlp/ordinal`)
   Macro F1=0.5576, Macro Accuracy=0.6227, Accuracy=0.6757, Weighted F1=0.6928
 - `Weighted CE`: `temporal_cnn` (`temporal_cnn/weighted_ce`)
