@@ -47,6 +47,32 @@ Positive values mean the class is predicted more often on private clips than on 
 | lstm/weighted_ce | Engage | -0.103 | 0.400 | 0.502 |
 | transformer/ce | Engage | -0.102 | 0.694 | 0.796 |
 
+## Cross-Model Agreement
+
+| Metric | Value |
+|---|---:|
+| Mean agreement rate | 0.3305 |
+| Median agreement rate | 0.2667 |
+| Mean prediction entropy | 0.6775 |
+| Median prediction entropy | 0.7296 |
+| Mean confidence | 0.6359 |
+| Fleiss' kappa | 0.0063 |
+| Mean pairwise Cohen's kappa | 0.0423 |
+| Mean pairwise raw agreement | 0.3305 |
+
+Lowest pairwise Cohen's kappa values indicate the model pairs that disagree most often across private clips.
+
+| Model A | Model B | Cohen's Kappa | Raw Agreement |
+|---|---|---:|---:|
+| temporal_cnn/weighted_ce | i3d_mlp/ce | -0.0472 | 0.5327 |
+| transformer/ce | i3d_mlp/ce | -0.0425 | 0.4766 |
+| openface_mlp/weighted_ce | i3d_mlp/ce | -0.0365 | 0.2874 |
+| lstm/weighted_ce | i3d_mlp/ce | -0.0250 | 0.3037 |
+| openface_mlp/weighted_ce | openface_tcn_i3d_fusion/ce | -0.0160 | 0.1963 |
+| i3d_mlp/ce | openface_tcn_i3d_fusion/ce | -0.0013 | 0.0397 |
+| temporal_cnn/weighted_ce | openface_tcn_i3d_fusion/ce | 0.0141 | 0.1005 |
+| transformer/ce | openface_tcn_i3d_fusion/ce | 0.0196 | 0.1379 |
+
 ## Interpretation
 
 - The analysis should be read as domain-shift diagnosis, not target-domain performance evaluation.
@@ -58,6 +84,9 @@ Positive values mean the class is predicted more often on private clips than on 
 - `outputs/domain_shift_analysis/private_predictions.csv`
 - `outputs/domain_shift_analysis/prediction_distribution.csv`
 - `outputs/domain_shift_analysis/domain_shift_by_class.csv`
+- `outputs/domain_shift_analysis/model_agreement_per_clip.csv`
+- `outputs/domain_shift_analysis/pairwise_cohens_kappa.csv`
+- `outputs/domain_shift_analysis/agreement_summary.json`
 - `outputs/domain_shift_analysis/domain_shift_summary.json`
 - `outputs/domain_shift_analysis/private_prediction_distribution.png`
 - `outputs/domain_shift_analysis/private_vs_source_predicted_shift.png`

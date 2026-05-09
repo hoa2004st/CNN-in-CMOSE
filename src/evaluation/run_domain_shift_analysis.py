@@ -24,6 +24,7 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.nn.functional as F
+from sklearn.metrics import cohen_kappa_score
 from torch.utils.data import DataLoader, TensorDataset
 from tqdm.auto import tqdm
 
@@ -360,6 +361,117 @@ def distribution_frame(predictions: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def compute_model_agreement(
+    predictions: pd.DataFrame,
+    *,
+    expected_runs: list[str],
+) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, Any]]:
+    """Compute per-clip and across-clip agreement for retained model predictions."""
+    prediction_pivot = predictions.pivot(
+        index="clip_id",
+        columns="run",
+        values="predicted_id",
+    )
+    confidence_pivot = predictions.pivot(
+        index="clip_id",
+        columns="run",
+        values="confidence",
+    )
+    missing_runs = [run for run in expected_runs if run not in prediction_pivot.columns]
+    if missing_runs:
+        raise ValueError(f"Missing predictions for run(s): {missing_runs}")
+    prediction_pivot = prediction_pivot[expected_runs].astype(int)
+    confidence_pivot = confidence_pivot[expected_runs].astype(float)
+
+    per_clip_rows = []
+    total_pairs = len(expected_runs) * (len(expected_runs) - 1) // 2
+    for clip_id, row in prediction_pivot.iterrows():
+        votes = row.to_numpy(dtype=int)
+        counts = np.bincount(votes, minlength=len(CLASS_IDS))
+        vote_probs = counts.astype(np.float64) / float(len(votes))
+        nonzero_vote_probs = vote_probs[vote_probs > 0.0]
+        vote_entropy = -float(np.sum(nonzero_vote_probs * np.log(nonzero_vote_probs)))
+        normalized_vote_entropy = vote_entropy / math.log(len(CLASS_IDS))
+        agreeing_pairs = int(sum(count * (count - 1) // 2 for count in counts))
+        majority_class_id = int(np.argmax(counts))
+        per_clip_row: dict[str, Any] = {
+            "clip_id": clip_id,
+            "num_models": len(expected_runs),
+            "agreement_rate": float(agreeing_pairs / total_pairs) if total_pairs else 1.0,
+            "prediction_entropy": normalized_vote_entropy,
+            "mean_confidence": float(confidence_pivot.loc[clip_id].mean()),
+            "majority_class_id": majority_class_id,
+            "majority_label": ID_TO_LABEL[majority_class_id],
+            "majority_vote_count": int(counts[majority_class_id]),
+        }
+        for class_id in CLASS_IDS:
+            per_clip_row[f"vote_count_{class_id}_{ID_TO_LABEL[class_id]}"] = int(counts[class_id])
+            per_clip_row[f"vote_proportion_{class_id}_{ID_TO_LABEL[class_id]}"] = float(
+                vote_probs[class_id]
+            )
+        for run in expected_runs:
+            per_clip_row[f"predicted_id__{run}"] = int(prediction_pivot.loc[clip_id, run])
+            per_clip_row[f"predicted_label__{run}"] = ID_TO_LABEL[
+                int(prediction_pivot.loc[clip_id, run])
+            ]
+            per_clip_row[f"confidence__{run}"] = float(confidence_pivot.loc[clip_id, run])
+        per_clip_rows.append(per_clip_row)
+
+    pairwise_rows = []
+    for left_idx, left_run in enumerate(expected_runs):
+        for right_run in expected_runs[left_idx + 1 :]:
+            left_values = prediction_pivot[left_run].to_numpy(dtype=int)
+            right_values = prediction_pivot[right_run].to_numpy(dtype=int)
+            raw_agreement = float(np.mean(left_values == right_values))
+            pairwise_rows.append(
+                {
+                    "run_a": left_run,
+                    "run_b": right_run,
+                    "cohens_kappa": float(cohen_kappa_score(left_values, right_values, labels=CLASS_IDS)),
+                    "raw_agreement": raw_agreement,
+                }
+            )
+
+    pairwise = pd.DataFrame(pairwise_rows)
+    per_clip = pd.DataFrame(per_clip_rows)
+    fleiss = fleiss_kappa_from_votes(prediction_pivot.to_numpy(dtype=int), n_classes=len(CLASS_IDS))
+    summary = {
+        "num_clips": int(len(per_clip)),
+        "num_models": int(len(expected_runs)),
+        "agreement_rate_mean": float(per_clip["agreement_rate"].mean()),
+        "agreement_rate_median": float(per_clip["agreement_rate"].median()),
+        "prediction_entropy_mean": float(per_clip["prediction_entropy"].mean()),
+        "prediction_entropy_median": float(per_clip["prediction_entropy"].median()),
+        "mean_confidence": float(per_clip["mean_confidence"].mean()),
+        "fleiss_kappa": fleiss,
+        "pairwise_cohens_kappa_mean": float(pairwise["cohens_kappa"].mean()),
+        "pairwise_cohens_kappa_min": float(pairwise["cohens_kappa"].min()),
+        "pairwise_cohens_kappa_max": float(pairwise["cohens_kappa"].max()),
+        "pairwise_raw_agreement_mean": float(pairwise["raw_agreement"].mean()),
+        "majority_label_distribution": per_clip["majority_label"].value_counts().to_dict(),
+    }
+    return per_clip, pairwise, summary
+
+
+def fleiss_kappa_from_votes(vote_matrix: np.ndarray, *, n_classes: int) -> float:
+    """Compute Fleiss' kappa from an items x raters integer label matrix."""
+    if vote_matrix.ndim != 2:
+        raise ValueError(f"Expected a 2-D vote matrix, got {vote_matrix.shape}")
+    n_items, n_raters = vote_matrix.shape
+    if n_items == 0 or n_raters < 2:
+        return float("nan")
+    counts = np.zeros((n_items, n_classes), dtype=np.float64)
+    for item_idx in range(n_items):
+        counts[item_idx] = np.bincount(vote_matrix[item_idx], minlength=n_classes)
+    p_j = counts.sum(axis=0) / float(n_items * n_raters)
+    p_i = (np.square(counts).sum(axis=1) - n_raters) / float(n_raters * (n_raters - 1))
+    p_bar = float(p_i.mean())
+    p_e_bar = float(np.square(p_j).sum())
+    if math.isclose(1.0 - p_e_bar, 0.0):
+        return float("nan")
+    return float((p_bar - p_e_bar) / (1.0 - p_e_bar))
+
+
 def load_source_reference(run_key: str, run_cfg: dict[str, str]) -> pd.DataFrame:
     metrics_path = Path(run_cfg["metrics"])
     if not metrics_path.exists():
@@ -505,6 +617,8 @@ def write_markdown_report(
     run_metrics: dict[str, dict[str, Any]],
     shift: pd.DataFrame,
     distributions: pd.DataFrame,
+    agreement_summary: dict[str, Any] | None = None,
+    pairwise_kappa: pd.DataFrame | None = None,
 ) -> None:
     private = distributions[distributions["domain"] == "private_accepted"].copy()
     lines = [
@@ -584,6 +698,34 @@ def write_markdown_report(
             f"| {row.private_proportion:.3f} | {row.source_predicted_proportion:.3f} |"
         )
 
+    if agreement_summary is not None and pairwise_kappa is not None:
+        lines.extend(
+            [
+                "",
+                "## Cross-Model Agreement",
+                "",
+                "| Metric | Value |",
+                "|---|---:|",
+                f"| Mean agreement rate | {agreement_summary['agreement_rate_mean']:.4f} |",
+                f"| Median agreement rate | {agreement_summary['agreement_rate_median']:.4f} |",
+                f"| Mean prediction entropy | {agreement_summary['prediction_entropy_mean']:.4f} |",
+                f"| Median prediction entropy | {agreement_summary['prediction_entropy_median']:.4f} |",
+                f"| Mean confidence | {agreement_summary['mean_confidence']:.4f} |",
+                f"| Fleiss' kappa | {agreement_summary['fleiss_kappa']:.4f} |",
+                f"| Mean pairwise Cohen's kappa | {agreement_summary['pairwise_cohens_kappa_mean']:.4f} |",
+                f"| Mean pairwise raw agreement | {agreement_summary['pairwise_raw_agreement_mean']:.4f} |",
+                "",
+                "Lowest pairwise Cohen's kappa values indicate the model pairs that disagree most often across private clips.",
+                "",
+                "| Model A | Model B | Cohen's Kappa | Raw Agreement |",
+                "|---|---|---:|---:|",
+            ]
+        )
+        for row in pairwise_kappa.sort_values("cohens_kappa").head(8).itertuples(index=False):
+            lines.append(
+                f"| {row.run_a} | {row.run_b} | {row.cohens_kappa:.4f} | {row.raw_agreement:.4f} |"
+            )
+
     lines.extend(
         [
             "",
@@ -598,6 +740,9 @@ def write_markdown_report(
             "- `outputs/domain_shift_analysis/private_predictions.csv`",
             "- `outputs/domain_shift_analysis/prediction_distribution.csv`",
             "- `outputs/domain_shift_analysis/domain_shift_by_class.csv`",
+            "- `outputs/domain_shift_analysis/model_agreement_per_clip.csv`",
+            "- `outputs/domain_shift_analysis/pairwise_cohens_kappa.csv`",
+            "- `outputs/domain_shift_analysis/agreement_summary.json`",
             "- `outputs/domain_shift_analysis/domain_shift_summary.json`",
             "- `outputs/domain_shift_analysis/private_prediction_distribution.png`",
             "- `outputs/domain_shift_analysis/private_vs_source_predicted_shift.png`",
@@ -632,6 +777,17 @@ def main(argv: list[str] | None = None) -> None:
                 raise FileNotFoundError(f"Cannot use --from_existing; missing {path}")
         distributions = pd.read_csv(distributions_path)
         shift = pd.read_csv(shift_path)
+        predictions = pd.read_csv(predictions_path)
+        agreement_per_clip, pairwise_kappa, agreement_summary = compute_model_agreement(
+            predictions,
+            expected_runs=args.runs,
+        )
+        agreement_per_clip.to_csv(output_dir / "model_agreement_per_clip.csv", index=False)
+        pairwise_kappa.to_csv(output_dir / "pairwise_cohens_kappa.csv", index=False)
+        (output_dir / "agreement_summary.json").write_text(
+            json.dumps(agreement_summary, indent=2),
+            encoding="utf-8",
+        )
         run_metrics = {run_key: load_run_metrics(MODEL_RUNS[run_key]) for run_key in args.runs}
         plot_private_distribution(distributions, output_dir / "private_prediction_distribution.png")
         plot_shift_heatmap(shift, output_dir / "private_vs_source_predicted_shift.png")
@@ -641,6 +797,8 @@ def main(argv: list[str] | None = None) -> None:
             run_metrics=run_metrics,
             shift=shift,
             distributions=distributions,
+            agreement_summary=agreement_summary,
+            pairwise_kappa=pairwise_kappa,
         )
         print(f"Regenerated plots from {output_dir}")
         print(f"Saved markdown report to {document_path}")
@@ -748,10 +906,20 @@ def main(argv: list[str] | None = None) -> None:
     source_distribution = pd.concat(source_tables, ignore_index=True)
     distributions = pd.concat([private_distribution, source_distribution], ignore_index=True)
     shift = summarize_shift(distributions, run_metrics)
+    agreement_per_clip, pairwise_kappa, agreement_summary = compute_model_agreement(
+        predictions,
+        expected_runs=args.runs,
+    )
 
     predictions.to_csv(output_dir / "private_predictions.csv", index=False)
     distributions.to_csv(output_dir / "prediction_distribution.csv", index=False)
     shift.to_csv(output_dir / "domain_shift_by_class.csv", index=False)
+    agreement_per_clip.to_csv(output_dir / "model_agreement_per_clip.csv", index=False)
+    pairwise_kappa.to_csv(output_dir / "pairwise_cohens_kappa.csv", index=False)
+    (output_dir / "agreement_summary.json").write_text(
+        json.dumps(agreement_summary, indent=2),
+        encoding="utf-8",
+    )
 
     summary = {
         "accepted_private_clips": len(samples),
@@ -761,6 +929,7 @@ def main(argv: list[str] | None = None) -> None:
         "fusion_frames": args.fusion_frames,
         "run_metrics": run_metrics,
         "private_distribution": private_distribution.to_dict(orient="records"),
+        "agreement_summary": agreement_summary,
         "largest_absolute_shifts": shift.assign(
             abs_shift=shift["private_minus_source_predicted"].abs()
         )
@@ -782,6 +951,8 @@ def main(argv: list[str] | None = None) -> None:
         run_metrics=run_metrics,
         shift=shift,
         distributions=distributions,
+        agreement_summary=agreement_summary,
+        pairwise_kappa=pairwise_kappa,
     )
     print(f"Saved domain-shift outputs to {output_dir}")
     print(f"Saved markdown report to {document_path}")

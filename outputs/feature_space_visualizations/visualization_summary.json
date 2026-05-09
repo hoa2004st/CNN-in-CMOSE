@@ -1,0 +1,28 @@
+{
+  "private_accepted_samples_requested": 428,
+  "cmose_samples_requested": 428,
+  "plotted_samples": {
+    "private": 428,
+    "CMOSE": 427
+  },
+  "openface_feature_dim": 709,
+  "i3d_feature_dim": 1024,
+  "fused_feature_dim": 1733,
+  "openface_filter": {
+    "require_success": true,
+    "min_confidence": 0.8
+  },
+  "dropped_samples": {
+    "private": 0,
+    "CMOSE": 1
+  },
+  "methods": [
+    "tsne"
+  ],
+  "generated": [
+    "C:\\HOA\\1.HUST\\Thesis\\CNN-in-CMOSE\\documents\\feature_space_visualizations\\tsne_openface.png",
+    "C:\\HOA\\1.HUST\\Thesis\\CNN-in-CMOSE\\documents\\feature_space_visualizations\\tsne_i3d.png",
+    "C:\\HOA\\1.HUST\\Thesis\\CNN-in-CMOSE\\documents\\feature_space_visualizations\\tsne_openface_plus_i3d.png",
+    "C:\\HOA\\1.HUST\\Thesis\\CNN-in-CMOSE\\documents\\feature_space_visualizations\\embedding_coordinates.csv"
+  ]
+}
