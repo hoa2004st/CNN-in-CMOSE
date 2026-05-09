@@ -9,7 +9,6 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 
 
@@ -27,12 +26,6 @@ def build_parser() -> argparse.ArgumentParser:
         "--output_png",
         default="outputs/domain_shift_analysis/confidence_agreement_scatter.png",
         help="Output scatter image.",
-    )
-    parser.add_argument(
-        "--agreement_bins",
-        type=int,
-        default=100,
-        help="Number of bins for agreement-rate count bar chart.",
     )
     return parser
 
@@ -71,12 +64,20 @@ def main(argv: list[str] | None = None) -> None:
 
     # Overlay: agreement-rate count bars in the lowest quarter of scatter.
     bar_ax = ax.inset_axes([0.0, 0.0, 1.0, 0.25], transform=ax.transAxes)
-    bin_count = max(2, int(args.agreement_bins))
-    counts, edges = np.histogram(df["agreement_rate"].to_numpy(dtype=float), bins=bin_count, range=(0.0, 1.0))
-    centers = (edges[:-1] + edges[1:]) / 2.0
-    widths = np.diff(edges) * 0.98
-    bar_ax.bar(centers, counts, width=widths, color="#2E86AB", edgecolor="none", alpha=0.62)
-    bar_ax.set_xlim(0.0, 1.0)
+    counts_by_rate = df["agreement_rate"].round(12).value_counts().sort_index()
+    x_values = counts_by_rate.index.to_numpy(dtype=float)
+    count_values = counts_by_rate.to_numpy(dtype=int)
+    if len(x_values) > 1:
+        min_spacing = min(
+            current - previous
+            for previous, current in zip(x_values[:-1], x_values[1:])
+            if current > previous
+        )
+        bar_width = min_spacing * 0.72
+    else:
+        bar_width = 0.01
+    bar_ax.bar(x_values, count_values, width=bar_width, color="#2E86AB", edgecolor="none", alpha=0.62)
+    bar_ax.set_xlim(-0.02, 1.02)
     bar_ax.set_facecolor("none")
     bar_ax.set_axis_off()
 
