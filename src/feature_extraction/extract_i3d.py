@@ -9,7 +9,7 @@ import numpy as np
 import torch
 from tqdm.auto import tqdm
 
-from src.features.extract_openface import resample_frames
+from src.feature_extraction.extract_openface import resample_frames
 
 
 def resolve_i3d_feature_path(

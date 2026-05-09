@@ -81,12 +81,9 @@ Lowest pairwise Cohen's kappa values indicate the model pairs that disagree most
 
 ## Output Files
 
-- `outputs/domain_shift_analysis/private_predictions.csv`
 - `outputs/domain_shift_analysis/prediction_distribution.csv`
 - `outputs/domain_shift_analysis/domain_shift_by_class.csv`
-- `outputs/domain_shift_analysis/model_agreement_per_clip.csv`
-- `outputs/domain_shift_analysis/pairwise_cohens_kappa.csv`
-- `outputs/domain_shift_analysis/agreement_summary.json`
 - `outputs/domain_shift_analysis/domain_shift_summary.json`
-- `outputs/domain_shift_analysis/private_prediction_distribution.png`
 - `outputs/domain_shift_analysis/private_vs_source_predicted_shift.png`
+- `outputs/dataset_analysis/private/`
+- `outputs/dataset_analysis/cmose/`

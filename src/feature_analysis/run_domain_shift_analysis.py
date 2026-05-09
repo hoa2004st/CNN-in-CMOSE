@@ -24,15 +24,16 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.nn.functional as F
-from sklearn.metrics import cohen_kappa_score
+from sklearn.metrics import accuracy_score, cohen_kappa_score, confusion_matrix, f1_score
 from torch.utils.data import DataLoader, TensorDataset
 from tqdm.auto import tqdm
 
-from src.features.extract_i3d import load_i3d_dataset_matrices
-from src.features.extract_openface import (
+from src.feature_extraction.extract_i3d import load_i3d_dataset_matrices
+from src.feature_extraction.extract_openface import (
     ID_TO_LABEL,
     SampleMeta,
     load_cmose_metadata,
+    load_dataset_matrices,
     load_openface_matrix,
     resample_frames,
 )
@@ -96,6 +97,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--cmose_openface_dir", default="data/CMOSE/features/openface")
     parser.add_argument("--cmose_i3d_dir", default="data/CMOSE/features/i3d")
     parser.add_argument("--output_dir", default="outputs/domain_shift_analysis")
+    parser.add_argument("--dataset_output_root", default="outputs/dataset_analysis")
     parser.add_argument("--document_path", default="documents/domain_shift_analysis.md")
     parser.add_argument("--target_frames", type=int, default=300)
     parser.add_argument("--fusion_frames", type=int, default=75)
@@ -193,7 +195,7 @@ def fit_i3d_normalizer_streaming(
     feature_dir: str | Path,
     target_frames: int,
 ) -> tuple[np.ndarray, np.ndarray]:
-    from src.features.extract_i3d import load_i3d_matrix, resolve_i3d_feature_path
+    from src.feature_extraction.extract_i3d import load_i3d_matrix, resolve_i3d_feature_path
 
     return fit_matrix_normalizer_streaming(
         ((sample_id, resolve_i3d_feature_path(sample_id, feature_dir)) for sample_id in sample_ids),
@@ -260,6 +262,20 @@ def load_private_i3d(
     )
 
 
+def load_cmose_i3d(
+    sample_ids: list[str],
+    *,
+    feature_dir: str | Path,
+    target_frames: int,
+) -> np.ndarray:
+    return load_i3d_dataset_matrices(
+        sample_ids,
+        feature_dir=feature_dir,
+        target_frames=target_frames,
+        progress_desc="Loading CMOSE I3D",
+    )
+
+
 def predict_probabilities(
     model: torch.nn.Module,
     features: np.ndarray | tuple[np.ndarray, ...],
@@ -312,6 +328,8 @@ def prediction_frame(
     run_key: str,
     sample_ids: list[str],
     probs: np.ndarray,
+    *,
+    true_labels: np.ndarray | None = None,
 ) -> pd.DataFrame:
     pred_ids = probs.argmax(axis=1).astype(int)
     sorted_probs = np.sort(probs, axis=1)
@@ -330,13 +348,18 @@ def prediction_frame(
             "margin": float(margins[idx]),
             "normalized_entropy": float(entropy[idx]),
         }
+        if true_labels is not None:
+            true_id = int(true_labels[idx])
+            row["true_id"] = true_id
+            row["true_label"] = ID_TO_LABEL[true_id]
+            row["is_correct"] = bool(pred_ids[idx] == true_id)
         for class_id in CLASS_IDS:
             row[f"prob_{class_id}_{ID_TO_LABEL[class_id]}"] = float(probs[idx, class_id])
         rows.append(row)
     return pd.DataFrame(rows)
 
 
-def distribution_frame(predictions: pd.DataFrame) -> pd.DataFrame:
+def distribution_frame(predictions: pd.DataFrame, *, domain: str) -> pd.DataFrame:
     rows = []
     for run_key, group in predictions.groupby("run"):
         total = len(group)
@@ -345,7 +368,7 @@ def distribution_frame(predictions: pd.DataFrame) -> pd.DataFrame:
             rows.append(
                 {
                     "run": run_key,
-                    "domain": "private_accepted",
+                    "domain": domain,
                     "class_id": class_id,
                     "class_label": ID_TO_LABEL[class_id],
                     "count": int(len(class_group)),
@@ -359,6 +382,106 @@ def distribution_frame(predictions: pd.DataFrame) -> pd.DataFrame:
                 }
             )
     return pd.DataFrame(rows)
+
+
+def true_distribution_frame(sample_ids: list[str], true_labels: np.ndarray, *, domain: str) -> pd.DataFrame:
+    total = len(sample_ids)
+    rows = []
+    for class_id in CLASS_IDS:
+        count = int(np.sum(true_labels == class_id))
+        rows.append(
+            {
+                "run": "__labels__",
+                "domain": domain,
+                "class_id": class_id,
+                "class_label": ID_TO_LABEL[class_id],
+                "count": count,
+                "proportion": float(count / total) if total else 0.0,
+                "mean_confidence": np.nan,
+                "mean_entropy": np.nan,
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+def compute_supervised_metrics(predictions: pd.DataFrame) -> pd.DataFrame:
+    if "true_id" not in predictions.columns:
+        return pd.DataFrame()
+    rows = []
+    for run_key, group in predictions.groupby("run"):
+        y_true = group["true_id"].to_numpy(dtype=int)
+        y_pred = group["predicted_id"].to_numpy(dtype=int)
+        confusion = confusion_matrix(y_true, y_pred, labels=CLASS_IDS)
+        per_class_accuracy = np.divide(
+            confusion.diagonal(),
+            confusion.sum(axis=1),
+            out=np.zeros(len(CLASS_IDS), dtype=np.float64),
+            where=confusion.sum(axis=1) > 0,
+        )
+        rows.append(
+            {
+                "run": run_key,
+                "accuracy": float(accuracy_score(y_true, y_pred)),
+                "macro_accuracy": float(per_class_accuracy.mean()),
+                "f1_macro": float(f1_score(y_true, y_pred, labels=CLASS_IDS, average="macro", zero_division=0)),
+                "f1_weighted": float(
+                    f1_score(y_true, y_pred, labels=CLASS_IDS, average="weighted", zero_division=0)
+                ),
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+def write_dataset_analysis_outputs(
+    *,
+    output_dir: Path,
+    dataset_name: str,
+    predictions: pd.DataFrame,
+    distributions: pd.DataFrame,
+    expected_runs: list[str],
+    true_labels: np.ndarray | None = None,
+    sample_ids: list[str] | None = None,
+) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, Any]]:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    agreement_per_clip, pairwise_kappa, agreement_summary = compute_model_agreement(
+        predictions,
+        expected_runs=expected_runs,
+    )
+    supervised_metrics = compute_supervised_metrics(predictions)
+
+    predictions.to_csv(output_dir / "predictions.csv", index=False)
+    distributions.to_csv(output_dir / "prediction_distribution.csv", index=False)
+    agreement_per_clip.to_csv(output_dir / "model_agreement_per_clip.csv", index=False)
+    pairwise_kappa.to_csv(output_dir / "pairwise_cohens_kappa.csv", index=False)
+    if not supervised_metrics.empty:
+        supervised_metrics.to_csv(output_dir / "supervised_metrics.csv", index=False)
+    if true_labels is not None and sample_ids is not None:
+        true_distribution_frame(sample_ids, true_labels, domain=f"{dataset_name}_true").to_csv(
+            output_dir / "true_label_distribution.csv",
+            index=False,
+        )
+    (output_dir / "agreement_summary.json").write_text(
+        json.dumps(agreement_summary, indent=2),
+        encoding="utf-8",
+    )
+    dataset_summary = {
+        "dataset": dataset_name,
+        "num_samples": int(predictions["clip_id"].nunique()),
+        "runs": expected_runs,
+        "agreement_summary": agreement_summary,
+        "supervised_metrics": supervised_metrics.to_dict(orient="records"),
+    }
+    (output_dir / "dataset_summary.json").write_text(
+        json.dumps(dataset_summary, indent=2),
+        encoding="utf-8",
+    )
+    plot_prediction_distribution(
+        distributions,
+        output_dir / "prediction_distribution.png",
+        domain=f"{dataset_name}_predicted",
+        ylabel=f"{dataset_name.upper()} prediction proportion",
+    )
+    return agreement_per_clip, pairwise_kappa, agreement_summary
 
 
 def compute_model_agreement(
@@ -572,11 +695,20 @@ def load_run_metrics(run_cfg: dict[str, str]) -> dict[str, float]:
     }
 
 
-def plot_private_distribution(distributions: pd.DataFrame, output_path: Path) -> None:
-    private = distributions[distributions["domain"] == "private_accepted"]
-    pivot = private.pivot(index="run", columns="class_label", values="proportion")[CLASS_LABELS]
+def plot_prediction_distribution(
+    distributions: pd.DataFrame,
+    output_path: Path,
+    *,
+    domain: str,
+    ylabel: str,
+) -> None:
+    predicted = distributions[distributions["domain"] == domain]
+    pivot = (
+        predicted.pivot_table(index="run", columns="class_label", values="proportion", fill_value=0.0)
+        .reindex(columns=CLASS_LABELS, fill_value=0.0)
+    )
     ax = pivot.plot(kind="bar", stacked=True, figsize=(11, 6), colormap="tab20c")
-    ax.set_ylabel("Private accepted prediction proportion")
+    ax.set_ylabel(ylabel)
     ax.set_xlabel("CMOSE-trained run")
     ax.set_ylim(0, 1)
     handles, labels = ax.get_legend_handles_labels()
@@ -590,6 +722,15 @@ def plot_private_distribution(distributions: pd.DataFrame, output_path: Path) ->
     ax.figure.tight_layout()
     ax.figure.savefig(output_path, dpi=180)
     plt.close(ax.figure)
+
+
+def plot_private_distribution(distributions: pd.DataFrame, output_path: Path) -> None:
+    plot_prediction_distribution(
+        distributions,
+        output_path,
+        domain="private_accepted",
+        ylabel="Private accepted prediction proportion",
+    )
 
 
 def plot_shift_heatmap(shift: pd.DataFrame, output_path: Path) -> None:
@@ -737,15 +878,12 @@ def write_markdown_report(
             "",
             "## Output Files",
             "",
-            "- `outputs/domain_shift_analysis/private_predictions.csv`",
             "- `outputs/domain_shift_analysis/prediction_distribution.csv`",
             "- `outputs/domain_shift_analysis/domain_shift_by_class.csv`",
-            "- `outputs/domain_shift_analysis/model_agreement_per_clip.csv`",
-            "- `outputs/domain_shift_analysis/pairwise_cohens_kappa.csv`",
-            "- `outputs/domain_shift_analysis/agreement_summary.json`",
             "- `outputs/domain_shift_analysis/domain_shift_summary.json`",
-            "- `outputs/domain_shift_analysis/private_prediction_distribution.png`",
             "- `outputs/domain_shift_analysis/private_vs_source_predicted_shift.png`",
+            "- `outputs/dataset_analysis/private/`",
+            "- `outputs/dataset_analysis/cmose/`",
         ]
     )
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -756,6 +894,9 @@ def main(argv: list[str] | None = None) -> None:
     args = build_parser().parse_args(argv)
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
+    dataset_output_root = Path(args.dataset_output_root)
+    private_dataset_dir = dataset_output_root / "private"
+    cmose_dataset_dir = dataset_output_root / "cmose"
     document_path = Path(args.document_path)
     device = resolve_device(args.device)
 
@@ -769,7 +910,7 @@ def main(argv: list[str] | None = None) -> None:
     print(f"Accepted private clips: {len(samples)}")
 
     if args.from_existing:
-        predictions_path = output_dir / "private_predictions.csv"
+        predictions_path = private_dataset_dir / "predictions.csv"
         distributions_path = output_dir / "prediction_distribution.csv"
         shift_path = output_dir / "domain_shift_by_class.csv"
         for path in (predictions_path, distributions_path, shift_path):
@@ -782,14 +923,7 @@ def main(argv: list[str] | None = None) -> None:
             predictions,
             expected_runs=args.runs,
         )
-        agreement_per_clip.to_csv(output_dir / "model_agreement_per_clip.csv", index=False)
-        pairwise_kappa.to_csv(output_dir / "pairwise_cohens_kappa.csv", index=False)
-        (output_dir / "agreement_summary.json").write_text(
-            json.dumps(agreement_summary, indent=2),
-            encoding="utf-8",
-        )
         run_metrics = {run_key: load_run_metrics(MODEL_RUNS[run_key]) for run_key in args.runs}
-        plot_private_distribution(distributions, output_dir / "private_prediction_distribution.png")
         plot_shift_heatmap(shift, output_dir / "private_vs_source_predicted_shift.png")
         write_markdown_report(
             output_path=document_path,
@@ -810,7 +944,10 @@ def main(argv: list[str] | None = None) -> None:
         cmose_openface_dir,
         allowed_splits=("train", "test"),
     )
-    train_records, _test_records = split_cmose_records(cmose_records)
+    train_records, test_records = split_cmose_records(cmose_records)
+    cmose_sample_ids = [record.sample_id for record in test_records]
+    cmose_true_labels = np.array([record.label_id for record in test_records], dtype=np.int64)
+    print(f"CMOSE test clips: {len(test_records)}")
 
     need_openface = any(MODEL_RUNS[run]["model"] in OPENFACE_MODELS | FUSION_MODELS for run in args.runs)
     need_i3d = any(MODEL_RUNS[run]["model"] in I3D_MODELS | FUSION_MODELS for run in args.runs)
@@ -818,6 +955,9 @@ def main(argv: list[str] | None = None) -> None:
     private_openface_300: np.ndarray | None = None
     private_openface_fusion: np.ndarray | None = None
     private_i3d: np.ndarray | None = None
+    cmose_openface_300: np.ndarray | None = None
+    cmose_openface_fusion: np.ndarray | None = None
+    cmose_i3d: np.ndarray | None = None
     i3d_input_features: int | None = None
 
     if need_openface:
@@ -826,6 +966,24 @@ def main(argv: list[str] | None = None) -> None:
             train_records,
             target_frames=args.target_frames,
         )
+        cmose_openface_raw, _cmose_labels, _loaded_cmose_ids = load_dataset_matrices(
+            test_records,
+            target_frames=args.target_frames,
+            progress_desc="Loading CMOSE OpenFace",
+        )
+        cmose_openface_300 = normalize(cmose_openface_raw, openface_mean, openface_std)
+        cmose_openface_fusion = np.stack(
+            [
+                resample_frames(sample, target_frames=args.fusion_frames)
+                for sample in tqdm(
+                    cmose_openface_300,
+                    desc="Resampling CMOSE OpenFace for fusion",
+                    unit="sample",
+                    leave=False,
+                )
+            ],
+            axis=0,
+        ).astype(np.float32, copy=False)
         private_openface_raw = load_private_openface(samples, target_frames=args.target_frames)
         private_openface_300 = normalize(private_openface_raw, openface_mean, openface_std)
         private_openface_fusion = np.stack(
@@ -840,7 +998,7 @@ def main(argv: list[str] | None = None) -> None:
             ],
             axis=0,
         ).astype(np.float32, copy=False)
-        del private_openface_raw
+        del cmose_openface_raw, private_openface_raw
         gc.collect()
 
     if need_i3d:
@@ -856,19 +1014,25 @@ def main(argv: list[str] | None = None) -> None:
             feature_dir=args.private_i3d_dir,
             target_frames=args.fusion_frames,
         )
+        cmose_i3d_raw = load_cmose_i3d(
+            cmose_sample_ids,
+            feature_dir=args.cmose_i3d_dir,
+            target_frames=args.fusion_frames,
+        )
         private_i3d = normalize(private_i3d_raw, i3d_mean, i3d_std)
-        i3d_input_features = int(private_i3d.shape[-1])
-        del private_i3d_raw
+        cmose_i3d = normalize(cmose_i3d_raw, i3d_mean, i3d_std)
+        i3d_input_features = int(cmose_i3d.shape[-1])
+        del private_i3d_raw, cmose_i3d_raw
         gc.collect()
 
-    prediction_tables = []
-    source_tables = []
+    private_prediction_tables = []
+    cmose_prediction_tables = []
     run_metrics: dict[str, dict[str, Any]] = {}
 
     for run_key in args.runs:
         run_cfg = MODEL_RUNS[run_key]
         model_name = run_cfg["model"]
-        print(f"Predicting private clips with {run_key}")
+        print(f"Predicting private and CMOSE clips with {run_key}")
         model = load_model_for_run(
             run_key,
             run_cfg,
@@ -876,53 +1040,87 @@ def main(argv: list[str] | None = None) -> None:
             device=device,
         )
         if model_name in FUSION_MODELS:
-            if private_openface_fusion is None or private_i3d is None:
+            if (
+                private_openface_fusion is None
+                or private_i3d is None
+                or cmose_openface_fusion is None
+                or cmose_i3d is None
+            ):
                 raise RuntimeError("Fusion inputs were not prepared")
-            features: np.ndarray | tuple[np.ndarray, ...] = (private_openface_fusion, private_i3d)
+            private_features: np.ndarray | tuple[np.ndarray, ...] = (private_openface_fusion, private_i3d)
+            cmose_features: np.ndarray | tuple[np.ndarray, ...] = (cmose_openface_fusion, cmose_i3d)
         elif model_name in I3D_MODELS:
-            if private_i3d is None:
+            if private_i3d is None or cmose_i3d is None:
                 raise RuntimeError("I3D inputs were not prepared")
-            features = private_i3d
+            private_features = private_i3d
+            cmose_features = cmose_i3d
         else:
-            if private_openface_300 is None:
+            if private_openface_300 is None or cmose_openface_300 is None:
                 raise RuntimeError("OpenFace inputs were not prepared")
-            features = private_openface_300
+            private_features = private_openface_300
+            cmose_features = cmose_openface_300
 
-        probs = predict_probabilities(
+        private_probs = predict_probabilities(
             model,
-            features,
+            private_features,
             batch_size=args.batch_size,
             device=device,
         )
-        prediction_tables.append(prediction_frame(run_key, sample_ids, probs))
-        source_tables.append(load_source_reference(run_key, run_cfg))
+        private_prediction_tables.append(prediction_frame(run_key, sample_ids, private_probs))
+        cmose_probs = predict_probabilities(
+            model,
+            cmose_features,
+            batch_size=args.batch_size,
+            device=device,
+        )
+        cmose_prediction_tables.append(
+            prediction_frame(run_key, cmose_sample_ids, cmose_probs, true_labels=cmose_true_labels)
+        )
         run_metrics[run_key] = load_run_metrics(run_cfg)
         del model
         if device.type == "cuda":
             torch.cuda.empty_cache()
 
-    predictions = pd.concat(prediction_tables, ignore_index=True)
-    private_distribution = distribution_frame(predictions)
-    source_distribution = pd.concat(source_tables, ignore_index=True)
+    predictions = pd.concat(private_prediction_tables, ignore_index=True)
+    cmose_predictions = pd.concat(cmose_prediction_tables, ignore_index=True)
+    private_distribution = distribution_frame(predictions, domain="private_accepted")
+    cmose_distribution = distribution_frame(cmose_predictions, domain="cmose_test_predicted")
+    cmose_true_distribution = true_distribution_frame(
+        cmose_sample_ids,
+        cmose_true_labels,
+        domain="cmose_test_true",
+    )
+    source_true_tables = []
+    for run_key in args.runs:
+        run_true_distribution = cmose_true_distribution.copy()
+        run_true_distribution["run"] = run_key
+        source_true_tables.append(run_true_distribution)
+    source_distribution = pd.concat([cmose_distribution, *source_true_tables], ignore_index=True)
     distributions = pd.concat([private_distribution, source_distribution], ignore_index=True)
     shift = summarize_shift(distributions, run_metrics)
-    agreement_per_clip, pairwise_kappa, agreement_summary = compute_model_agreement(
-        predictions,
+    agreement_per_clip, pairwise_kappa, agreement_summary = write_dataset_analysis_outputs(
+        output_dir=private_dataset_dir,
+        dataset_name="private",
+        predictions=predictions,
+        distributions=private_distribution.assign(domain="private_predicted"),
         expected_runs=args.runs,
     )
+    write_dataset_analysis_outputs(
+        output_dir=cmose_dataset_dir,
+        dataset_name="cmose",
+        predictions=cmose_predictions,
+        distributions=cmose_distribution.assign(domain="cmose_predicted"),
+        expected_runs=args.runs,
+        true_labels=cmose_true_labels,
+        sample_ids=cmose_sample_ids,
+    )
 
-    predictions.to_csv(output_dir / "private_predictions.csv", index=False)
     distributions.to_csv(output_dir / "prediction_distribution.csv", index=False)
     shift.to_csv(output_dir / "domain_shift_by_class.csv", index=False)
-    agreement_per_clip.to_csv(output_dir / "model_agreement_per_clip.csv", index=False)
-    pairwise_kappa.to_csv(output_dir / "pairwise_cohens_kappa.csv", index=False)
-    (output_dir / "agreement_summary.json").write_text(
-        json.dumps(agreement_summary, indent=2),
-        encoding="utf-8",
-    )
 
     summary = {
         "accepted_private_clips": len(samples),
+        "cmose_test_clips": len(test_records),
         "runs": args.runs,
         "device": device.type,
         "target_frames": args.target_frames,
@@ -943,7 +1141,6 @@ def main(argv: list[str] | None = None) -> None:
         encoding="utf-8",
     )
 
-    plot_private_distribution(distributions, output_dir / "private_prediction_distribution.png")
     plot_shift_heatmap(shift, output_dir / "private_vs_source_predicted_shift.png")
     write_markdown_report(
         output_path=document_path,

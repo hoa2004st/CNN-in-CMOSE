@@ -10,11 +10,11 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from src.features.extract_i3d import (
+from src.feature_extraction.extract_i3d import (
     load_i3d_dataset_matrices,
     materialize_i3d_features_from_json,
 )
-from src.features.extract_openface import (
+from src.feature_extraction.extract_openface import (
     ID_TO_LABEL,
     describe_selection,
     load_cmose_metadata,

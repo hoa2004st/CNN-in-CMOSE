@@ -207,7 +207,7 @@ marimo/_lsp/
 __marimo__/
 
 
-CMOSE/
+
 data/CMOSE/
 .tmp
 third_party/opencv-*.exe
