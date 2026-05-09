@@ -62,9 +62,9 @@
 - [ ] **1b.3** Implement `MLP2` (I3D projection)
 - [ ] **1b.4** Implement `MLP3` (normalized FC score head)
 - [ ] **1b.5** Implement full `CMOSEBaseline` forward pass — unit test with random input
-- [ ] **1b.6** Implement `MocoRank` momentum encoder update rule
-- [ ] **1b.7** Implement Score Pool (FIFO queue) with triplet storage
-- [ ] **1b.8** Implement Multi-Margin Loss — unit test: same-class pairs should produce L1 penalty, cross-class pairs should produce margin penalty
+- [ ] **1b.6** Removed: paper-baseline ranking-loss implementation is no longer part of this repo
+- [ ] **1b.7** Removed: paper-baseline score pool is no longer part of this repo
+- [ ] **1b.8** Removed: paper-baseline multi-margin loss is no longer part of this repo
 
 ### 1c — Training
 
@@ -76,7 +76,7 @@
 
 **Results checkpoint**:
 
-| Metric | Paper (MocoRank) | Reproduced |
+| Metric | Paper | Reproduced |
 |---|---|---|
 | Overall Accuracy | 77.48% | |
 | Average Accuracy | 60.94% | |
@@ -85,7 +85,7 @@
 | EG Recall | ~high | |
 | HE Recall | ~high | |
 
-> _Fill in reproduced values when done. If AvgAcc is >5% below paper, check: (1) chunking implementation, (2) score pool initialization, (3) momentum update rate._
+> _Paper-baseline reproduction code has been removed from this repository._
 
 ### 1d — Naive Model Baselines
 
@@ -169,7 +169,7 @@
 
 ### Strategy 2 — Teacher-Student (EMA)
 
-- [ ] **4.2.1** Implement EMA teacher (momentum=0.999, same as MocoRank momentum encoder)
+- [ ] **4.2.1** Implement EMA teacher (momentum=0.999)
 - [ ] **4.2.2** Implement consistency loss between student score and teacher score on private clips
 - [ ] **4.2.3** Train student with `λ=0.1` consistency weight for 250 epochs
 - [ ] **4.2.4** Evaluate CMOSE retention and private entropy change
@@ -269,5 +269,5 @@ _Record key decisions made during implementation so you can justify them in the 
 | Date | Decision | Reason |
 |---|---|---|
 | | Using video-only branch of CMOSE (no audio) | Private dataset has no audio track |
-| | Using MocoRank without Center Loss as primary target | Center Loss adds complexity; match simpler variant first |
+| | Paper-baseline training implementation removed from this repo | Keep current work focused on retained models |
 | | | |

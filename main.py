@@ -9,25 +9,20 @@ from pathlib import Path
 
 import numpy as np
 import torch
-import yaml
 
 from src.features.extract_i3d import (
     load_i3d_dataset_matrices,
-    load_i3d_dataset_vectors,
     materialize_i3d_features_from_json,
 )
 from src.features.extract_openface import (
     ID_TO_LABEL,
     describe_selection,
-    load_baseline_openface_dataset_matrices,
     load_cmose_metadata,
     load_dataset_matrices,
     resample_frames,
 )
-from src.models.cmose_baseline import CMOSEBaselineModel
 from src.evaluation.metrics import evaluate_predictions
 from src.models.naive_models import build_model
-from src.training.mocorank import predict_cmose_baseline, train_cmose_baseline_mocorank
 from src.training.train import (
     fit_feature_normalizer,
     normalize_dataset_per_feature,
@@ -49,18 +44,9 @@ CMOSE_EVAL_SPLIT_KEY = "unlabel"
 CMOSE_TEST_SPLIT_KEY = "test"
 I3D_ONLY_MODELS = {"i3d_mlp"}
 MULTIMODAL_MODELS = {"openface_tcn_i3d_fusion"}
-PAPER_BASELINE_MODELS = {"cmose_baseline_paper"}
-I3D_ENABLED_MODELS = I3D_ONLY_MODELS | MULTIMODAL_MODELS | PAPER_BASELINE_MODELS
+I3D_ENABLED_MODELS = I3D_ONLY_MODELS | MULTIMODAL_MODELS
 _OPENFACE_SPLIT_CACHE: dict[tuple[str, str, int], dict[str, object]] = {}
 _I3D_SPLIT_CACHE: dict[tuple[str, int, tuple[str, ...], tuple[str, ...], tuple[str, ...]], dict[str, object]] = {}
-
-
-def _load_baseline_yaml(path: str | Path) -> dict[str, object]:
-    cfg_path = Path(path)
-    raw = yaml.safe_load(cfg_path.read_text(encoding="utf-8"))
-    if not isinstance(raw, dict):
-        raise ValueError(f"Expected dict in baseline config, got {type(raw).__name__}")
-    return raw
 
 
 def _log_chunk_progress(done: int, total: int) -> None:
@@ -308,7 +294,6 @@ def build_parser() -> argparse.ArgumentParser:
             "transformer",
             "i3d_mlp",
             "openface_tcn_i3d_fusion",
-            "cmose_baseline_paper",
         ],
         default="temporal_cnn",
         help="Model architecture to train under the CMOSE train/evaluation/test split.",
@@ -345,21 +330,6 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--amp", action="store_true", help="Use automatic mixed precision on CUDA.")
     parser.add_argument("--output_dir")
     parser.add_argument("--seed", type=int, default=42)
-    parser.add_argument("--score_pool_size", type=int, default=2048)
-    parser.add_argument("--momentum_update", type=float, default=0.999)
-    parser.add_argument("--baseline_chunk_count", type=int, default=10)
-    parser.add_argument("--baseline_hidden_dim", type=int, default=128)
-    parser.add_argument("--baseline_config", default="configs/baseline.yaml")
-    parser.add_argument(
-        "--strict_paper_baseline",
-        action="store_true",
-        help="Use baseline hyperparameters from --baseline_config and strict paper-style training knobs.",
-    )
-    parser.add_argument(
-        "--compile_baseline",
-        action="store_true",
-        help="Compile cmose_baseline_paper model with torch.compile for faster training.",
-    )
     return parser
 
 
@@ -388,65 +358,16 @@ def run_experiment(args: argparse.Namespace) -> None:
         focal_gamma=args.focal_gamma,
     )
     output_dir.mkdir(parents=True, exist_ok=True)
-    baseline_yaml: dict[str, object] | None = None
-    if args.model == "cmose_baseline_paper" and args.strict_paper_baseline:
-        baseline_yaml = _load_baseline_yaml(args.baseline_config)
-        args.batch_size = int(baseline_yaml.get("batch_size", args.batch_size))
-        args.epochs = int(baseline_yaml.get("epochs", args.epochs))
-        args.lr = float(baseline_yaml.get("lr_init", args.lr))
-        args.score_pool_size = int(baseline_yaml.get("score_pool_size", args.score_pool_size))
-        args.momentum_update = float(baseline_yaml.get("momentum_update", args.momentum_update))
-        args.baseline_chunk_count = int(baseline_yaml.get("T", args.baseline_chunk_count))
-        args.baseline_hidden_dim = int(baseline_yaml.get("C", args.baseline_hidden_dim))
-        args.patience = int(args.epochs)
-        logger.info(
-            "Strict paper baseline enabled via %s: epochs=%d batch=%d lr_init=%g score_pool=%d C=%d T=%d",
-            args.baseline_config,
-            args.epochs,
-            args.batch_size,
-            args.lr,
-            args.score_pool_size,
-            args.baseline_hidden_dim,
-            args.baseline_chunk_count,
-        )
-
-    if args.model == "cmose_baseline_paper":
-        resolved_feature_dir = _resolve_openface_feature_dir(args.feature_dir)
-        records = load_cmose_metadata(
-            args.labels_json,
-            resolved_feature_dir,
-            allowed_splits=(CMOSE_TRAIN_SPLIT, CMOSE_EVAL_SPLIT_KEY, CMOSE_TEST_SPLIT_KEY),
-        )
-        selected_records = records
-        train_records, eval_records, test_records = split_cmose_records_by_usage(selected_records)
-        if len(selected_records) == 0:
-            raise RuntimeError(
-                "No CMOSE samples were matched between labels and OpenFace CSV files. "
-                f"Resolved feature_dir='{resolved_feature_dir}'. "
-                "Verify sample_id.csv files are present for train/unlabel/test entries."
-            )
-        logger.info("Loading %d selected samples", len(selected_records))
-        logger.info(
-            "Using CMOSE train/evaluation/test split: %d train / %d evaluation / %d test samples (source keys: %s/%s/%s)",
-            len(train_records),
-            len(eval_records),
-            len(test_records),
-            CMOSE_TRAIN_SPLIT,
-            CMOSE_EVAL_SPLIT_KEY,
-            CMOSE_TEST_SPLIT_KEY,
-        )
-        openface_splits = None
-    else:
-        openface_splits = _load_openface_splits_cached(
-            labels_json=args.labels_json,
-            feature_dir=args.feature_dir,
-            target_frames=args.target_frames,
-        )
-        records = openface_splits["records"]
-        selected_records = openface_splits["selected_records"]
-        train_records = openface_splits["train_records"]
-        eval_records = openface_splits["eval_records"]
-        test_records = openface_splits["test_records"]
+    openface_splits = _load_openface_splits_cached(
+        labels_json=args.labels_json,
+        feature_dir=args.feature_dir,
+        target_frames=args.target_frames,
+    )
+    records = openface_splits["records"]
+    selected_records = openface_splits["selected_records"]
+    train_records = openface_splits["train_records"]
+    eval_records = openface_splits["eval_records"]
+    test_records = openface_splits["test_records"]
 
     selection_summary = {
         "mode": "cmose_train_eval_test_split",
@@ -487,195 +408,16 @@ def run_experiment(args: argparse.Namespace) -> None:
     save_json(selection_summary, output_dir / "selection_summary.json")
     logger.info("Saved selection summary to %s", output_dir / "selection_summary.json")
 
-    X_train_raw = openface_splits["X_train_raw"] if openface_splits is not None else None
-    y_train = openface_splits["y_train"] if openface_splits is not None else None
-    train_sample_ids = openface_splits["train_sample_ids"] if openface_splits is not None else None
-    X_eval_raw = openface_splits["X_eval_raw"] if openface_splits is not None else None
-    y_eval = openface_splits["y_eval"] if openface_splits is not None else None
-    eval_sample_ids = openface_splits["eval_sample_ids"] if openface_splits is not None else None
-    X_test_raw = openface_splits["X_test_raw"] if openface_splits is not None else None
-    y_test = openface_splits["y_test"] if openface_splits is not None else None
-    test_sample_ids = openface_splits["test_sample_ids"] if openface_splits is not None else None
-    if args.model == "cmose_baseline_paper":
-        X_train_openface, y_train, train_sample_ids = load_baseline_openface_dataset_matrices(
-            train_records,
-            chunk_count=args.baseline_chunk_count,
-            progress_desc="Loading baseline train OpenFace chunks",
-        )
-        X_eval_openface, y_eval, eval_sample_ids = load_baseline_openface_dataset_matrices(
-            eval_records,
-            chunk_count=args.baseline_chunk_count,
-            progress_desc="Loading baseline evaluation OpenFace chunks",
-        )
-        X_test_openface, y_test, test_sample_ids = load_baseline_openface_dataset_matrices(
-            test_records,
-            chunk_count=args.baseline_chunk_count,
-            progress_desc="Loading baseline test OpenFace chunks",
-        )
-        i3d_splits = _load_i3d_splits_cached(
-            labels_json=args.labels_json,
-            i3d_feature_dir=args.i3d_feature_dir,
-            target_frames=1,
-            train_sample_ids=train_sample_ids,
-            eval_sample_ids=eval_sample_ids,
-            test_sample_ids=test_sample_ids,
-        )
-        i3d_materialization_summary = i3d_splits["i3d_materialization_summary"]
-        X_train_i3d = load_i3d_dataset_vectors(
-            train_sample_ids,
-            feature_dir=args.i3d_feature_dir,
-            progress_desc="Loading baseline train I3D vectors",
-        )
-        X_eval_i3d = load_i3d_dataset_vectors(
-            eval_sample_ids,
-            feature_dir=args.i3d_feature_dir,
-            progress_desc="Loading baseline evaluation I3D vectors",
-        )
-        X_test_i3d = load_i3d_dataset_vectors(
-            test_sample_ids,
-            feature_dir=args.i3d_feature_dir,
-            progress_desc="Loading baseline test I3D vectors",
-        )
-
-        i3d_mean = X_train_i3d.mean(axis=0, dtype=np.float64).astype(np.float32)
-        i3d_std = X_train_i3d.std(axis=0, dtype=np.float64).astype(np.float32)
-        i3d_std[i3d_std <= 0.0] = 1.0
-        X_train_i3d = ((X_train_i3d - i3d_mean) / i3d_std).astype(np.float32, copy=False)
-        X_eval_i3d = ((X_eval_i3d - i3d_mean) / i3d_std).astype(np.float32, copy=False)
-        X_test_i3d = ((X_test_i3d - i3d_mean) / i3d_std).astype(np.float32, copy=False)
-
-        model = CMOSEBaselineModel(
-            i3d_dim=int(X_train_i3d.shape[-1]),
-            openface_dim=int(X_train_openface.shape[1]),
-            c=args.baseline_hidden_dim,
-            t=args.baseline_chunk_count,
-        )
-
-        preprocessing_summary = {
-            "model": args.model,
-            "sample_count": len(train_sample_ids) + len(eval_sample_ids) + len(test_sample_ids),
-            "train_sample_count": len(train_sample_ids),
-            "evaluation_sample_count": len(eval_sample_ids),
-            "test_sample_count": len(test_sample_ids),
-            "openface_chunk_shape": list(map(int, X_train_openface.shape[1:])),
-            "i3d_shape": list(map(int, X_train_i3d.shape[1:])),
-            "openface_chunk_count": args.baseline_chunk_count,
-            "normalization": {
-                "openface": "paper chunk min/max/var representation",
-                "i3d": "per-feature z-score using train-set statistics",
-            },
-            "i3d_materialization": i3d_materialization_summary,
-        }
-        save_json(preprocessing_summary, output_dir / "preprocessing_summary.json")
-        logger.info("Saved preprocessing summary to %s", output_dir / "preprocessing_summary.json")
-        save_json(
-            {
-                "before_smote": {
-                    "train": {ID_TO_LABEL[i]: int((y_train == i).sum()) for i in sorted(ID_TO_LABEL)},
-                    "evaluation": {
-                        ID_TO_LABEL[i]: int((y_eval == i).sum()) for i in sorted(ID_TO_LABEL)
-                    },
-                    "test": {
-                        ID_TO_LABEL[i]: int((y_test == i).sum()) for i in sorted(ID_TO_LABEL)
-                    },
-                },
-                "after_smote": None,
-            },
-            output_dir / "smote_summary.json",
-        )
-
-        history = train_cmose_baseline_mocorank(
-            model,
-            X_train_openface,
-            X_train_i3d,
-            y_train,
-            X_eval_openface,
-            X_eval_i3d,
-            y_eval,
-            epochs=args.epochs,
-            batch_size=args.batch_size,
-            lr=args.lr,
-            patience=args.patience,
-            checkpoint_path=output_dir / "best_model.pth",
-            score_pool_size=args.score_pool_size,
-            momentum_update=args.momentum_update,
-            device=device,
-            num_workers=args.num_workers,
-            compile_model=args.compile_baseline,
-            lr_final=(
-                float(baseline_yaml.get("lr_final", args.lr))
-                if baseline_yaml is not None
-                else args.lr
-            ),
-            scheduler_name=(
-                str(baseline_yaml.get("scheduler", "none"))
-                if baseline_yaml is not None
-                else "none"
-            ),
-            strict_pool_init=args.strict_paper_baseline,
-            progress_callback=_log_step,
-        )
-        history["selection_split_name"] = "evaluation"
-        history["selection_split_source_key"] = CMOSE_EVAL_SPLIT_KEY
-        y_pred = predict_cmose_baseline(
-            model,
-            X_test_openface,
-            X_test_i3d,
-            batch_size=args.batch_size,
-            device=device,
-            num_workers=args.num_workers,
-        )
-        metrics = evaluate_predictions(y_test, y_pred)
-        save_json(
-            {
-                "config": {
-                    "model": args.model,
-                    "protocol": "cmose_train_eval_test_split",
-                    "epochs": args.epochs,
-                    "batch_size": args.batch_size,
-                    "lr": args.lr,
-                    "patience": args.patience,
-                    "loss": "mocorank",
-                    "device": device.type,
-                    "num_workers": args.num_workers,
-                    "amp": False,
-                    "seed": args.seed,
-                    "i3d_feature_dir": args.i3d_feature_dir,
-                    "fusion_frames": None,
-                    "baseline_chunk_count": args.baseline_chunk_count,
-                    "score_pool_size": args.score_pool_size,
-                    "momentum_update": args.momentum_update,
-                    "baseline_hidden_dim": args.baseline_hidden_dim,
-                    "strict_paper_baseline": args.strict_paper_baseline,
-                    "baseline_config": args.baseline_config if args.strict_paper_baseline else None,
-                    "compile_baseline": args.compile_baseline,
-                    "selection_split": {
-                        "train_key": CMOSE_TRAIN_SPLIT,
-                        "evaluation_key": CMOSE_EVAL_SPLIT_KEY,
-                        "test_key": CMOSE_TEST_SPLIT_KEY,
-                        "checkpoint_and_early_stopping": "evaluation",
-                        "final_reporting": "test",
-                    },
-                },
-                "history": history,
-                "metrics": metrics,
-            },
-            output_dir / "metrics.json",
-        )
-        print("\n" + "=" * 60)
-        print("CMOSE TEST RESULTS")
-        print("=" * 60)
-        print(f"  Model         : {args.model}")
-        print(f"  Accuracy      : {metrics['accuracy']:.4f}")
-        print(f"  Macro Acc     : {metrics['macro_accuracy']:.4f}")
-        print(f"  F1 (macro)    : {metrics['f1_macro']:.4f}")
-        print(f"  F1 (weighted) : {metrics['f1_weighted']:.4f}")
-        print(f"  MAE           : {metrics['mae']:.4f}")
-        print(f"  Best epoch    : {history['best_epoch']}")
-        print("\nClassification Report:")
-        print(metrics["classification_report"])
-        return
-    raw_input_features = int(X_train_raw.shape[-1]) if X_train_raw is not None else 0
+    X_train_raw = openface_splits["X_train_raw"]
+    y_train = openface_splits["y_train"]
+    train_sample_ids = openface_splits["train_sample_ids"]
+    X_eval_raw = openface_splits["X_eval_raw"]
+    y_eval = openface_splits["y_eval"]
+    eval_sample_ids = openface_splits["eval_sample_ids"]
+    X_test_raw = openface_splits["X_test_raw"]
+    y_test = openface_splits["y_test"]
+    test_sample_ids = openface_splits["test_sample_ids"]
+    raw_input_features = int(X_train_raw.shape[-1])
     input_features = raw_input_features
     i3d_input_features: int | None = None
     X_train_i3d_raw: np.ndarray | None = None

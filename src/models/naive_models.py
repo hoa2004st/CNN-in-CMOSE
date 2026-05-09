@@ -141,7 +141,7 @@ class SequenceTransformer(nn.Module):
 
 
 class FlattenMLP(nn.Module):
-    """Simple MLP baseline that flattens the input tensor for classification."""
+    """Simple MLP that flattens the input tensor for classification."""
 
     def __init__(
         self,

@@ -34,14 +34,14 @@ This arc is honest: the naive models are not throwaway work, they are your **abl
 
 ### The CMOSE Baseline (Video-Only Branch)
 
-The CMOSE paper proposes a multi-modal engagement recognition system. You are implementing **only the visual branch**, which consists of:
+The CMOSE paper proposes a multi-modal engagement recognition system. The paper-baseline implementation has been removed from this repository; the remaining code focuses on retained OpenFace, I3D, and fusion comparison models.
 
 - **OpenFace features** (gaze, head pose, action units) processed through a **TCN** with chunk-wise min/max/variance aggregation
 - **I3D features** (spatiotemporal, pretrained on Kinetics-400) used as an **attention guide** over TCN outputs and then **concatenated** with the attended TCN output
 - A **normalized FC layer (MLP3)** that outputs a scalar score ∈ [−1, 1], thresholded at (−0.5, 0, 0.5) into the four classes: HD / DE / EG / HE
-- Trained with **MocoRank**: a momentum-encoder + score-pool + multi-margin loss designed to handle class imbalance and intra-class variation without requiring hard ground-truth scalars
+- Paper-baseline training code is not part of the current repo.
 
-The video-only result reported in the paper is **78.14% accuracy / 55.74% average accuracy** (MocoRank + Center Loss). Average accuracy is the more meaningful metric given severe class imbalance (HD: 346, DE: 2208, EG: 8469, HE: 1170 clips).
+The video-only result reported in the paper is **78.14% accuracy / 55.74% average accuracy**. Average accuracy is the more meaningful metric given severe class imbalance (HD: 346, DE: 2208, EG: 8469, HE: 1170 clips).
 
 ### Your Naive Models (Prior Work in This Thesis)
 
@@ -54,7 +54,7 @@ The video-only result reported in the paper is **78.14% accuracy / 55.74% averag
 | MLP | I3D only | No high-level features |
 | MLP | TCN(OpenFace) + I3D | Concatenation without attention |
 
-These models are **compared against the reproduced CMOSE baseline** to answer: *"How much does the full MocoRank pipeline matter over simpler combinations of the same features?"*
+These models are compared against each other to answer which retained feature/model combinations transfer best.
 
 ### The Domain Gap
 
@@ -76,8 +76,8 @@ The domain gap is likely driven by: different **engagement cues** (a meeting par
 
 ## Research Questions
 
-### RQ1 — Baseline Reproduction
-Can the CMOSE video-only baseline be faithfully reproduced, and does it match the paper's reported metrics?
+### RQ1 — Retained Model Comparison
+Which retained CMOSE-trained model performs best under the train/unlabel/test split?
 
 ### RQ2 — Dataset Comparison (Feature-Space)
 How different are the CMOSE and private datasets at the feature level (OpenFace + I3D distributions), *independent of any model*?
@@ -91,8 +91,8 @@ Which features transfer better across domains: OpenFace high-level features (gaz
 ### RQ5 — Pseudo-Labeling
 Can pseudo-labeling strategies improve model confidence or consistency on the target domain? Which strategy is most stable?
 
-### RQ6 — Primitive vs. Baseline
-How much does the full CMOSE pipeline (MocoRank, attention, I3D+OpenFace fusion) improve over the naive models, both on CMOSE and on the private dataset?
+### RQ6 — Model Comparison
+How do the retained OpenFace, I3D, and fusion models compare on CMOSE and on the private dataset?
 
 ### RQ7 — Limitations
 What are the fundamental limits of adapting without target labels in this specific setting?
@@ -111,7 +111,7 @@ Train a domain classifier alongside the engagement classifier. The engagement en
 ### Option B — Confidence-Weighted Self-Training with Ordinal Constraint
 Instead of hard pseudo-labels, use **soft ordinal pseudo-labels**: only accept high-confidence predictions AND enforce that pseudo-labels respect the ordinal structure (no isolated HD predictions surrounded by HE, for instance).
 - **Motivated by**: if vanilla pseudo-labeling (RQ5) shows erratic class assignments, the ordinal constraint may stabilize it.
-- **Cost**: low — can be layered on top of existing MocoRank.
+- **Cost**: low — can be layered on top of the retained training loop.
 
 ### Option C — Prototype-Based Feature Normalization
 Compute class prototypes in the embedding space from CMOSE. Normalize target-domain embeddings toward the nearest prototype before scoring. This is a feature-space adaptation without retraining.

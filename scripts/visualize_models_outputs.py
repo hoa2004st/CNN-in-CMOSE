@@ -39,7 +39,6 @@ MODEL_ORDER = [
     "temporal_cnn",
     "i3d_mlp",
     "openface_tcn_i3d_fusion",
-    "cmose_baseline_paper"
 ]
 MODEL_DISPLAY_NAMES = {
     "openface_mlp": "openface_mlp",
@@ -48,7 +47,6 @@ MODEL_DISPLAY_NAMES = {
     "temporal_cnn": "tcn",
     "i3d_mlp": "i3d_mlp",
     "openface_tcn_i3d_fusion": "fusion",
-    "cmose_baseline_paper": "cmose_baseline"
 }
 
 

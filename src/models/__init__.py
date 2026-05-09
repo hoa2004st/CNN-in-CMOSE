@@ -1,1 +1,1 @@
-"""Model modules for CMOSE baselines and comparisons."""
+"""Model modules for CMOSE comparisons."""

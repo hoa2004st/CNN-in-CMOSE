@@ -15,7 +15,6 @@ from main import build_parser, run_experiment
 
 
 MODELS = [
-    "cmose_baseline_paper",
     "openface_mlp",
     "temporal_cnn",
     "lstm",
@@ -64,11 +63,8 @@ def build_runner_parser() -> argparse.ArgumentParser:
         nargs="+",
         default=["cross_entropy"],
         choices=LOSSES,
-        help="Losses used for non-baseline naive models.",
+        help="Losses used for all comparison models.",
     )
-    parser.add_argument("--baseline_chunk_count", type=int, default=10)
-    parser.add_argument("--score_pool_size", type=int, default=2048)
-    parser.add_argument("--momentum_update", type=float, default=0.999)
     return parser
 
 
@@ -87,7 +83,7 @@ def main() -> None:
         model_root = run_root / model
         model_root.mkdir(parents=True, exist_ok=True)
 
-        losses = ["mocorank"] if model == "cmose_baseline_paper" else list(args.naive_losses)
+        losses = list(args.naive_losses)
         for loss in losses:
             loss_dir = model_root / loss_slug(loss)
             loss_dir.mkdir(parents=True, exist_ok=True)
@@ -124,16 +120,10 @@ def main() -> None:
                 str(args.target_frames),
                 "--fusion_frames",
                 str(args.fusion_frames),
-                "--baseline_chunk_count",
-                str(args.baseline_chunk_count),
-                "--score_pool_size",
-                str(args.score_pool_size),
-                "--momentum_update",
-                str(args.momentum_update),
+                "--loss",
+                loss,
                 *(["--amp"] if args.amp else []),
             ]
-            if model != "cmose_baseline_paper":
-                base_args.extend(["--loss", loss])
             experiment_args = main_parser.parse_args(base_args)
             run_experiment(experiment_args)
 

@@ -1,3 +1,0 @@
-candidate,accuracy,macro_accuracy,f1_macro,f1_weighted,mae,model,loss,run_name,metrics_path
-cmose_baseline_paper,0.7223587223587223,0.429120032509863,0.445572327540369,0.6902973911163721,0.29565929565929566,cmose_baseline_paper,mocorank,cmose_baseline_paper,outputs\cmose_baseline_paper\metrics.json
-best_naive,0.7698607698607699,0.5637376174084232,0.5972155073759607,0.7555015643930407,,openface_tcn_i3d_fusion,cross_entropy,openface_tcn_i3d_fusion/ce,outputs\openface_tcn_i3d_fusion\ce\metrics.json
