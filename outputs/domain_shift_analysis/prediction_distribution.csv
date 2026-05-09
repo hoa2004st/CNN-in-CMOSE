@@ -1,0 +1,73 @@
+run,domain,class_id,class_label,count,proportion,mean_confidence,mean_entropy
+i3d_mlp/ce,private_accepted,0,Highly Disengage,0,0.0,0.0,0.0
+i3d_mlp/ce,private_accepted,1,Disengage,13,0.030373831775700934,0.4364442343895252,0.8315970118229206
+i3d_mlp/ce,private_accepted,2,Engage,287,0.6705607476635514,0.6132124052853535,0.6311676155658964
+i3d_mlp/ce,private_accepted,3,Highly Engage,128,0.29906542056074764,0.5506794787943363,0.669279576279223
+lstm/weighted_ce,private_accepted,0,Highly Disengage,97,0.2266355140186916,0.6281306952545324,0.6549133697582274
+lstm/weighted_ce,private_accepted,1,Disengage,94,0.21962616822429906,0.4622667175024114,0.7780812144913571
+lstm/weighted_ce,private_accepted,2,Engage,171,0.39953271028037385,0.4777652297103614,0.7827589640840452
+lstm/weighted_ce,private_accepted,3,Highly Engage,66,0.1542056074766355,0.6562097560275685,0.5857710666728743
+openface_mlp/weighted_ce,private_accepted,0,Highly Disengage,103,0.24065420560747663,0.5859479583004146,0.6959909339914623
+openface_mlp/weighted_ce,private_accepted,1,Disengage,70,0.16355140186915887,0.33801906279155186,0.9349143351827349
+openface_mlp/weighted_ce,private_accepted,2,Engage,149,0.34813084112149534,0.30937442063485215,0.9580888292133408
+openface_mlp/weighted_ce,private_accepted,3,Highly Engage,106,0.24766355140186916,0.564992644876804,0.6416443437337875
+openface_tcn_i3d_fusion/ce,private_accepted,0,Highly Disengage,210,0.49065420560747663,0.670112126781827,0.5775665528717495
+openface_tcn_i3d_fusion/ce,private_accepted,1,Disengage,194,0.4532710280373832,0.7224001508090914,0.482258145265358
+openface_tcn_i3d_fusion/ce,private_accepted,2,Engage,12,0.028037383177570093,0.7005139142274857,0.4704298625389735
+openface_tcn_i3d_fusion/ce,private_accepted,3,Highly Engage,12,0.028037383177570093,0.5657808730999628,0.7196265235543251
+temporal_cnn/weighted_ce,private_accepted,0,Highly Disengage,11,0.02570093457943925,0.8009510636329651,0.35003539750521834
+temporal_cnn/weighted_ce,private_accepted,1,Disengage,48,0.11214953271028037,0.7374070404718319,0.39594772215544555
+temporal_cnn/weighted_ce,private_accepted,2,Engage,337,0.7873831775700935,0.9457073443367503,0.09576957768591618
+temporal_cnn/weighted_ce,private_accepted,3,Highly Engage,32,0.07476635514018691,0.9135657902806997,0.15277594122847127
+transformer/ce,private_accepted,0,Highly Disengage,25,0.05841121495327103,0.607742748260498,0.683740712404251
+transformer/ce,private_accepted,1,Disengage,66,0.1542056074766355,0.5372432754798369,0.7108790052659584
+transformer/ce,private_accepted,2,Engage,297,0.6939252336448598,0.6723661312350521,0.5883813163748494
+transformer/ce,private_accepted,3,Highly Engage,40,0.09345794392523364,0.5729613170027733,0.7040814161300659
+openface_mlp/weighted_ce,cmose_test_true,0,Highly Disengage,35,0.028665028665028666,,
+openface_mlp/weighted_ce,cmose_test_predicted,0,Highly Disengage,36,0.029484029484029485,,
+openface_mlp/weighted_ce,cmose_test_true,1,Disengage,221,0.180999180999181,,
+openface_mlp/weighted_ce,cmose_test_predicted,1,Disengage,309,0.25307125307125306,,
+openface_mlp/weighted_ce,cmose_test_true,2,Engage,847,0.6936936936936937,,
+openface_mlp/weighted_ce,cmose_test_predicted,2,Engage,676,0.5536445536445537,,
+openface_mlp/weighted_ce,cmose_test_true,3,Highly Engage,118,0.09664209664209664,,
+openface_mlp/weighted_ce,cmose_test_predicted,3,Highly Engage,200,0.1638001638001638,,
+lstm/weighted_ce,cmose_test_true,0,Highly Disengage,35,0.028665028665028666,,
+lstm/weighted_ce,cmose_test_predicted,0,Highly Disengage,55,0.04504504504504504,,
+lstm/weighted_ce,cmose_test_true,1,Disengage,221,0.180999180999181,,
+lstm/weighted_ce,cmose_test_predicted,1,Disengage,314,0.2571662571662572,,
+lstm/weighted_ce,cmose_test_true,2,Engage,847,0.6936936936936937,,
+lstm/weighted_ce,cmose_test_predicted,2,Engage,613,0.502047502047502,,
+lstm/weighted_ce,cmose_test_true,3,Highly Engage,118,0.09664209664209664,,
+lstm/weighted_ce,cmose_test_predicted,3,Highly Engage,239,0.19574119574119575,,
+transformer/ce,cmose_test_true,0,Highly Disengage,35,0.028665028665028666,,
+transformer/ce,cmose_test_predicted,0,Highly Disengage,20,0.01638001638001638,,
+transformer/ce,cmose_test_true,1,Disengage,221,0.180999180999181,,
+transformer/ce,cmose_test_predicted,1,Disengage,160,0.13104013104013104,,
+transformer/ce,cmose_test_true,2,Engage,847,0.6936936936936937,,
+transformer/ce,cmose_test_predicted,2,Engage,972,0.7960687960687961,,
+transformer/ce,cmose_test_true,3,Highly Engage,118,0.09664209664209664,,
+transformer/ce,cmose_test_predicted,3,Highly Engage,69,0.056511056511056514,,
+temporal_cnn/weighted_ce,cmose_test_true,0,Highly Disengage,35,0.028665028665028666,,
+temporal_cnn/weighted_ce,cmose_test_predicted,0,Highly Disengage,37,0.030303030303030304,,
+temporal_cnn/weighted_ce,cmose_test_true,1,Disengage,221,0.180999180999181,,
+temporal_cnn/weighted_ce,cmose_test_predicted,1,Disengage,259,0.21212121212121213,,
+temporal_cnn/weighted_ce,cmose_test_true,2,Engage,847,0.6936936936936937,,
+temporal_cnn/weighted_ce,cmose_test_predicted,2,Engage,720,0.5896805896805897,,
+temporal_cnn/weighted_ce,cmose_test_true,3,Highly Engage,118,0.09664209664209664,,
+temporal_cnn/weighted_ce,cmose_test_predicted,3,Highly Engage,205,0.1678951678951679,,
+i3d_mlp/ce,cmose_test_true,0,Highly Disengage,35,0.028665028665028666,,
+i3d_mlp/ce,cmose_test_predicted,0,Highly Disengage,17,0.013923013923013924,,
+i3d_mlp/ce,cmose_test_true,1,Disengage,221,0.180999180999181,,
+i3d_mlp/ce,cmose_test_predicted,1,Disengage,172,0.14086814086814087,,
+i3d_mlp/ce,cmose_test_true,2,Engage,847,0.6936936936936937,,
+i3d_mlp/ce,cmose_test_predicted,2,Engage,955,0.7821457821457821,,
+i3d_mlp/ce,cmose_test_true,3,Highly Engage,118,0.09664209664209664,,
+i3d_mlp/ce,cmose_test_predicted,3,Highly Engage,77,0.06306306306306306,,
+openface_tcn_i3d_fusion/ce,cmose_test_true,0,Highly Disengage,35,0.028665028665028666,,
+openface_tcn_i3d_fusion/ce,cmose_test_predicted,0,Highly Disengage,25,0.020475020475020474,,
+openface_tcn_i3d_fusion/ce,cmose_test_true,1,Disengage,221,0.180999180999181,,
+openface_tcn_i3d_fusion/ce,cmose_test_predicted,1,Disengage,144,0.11793611793611794,,
+openface_tcn_i3d_fusion/ce,cmose_test_true,2,Engage,847,0.6936936936936937,,
+openface_tcn_i3d_fusion/ce,cmose_test_predicted,2,Engage,948,0.7764127764127764,,
+openface_tcn_i3d_fusion/ce,cmose_test_true,3,Highly Engage,118,0.09664209664209664,,
+openface_tcn_i3d_fusion/ce,cmose_test_predicted,3,Highly Engage,104,0.08517608517608517,,

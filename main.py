@@ -22,7 +22,7 @@ from src.features.extract_openface import (
     resample_frames,
 )
 from src.evaluation.metrics import evaluate_predictions
-from src.models.naive_models import build_model
+from src.models.models import build_model
 from src.training.train import (
     fit_feature_normalizer,
     normalize_dataset_per_feature,
