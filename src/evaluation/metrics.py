@@ -1,4 +1,4 @@
-"""Evaluation metrics for CMOSE classification and ordinal scoring."""
+"""Evaluation metrics for CMOSE classification and label-distance scoring."""
 
 from __future__ import annotations
 
@@ -10,6 +10,7 @@ from sklearn.metrics import (
     confusion_matrix,
     f1_score,
     mean_absolute_error,
+    mean_squared_error,
 )
 
 
@@ -24,6 +25,23 @@ def evaluate(preds: np.ndarray, labels: np.ndarray) -> tuple[float, float]:
     return accuracy, avg_acc
 
 
+def label_distance_metrics_from_confusion(confusion: np.ndarray) -> dict[str, float]:
+    """Compute MAE and MSE by treating class labels as numeric IDs."""
+    confusion = np.asarray(confusion, dtype=np.float64)
+    total = float(confusion.sum())
+    if total <= 0.0:
+        return {"mae": 0.0, "mse": 0.0}
+
+    num_classes = confusion.shape[0]
+    class_ids = np.arange(num_classes)
+    distances = np.abs(class_ids[:, None] - class_ids[None, :])
+
+    return {
+        "mae": float((confusion * distances).sum() / total),
+        "mse": float((confusion * distances**2).sum() / total),
+    }
+
+
 def evaluate_predictions(y_true: np.ndarray, y_pred: np.ndarray) -> dict[str, float | dict | str]:
     labels = list(range(4))
     accuracy = float(accuracy_score(y_true, y_pred))
@@ -31,6 +49,7 @@ def evaluate_predictions(y_true: np.ndarray, y_pred: np.ndarray) -> dict[str, fl
     f1_macro = float(f1_score(y_true, y_pred, average="macro", zero_division=0))
     f1_weighted = float(f1_score(y_true, y_pred, average="weighted", zero_division=0))
     mae = float(mean_absolute_error(y_true, y_pred))
+    mse = float(mean_squared_error(y_true, y_pred))
 
     cm = confusion_matrix(y_true, y_pred, labels=labels)
     with np.errstate(divide="ignore", invalid="ignore"):
@@ -60,6 +79,7 @@ def evaluate_predictions(y_true: np.ndarray, y_pred: np.ndarray) -> dict[str, fl
         "f1_macro": f1_macro,
         "f1_weighted": f1_weighted,
         "mae": mae,
+        "mse": mse,
         "confusion_matrix": cm.astype(int).tolist(),
         "confusion_matrix_normalized": cm_normalized.tolist(),
         "classification_report_dict": report_dict,

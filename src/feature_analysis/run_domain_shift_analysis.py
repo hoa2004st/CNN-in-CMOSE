@@ -37,6 +37,7 @@ from src.feature_extraction.extract_openface import (
     load_openface_matrix,
     resample_frames,
 )
+from src.evaluation.metrics import label_distance_metrics_from_confusion
 from src.models.models import build_model
 
 
@@ -427,6 +428,7 @@ def compute_supervised_metrics(predictions: pd.DataFrame) -> pd.DataFrame:
                 "f1_weighted": float(
                     f1_score(y_true, y_pred, labels=CLASS_IDS, average="weighted", zero_division=0)
                 ),
+                **label_distance_metrics_from_confusion(confusion),
             }
         )
     return pd.DataFrame(rows)
@@ -676,6 +678,8 @@ def summarize_shift(distributions: pd.DataFrame, run_metrics: dict[str, dict[str
                     "source_test_accuracy": metrics.get("accuracy"),
                     "source_test_macro_accuracy": metrics.get("macro_accuracy"),
                     "source_test_f1_macro": metrics.get("f1_macro"),
+                    "source_test_mae": metrics.get("mae"),
+                    "source_test_mse": metrics.get("mse"),
                 }
             )
     return pd.DataFrame(rows)
@@ -687,11 +691,22 @@ def load_run_metrics(run_cfg: dict[str, str]) -> dict[str, float]:
         return {}
     data = json.loads(metrics_path.read_text(encoding="utf-8"))
     metrics = data.get("metrics", {})
+    distance_metrics = {
+        "mae": metrics.get("mae"),
+        "mse": metrics.get("mse"),
+    }
+    if any(value is None for value in distance_metrics.values()) and metrics.get("confusion_matrix"):
+        distance_metrics.update(label_distance_metrics_from_confusion(metrics["confusion_matrix"]))
+    for key, value in distance_metrics.items():
+        if value is None:
+            distance_metrics[key] = float("nan")
     return {
-        "accuracy": metrics.get("accuracy"),
-        "macro_accuracy": metrics.get("macro_accuracy"),
-        "f1_macro": metrics.get("f1_macro"),
-        "f1_weighted": metrics.get("f1_weighted"),
+        "accuracy": metrics.get("accuracy", float("nan")),
+        "macro_accuracy": metrics.get("macro_accuracy", float("nan")),
+        "f1_macro": metrics.get("f1_macro", float("nan")),
+        "f1_weighted": metrics.get("f1_weighted", float("nan")),
+        "mae": distance_metrics.get("mae", float("nan")),
+        "mse": distance_metrics.get("mse", float("nan")),
     }
 
 
@@ -773,8 +788,8 @@ def write_markdown_report(
         "",
         "## CMOSE Test Reference",
         "",
-        "| Run | Accuracy | Macro Accuracy | F1 Macro |",
-        "|---|---:|---:|---:|",
+        "| Run | Accuracy | Macro Accuracy | F1 Macro | MAE | MSE |",
+        "|---|---:|---:|---:|---:|---:|",
     ]
     for run_key in sorted(run_metrics):
         metrics = run_metrics[run_key]
@@ -783,7 +798,9 @@ def write_markdown_report(
             + run_key
             + f" | {metrics.get('accuracy', float('nan')):.4f}"
             + f" | {metrics.get('macro_accuracy', float('nan')):.4f}"
-            + f" | {metrics.get('f1_macro', float('nan')):.4f} |"
+            + f" | {metrics.get('f1_macro', float('nan')):.4f}"
+            + f" | {metrics.get('mae', float('nan')):.4f}"
+            + f" | {metrics.get('mse', float('nan')):.4f} |"
         )
 
     lines.extend(

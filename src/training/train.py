@@ -23,6 +23,8 @@ from sklearn.metrics import (
 from torch.utils.data import DataLoader, TensorDataset
 from tqdm.auto import tqdm
 
+from src.evaluation.metrics import label_distance_metrics_from_confusion
+
 ArrayInput = np.ndarray | tuple[np.ndarray, ...]
 
 
@@ -267,6 +269,8 @@ def train_model(
         "eval_macro_accuracies": [],
         "eval_f1_macros": [],
         "eval_f1_weighteds": [],
+        "eval_maes": [],
+        "eval_mses": [],
         "best_epoch": 0,
         "patience": patience,
         "stopped_early": False,
@@ -322,6 +326,8 @@ def train_model(
         history["eval_macro_accuracies"].append(eval_metrics["macro_accuracy"])
         history["eval_f1_macros"].append(eval_metrics["f1_macro"])
         history["eval_f1_weighteds"].append(eval_metrics["f1_weighted"])
+        history["eval_maes"].append(eval_metrics["mae"])
+        history["eval_mses"].append(eval_metrics["mse"])
 
         if best_loss - eval_loss > min_delta:
             best_loss = eval_loss
@@ -335,7 +341,9 @@ def train_model(
                     f"eval_acc={eval_metrics['accuracy']:.4f}, "
                     f"eval_macro_acc={eval_metrics['macro_accuracy']:.4f}, "
                     f"eval_f1_macro={eval_metrics['f1_macro']:.4f}, "
-                    f"eval_f1_weighted={eval_metrics['f1_weighted']:.4f}"
+                    f"eval_f1_weighted={eval_metrics['f1_weighted']:.4f}, "
+                    f"eval_mae={eval_metrics['mae']:.4f}, "
+                    f"eval_mse={eval_metrics['mse']:.4f}"
                 )
         else:
             stale_epochs += 1
@@ -360,6 +368,8 @@ def train_model(
                 f"eval_macro_acc={eval_metrics['macro_accuracy']:.4f}, "
                 f"eval_f1_macro={eval_metrics['f1_macro']:.4f}, "
                 f"eval_f1_weighted={eval_metrics['f1_weighted']:.4f}, "
+                f"eval_mae={eval_metrics['mae']:.4f}, "
+                f"eval_mse={eval_metrics['mse']:.4f}, "
                 f"stale_epochs={stale_epochs}, epoch_time_s={epoch_seconds:.2f}"
             )
 
@@ -474,12 +484,16 @@ def _compute_prediction_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict[
             "macro_accuracy": 0.0,
             "f1_macro": 0.0,
             "f1_weighted": 0.0,
+            "mae": 0.0,
+            "mse": 0.0,
         }
+    confusion = confusion_matrix(y_true, y_pred, labels=list(range(4)))
     return {
         "accuracy": float(accuracy_score(y_true, y_pred)),
         "macro_accuracy": float(balanced_accuracy_score(y_true, y_pred)),
         "f1_macro": float(f1_score(y_true, y_pred, average="macro", zero_division=0)),
         "f1_weighted": float(f1_score(y_true, y_pred, average="weighted", zero_division=0)),
+        **label_distance_metrics_from_confusion(confusion),
     }
 
 

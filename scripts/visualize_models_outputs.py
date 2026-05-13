@@ -4,8 +4,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
+import sys
 from dataclasses import dataclass
 from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
 import matplotlib
 
@@ -14,6 +20,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
+from src.evaluation.metrics import label_distance_metrics_from_confusion
+
 
 LABEL_NAMES = ["Highly Disengage", "Disengage", "Engage", "Highly Engage"]
 METRIC_SPECS = [
@@ -21,7 +29,10 @@ METRIC_SPECS = [
     ("macro_accuracy", "Macro Accuracy"),
     ("f1_macro", "Macro F1"),
     ("f1_weighted", "Weighted F1"),
+    ("mae", "MAE"),
+    ("mse", "MSE"),
 ]
+ERROR_METRICS = {"mae", "mse"}
 LOSS_LABELS = {
     "cross_entropy": "CE",
     "weighted_cross_entropy": "Weighted CE",
@@ -146,6 +157,12 @@ def build_summary_frame(runs: list[RunResult]) -> pd.DataFrame:
     for run in runs:
         history = run.history
         metrics = run.metrics
+        distance_metrics = {
+            "mae": metrics.get("mae"),
+            "mse": metrics.get("mse"),
+        }
+        if any(value is None for value in distance_metrics.values()) and metrics.get("confusion_matrix"):
+            distance_metrics.update(label_distance_metrics_from_confusion(metrics["confusion_matrix"]))
         rows.append(
             {
                 "run_name": run.run_name,
@@ -160,6 +177,8 @@ def build_summary_frame(runs: list[RunResult]) -> pd.DataFrame:
                 "macro_accuracy": metrics.get("macro_accuracy"),
                 "f1_macro": metrics.get("f1_macro"),
                 "f1_weighted": metrics.get("f1_weighted"),
+                "mae": distance_metrics["mae"],
+                "mse": distance_metrics["mse"],
                 "epochs_requested": run.config.get("epochs"),
                 "batch_size": run.config.get("batch_size"),
                 "lr": run.config.get("lr"),
@@ -172,6 +191,8 @@ def build_summary_frame(runs: list[RunResult]) -> pd.DataFrame:
         frame["base_model_display"] = frame["base_model"].map(
             lambda name: MODEL_DISPLAY_NAMES.get(str(name), str(name))
         )
+        for metric, _title in METRIC_SPECS:
+            frame[metric] = pd.to_numeric(frame[metric], errors="coerce")
         frame = apply_model_order(frame)
     return frame
 
@@ -180,8 +201,8 @@ def pick_best_run_per_model(summary_df: pd.DataFrame) -> pd.DataFrame:
     if summary_df.empty:
         return summary_df.copy()
     ordered = summary_df.sort_values(
-        ["base_model", "f1_macro", "macro_accuracy", "accuracy", "f1_weighted"],
-        ascending=[True, False, False, False, False],
+        ["base_model", "f1_macro", "macro_accuracy", "accuracy", "f1_weighted", "mae", "mse"],
+        ascending=[True, False, False, False, False, True, True],
     )
     return apply_model_order(
         ordered.drop_duplicates(subset=["base_model"], keep="first").reset_index(drop=True)
@@ -204,7 +225,9 @@ def plot_metric_bars(
     if summary_df.empty:
         return
 
-    fig, axes = plt.subplots(2, 2, figsize=(18, 12))
+    cols = 3
+    rows = math.ceil(len(METRIC_SPECS) / cols)
+    fig, axes = plt.subplots(rows, cols, figsize=(18, 5 * rows))
     for ax, (column, metric_title) in zip(axes.flat, METRIC_SPECS, strict=False):
         ordered = apply_model_order(summary_df)
         sns.barplot(
@@ -220,7 +243,12 @@ def plot_metric_bars(
         ax.set_title(metric_title)
         ax.set_xlabel(metric_title)
         ax.set_ylabel("")
-        ax.set_xlim(0.0, 1.0)
+        if column in ERROR_METRICS:
+            ax.set_xlim(left=0.0)
+        else:
+            ax.set_xlim(0.0, 1.0)
+    for ax in axes.flat[len(METRIC_SPECS) :]:
+        ax.axis("off")
     fig.suptitle(title, fontsize=14)
     fig.tight_layout()
     fig.savefig(viz_dir / filename, dpi=200, bbox_inches="tight")
@@ -302,15 +330,17 @@ def plot_metric_heatmaps(summary_df: pd.DataFrame, viz_dir: Path) -> None:
         pivot = pivot.reindex(MODEL_ORDER).dropna(how="all")
         pivot.index = [MODEL_DISPLAY_NAMES.get(str(index), str(index)) for index in pivot.index]
         fig, ax = plt.subplots(figsize=(8, max(4, len(pivot) * 0.8)))
+        heatmap_kwargs = {"vmin": 0.0}
+        if metric not in ERROR_METRICS:
+            heatmap_kwargs["vmax"] = 1.0
         sns.heatmap(
             pivot,
             annot=True,
             fmt=".4f",
             cmap="YlGnBu",
-            vmin=0.0,
-            vmax=1.0,
             cbar=True,
             ax=ax,
+            **heatmap_kwargs,
         )
         ax.set_title(f"{metric_title} Heatmap by Model and Loss")
         ax.set_xlabel("Loss")
@@ -332,7 +362,7 @@ def write_comparison_report(summary_df: pd.DataFrame, best_df: pd.DataFrame, viz
         lines.extend(
             [
                 f"- `{row['base_model_display']}`: run `{row['run_name']}` ({row['loss_label']})",
-                f"  Macro F1={row['f1_macro']:.4f}, Macro Accuracy={row['macro_accuracy']:.4f}, Accuracy={row['accuracy']:.4f}, Weighted F1={row['f1_weighted']:.4f}, Best epoch={row['best_epoch']}",
+                f"  Macro F1={row['f1_macro']:.4f}, Macro Accuracy={row['macro_accuracy']:.4f}, Accuracy={row['accuracy']:.4f}, Weighted F1={row['f1_weighted']:.4f}, MAE={row['mae']:.4f}, MSE={row['mse']:.4f}, Best epoch={row['best_epoch']}",
             ]
         )
 
@@ -340,8 +370,8 @@ def write_comparison_report(summary_df: pd.DataFrame, best_df: pd.DataFrame, viz
         lines.extend(["", "## Best Run Per Loss", ""])
         loss_best_df = (
             summary_df.sort_values(
-                ["loss", "f1_macro", "macro_accuracy", "accuracy", "f1_weighted"],
-                ascending=[True, False, False, False, False],
+                ["loss", "f1_macro", "macro_accuracy", "accuracy", "f1_weighted", "mae", "mse"],
+                ascending=[True, False, False, False, False, True, True],
             )
             .drop_duplicates(subset=["loss"], keep="first")
             .reset_index(drop=True)
@@ -350,7 +380,7 @@ def write_comparison_report(summary_df: pd.DataFrame, best_df: pd.DataFrame, viz
             lines.extend(
                 [
                     f"- `{row['loss_label']}`: `{row['base_model']}` (`{row['run_name']}`)",
-                    f"  Macro F1={row['f1_macro']:.4f}, Macro Accuracy={row['macro_accuracy']:.4f}, Accuracy={row['accuracy']:.4f}, Weighted F1={row['f1_weighted']:.4f}",
+                    f"  Macro F1={row['f1_macro']:.4f}, Macro Accuracy={row['macro_accuracy']:.4f}, Accuracy={row['accuracy']:.4f}, Weighted F1={row['f1_weighted']:.4f}, MAE={row['mae']:.4f}, MSE={row['mse']:.4f}",
                 ]
             )
 
@@ -364,7 +394,7 @@ def write_comparison_report(summary_df: pd.DataFrame, best_df: pd.DataFrame, viz
             )
             for _, row in model_df.iterrows():
                 lines.append(
-                    f"- `{row['loss_label']}`: run `{row['run_name']}`, Macro F1={row['f1_macro']:.4f}, Macro Accuracy={row['macro_accuracy']:.4f}, Accuracy={row['accuracy']:.4f}, Weighted F1={row['f1_weighted']:.4f}"
+                    f"- `{row['loss_label']}`: run `{row['run_name']}`, Macro F1={row['f1_macro']:.4f}, Macro Accuracy={row['macro_accuracy']:.4f}, Accuracy={row['accuracy']:.4f}, Weighted F1={row['f1_weighted']:.4f}, MAE={row['mae']:.4f}, MSE={row['mse']:.4f}"
                 )
             lines.append("")
 
@@ -377,7 +407,7 @@ def write_comparison_report(summary_df: pd.DataFrame, best_df: pd.DataFrame, viz
             loss_df = apply_model_order(summary_df[summary_df["loss"] == loss_name])
             for _, row in loss_df.iterrows():
                 lines.append(
-                    f"- `{row['base_model_display']}`: run `{row['run_name']}`, Macro F1={row['f1_macro']:.4f}, Macro Accuracy={row['macro_accuracy']:.4f}, Accuracy={row['accuracy']:.4f}, Weighted F1={row['f1_weighted']:.4f}"
+                    f"- `{row['base_model_display']}`: run `{row['run_name']}`, Macro F1={row['f1_macro']:.4f}, Macro Accuracy={row['macro_accuracy']:.4f}, Accuracy={row['accuracy']:.4f}, Weighted F1={row['f1_weighted']:.4f}, MAE={row['mae']:.4f}, MSE={row['mse']:.4f}"
                 )
             lines.append("")
 
@@ -391,11 +421,13 @@ def plot_training_curves(run: RunResult, run_viz_dir: Path) -> None:
     eval_macro_accuracies = run.history.get("eval_macro_accuracies", [])
     eval_f1_macros = run.history.get("eval_f1_macros", [])
     eval_f1_weighteds = run.history.get("eval_f1_weighteds", [])
+    eval_maes = run.history.get("eval_maes", [])
+    eval_mses = run.history.get("eval_mses", [])
     if not train_losses or not eval_accuracies:
         return
 
     epochs = list(range(1, len(train_losses) + 1))
-    fig, axes = plt.subplots(1, 3, figsize=(18, 5))
+    fig, axes = plt.subplots(1, 4, figsize=(22, 5))
 
     axes[0].plot(epochs, train_losses, label="Train Loss", linewidth=1.5)
     if eval_losses:
@@ -437,6 +469,18 @@ def plot_training_curves(run: RunResult, run_viz_dir: Path) -> None:
     axes[2].set_ylim(0.0, 1.0)
     axes[2].legend()
 
+    if eval_maes:
+        axes[3].plot(epochs[: len(eval_maes)], eval_maes, label="Eval MAE", linewidth=1.5)
+    if eval_mses:
+        axes[3].plot(epochs[: len(eval_mses)], eval_mses, label="Eval MSE", linewidth=1.5)
+    axes[3].axvline(run.history.get("best_epoch", 0), color="red", linestyle="--", linewidth=1)
+    axes[3].set_title(f"Evaluation Error: {run.comparison_label}")
+    axes[3].set_xlabel("Epoch")
+    axes[3].set_ylabel("Error")
+    axes[3].set_ylim(bottom=0.0)
+    if eval_maes or eval_mses:
+        axes[3].legend()
+
     fig.tight_layout()
     fig.savefig(run_viz_dir / "training_curves.png", dpi=200, bbox_inches="tight")
     plt.close(fig)
@@ -467,6 +511,15 @@ def plot_confusion_matrix(run: RunResult, run_viz_dir: Path) -> None:
 
 
 def write_run_report(run: RunResult, run_viz_dir: Path) -> None:
+    distance_metrics = {
+        "mae": run.metrics.get("mae"),
+        "mse": run.metrics.get("mse"),
+    }
+    if any(value is None for value in distance_metrics.values()) and run.metrics.get("confusion_matrix"):
+        distance_metrics.update(label_distance_metrics_from_confusion(run.metrics["confusion_matrix"]))
+    for key, value in distance_metrics.items():
+        if value is None:
+            distance_metrics[key] = float("nan")
     lines = [
         f"# {run.comparison_label}",
         "",
@@ -476,6 +529,8 @@ def write_run_report(run: RunResult, run_viz_dir: Path) -> None:
         f"- Macro Accuracy: {run.metrics.get('macro_accuracy', float('nan')):.4f}",
         f"- Macro F1: {run.metrics.get('f1_macro', float('nan')):.4f}",
         f"- Weighted F1: {run.metrics.get('f1_weighted', float('nan')):.4f}",
+        f"- MAE: {distance_metrics.get('mae', float('nan')):.4f}",
+        f"- MSE: {distance_metrics.get('mse', float('nan')):.4f}",
         f"- Best epoch: {run.history.get('best_epoch')}",
         "",
         "## Classification Report",

@@ -6,6 +6,8 @@
 - Macro Accuracy: 0.5714
 - Macro F1: 0.4441
 - Weighted F1: 0.5665
+- MAE: 0.5324
+- MSE: 0.6765
 - Best epoch: 38
 
 ## Classification Report

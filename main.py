@@ -763,6 +763,8 @@ def run_experiment(args: argparse.Namespace) -> None:
     print(f"  Macro Acc     : {metrics['macro_accuracy']:.4f}")
     print(f"  F1 (macro)    : {metrics['f1_macro']:.4f}")
     print(f"  F1 (weighted) : {metrics['f1_weighted']:.4f}")
+    print(f"  MAE           : {metrics['mae']:.4f}")
+    print(f"  MSE           : {metrics['mse']:.4f}")
     print(f"  Best epoch    : {history['best_epoch']}")
     print("\nClassification Report:")
     print(metrics["classification_report"])
