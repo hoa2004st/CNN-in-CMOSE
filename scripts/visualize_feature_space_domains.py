@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
@@ -28,6 +29,11 @@ from sklearn.preprocessing import StandardScaler
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from src.visualization.style import domain_color
+
 META_COLS = {"frame", "face_id", "timestamp", "confidence", "success"}
 
 
@@ -194,7 +200,6 @@ def _umap(matrix: np.ndarray, seed: int, pca_dims: int) -> np.ndarray | None:
 
 
 def _plot(coords: np.ndarray, labels: list[str], title: str, out_path: Path) -> None:
-    colors = {"CMOSE": "#2A6FBB", "private": "#D1495B"}
     fig, ax = plt.subplots(figsize=(8, 6), dpi=160)
     for label in ("CMOSE", "private"):
         idx = np.array([x == label for x in labels])
@@ -202,7 +207,7 @@ def _plot(coords: np.ndarray, labels: list[str], title: str, out_path: Path) -> 
             coords[idx, 0],
             coords[idx, 1],
             s=20,
-            c=colors[label],
+            c=domain_color(label),
             alpha=0.72,
             edgecolors="none",
             label=f"{label} (n={int(idx.sum())})",

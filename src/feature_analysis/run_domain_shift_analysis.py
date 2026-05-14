@@ -39,17 +39,24 @@ from src.feature_extraction.extract_openface import (
 )
 from src.evaluation.metrics import label_distance_metrics_from_confusion
 from src.models.models import build_model
+from src.visualization.style import (
+    CLASS_LABEL_SHORT,
+    CLASS_LABELS as VIS_CLASS_LABELS,
+    COMPARISON_LOSS_SLUGS,
+    HEATMAP_DIVERGING_CMAP,
+    HEATMAP_SEQUENTIAL_CMAP,
+    HISTOGRAM_COLOR,
+    LOW_AGREEMENT_COLOR,
+    LOSS_DISPLAY_NAMES,
+    MODEL_DISPLAY_NAMES as VIS_MODEL_DISPLAY_NAMES,
+    MODEL_ORDER,
+    class_color_list,
+    run_color,
+)
 
 
-MODEL_NAMES = [
-    "openface_mlp",
-    "temporal_cnn",
-    "lstm",
-    "transformer",
-    "i3d_mlp",
-    "openface_tcn_i3d_fusion",
-]
-LOSS_SLUGS = ["ce", "weighted_ce", "ordinal"]
+MODEL_NAMES = list(MODEL_ORDER)
+LOSS_SLUGS = list(COMPARISON_LOSS_SLUGS)
 MODEL_RUNS = {
     f"{model}/{loss_slug}": {
         "model": model,
@@ -63,7 +70,7 @@ OPENFACE_MODELS = {"openface_mlp", "temporal_cnn", "lstm", "transformer"}
 I3D_MODELS = {"i3d_mlp"}
 FUSION_MODELS = {"openface_tcn_i3d_fusion"}
 CLASS_IDS = list(range(4))
-CLASS_LABELS = [ID_TO_LABEL[i] for i in CLASS_IDS]
+CLASS_LABELS = list(VIS_CLASS_LABELS)
 METRIC_SPECS = [
     ("accuracy", "Accuracy"),
     ("macro_accuracy", "Macro Accuracy"),
@@ -73,19 +80,8 @@ METRIC_SPECS = [
     ("mse", "MSE"),
 ]
 ERROR_METRICS = {"mae", "mse"}
-LOSS_LABELS = {
-    "ce": "CE",
-    "weighted_ce": "Weighted CE",
-    "ordinal": "Ordinal",
-}
-MODEL_DISPLAY_NAMES = {
-    "openface_mlp": "openface_mlp",
-    "temporal_cnn": "tcn",
-    "lstm": "lstm",
-    "transformer": "transformer",
-    "i3d_mlp": "i3d_mlp",
-    "openface_tcn_i3d_fusion": "fusion",
-}
+LOSS_LABELS = {loss_slug: LOSS_DISPLAY_NAMES[loss_slug] for loss_slug in LOSS_SLUGS}
+MODEL_DISPLAY_NAMES = dict(VIS_MODEL_DISPLAY_NAMES)
 
 
 @dataclass(frozen=True)
@@ -800,7 +796,7 @@ def plot_prediction_distribution(
         predicted.pivot_table(index="run", columns="class_label", values="proportion", fill_value=0.0)
         .reindex(columns=CLASS_LABELS, fill_value=0.0)
     )
-    ax = pivot.plot(kind="bar", stacked=True, figsize=(11, 6), colormap="tab20c")
+    ax = pivot.plot(kind="bar", stacked=True, figsize=(11, 6), color=class_color_list(pivot.columns))
     ax.set_ylabel(ylabel)
     ax.set_xlabel("CMOSE-trained run")
     ax.set_ylim(0, 1)
@@ -831,7 +827,7 @@ def plot_shift_heatmap(shift: pd.DataFrame, output_path: Path) -> None:
         CLASS_LABELS
     ]
     fig, ax = plt.subplots(figsize=(10, 5))
-    image = ax.imshow(pivot.values, cmap="coolwarm", vmin=-1, vmax=1, aspect="auto")
+    image = ax.imshow(pivot.values, cmap=HEATMAP_DIVERGING_CMAP, vmin=-1, vmax=1, aspect="auto")
     ax.set_xticks(np.arange(len(pivot.columns)), labels=pivot.columns, rotation=25, ha="right")
     ax.set_yticks(np.arange(len(pivot.index)), labels=pivot.index)
     ax.set_title("Private proportion minus CMOSE test predicted proportion")
@@ -852,7 +848,7 @@ def plot_metric_bars(metrics: pd.DataFrame, output_path: Path, *, title: str) ->
     fig, axes = plt.subplots(2, 3, figsize=(18, 10))
     for ax, (metric, metric_title) in zip(axes.flat, METRIC_SPECS, strict=True):
         ordered = metrics.sort_values(metric, ascending=metric in ERROR_METRICS)
-        colors = plt.cm.tab20(np.linspace(0.0, 1.0, len(ordered)))
+        colors = [run_color(row.base_model, row.loss_slug) for row in ordered.itertuples(index=False)]
         ax.barh(ordered["comparison_label"], ordered[metric].astype(float), color=colors)
         ax.set_title(metric_title)
         ax.set_xlabel(metric_title)
@@ -889,7 +885,15 @@ def plot_metric_heatmaps(metrics: pd.DataFrame, viz_dir: Path, *, prefix: str) -
         pivot.to_csv(viz_dir / f"{prefix}_heatmap_{metric}.csv")
 
         fig, ax = plt.subplots(figsize=(8, 5))
-        image = ax.imshow(pivot.values.astype(float), cmap="viridis", aspect="auto")
+        heatmap_kwargs = {"vmin": 0.0}
+        if metric not in ERROR_METRICS:
+            heatmap_kwargs["vmax"] = 1.0
+        image = ax.imshow(
+            pivot.values.astype(float),
+            cmap=HEATMAP_SEQUENTIAL_CMAP,
+            aspect="auto",
+            **heatmap_kwargs,
+        )
         ax.set_xticks(np.arange(len(pivot.columns)), labels=pivot.columns, rotation=25, ha="right")
         ax.set_yticks(np.arange(len(pivot.index)), labels=pivot.index)
         ax.set_title(f"{metric_title} by Model and Loss")
@@ -933,7 +937,7 @@ def plot_metric_delta_heatmap(
 
     pivot = delta.set_index("comparison_label")[[metric for metric, _title in METRIC_SPECS]]
     fig, ax = plt.subplots(figsize=(10, 8))
-    image = ax.imshow(pivot.values.astype(float), cmap="coolwarm", vmin=-1, vmax=1, aspect="auto")
+    image = ax.imshow(pivot.values.astype(float), cmap=HEATMAP_DIVERGING_CMAP, vmin=-1, vmax=1, aspect="auto")
     ax.set_xticks(np.arange(len(pivot.columns)), labels=[title for _metric, title in METRIC_SPECS], rotation=25, ha="right")
     ax.set_yticks(np.arange(len(pivot.index)), labels=pivot.index)
     ax.set_title("Private manual metrics minus CMOSE test metrics")
@@ -951,7 +955,7 @@ def plot_true_label_distribution(distribution: pd.DataFrame, output_path: Path, 
         return
     frame = distribution.set_index("class_label").reindex(CLASS_LABELS)
     fig, ax = plt.subplots(figsize=(7, 4))
-    ax.bar(frame.index, frame["proportion"].astype(float), color=plt.cm.Set2(np.linspace(0.0, 1.0, len(frame))))
+    ax.bar(frame.index, frame["proportion"].astype(float), color=class_color_list(frame.index))
     ax.set_title(title)
     ax.set_ylabel("Proportion")
     ax.set_xlabel("Class")
@@ -976,7 +980,7 @@ def plot_agreement_diagnostics(
             ("mean_confidence", "Mean Confidence", "mean_confidence_distribution.png"),
         ]:
             fig, ax = plt.subplots(figsize=(7, 4))
-            ax.hist(agreement_per_clip[column].astype(float), bins=20, color="#4c78a8", edgecolor="white")
+            ax.hist(agreement_per_clip[column].astype(float), bins=20, color=HISTOGRAM_COLOR, edgecolor="white")
             ax.set_title(f"{title_prefix} {title} Distribution")
             ax.set_xlabel(title)
             ax.set_ylabel("Clip count")
@@ -986,7 +990,7 @@ def plot_agreement_diagnostics(
 
         fig, ax = plt.subplots(figsize=(7, 5))
         labels = agreement_per_clip["majority_label"].value_counts().reindex(CLASS_LABELS, fill_value=0)
-        ax.bar(labels.index, labels.values, color=plt.cm.Set2(np.linspace(0.0, 1.0, len(labels))))
+        ax.bar(labels.index, labels.values, color=class_color_list(labels.index))
         ax.set_title(f"{title_prefix} Majority Label Distribution")
         ax.set_ylabel("Clip count")
         ax.tick_params(axis="x", rotation=25)
@@ -1006,7 +1010,22 @@ def plot_agreement_diagnostics(
                 matrix.loc[row.run_b, row.run_a] = float(getattr(row, value_column))
             np.fill_diagonal(matrix.values, 1.0)
             fig, ax = plt.subplots(figsize=(12, 10))
-            image = ax.imshow(matrix.values.astype(float), cmap="coolwarm", vmin=-1, vmax=1, aspect="auto")
+            if value_column == "cohens_kappa":
+                image = ax.imshow(
+                    matrix.values.astype(float),
+                    cmap=HEATMAP_DIVERGING_CMAP,
+                    vmin=-1,
+                    vmax=1,
+                    aspect="auto",
+                )
+            else:
+                image = ax.imshow(
+                    matrix.values.astype(float),
+                    cmap=HEATMAP_SEQUENTIAL_CMAP,
+                    vmin=0,
+                    vmax=1,
+                    aspect="auto",
+                )
             ax.set_xticks(np.arange(len(matrix.columns)), labels=matrix.columns, rotation=75, ha="right")
             ax.set_yticks(np.arange(len(matrix.index)), labels=matrix.index)
             ax.set_title(f"{title_prefix} {title}")
@@ -1018,7 +1037,7 @@ def plot_agreement_diagnostics(
         ordered = pairwise_kappa.sort_values("cohens_kappa").head(25).copy()
         ordered["pair"] = ordered["run_a"] + " vs " + ordered["run_b"]
         fig, ax = plt.subplots(figsize=(10, 8))
-        ax.barh(ordered["pair"], ordered["cohens_kappa"].astype(float), color="#d65f5f")
+        ax.barh(ordered["pair"], ordered["cohens_kappa"].astype(float), color=LOW_AGREEMENT_COLOR)
         ax.set_title(f"{title_prefix} Lowest Pairwise Cohen's Kappa")
         ax.set_xlabel("Cohen's kappa")
         ax.invert_yaxis()
@@ -1140,12 +1159,6 @@ def write_markdown_report(
             "|---|---:|---:|---:|---:|---|---:|---:|",
         ]
     )
-    label_short = {
-        "Highly Disengage": "HD",
-        "Disengage": "DE",
-        "Engage": "EG",
-        "Highly Engage": "HE",
-    }
     for run_key in sorted(private["run"].unique()):
         run_private = private[private["run"] == run_key].set_index("class_label")
         props = [float(run_private.loc[label, "proportion"]) for label in CLASS_LABELS]
@@ -1161,7 +1174,7 @@ def write_markdown_report(
             + run_key
             + " | "
             + " | ".join(f"{prop:.3f}" for prop in props)
-            + f" | {label_short[dominant_label]} | {mean_conf:.3f} | {mean_entropy:.3f} |"
+            + f" | {CLASS_LABEL_SHORT[dominant_label]} | {mean_conf:.3f} | {mean_entropy:.3f} |"
         )
 
     lines.extend(

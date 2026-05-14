@@ -21,9 +21,21 @@ import pandas as pd
 import seaborn as sns
 
 from src.evaluation.metrics import label_distance_metrics_from_confusion
+from src.visualization.style import (
+    CLASS_LABELS,
+    CURVE_COLORS,
+    HEATMAP_CONFUSION_CMAP,
+    HEATMAP_SEQUENTIAL_CMAP,
+    LOSS_DISPLAY_NAMES,
+    LOSS_SLUG_TO_NAME,
+    MODEL_DISPLAY_NAMES,
+    MODEL_ORDER,
+    model_palette,
+    run_palette,
+)
 
 
-LABEL_NAMES = ["Highly Disengage", "Disengage", "Engage", "Highly Engage"]
+LABEL_NAMES = CLASS_LABELS
 METRIC_SPECS = [
     ("accuracy", "Accuracy"),
     ("macro_accuracy", "Macro Accuracy"),
@@ -33,32 +45,8 @@ METRIC_SPECS = [
     ("mse", "MSE"),
 ]
 ERROR_METRICS = {"mae", "mse"}
-LOSS_LABELS = {
-    "cross_entropy": "CE",
-    "weighted_cross_entropy": "Weighted CE",
-    "ordinal": "Ordinal",
-}
-LOSS_SLUGS = {
-    "ce": "cross_entropy",
-    "weighted_ce": "weighted_cross_entropy",
-    "ordinal": "ordinal",
-}
-MODEL_ORDER = [
-    "openface_mlp",
-    "lstm",
-    "transformer",
-    "temporal_cnn",
-    "i3d_mlp",
-    "openface_tcn_i3d_fusion",
-]
-MODEL_DISPLAY_NAMES = {
-    "openface_mlp": "openface_mlp",
-    "lstm": "lstm",
-    "transformer": "transformer",
-    "temporal_cnn": "tcn",
-    "i3d_mlp": "i3d_mlp",
-    "openface_tcn_i3d_fusion": "fusion",
-}
+LOSS_LABELS = LOSS_DISPLAY_NAMES
+LOSS_SLUGS = LOSS_SLUG_TO_NAME
 
 
 @dataclass
@@ -230,6 +218,11 @@ def plot_metric_bars(
     fig, axes = plt.subplots(rows, cols, figsize=(18, 5 * rows))
     for ax, (column, metric_title) in zip(axes.flat, METRIC_SPECS, strict=False):
         ordered = apply_model_order(summary_df)
+        palette = (
+            model_palette(ordered[label_column].dropna().astype(str))
+            if label_column == "base_model_display"
+            else run_palette(ordered.to_dict(orient="records"), label_column)
+        )
         sns.barplot(
             data=ordered,
             x=column,
@@ -238,7 +231,7 @@ def plot_metric_bars(
             dodge=False,
             legend=False,
             ax=ax,
-            palette="crest",
+            palette=palette,
         )
         ax.set_title(metric_title)
         ax.set_xlabel(metric_title)
@@ -260,6 +253,7 @@ def plot_best_epoch_bars(summary_df: pd.DataFrame, viz_dir: Path, *, filename: s
         return
 
     ordered = apply_model_order(summary_df)
+    palette = run_palette(ordered.to_dict(orient="records"), "comparison_label")
     fig, ax = plt.subplots(figsize=(12, 8))
     sns.barplot(
         data=ordered,
@@ -269,7 +263,7 @@ def plot_best_epoch_bars(summary_df: pd.DataFrame, viz_dir: Path, *, filename: s
         dodge=False,
         legend=False,
         ax=ax,
-        palette="flare",
+        palette=palette,
     )
     ax.set_title(title)
     ax.set_xlabel("Best Epoch")
@@ -299,6 +293,7 @@ def plot_model_comparison_within_loss(summary_df: pd.DataFrame, viz_dir: Path) -
         for col_idx, (metric, metric_title) in enumerate(METRIC_SPECS):
             ax = axes[row_idx][col_idx]
             ordered = apply_model_order(loss_df)
+            palette = model_palette(ordered["base_model_display"].dropna().astype(str))
             sns.barplot(
                 data=ordered,
                 x=metric,
@@ -307,7 +302,7 @@ def plot_model_comparison_within_loss(summary_df: pd.DataFrame, viz_dir: Path) -
                 dodge=False,
                 legend=False,
                 ax=ax,
-                palette="rocket",
+                palette=palette,
             )
             ax.set_xlim(0.0, 1.0)
             ax.set_title(f"{loss_label}: {metric_title}")
@@ -337,7 +332,7 @@ def plot_metric_heatmaps(summary_df: pd.DataFrame, viz_dir: Path) -> None:
             pivot,
             annot=True,
             fmt=".4f",
-            cmap="YlGnBu",
+            cmap=HEATMAP_SEQUENTIAL_CMAP,
             cbar=True,
             ax=ax,
             **heatmap_kwargs,
@@ -429,24 +424,37 @@ def plot_training_curves(run: RunResult, run_viz_dir: Path) -> None:
     epochs = list(range(1, len(train_losses) + 1))
     fig, axes = plt.subplots(1, 4, figsize=(22, 5))
 
-    axes[0].plot(epochs, train_losses, label="Train Loss", linewidth=1.5)
+    axes[0].plot(epochs, train_losses, label="Train Loss", linewidth=1.5, color=CURVE_COLORS["train_loss"])
     if eval_losses:
-        axes[0].plot(epochs[: len(eval_losses)], eval_losses, label="Eval Loss", linewidth=1.5)
-    axes[0].axvline(run.history.get("best_epoch", 0), color="red", linestyle="--", linewidth=1)
+        axes[0].plot(
+            epochs[: len(eval_losses)],
+            eval_losses,
+            label="Eval Loss",
+            linewidth=1.5,
+            color=CURVE_COLORS["eval_loss"],
+        )
+    axes[0].axvline(run.history.get("best_epoch", 0), color=CURVE_COLORS["best_epoch"], linestyle="--", linewidth=1)
     axes[0].set_title(f"Loss Curves: {run.comparison_label}")
     axes[0].set_xlabel("Epoch")
     axes[0].set_ylabel("Loss")
     axes[0].legend()
 
-    axes[1].plot(epochs[: len(eval_accuracies)], eval_accuracies, label="Eval Accuracy", linewidth=1.5)
+    axes[1].plot(
+        epochs[: len(eval_accuracies)],
+        eval_accuracies,
+        label="Eval Accuracy",
+        linewidth=1.5,
+        color=CURVE_COLORS["eval_accuracy"],
+    )
     if eval_macro_accuracies:
         axes[1].plot(
             epochs[: len(eval_macro_accuracies)],
             eval_macro_accuracies,
             label="Eval Macro Accuracy",
             linewidth=1.5,
+            color=CURVE_COLORS["eval_macro_accuracy"],
         )
-    axes[1].axvline(run.history.get("best_epoch", 0), color="red", linestyle="--", linewidth=1)
+    axes[1].axvline(run.history.get("best_epoch", 0), color=CURVE_COLORS["best_epoch"], linestyle="--", linewidth=1)
     axes[1].set_title(f"Evaluation Accuracy: {run.comparison_label}")
     axes[1].set_xlabel("Epoch")
     axes[1].set_ylabel("Score")
@@ -454,15 +462,22 @@ def plot_training_curves(run: RunResult, run_viz_dir: Path) -> None:
     axes[1].legend()
 
     if eval_f1_macros:
-        axes[2].plot(epochs[: len(eval_f1_macros)], eval_f1_macros, label="Eval Macro F1", linewidth=1.5)
+        axes[2].plot(
+            epochs[: len(eval_f1_macros)],
+            eval_f1_macros,
+            label="Eval Macro F1",
+            linewidth=1.5,
+            color=CURVE_COLORS["eval_f1_macro"],
+        )
     if eval_f1_weighteds:
         axes[2].plot(
             epochs[: len(eval_f1_weighteds)],
             eval_f1_weighteds,
             label="Eval Weighted F1",
             linewidth=1.5,
+            color=CURVE_COLORS["eval_f1_weighted"],
         )
-    axes[2].axvline(run.history.get("best_epoch", 0), color="red", linestyle="--", linewidth=1)
+    axes[2].axvline(run.history.get("best_epoch", 0), color=CURVE_COLORS["best_epoch"], linestyle="--", linewidth=1)
     axes[2].set_title(f"Evaluation F1: {run.comparison_label}")
     axes[2].set_xlabel("Epoch")
     axes[2].set_ylabel("Score")
@@ -470,10 +485,22 @@ def plot_training_curves(run: RunResult, run_viz_dir: Path) -> None:
     axes[2].legend()
 
     if eval_maes:
-        axes[3].plot(epochs[: len(eval_maes)], eval_maes, label="Eval MAE", linewidth=1.5)
+        axes[3].plot(
+            epochs[: len(eval_maes)],
+            eval_maes,
+            label="Eval MAE",
+            linewidth=1.5,
+            color=CURVE_COLORS["eval_mae"],
+        )
     if eval_mses:
-        axes[3].plot(epochs[: len(eval_mses)], eval_mses, label="Eval MSE", linewidth=1.5)
-    axes[3].axvline(run.history.get("best_epoch", 0), color="red", linestyle="--", linewidth=1)
+        axes[3].plot(
+            epochs[: len(eval_mses)],
+            eval_mses,
+            label="Eval MSE",
+            linewidth=1.5,
+            color=CURVE_COLORS["eval_mse"],
+        )
+    axes[3].axvline(run.history.get("best_epoch", 0), color=CURVE_COLORS["best_epoch"], linestyle="--", linewidth=1)
     axes[3].set_title(f"Evaluation Error: {run.comparison_label}")
     axes[3].set_xlabel("Epoch")
     axes[3].set_ylabel("Error")
@@ -496,7 +523,7 @@ def plot_confusion_matrix(run: RunResult, run_viz_dir: Path) -> None:
         matrix,
         annot=True,
         fmt="d",
-        cmap="Blues",
+        cmap=HEATMAP_CONFUSION_CMAP,
         cbar=True,
         xticklabels=LABEL_NAMES,
         yticklabels=LABEL_NAMES,

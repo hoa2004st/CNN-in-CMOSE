@@ -2,20 +2,20 @@
 
 This report applies retained CMOSE-trained models to the private accepted subset.
 
-- Accepted private clips analyzed: 428
-- Target labels are unavailable, so findings diagnose prediction behavior, confidence, and distribution shift rather than target accuracy.
+- Accepted private clips analyzed after excluding `Delete` notes: 368
+- Private target metrics use the manual labels CSV and exclude rows whose notes contain `Delete`.
 - Source reference uses each run's saved CMOSE test confusion matrix.
 
 ## CMOSE Test Reference
 
-| Run | Accuracy | Macro Accuracy | F1 Macro |
-|---|---:|---:|---:|
-| i3d_mlp/ce | 0.7682 | 0.5368 | 0.5889 |
-| lstm/weighted_ce | 0.5700 | 0.5206 | 0.4502 |
-| openface_mlp/weighted_ce | 0.6102 | 0.5376 | 0.4928 |
-| openface_tcn_i3d_fusion/ce | 0.7699 | 0.5637 | 0.5972 |
-| temporal_cnn/weighted_ce | 0.6945 | 0.6200 | 0.5723 |
-| transformer/ce | 0.7486 | 0.4985 | 0.5441 |
+| Run | Accuracy | Macro Accuracy | F1 Macro | F1 Weighted | MAE | MSE |
+|---|---:|---:|---:|---:|---:|---:|
+| i3d_mlp/ce | 0.7682 | 0.5368 | 0.5889 | 0.7534 | 0.2539 | 0.3014 |
+| lstm/weighted_ce | 0.5700 | 0.5206 | 0.4502 | 0.5963 | 0.4881 | 0.6143 |
+| openface_mlp/weighted_ce | 0.6102 | 0.5376 | 0.4928 | 0.6295 | 0.4259 | 0.5061 |
+| openface_tcn_i3d_fusion/ce | 0.7699 | 0.5637 | 0.5972 | 0.7555 | 0.2531 | 0.3022 |
+| temporal_cnn/weighted_ce | 0.6945 | 0.6200 | 0.5723 | 0.7085 | 0.3366 | 0.4038 |
+| transformer/ce | 0.7486 | 0.4985 | 0.5441 | 0.7289 | 0.2801 | 0.3407 |
 
 ## Private Prediction Distribution
 
@@ -75,15 +75,15 @@ Lowest pairwise Cohen's kappa values indicate the model pairs that disagree most
 
 ## Interpretation
 
-- The analysis should be read as domain-shift diagnosis, not target-domain performance evaluation.
+- Manual-label metrics quantify private target-domain performance after removing clips marked `Delete`.
+- Distribution shifts diagnose how each source-trained run changes behavior on private clips relative to CMOSE test predictions.
 - A class is treated as unstable when it shows a large private-vs-source prediction proportion shift and/or low private confidence.
-- Minority CMOSE classes remain especially hard to interpret without private labels; large HD/HE swings should be discussed as hypothesis-generating evidence.
 
 ## Output Files
 
-- `outputs/domain_shift_analysis/prediction_distribution.csv`
-- `outputs/domain_shift_analysis/domain_shift_by_class.csv`
-- `outputs/domain_shift_analysis/domain_shift_summary.json`
-- `outputs/domain_shift_analysis/private_vs_source_predicted_shift.png`
-- `outputs/dataset_analysis/private/`
-- `outputs/dataset_analysis/cmose/`
+- `outputs\domain_shift_analysis\prediction_distribution.csv`
+- `outputs\domain_shift_analysis\domain_shift_by_class.csv`
+- `outputs\domain_shift_analysis\domain_shift_summary.json`
+- `outputs\domain_shift_analysis\private_vs_source_predicted_shift.png`
+- `outputs\dataset_analysis\private`
+- `outputs\dataset_analysis\cmose`

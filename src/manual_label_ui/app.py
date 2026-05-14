@@ -12,6 +12,7 @@ import csv
 import json
 import math
 import mimetypes
+import sys
 from dataclasses import dataclass
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -19,12 +20,16 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import unquote, urlparse
 
+REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from src.visualization.style import CLASS_COLORS, CLASS_LABELS
+
 
 LABELS = [
-    {"id": 0, "name": "Highly Disengage"},
-    {"id": 1, "name": "Disengage"},
-    {"id": 2, "name": "Engage"},
-    {"id": 3, "name": "Highly Engage"},
+    {"id": index, "name": label, "color": CLASS_COLORS[label]}
+    for index, label in enumerate(CLASS_LABELS)
 ]
 LABEL_BY_ID = {row["id"]: row["name"] for row in LABELS}
 UI_MODEL_RUNS = [
@@ -281,8 +286,9 @@ HTML = r"""<!doctype html>
     th { color: var(--muted); font-weight: 650; }
     .confidence { text-align: right; font-variant-numeric: tabular-nums; }
     .label-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 10px; }
-    .label-options button { border: 1px solid var(--line); border-radius: 6px; background: #fff; padding: 10px; cursor: pointer; font-weight: 650; }
-    .label-options button.selected { border-color: var(--accent); background: #e7f1fb; color: #0c4e82; }
+    .label-chip { border-left: 4px solid var(--label-color, var(--line)); padding-left: 6px; font-weight: 650; }
+    .label-options button { border: 1px solid var(--line); border-left: 5px solid var(--label-color, var(--line)); border-radius: 6px; background: #fff; padding: 10px; cursor: pointer; font-weight: 650; }
+    .label-options button.selected { border-color: var(--label-color, var(--accent)); background: #f7fbff; color: var(--ink); box-shadow: inset 0 0 0 1px var(--label-color, var(--accent)); }
     textarea { width: 100%; min-height: 76px; resize: vertical; border: 1px solid var(--line); border-radius: 6px; padding: 8px; font: inherit; margin-bottom: 10px; }
     .actions { display: flex; gap: 8px; align-items: center; }
     .actions button { height: 36px; border-radius: 6px; border: 1px solid var(--line); background: #fff; padding: 0 12px; cursor: pointer; }
@@ -345,6 +351,7 @@ HTML = r"""<!doctype html>
     const el = id => document.getElementById(id);
     const fmtPct = value => Number.isFinite(value) ? `${(value * 100).toFixed(1)}%` : "-";
     const fmtNum = value => Number.isFinite(value) ? value.toFixed(3) : "-";
+    const labelColors = () => Object.fromEntries(data.labels.map(label => [label.name, label.color]));
 
     async function loadData() {
       const response = await fetch("/api/data");
@@ -362,7 +369,7 @@ HTML = r"""<!doctype html>
 
     function renderLabels() {
       el("labelOptions").innerHTML = data.labels.map(label =>
-        `<button data-label="${label.id}" title="Set manual label">${label.name}</button>`
+        `<button data-label="${label.id}" style="--label-color:${label.color}" title="Set manual label">${label.name}</button>`
       ).join("");
       el("labelOptions").querySelectorAll("button").forEach(button => {
         button.addEventListener("click", () => {
@@ -394,13 +401,15 @@ HTML = r"""<!doctype html>
       el("clipTitle").textContent = clip.clip_id;
       el("video").src = clip.video_url;
       el("majority").textContent = `${clip.majority_label} (${clip.majority_vote_count}/${clip.num_models})`;
+      el("majority").style.color = labelColors()[clip.majority_label] || "";
       el("agreement").textContent = fmtPct(clip.agreement_rate);
       el("meanConf").textContent = fmtPct(clip.mean_confidence);
       el("notes").value = clip.notes || "";
+      const colors = labelColors();
       el("suggestions").innerHTML = clip.suggestions.map(suggestion => `
         <tr>
           <td>${suggestion.run}</td>
-          <td>${suggestion.label}</td>
+          <td><span class="label-chip" style="--label-color:${colors[suggestion.label] || "var(--muted)"}">${suggestion.label}</span></td>
           <td class="confidence">${fmtPct(suggestion.confidence)}</td>
         </tr>
       `).join("");

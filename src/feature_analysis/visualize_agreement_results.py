@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import sys
 from pathlib import Path
 
 import matplotlib
@@ -11,6 +12,18 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from src.visualization.style import (
+    HEATMAP_DIVERGING_CMAP,
+    HISTOGRAM_COLOR,
+    LOW_AGREEMENT_COLOR,
+    REFERENCE_LINE_COLOR,
+    SUMMARY_BAR_COLOR,
+)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -32,7 +45,7 @@ def _save(fig: plt.Figure, path: Path) -> None:
 def plot_clip_metric_hist(per_clip: pd.DataFrame, metric: str, title: str, out_path: Path) -> None:
     fig, ax = plt.subplots(figsize=(8.5, 4.5))
     values = per_clip[metric].to_numpy(dtype=float)
-    ax.hist(values, bins=20, color="#3E7CB1", edgecolor="black", alpha=0.85)
+    ax.hist(values, bins=20, color=HISTOGRAM_COLOR, edgecolor="black", alpha=0.85)
     ax.set_title(title)
     ax.set_xlabel(metric.replace("_", " ").title())
     ax.set_ylabel("Number of clips")
@@ -49,7 +62,7 @@ def plot_pairwise_kappa_heatmap(pairwise: pd.DataFrame, out_path: Path) -> None:
         matrix.loc[row.run_b, row.run_a] = row.cohens_kappa
 
     fig, ax = plt.subplots(figsize=(9, 7))
-    image = ax.imshow(matrix.values, cmap="coolwarm", vmin=-0.2, vmax=1.0, aspect="auto")
+    image = ax.imshow(matrix.values, cmap=HEATMAP_DIVERGING_CMAP, vmin=-1.0, vmax=1.0, aspect="auto")
     ax.set_title("Pairwise Cohen's Kappa Across Models")
     ax.set_xticks(np.arange(len(runs)), labels=runs, rotation=35, ha="right")
     ax.set_yticks(np.arange(len(runs)), labels=runs)
@@ -66,8 +79,8 @@ def plot_pairwise_kappa_bar(pairwise: pd.DataFrame, fleiss_kappa: float, out_pat
     ordered = pairwise.sort_values("cohens_kappa").copy()
     labels = ordered["run_a"] + " vs " + ordered["run_b"]
     fig, ax = plt.subplots(figsize=(11, 5.5))
-    ax.bar(labels, ordered["cohens_kappa"], color="#5D8AA8", edgecolor="black", alpha=0.9)
-    ax.axhline(fleiss_kappa, color="#C44E52", linestyle="--", linewidth=1.5, label="Fleiss' kappa")
+    ax.bar(labels, ordered["cohens_kappa"], color=LOW_AGREEMENT_COLOR, edgecolor="black", alpha=0.9)
+    ax.axhline(fleiss_kappa, color=REFERENCE_LINE_COLOR, linestyle="--", linewidth=1.5, label="Fleiss' kappa")
     ax.axhline(0.0, color="black", linewidth=1.0)
     ax.set_title("Pairwise Cohen's Kappa with Fleiss' Kappa Reference")
     ax.set_ylabel("Kappa")
@@ -90,7 +103,7 @@ def plot_summary_metrics(summary: dict, out_path: Path) -> None:
     values = [item[1] for item in metrics]
 
     fig, ax = plt.subplots(figsize=(8.5, 4.5))
-    ax.barh(labels, values, color="#6BA368", edgecolor="black")
+    ax.barh(labels, values, color=SUMMARY_BAR_COLOR, edgecolor="black")
     ax.set_title("Agreement Metric Summary")
     ax.set_xlabel("Value")
     ax.grid(axis="x", alpha=0.3)

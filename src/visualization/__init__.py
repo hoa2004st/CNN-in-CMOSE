@@ -1,0 +1,2 @@
+"""Shared visualization style helpers."""
+

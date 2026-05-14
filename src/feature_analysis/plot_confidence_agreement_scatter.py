@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import sys
 from pathlib import Path
 
 import matplotlib
@@ -10,6 +11,12 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import pandas as pd
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from src.visualization.style import CLASS_LABELS, OVERLAY_BAR_COLOR, class_color
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -44,14 +51,6 @@ def main(argv: list[str] | None = None) -> None:
     if missing:
         raise ValueError(f"Missing required column(s): {missing}")
 
-    color_map = {
-        "Highly Disengage": "#1f77b4",
-        "Disengage": "#ff7f0e",
-        "Engage": "#9467bd",
-        "Highly Engage": "#bdbdbd",
-    }
-    fallback_color = "#444444"
-
     fig, ax = plt.subplots(figsize=(9.2, 7.2), constrained_layout=True)
 
     # Main scatter plot
@@ -76,19 +75,22 @@ def main(argv: list[str] | None = None) -> None:
         bar_width = min_spacing * 0.72
     else:
         bar_width = 0.01
-    bar_ax.bar(x_values, count_values, width=bar_width, color="#2E86AB", edgecolor="none", alpha=0.62)
+    bar_ax.bar(x_values, count_values, width=bar_width, color=OVERLAY_BAR_COLOR, edgecolor="none", alpha=0.62)
     bar_ax.set_xlim(-0.02, 1.02)
     bar_ax.set_facecolor("none")
     bar_ax.set_axis_off()
 
-    for label, group in df.groupby("majority_label"):
-        color = color_map.get(label, fallback_color)
+    ordered_labels = [*CLASS_LABELS, *sorted(set(df["majority_label"].astype(str)) - set(CLASS_LABELS))]
+    for label in ordered_labels:
+        group = df[df["majority_label"].astype(str) == label]
+        if group.empty:
+            continue
         ax.scatter(
             group["agreement_rate"],
             group["mean_confidence"],
             s=28,
             alpha=0.72,
-            c=color,
+            c=class_color(label),
             edgecolors="none",
             label=label,
         )
