@@ -1,0 +1,20 @@
+{
+  "num_clips": 368,
+  "num_models": 18,
+  "agreement_rate_mean": 0.3150753054845126,
+  "agreement_rate_median": 0.3006535947712418,
+  "prediction_entropy_mean": 0.8360285493868943,
+  "prediction_entropy_median": 0.8611331559719917,
+  "mean_confidence": 0.6803236603106998,
+  "fleiss_kappa": 0.03537576225944402,
+  "pairwise_cohens_kappa_mean": 0.054043477455618306,
+  "pairwise_cohens_kappa_min": -0.13373075896432063,
+  "pairwise_cohens_kappa_max": 0.48943254867502195,
+  "pairwise_raw_agreement_mean": 0.3150753054845126,
+  "majority_label_distribution": {
+    "Engage": 218,
+    "Disengage": 87,
+    "Highly Engage": 38,
+    "Highly Disengage": 25
+  }
+}
