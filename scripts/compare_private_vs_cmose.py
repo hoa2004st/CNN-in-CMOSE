@@ -19,6 +19,7 @@ from src.feature_analysis.domain_analysis import (
     compute_domain_gap_score,
     feature_group_wasserstein,
 )
+from src.output_paths import DOMAIN_DIFFERENCE_DIR
 
 META_COLS = ["frame", "face_id", "timestamp", "confidence", "success"]
 
@@ -171,8 +172,8 @@ def _to_markdown(report: dict) -> str:
 
 def main() -> None:
     repo = REPO_ROOT
-    documents = repo / "documents"
-    documents.mkdir(parents=True, exist_ok=True)
+    output_dir = repo / DOMAIN_DIFFERENCE_DIR
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     private_openface_root = repo / "data" / "private" / "features" / "openface"
     cmose_openface_root = repo / "data" / "CMOSE" / "secondFeature" / "secondFeature"
@@ -261,8 +262,8 @@ def main() -> None:
         "domain_gap_score": float(domain_gap),
     }
 
-    json_path = documents / "private_vs_cmose_comparison.json"
-    md_path = documents / "private_vs_cmose_comparison.md"
+    json_path = output_dir / "private_vs_cmose_comparison.json"
+    md_path = output_dir / "private_vs_cmose_comparison.md"
     json_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
     md_path.write_text(_to_markdown(report), encoding="utf-8")
     print(f"wrote: {json_path}")

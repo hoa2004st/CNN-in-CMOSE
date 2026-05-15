@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
@@ -19,6 +20,11 @@ from scipy.stats import ks_2samp, wasserstein_distance
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from src.output_paths import DOMAIN_DIFFERENCE_DIR
+
 META_COLS = {"frame", "face_id", "timestamp", "confidence", "success"}
 
 
@@ -611,7 +617,11 @@ def run(args: argparse.Namespace) -> None:
 
 def parse_args(argv: Iterable[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output-dir", default="documents", help="Output directory relative to repo root.")
+    parser.add_argument(
+        "--output-dir",
+        default=str(DOMAIN_DIFFERENCE_DIR),
+        help="Output directory relative to repo root.",
+    )
     parser.add_argument(
         "--private-accepted-csv",
         default="data/private/accepted.csv",

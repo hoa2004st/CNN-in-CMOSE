@@ -1,10 +1,9 @@
-"""Generate per-run and cross-run visualizations from experiment metrics files."""
+"""Generate training-log curves and raw metric summaries from experiment outputs."""
 
 from __future__ import annotations
 
 import argparse
 import json
-import math
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -18,24 +17,23 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import pandas as pd
-import seaborn as sns
 
 from src.evaluation.metrics import label_distance_metrics_from_confusion
+from src.output_paths import (
+    CMOSE_TESTSET_ASSESSMENT_DIR,
+    TRAINING_LOG_DIR,
+    model_key_from_output_name,
+)
 from src.visualization.style import (
-    CLASS_LABELS,
+    CLASS_LABEL_SHORT,
     CURVE_COLORS,
-    HEATMAP_CONFUSION_CMAP,
-    HEATMAP_SEQUENTIAL_CMAP,
     LOSS_DISPLAY_NAMES,
     LOSS_SLUG_TO_NAME,
     MODEL_DISPLAY_NAMES,
     MODEL_ORDER,
-    model_palette,
-    run_palette,
 )
 
 
-LABEL_NAMES = CLASS_LABELS
 METRIC_SPECS = [
     ("accuracy", "Accuracy"),
     ("macro_accuracy", "Macro Accuracy"),
@@ -44,7 +42,6 @@ METRIC_SPECS = [
     ("mae", "MAE"),
     ("mse", "MSE"),
 ]
-ERROR_METRICS = {"mae", "mse"}
 LOSS_LABELS = LOSS_DISPLAY_NAMES
 LOSS_SLUGS = LOSS_SLUG_TO_NAME
 
@@ -60,7 +57,7 @@ class RunResult:
 
     @property
     def base_model(self) -> str:
-        return str(self.config.get("model", self.run_dir.parent.name))
+        return str(self.config.get("model", model_key_from_output_name(self.run_dir.parent.name)))
 
     @property
     def loss_name(self) -> str:
@@ -87,13 +84,6 @@ class RunResult:
         return self.loss_label
 
 
-def model_sort_key(model_name: str) -> tuple[int, str]:
-    try:
-        return (MODEL_ORDER.index(model_name), model_name)
-    except ValueError:
-        return (len(MODEL_ORDER), model_name)
-
-
 def apply_model_order(frame: pd.DataFrame) -> pd.DataFrame:
     if frame.empty or "base_model" not in frame.columns:
         return frame
@@ -108,17 +98,21 @@ def apply_model_order(frame: pd.DataFrame) -> pd.DataFrame:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Visualize completed experiment runs under outputs/.",
+        description="Visualize completed experiment runs under outputs/training_log/.",
     )
-    parser.add_argument("--outputs_dir", default="outputs")
-    parser.add_argument("--viz_dir", default=None, help="Default: <outputs_dir>/visualizations")
+    parser.add_argument("--outputs_dir", default=str(TRAINING_LOG_DIR))
+    parser.add_argument(
+        "--assessment_dir",
+        default=str(CMOSE_TESTSET_ASSESSMENT_DIR),
+        help="Directory for cross-run CMOSE test-set assessment charts.",
+    )
     return parser.parse_args()
 
 
 def load_completed_runs(outputs_dir: Path) -> list[RunResult]:
     runs: list[RunResult] = []
     for metrics_path in sorted(outputs_dir.rglob("metrics.json")):
-        if "visualizations" in metrics_path.parts:
+        if any(part in {"model_assessment", "dataset_analysis", "visualizations"} for part in metrics_path.parts):
             continue
         payload = json.loads(metrics_path.read_text(encoding="utf-8"))
         run_dir = metrics_path.parent
@@ -137,7 +131,13 @@ def load_completed_runs(outputs_dir: Path) -> list[RunResult]:
 
 
 def filter_comparison_runs(runs: list[RunResult]) -> list[RunResult]:
-    return [run for run in runs if not run.run_name.startswith("smoke_")]
+    filtered = []
+    for run in runs:
+        parts = run.run_name.split("/")
+        if any(part.startswith("smoke_") or part == "_smoke" for part in parts):
+            continue
+        filtered.append(run)
+    return filtered
 
 
 def build_summary_frame(runs: list[RunResult]) -> pd.DataFrame:
@@ -202,211 +202,152 @@ def save_summary_csvs(summary_df: pd.DataFrame, best_df: pd.DataFrame, viz_dir: 
     best_df.to_csv(viz_dir / "summary_table_best_per_model.csv", index=False)
 
 
-def plot_metric_bars(
-    summary_df: pd.DataFrame,
-    viz_dir: Path,
-    *,
-    filename: str,
-    title: str,
-    label_column: str,
-) -> None:
-    if summary_df.empty:
-        return
+def _model_labels(frame: pd.DataFrame) -> list[str]:
+    labels = []
+    for model in MODEL_ORDER:
+        if model in set(frame["base_model"].astype(str)):
+            labels.append(MODEL_DISPLAY_NAMES.get(model, model))
+    return labels
 
-    cols = 3
-    rows = math.ceil(len(METRIC_SPECS) / cols)
-    fig, axes = plt.subplots(rows, cols, figsize=(18, 5 * rows))
-    for ax, (column, metric_title) in zip(axes.flat, METRIC_SPECS, strict=False):
-        ordered = apply_model_order(summary_df)
-        palette = (
-            model_palette(ordered[label_column].dropna().astype(str))
-            if label_column == "base_model_display"
-            else run_palette(ordered.to_dict(orient="records"), label_column)
-        )
-        sns.barplot(
-            data=ordered,
-            x=column,
-            y=label_column,
-            hue=label_column,
-            dodge=False,
-            legend=False,
-            ax=ax,
-            palette=palette,
-        )
+
+def _filter_ce_runs(summary_df: pd.DataFrame) -> pd.DataFrame:
+    return summary_df[summary_df["loss"].isin(["cross_entropy", "ce"])].copy()
+
+
+def _plot_metric_panel(frame: pd.DataFrame, out_path: Path, title: str) -> None:
+    if frame.empty:
+        return
+    model_labels = _model_labels(frame)
+    if not model_labels:
+        return
+    fig, axes = plt.subplots(2, 3, figsize=(18, 9), dpi=160)
+    axes = axes.flatten()
+    for ax, (metric, metric_title) in zip(axes, METRIC_SPECS):
+        pivot = frame.pivot_table(
+            index="base_model_display",
+            columns="loss_label",
+            values=metric,
+            aggfunc="first",
+        ).reindex(model_labels)
+        pivot.plot(kind="bar", ax=ax, width=0.78)
         ax.set_title(metric_title)
-        ax.set_xlabel(metric_title)
-        ax.set_ylabel("")
-        if column in ERROR_METRICS:
-            ax.set_xlim(left=0.0)
-        else:
-            ax.set_xlim(0.0, 1.0)
-    for ax in axes.flat[len(METRIC_SPECS) :]:
-        ax.axis("off")
-    fig.suptitle(title, fontsize=14)
+        ax.set_xlabel("")
+        ax.set_ylabel(metric_title)
+        ax.tick_params(axis="x", rotation=35)
+        ax.grid(axis="y", alpha=0.18)
+        if metric in {"accuracy", "macro_accuracy", "f1_macro", "f1_weighted"}:
+            ax.set_ylim(0.0, 1.0)
+        handles, labels = ax.get_legend_handles_labels()
+        ax.legend(handles, labels, title="Loss", fontsize=8)
+    fig.suptitle(title, fontsize=14, y=0.995)
     fig.tight_layout()
-    fig.savefig(viz_dir / filename, dpi=200, bbox_inches="tight")
+    fig.savefig(out_path, bbox_inches="tight")
     plt.close(fig)
 
 
-def plot_best_epoch_bars(summary_df: pd.DataFrame, viz_dir: Path, *, filename: str, title: str) -> None:
-    if summary_df.empty or summary_df["best_epoch"].isna().all():
-        return
-
-    ordered = apply_model_order(summary_df)
-    palette = run_palette(ordered.to_dict(orient="records"), "comparison_label")
-    fig, ax = plt.subplots(figsize=(12, 8))
-    sns.barplot(
-        data=ordered,
-        x="best_epoch",
-        y="comparison_label",
-        hue="comparison_label",
-        dodge=False,
-        legend=False,
-        ax=ax,
-        palette=palette,
+def plot_metric_bars(summary_df: pd.DataFrame, best_df: pd.DataFrame, assessment_dir: Path) -> None:
+    _plot_metric_panel(
+        summary_df,
+        assessment_dir / "main_metrics_all_models_losses.png",
+        "CMOSE Test Metrics: 6 Models x 3 Losses",
     )
+
+
+def plot_metric_heatmap(summary_df: pd.DataFrame, assessment_dir: Path) -> None:
+    ce_df = _filter_ce_runs(summary_df)
+    if ce_df.empty:
+        return
+    heat = ce_df.pivot_table(
+        index="base_model_display",
+        values=[metric for metric, _title in METRIC_SPECS],
+        aggfunc="first",
+    ).reindex(_model_labels(ce_df))
+    if heat.empty:
+        return
+    heat = heat[[metric for metric, _title in METRIC_SPECS]]
+    fig, ax = plt.subplots(figsize=(7, 7), dpi=160)
+    image = ax.imshow(heat.to_numpy(dtype=float), aspect="equal", cmap="viridis")
+    ax.set_aspect("equal", adjustable="box")
+    ax.set_xticks(range(len(heat.columns)), [title for _metric, title in METRIC_SPECS], rotation=35, ha="right")
+    ax.set_yticks(range(len(heat.index)), heat.index)
+    for row_idx in range(heat.shape[0]):
+        for col_idx in range(heat.shape[1]):
+            value = heat.iat[row_idx, col_idx]
+            if pd.notna(value):
+                ax.text(col_idx, row_idx, f"{value:.3f}", ha="center", va="center", fontsize=8, color="white")
+    ax.set_title("CMOSE Test Metric Heatmap: CE Runs")
+    fig.colorbar(image, ax=ax, fraction=0.046, pad=0.04)
+    fig.tight_layout()
+    fig.savefig(assessment_dir / "metric_heatmap_ce_models.png", bbox_inches="tight")
+    plt.close(fig)
+
+
+def _plot_single_confusion(confusion: list[list[int]], title: str, out_path: Path) -> None:
+    matrix = pd.DataFrame(confusion, index=CLASS_LABEL_SHORT.values(), columns=CLASS_LABEL_SHORT.values())
+    fig, ax = plt.subplots(figsize=(5, 5), dpi=160)
+    image = ax.imshow(matrix.to_numpy(), cmap="Blues", aspect="equal")
+    ax.set_aspect("equal", adjustable="box")
     ax.set_title(title)
-    ax.set_xlabel("Best Epoch")
-    ax.set_ylabel("")
+    ax.set_xlabel("Predicted")
+    ax.set_ylabel("True")
+    ax.set_xticks(range(len(matrix.columns)), matrix.columns)
+    ax.set_yticks(range(len(matrix.index)), matrix.index)
+    for row_idx in range(matrix.shape[0]):
+        for col_idx in range(matrix.shape[1]):
+            ax.text(col_idx, row_idx, str(int(matrix.iat[row_idx, col_idx])), ha="center", va="center", fontsize=9)
+    fig.colorbar(image, ax=ax, fraction=0.046, pad=0.04)
     fig.tight_layout()
-    fig.savefig(viz_dir / filename, dpi=200, bbox_inches="tight")
+    fig.savefig(out_path, bbox_inches="tight")
     plt.close(fig)
 
 
-def plot_model_comparison_within_loss(summary_df: pd.DataFrame, viz_dir: Path) -> None:
-    if summary_df.empty:
+def plot_confusion_matrices(runs: list[RunResult], assessment_dir: Path) -> None:
+    matrices = [run for run in runs if run.metrics.get("confusion_matrix")]
+    if not matrices:
         return
+    individual_root = assessment_dir / "confusion_matrices"
+    for run in matrices:
+        out_dir = individual_root / run.run_name
+        out_dir.mkdir(parents=True, exist_ok=True)
+        _plot_single_confusion(
+            run.metrics["confusion_matrix"],
+            run.comparison_label,
+            out_dir / "confusion_matrix.png",
+        )
 
-    loss_names = [name for name, group in summary_df.groupby("loss") if len(group) > 1]
-    if not loss_names:
-        return
-
-    fig, axes = plt.subplots(
-        len(loss_names),
-        len(METRIC_SPECS),
-        figsize=(22, 5 * len(loss_names)),
-        squeeze=False,
+    ordered = sorted(
+        matrices,
+        key=lambda run: (
+            MODEL_ORDER.index(run.base_model) if run.base_model in MODEL_ORDER else len(MODEL_ORDER),
+            run.loss_label,
+        ),
     )
-    for row_idx, loss_name in enumerate(loss_names):
-        loss_df = summary_df[summary_df["loss"] == loss_name]
-        loss_label = LOSS_LABELS.get(loss_name, loss_name)
-        for col_idx, (metric, metric_title) in enumerate(METRIC_SPECS):
-            ax = axes[row_idx][col_idx]
-            ordered = apply_model_order(loss_df)
-            palette = model_palette(ordered["base_model_display"].dropna().astype(str))
-            sns.barplot(
-                data=ordered,
-                x=metric,
-                y="base_model_display",
-                hue="base_model_display",
-                dodge=False,
-                legend=False,
-                ax=ax,
-                palette=palette,
-            )
-            ax.set_xlim(0.0, 1.0)
-            ax.set_title(f"{loss_label}: {metric_title}")
-            ax.set_xlabel(metric_title)
-            ax.set_ylabel("" if col_idx else "Model")
-    fig.suptitle("Model Comparison Within Each Loss", fontsize=14)
+    cols = 3
+    rows = max(1, (len(ordered) + cols - 1) // cols)
+    fig, axes = plt.subplots(rows, cols, figsize=(13, 4.2 * rows), dpi=150)
+    axes_list = axes.flatten() if hasattr(axes, "flatten") else [axes]
+    for ax, run in zip(axes_list, ordered):
+        matrix = pd.DataFrame(
+            run.metrics["confusion_matrix"],
+            index=CLASS_LABEL_SHORT.values(),
+            columns=CLASS_LABEL_SHORT.values(),
+        )
+        ax.imshow(matrix.to_numpy(), cmap="Blues", aspect="equal")
+        ax.set_aspect("equal", adjustable="box")
+        ax.set_title(run.comparison_label, fontsize=10)
+        ax.set_xlabel("Predicted")
+        ax.set_ylabel("True")
+        ax.set_xticks(range(len(matrix.columns)), matrix.columns)
+        ax.set_yticks(range(len(matrix.index)), matrix.index)
+        for row_idx in range(matrix.shape[0]):
+            for col_idx in range(matrix.shape[1]):
+                ax.text(col_idx, row_idx, str(int(matrix.iat[row_idx, col_idx])), ha="center", va="center", fontsize=8)
+    for ax in axes_list[len(ordered):]:
+        ax.axis("off")
+    fig.suptitle("CMOSE Test Confusion Matrices", y=0.995, fontsize=14)
     fig.tight_layout()
-    fig.savefig(viz_dir / "model_comparison_within_loss.png", dpi=200, bbox_inches="tight")
+    fig.savefig(assessment_dir / "confusion_matrices_all_runs.png", bbox_inches="tight")
     plt.close(fig)
-
-
-def plot_metric_heatmaps(summary_df: pd.DataFrame, viz_dir: Path) -> None:
-    if summary_df.empty or {"base_model", "loss"}.difference(summary_df.columns):
-        return
-
-    for metric, metric_title in METRIC_SPECS:
-        pivot = summary_df.pivot_table(index="base_model", columns="loss_label", values=metric, aggfunc="max")
-        if pivot.empty:
-            continue
-        pivot = pivot.reindex(MODEL_ORDER).dropna(how="all")
-        pivot.index = [MODEL_DISPLAY_NAMES.get(str(index), str(index)) for index in pivot.index]
-        fig, ax = plt.subplots(figsize=(8, max(4, len(pivot) * 0.8)))
-        heatmap_kwargs = {"vmin": 0.0}
-        if metric not in ERROR_METRICS:
-            heatmap_kwargs["vmax"] = 1.0
-        sns.heatmap(
-            pivot,
-            annot=True,
-            fmt=".4f",
-            cmap=HEATMAP_SEQUENTIAL_CMAP,
-            cbar=True,
-            ax=ax,
-            **heatmap_kwargs,
-        )
-        ax.set_title(f"{metric_title} Heatmap by Model and Loss")
-        ax.set_xlabel("Loss")
-        ax.set_ylabel("Model")
-        fig.tight_layout()
-        fig.savefig(viz_dir / f"heatmap_{metric}.png", dpi=200, bbox_inches="tight")
-        plt.close(fig)
-        pivot.to_csv(viz_dir / f"heatmap_{metric}.csv")
-
-
-def write_comparison_report(summary_df: pd.DataFrame, best_df: pd.DataFrame, viz_dir: Path) -> None:
-    lines = [
-        "# Comparison Summary",
-        "",
-        "## Best Run Per Model",
-        "",
-    ]
-    for _, row in apply_model_order(best_df).iterrows():
-        lines.extend(
-            [
-                f"- `{row['base_model_display']}`: run `{row['run_name']}` ({row['loss_label']})",
-                f"  Macro F1={row['f1_macro']:.4f}, Macro Accuracy={row['macro_accuracy']:.4f}, Accuracy={row['accuracy']:.4f}, Weighted F1={row['f1_weighted']:.4f}, MAE={row['mae']:.4f}, MSE={row['mse']:.4f}, Best epoch={row['best_epoch']}",
-            ]
-        )
-
-    if not summary_df.empty:
-        lines.extend(["", "## Best Run Per Loss", ""])
-        loss_best_df = (
-            summary_df.sort_values(
-                ["loss", "f1_macro", "macro_accuracy", "accuracy", "f1_weighted", "mae", "mse"],
-                ascending=[True, False, False, False, False, True, True],
-            )
-            .drop_duplicates(subset=["loss"], keep="first")
-            .reset_index(drop=True)
-        )
-        for _, row in loss_best_df.iterrows():
-            lines.extend(
-                [
-                    f"- `{row['loss_label']}`: `{row['base_model']}` (`{row['run_name']}`)",
-                    f"  Macro F1={row['f1_macro']:.4f}, Macro Accuracy={row['macro_accuracy']:.4f}, Accuracy={row['accuracy']:.4f}, Weighted F1={row['f1_weighted']:.4f}, MAE={row['mae']:.4f}, MSE={row['mse']:.4f}",
-                ]
-            )
-
-    variant_models = [model for model, group in summary_df.groupby("base_model") if len(group) > 1]
-    if variant_models:
-        lines.extend(["", "## Loss Comparison By Model", ""])
-        for model_name in sorted(variant_models, key=model_sort_key):
-            lines.append(f"### {MODEL_DISPLAY_NAMES.get(model_name, model_name)}")
-            model_df = summary_df[summary_df["base_model"] == model_name].sort_values(
-                ["loss_label"]
-            )
-            for _, row in model_df.iterrows():
-                lines.append(
-                    f"- `{row['loss_label']}`: run `{row['run_name']}`, Macro F1={row['f1_macro']:.4f}, Macro Accuracy={row['macro_accuracy']:.4f}, Accuracy={row['accuracy']:.4f}, Weighted F1={row['f1_weighted']:.4f}, MAE={row['mae']:.4f}, MSE={row['mse']:.4f}"
-                )
-            lines.append("")
-
-    grouped_losses = [loss for loss, group in summary_df.groupby("loss") if len(group) > 1]
-    if grouped_losses:
-        lines.extend(["## Model Comparison By Loss", ""])
-        for loss_name in grouped_losses:
-            loss_label = LOSS_LABELS.get(loss_name, loss_name)
-            lines.append(f"### {loss_label}")
-            loss_df = apply_model_order(summary_df[summary_df["loss"] == loss_name])
-            for _, row in loss_df.iterrows():
-                lines.append(
-                    f"- `{row['base_model_display']}`: run `{row['run_name']}`, Macro F1={row['f1_macro']:.4f}, Macro Accuracy={row['macro_accuracy']:.4f}, Accuracy={row['accuracy']:.4f}, Weighted F1={row['f1_weighted']:.4f}, MAE={row['mae']:.4f}, MSE={row['mse']:.4f}"
-                )
-            lines.append("")
-
-    (viz_dir / "comparison_report.md").write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
 
 
 def plot_training_curves(run: RunResult, run_viz_dir: Path) -> None:
@@ -513,30 +454,6 @@ def plot_training_curves(run: RunResult, run_viz_dir: Path) -> None:
     plt.close(fig)
 
 
-def plot_confusion_matrix(run: RunResult, run_viz_dir: Path) -> None:
-    matrix = run.metrics.get("confusion_matrix")
-    if not matrix:
-        return
-
-    fig, ax = plt.subplots(figsize=(7, 6))
-    sns.heatmap(
-        matrix,
-        annot=True,
-        fmt="d",
-        cmap=HEATMAP_CONFUSION_CMAP,
-        cbar=True,
-        xticklabels=LABEL_NAMES,
-        yticklabels=LABEL_NAMES,
-        ax=ax,
-    )
-    ax.set_title(f"Confusion Matrix: {run.comparison_label}")
-    ax.set_xlabel("Predicted Label")
-    ax.set_ylabel("True Label")
-    fig.tight_layout()
-    fig.savefig(run_viz_dir / "confusion_matrix.png", dpi=200, bbox_inches="tight")
-    plt.close(fig)
-
-
 def write_run_report(run: RunResult, run_viz_dir: Path) -> None:
     distance_metrics = {
         "mae": run.metrics.get("mae"),
@@ -569,21 +486,17 @@ def write_run_report(run: RunResult, run_viz_dir: Path) -> None:
     (run_viz_dir / "report.md").write_text("\n".join(lines), encoding="utf-8")
 
 
-def visualize_run(run: RunResult, viz_dir: Path) -> None:
-    run_viz_dir = viz_dir / run.run_name
-    run_viz_dir.mkdir(parents=True, exist_ok=True)
-    plot_training_curves(run, run_viz_dir)
-    plot_confusion_matrix(run, run_viz_dir)
-    write_run_report(run, run_viz_dir)
+def visualize_run(run: RunResult) -> None:
+    run.run_dir.mkdir(parents=True, exist_ok=True)
+    plot_training_curves(run, run.run_dir)
+    write_run_report(run, run.run_dir)
 
 
 def main() -> None:
     args = parse_args()
     outputs_dir = Path(args.outputs_dir)
-    viz_dir = Path(args.viz_dir) if args.viz_dir else outputs_dir / "visualizations"
-    viz_dir.mkdir(parents=True, exist_ok=True)
-
-    sns.set_theme(style="whitegrid")
+    assessment_dir = Path(args.assessment_dir)
+    assessment_dir.mkdir(parents=True, exist_ok=True)
 
     runs = load_completed_runs(outputs_dir)
     if not runs:
@@ -595,35 +508,17 @@ def main() -> None:
 
     summary_df = build_summary_frame(comparison_runs)
     best_df = pick_best_run_per_model(summary_df)
-    save_summary_csvs(summary_df, best_df, viz_dir)
-    plot_metric_bars(
-        best_df,
-        viz_dir,
-        filename="comparison_metrics_best_per_model.png",
-        title="Best Run Comparison Across Models",
-        label_column="base_model_display",
-    )
-    plot_metric_bars(
-        summary_df,
-        viz_dir,
-        filename="comparison_metrics_all_runs.png",
-        title="All Run Comparison Across Model and Loss",
-        label_column="comparison_label",
-    )
-    plot_best_epoch_bars(
-        summary_df,
-        viz_dir,
-        filename="best_epoch_comparison_all_runs.png",
-        title="Best Checkpoint Epoch Across All Runs",
-    )
-    # plot_model_comparison_within_loss(summary_df, viz_dir)
-    # plot_metric_heatmaps(summary_df, viz_dir)
-    # write_comparison_report(summary_df, best_df, viz_dir)
+    save_summary_csvs(summary_df, best_df, assessment_dir)
+    plot_metric_bars(summary_df, best_df, assessment_dir)
+    plot_metric_heatmap(summary_df, assessment_dir)
+    plot_confusion_matrices(comparison_runs, assessment_dir)
 
     for run in runs:
-        visualize_run(run, viz_dir)
+        visualize_run(run)
 
-    print(f"Saved visualizations for {len(runs)} runs under {viz_dir}")
+    print(
+        f"Saved per-run training curves under {outputs_dir} and CMOSE assessment charts under {assessment_dir}"
+    )
 
 
 if __name__ == "__main__":

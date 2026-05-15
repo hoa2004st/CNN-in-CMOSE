@@ -1,9 +1,8 @@
-"""Run private-domain prediction analysis with retained CMOSE checkpoints.
+"""Write raw CMOSE-test and private-set predictions for trained checkpoints.
 
-This script addresses the domain-shift step in ``documents/thesis_direction.md``:
-apply CMOSE-trained retained models to the accepted private clips, quantify the
-target prediction distributions, and compare them with each model's CMOSE test
-behavior where available.
+The output focus is the direct model result: one prediction row per model per
+sample, plus a wide per-sample CSV that shows every model's prediction side by
+side. Evaluation visualizations are intentionally not generated here.
 """
 
 from __future__ import annotations
@@ -16,15 +15,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-import matplotlib
-
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import torch
 import torch.nn.functional as F
-from sklearn.metrics import accuracy_score, cohen_kappa_score, confusion_matrix, f1_score
+from sklearn.metrics import accuracy_score, confusion_matrix, f1_score
 from torch.utils.data import DataLoader, TensorDataset
 from tqdm.auto import tqdm
 
@@ -39,49 +34,47 @@ from src.feature_extraction.extract_openface import (
 )
 from src.evaluation.metrics import label_distance_metrics_from_confusion
 from src.models.models import build_model
+from src.output_paths import (
+    CMOSE_TESTSET_ASSESSMENT_DIR,
+    MANUAL_LABELS_CSV,
+    MODEL_ASSESSMENT_DIR,
+    RAW_PREDICTION_DIR,
+    PRIVATE_ASSESSMENT_DIR,
+    training_run_dir,
+    training_run_key,
+)
 from src.visualization.style import (
-    CLASS_LABEL_SHORT,
     CLASS_LABELS as VIS_CLASS_LABELS,
     COMPARISON_LOSS_SLUGS,
-    HEATMAP_DIVERGING_CMAP,
-    HEATMAP_SEQUENTIAL_CMAP,
-    HISTOGRAM_COLOR,
-    LOW_AGREEMENT_COLOR,
-    LOSS_DISPLAY_NAMES,
-    MODEL_DISPLAY_NAMES as VIS_MODEL_DISPLAY_NAMES,
     MODEL_ORDER,
-    class_color_list,
-    run_color,
 )
 
 
 MODEL_NAMES = list(MODEL_ORDER)
 LOSS_SLUGS = list(COMPARISON_LOSS_SLUGS)
-MODEL_RUNS = {
-    f"{model}/{loss_slug}": {
-        "model": model,
-        "checkpoint": f"outputs/{model}/{loss_slug}/best_model.pth",
-        "metrics": f"outputs/{model}/{loss_slug}/metrics.json",
-    }
+MODEL_RUNS = {}
+for _model in MODEL_NAMES:
+    for _loss_slug in LOSS_SLUGS:
+        _run_dir = training_run_dir(model_name=_model, loss_name=_loss_slug)
+        _config = {
+            "model": _model,
+            "checkpoint": str(_run_dir / "best_model.pth"),
+            "metrics": str(_run_dir / "metrics.json"),
+        }
+        MODEL_RUNS[training_run_key(_model, _loss_slug)] = _config
+        _legacy_key = f"{_model}/{_loss_slug}"
+        if _legacy_key not in MODEL_RUNS:
+            MODEL_RUNS[_legacy_key] = _config
+DEFAULT_RUNS = [
+    training_run_key(model, loss_slug_name)
     for model in MODEL_NAMES
-    for loss_slug in LOSS_SLUGS
-}
+    for loss_slug_name in LOSS_SLUGS
+]
 OPENFACE_MODELS = {"openface_mlp", "temporal_cnn", "lstm", "transformer"}
 I3D_MODELS = {"i3d_mlp"}
 FUSION_MODELS = {"openface_tcn_i3d_fusion"}
 CLASS_IDS = list(range(4))
 CLASS_LABELS = list(VIS_CLASS_LABELS)
-METRIC_SPECS = [
-    ("accuracy", "Accuracy"),
-    ("macro_accuracy", "Macro Accuracy"),
-    ("f1_macro", "Macro F1"),
-    ("f1_weighted", "Weighted F1"),
-    ("mae", "MAE"),
-    ("mse", "MSE"),
-]
-ERROR_METRICS = {"mae", "mse"}
-LOSS_LABELS = {loss_slug: LOSS_DISPLAY_NAMES[loss_slug] for loss_slug in LOSS_SLUGS}
-MODEL_DISPLAY_NAMES = dict(VIS_MODEL_DISPLAY_NAMES)
 
 
 @dataclass(frozen=True)
@@ -93,7 +86,7 @@ class PrivateSample:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Run domain-shift prediction analysis on accepted private clips.",
+        description="Write raw predictions for CMOSE test clips and accepted private clips.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument("--accepted_csv", default="data/private/accepted.csv")
@@ -101,18 +94,16 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--labels_json", default="data/CMOSE/final_data_1.json")
     parser.add_argument("--cmose_openface_dir", default="data/CMOSE/features/openface")
     parser.add_argument("--cmose_i3d_dir", default="data/CMOSE/features/i3d")
-    parser.add_argument("--output_dir", default="outputs/domain_shift_analysis")
-    parser.add_argument("--dataset_output_root", default="outputs/dataset_analysis")
-    parser.add_argument("--document_path", default="documents/domain_shift_analysis.md")
+    parser.add_argument("--output_dir", default=str(RAW_PREDICTION_DIR))
+    parser.add_argument("--dataset_output_root", default=str(MODEL_ASSESSMENT_DIR))
     parser.add_argument(
-        "--visualization_dir",
-        default=None,
-        help="Default: <output_dir>/visualizations",
+        "--document_path",
+        default=str(RAW_PREDICTION_DIR / "raw_prediction_report.md"),
     )
     parser.add_argument(
         "--manual_labels_csv",
-        default="outputs/manual_labels/private_manual_labels.csv",
-        help="Manual private labels CSV. Rows with notes containing 'Delete' are excluded.",
+        default=str(MANUAL_LABELS_CSV),
+        help="Optional manual private labels CSV. Rows with notes containing 'Delete' are excluded from labels only.",
     )
     parser.add_argument("--target_frames", type=int, default=300)
     parser.add_argument("--fusion_frames", type=int, default=75)
@@ -121,13 +112,13 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--runs",
         nargs="+",
-        default=list(MODEL_RUNS),
-        help="Run keys to analyze. Defaults to the best retained run for each model.",
+        default=DEFAULT_RUNS,
+        help="Run keys to analyze. Defaults to all configured model/loss runs.",
     )
     parser.add_argument(
         "--from_existing",
         action="store_true",
-        help="Regenerate plots/report from existing CSV outputs without rerunning inference.",
+        help="Regenerate raw CSV summaries/report from existing prediction CSV outputs without rerunning inference.",
     )
     return parser
 
@@ -186,7 +177,7 @@ def load_private_samples(accepted_csv: str | Path) -> list[PrivateSample]:
 def load_private_manual_labels(labels_csv: str | Path) -> dict[str, int]:
     labels_path = Path(labels_csv)
     if not labels_path.exists():
-        raise FileNotFoundError(f"Manual labels CSV does not exist: {labels_path}")
+        return {}
     df = pd.read_csv(labels_path)
     required = {"clip_id", "manual_label_id", "notes"}
     missing = sorted(required - set(df.columns))
@@ -364,7 +355,7 @@ def prediction_frame(
     sample_ids: list[str],
     probs: np.ndarray,
     *,
-    true_labels: np.ndarray | None = None,
+    true_labels: list[int | None] | np.ndarray | None = None,
 ) -> pd.DataFrame:
     pred_ids = probs.argmax(axis=1).astype(int)
     sorted_probs = np.sort(probs, axis=1)
@@ -384,14 +375,48 @@ def prediction_frame(
             "normalized_entropy": float(entropy[idx]),
         }
         if true_labels is not None:
-            true_id = int(true_labels[idx])
-            row["true_id"] = true_id
-            row["true_label"] = ID_TO_LABEL[true_id]
-            row["is_correct"] = bool(pred_ids[idx] == true_id)
+            true_value = true_labels[idx]
+            if true_value is None or pd.isna(true_value):
+                row["true_id"] = np.nan
+                row["true_label"] = ""
+                row["is_correct"] = np.nan
+            else:
+                true_id = int(true_value)
+                row["true_id"] = true_id
+                row["true_label"] = ID_TO_LABEL[true_id]
+                row["is_correct"] = bool(pred_ids[idx] == true_id)
         for class_id in CLASS_IDS:
             row[f"prob_{class_id}_{ID_TO_LABEL[class_id]}"] = float(probs[idx, class_id])
         rows.append(row)
     return pd.DataFrame(rows)
+
+
+def attach_true_labels(
+    predictions: pd.DataFrame,
+    labels_by_clip: dict[str, int],
+) -> pd.DataFrame:
+    if not labels_by_clip:
+        return predictions
+
+    labeled = predictions.copy()
+    if "true_id" not in labeled.columns:
+        labeled["true_id"] = np.nan
+    if "true_label" not in labeled.columns:
+        labeled["true_label"] = ""
+    if "is_correct" not in labeled.columns:
+        labeled["is_correct"] = pd.NA
+    else:
+        labeled["is_correct"] = labeled["is_correct"].astype("object")
+
+    clip_labels = labeled["clip_id"].astype(str).map(labels_by_clip)
+    has_label = clip_labels.notna()
+    labeled.loc[has_label, "true_id"] = clip_labels[has_label].astype(int)
+    labeled.loc[has_label, "true_label"] = labeled.loc[has_label, "true_id"].astype(int).map(ID_TO_LABEL)
+    labeled.loc[has_label, "is_correct"] = (
+        labeled.loc[has_label, "predicted_id"].astype(int)
+        == labeled.loc[has_label, "true_id"].astype(int)
+    )
+    return labeled
 
 
 def distribution_frame(predictions: pd.DataFrame, *, domain: str) -> pd.DataFrame:
@@ -419,33 +444,16 @@ def distribution_frame(predictions: pd.DataFrame, *, domain: str) -> pd.DataFram
     return pd.DataFrame(rows)
 
 
-def true_distribution_frame(sample_ids: list[str], true_labels: np.ndarray, *, domain: str) -> pd.DataFrame:
-    total = len(sample_ids)
-    rows = []
-    for class_id in CLASS_IDS:
-        count = int(np.sum(true_labels == class_id))
-        rows.append(
-            {
-                "run": "__labels__",
-                "domain": domain,
-                "class_id": class_id,
-                "class_label": ID_TO_LABEL[class_id],
-                "count": count,
-                "proportion": float(count / total) if total else 0.0,
-                "mean_confidence": np.nan,
-                "mean_entropy": np.nan,
-            }
-        )
-    return pd.DataFrame(rows)
-
-
 def compute_supervised_metrics(predictions: pd.DataFrame) -> pd.DataFrame:
     if "true_id" not in predictions.columns:
         return pd.DataFrame()
     rows = []
     for run_key, group in predictions.groupby("run"):
-        y_true = group["true_id"].to_numpy(dtype=int)
-        y_pred = group["predicted_id"].to_numpy(dtype=int)
+        labeled = group[group["true_id"].notna()]
+        if labeled.empty:
+            continue
+        y_true = labeled["true_id"].to_numpy(dtype=int)
+        y_pred = labeled["predicted_id"].to_numpy(dtype=int)
         confusion = confusion_matrix(y_true, y_pred, labels=CLASS_IDS)
         per_class_accuracy = np.divide(
             confusion.diagonal(),
@@ -467,296 +475,176 @@ def compute_supervised_metrics(predictions: pd.DataFrame) -> pd.DataFrame:
         )
     return pd.DataFrame(rows)
 
+def raw_predictions_by_clip_frame(
+    predictions: pd.DataFrame,
+    *,
+    expected_runs: list[str],
+) -> pd.DataFrame:
+    """Return one row per clip with each run's prediction in separate columns."""
+    if predictions.empty:
+        return pd.DataFrame()
 
-def model_sort_key(model_name: str) -> tuple[int, str]:
-    try:
-        return (MODEL_NAMES.index(model_name), model_name)
-    except ValueError:
-        return (len(MODEL_NAMES), model_name)
+    base_columns = ["clip_id"]
+    for optional in ["true_id", "true_label"]:
+        if optional in predictions.columns:
+            base_columns.append(optional)
+    base = predictions[base_columns].drop_duplicates("clip_id").set_index("clip_id")
+
+    value_columns = [
+        "predicted_id",
+        "predicted_label",
+        "confidence",
+        "margin",
+        "normalized_entropy",
+    ]
+    value_columns.extend(column for column in predictions.columns if column.startswith("prob_"))
+
+    for run_key in expected_runs:
+        run_rows = predictions[predictions["run"] == run_key].set_index("clip_id")
+        if run_rows.empty:
+            raise ValueError(f"Missing predictions for run: {run_key}")
+        missing_columns = [column for column in value_columns if column not in run_rows.columns]
+        if missing_columns:
+            raise ValueError(f"Missing prediction column(s) for {run_key}: {missing_columns}")
+        renamed = run_rows[value_columns].rename(
+            columns={column: f"{column}__{run_key}" for column in value_columns}
+        )
+        base = base.join(renamed, how="left")
+
+    return base.reset_index()
 
 
-def annotate_run_columns(frame: pd.DataFrame) -> pd.DataFrame:
-    if frame.empty or "run" not in frame.columns:
-        return frame.copy()
-    annotated = frame.copy()
-    parts = annotated["run"].astype(str).str.split("/", n=1, expand=True)
-    annotated["base_model"] = parts[0]
-    annotated["loss_slug"] = parts[1] if parts.shape[1] > 1 else ""
-    annotated["base_model_display"] = annotated["base_model"].map(
-        lambda name: MODEL_DISPLAY_NAMES.get(str(name), str(name))
-    )
-    annotated["loss_label"] = annotated["loss_slug"].map(
-        lambda name: LOSS_LABELS.get(str(name), str(name))
-    )
-    annotated["comparison_label"] = annotated["base_model_display"] + " [" + annotated["loss_label"] + "]"
-    annotated["model_order"] = annotated["base_model"].map(lambda name: model_sort_key(str(name))[0])
-    annotated["loss_order"] = annotated["loss_slug"].map(
-        lambda name: LOSS_SLUGS.index(str(name)) if str(name) in LOSS_SLUGS else len(LOSS_SLUGS)
-    )
-    return annotated.sort_values(["model_order", "loss_order", "run"]).reset_index(drop=True)
+def true_distribution_from_predictions(predictions: pd.DataFrame, *, domain: str) -> pd.DataFrame:
+    if "true_id" not in predictions.columns:
+        return pd.DataFrame()
+    labeled = predictions[["clip_id", "true_id"]].drop_duplicates("clip_id")
+    labeled = labeled[labeled["true_id"].notna()]
+    total = len(labeled)
+    if total == 0:
+        return pd.DataFrame()
+
+    rows = []
+    true_ids = labeled["true_id"].to_numpy(dtype=int)
+    for class_id in CLASS_IDS:
+        count = int(np.sum(true_ids == class_id))
+        rows.append(
+            {
+                "run": "__labels__",
+                "domain": domain,
+                "class_id": class_id,
+                "class_label": ID_TO_LABEL[class_id],
+                "count": count,
+                "proportion": float(count / total),
+                "mean_confidence": np.nan,
+                "mean_entropy": np.nan,
+            }
+        )
+    return pd.DataFrame(rows)
 
 
-def write_dataset_analysis_outputs(
+def write_dataset_prediction_outputs(
     *,
     output_dir: Path,
     dataset_name: str,
     predictions: pd.DataFrame,
     distributions: pd.DataFrame,
     expected_runs: list[str],
-    true_labels: np.ndarray | None = None,
-    sample_ids: list[str] | None = None,
-) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, Any]]:
+) -> pd.DataFrame:
     output_dir.mkdir(parents=True, exist_ok=True)
-    agreement_per_clip, pairwise_kappa, agreement_summary = compute_model_agreement(
-        predictions,
-        expected_runs=expected_runs,
-    )
     supervised_metrics = compute_supervised_metrics(predictions)
+    predictions_by_clip = raw_predictions_by_clip_frame(predictions, expected_runs=expected_runs)
+    true_distribution = true_distribution_from_predictions(predictions, domain=f"{dataset_name}_true")
 
     predictions.to_csv(output_dir / "predictions.csv", index=False)
+    predictions_by_clip.to_csv(output_dir / "predictions_by_clip.csv", index=False)
     distributions.to_csv(output_dir / "prediction_distribution.csv", index=False)
-    agreement_per_clip.to_csv(output_dir / "model_agreement_per_clip.csv", index=False)
-    pairwise_kappa.to_csv(output_dir / "pairwise_cohens_kappa.csv", index=False)
-    if not supervised_metrics.empty:
-        supervised_metrics.to_csv(output_dir / "supervised_metrics.csv", index=False)
-    if true_labels is not None and sample_ids is not None:
-        true_distribution = true_distribution_frame(sample_ids, true_labels, domain=f"{dataset_name}_true")
-        true_distribution.to_csv(
-            output_dir / "true_label_distribution.csv",
-            index=False,
-        )
-        plot_true_label_distribution(
-            true_distribution,
-            output_dir / "true_label_distribution.png",
-            title=f"{dataset_name.upper()} true label distribution",
-        )
-    (output_dir / "agreement_summary.json").write_text(
-        json.dumps(agreement_summary, indent=2),
-        encoding="utf-8",
+    supervised_metrics.to_csv(output_dir / "supervised_metrics.csv", index=False)
+    true_distribution.to_csv(
+        output_dir / "true_label_distribution.csv",
+        index=False,
     )
     dataset_summary = {
         "dataset": dataset_name,
         "num_samples": int(predictions["clip_id"].nunique()),
         "runs": expected_runs,
-        "agreement_summary": agreement_summary,
+        "prediction_files": {
+            "long": str(output_dir / "predictions.csv"),
+            "by_clip": str(output_dir / "predictions_by_clip.csv"),
+            "distribution": str(output_dir / "prediction_distribution.csv"),
+        },
         "supervised_metrics": supervised_metrics.to_dict(orient="records"),
     }
     (output_dir / "dataset_summary.json").write_text(
         json.dumps(dataset_summary, indent=2),
         encoding="utf-8",
     )
-    plot_prediction_distribution(
-        distributions,
-        output_dir / "prediction_distribution.png",
-        domain=f"{dataset_name}_predicted",
-        ylabel=f"{dataset_name.upper()} prediction proportion",
-    )
-    plot_agreement_diagnostics(
-        agreement_per_clip,
-        pairwise_kappa,
-        output_dir,
-        title_prefix=dataset_name.upper(),
-    )
-    return agreement_per_clip, pairwise_kappa, agreement_summary
+    return supervised_metrics
 
 
-def compute_model_agreement(
-    predictions: pd.DataFrame,
+def write_top_level_prediction_outputs(
     *,
+    output_dir: Path,
+    private_predictions: pd.DataFrame,
+    cmose_predictions: pd.DataFrame,
+    distributions: pd.DataFrame,
     expected_runs: list[str],
-) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, Any]]:
-    """Compute per-clip and across-clip agreement for retained model predictions."""
-    prediction_pivot = predictions.pivot(
-        index="clip_id",
-        columns="run",
-        values="predicted_id",
+    summary: dict[str, Any],
+) -> None:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    private_predictions.to_csv(output_dir / "private_predictions.csv", index=False)
+    cmose_predictions.to_csv(output_dir / "cmose_test_predictions.csv", index=False)
+    raw_predictions_by_clip_frame(private_predictions, expected_runs=expected_runs).to_csv(
+        output_dir / "private_predictions_by_clip.csv",
+        index=False,
     )
-    confidence_pivot = predictions.pivot(
-        index="clip_id",
-        columns="run",
-        values="confidence",
+    raw_predictions_by_clip_frame(cmose_predictions, expected_runs=expected_runs).to_csv(
+        output_dir / "cmose_test_predictions_by_clip.csv",
+        index=False,
     )
-    missing_runs = [run for run in expected_runs if run not in prediction_pivot.columns]
-    if missing_runs:
-        raise ValueError(f"Missing predictions for run(s): {missing_runs}")
-    prediction_pivot = prediction_pivot[expected_runs].astype(int)
-    confidence_pivot = confidence_pivot[expected_runs].astype(float)
+    distributions.to_csv(output_dir / "prediction_distribution.csv", index=False)
+    (output_dir / "raw_prediction_summary.json").write_text(
+        json.dumps(summary, indent=2),
+        encoding="utf-8",
+    )
 
-    per_clip_rows = []
-    total_pairs = len(expected_runs) * (len(expected_runs) - 1) // 2
-    for clip_id, row in prediction_pivot.iterrows():
-        votes = row.to_numpy(dtype=int)
-        counts = np.bincount(votes, minlength=len(CLASS_IDS))
-        vote_probs = counts.astype(np.float64) / float(len(votes))
-        nonzero_vote_probs = vote_probs[vote_probs > 0.0]
-        vote_entropy = -float(np.sum(nonzero_vote_probs * np.log(nonzero_vote_probs)))
-        normalized_vote_entropy = vote_entropy / math.log(len(CLASS_IDS))
-        agreeing_pairs = int(sum(count * (count - 1) // 2 for count in counts))
-        majority_class_id = int(np.argmax(counts))
-        per_clip_row: dict[str, Any] = {
-            "clip_id": clip_id,
-            "num_models": len(expected_runs),
-            "agreement_rate": float(agreeing_pairs / total_pairs) if total_pairs else 1.0,
-            "prediction_entropy": normalized_vote_entropy,
-            "mean_confidence": float(confidence_pivot.loc[clip_id].mean()),
-            "majority_class_id": majority_class_id,
-            "majority_label": ID_TO_LABEL[majority_class_id],
-            "majority_vote_count": int(counts[majority_class_id]),
-        }
-        for class_id in CLASS_IDS:
-            per_clip_row[f"vote_count_{class_id}_{ID_TO_LABEL[class_id]}"] = int(counts[class_id])
-            per_clip_row[f"vote_proportion_{class_id}_{ID_TO_LABEL[class_id]}"] = float(
-                vote_probs[class_id]
-            )
-        for run in expected_runs:
-            per_clip_row[f"predicted_id__{run}"] = int(prediction_pivot.loc[clip_id, run])
-            per_clip_row[f"predicted_label__{run}"] = ID_TO_LABEL[
-                int(prediction_pivot.loc[clip_id, run])
-            ]
-            per_clip_row[f"confidence__{run}"] = float(confidence_pivot.loc[clip_id, run])
-        per_clip_rows.append(per_clip_row)
 
-    pairwise_rows = []
-    for left_idx, left_run in enumerate(expected_runs):
-        for right_run in expected_runs[left_idx + 1 :]:
-            left_values = prediction_pivot[left_run].to_numpy(dtype=int)
-            right_values = prediction_pivot[right_run].to_numpy(dtype=int)
-            raw_agreement = float(np.mean(left_values == right_values))
-            pairwise_rows.append(
-                {
-                    "run_a": left_run,
-                    "run_b": right_run,
-                    "cohens_kappa": float(cohen_kappa_score(left_values, right_values, labels=CLASS_IDS)),
-                    "raw_agreement": raw_agreement,
-                }
-            )
-
-    pairwise = pd.DataFrame(pairwise_rows)
-    per_clip = pd.DataFrame(per_clip_rows)
-    fleiss = fleiss_kappa_from_votes(prediction_pivot.to_numpy(dtype=int), n_classes=len(CLASS_IDS))
-    summary = {
-        "num_clips": int(len(per_clip)),
-        "num_models": int(len(expected_runs)),
-        "agreement_rate_mean": float(per_clip["agreement_rate"].mean()),
-        "agreement_rate_median": float(per_clip["agreement_rate"].median()),
-        "prediction_entropy_mean": float(per_clip["prediction_entropy"].mean()),
-        "prediction_entropy_median": float(per_clip["prediction_entropy"].median()),
-        "mean_confidence": float(per_clip["mean_confidence"].mean()),
-        "fleiss_kappa": fleiss,
-        "pairwise_cohens_kappa_mean": float(pairwise["cohens_kappa"].mean()),
-        "pairwise_cohens_kappa_min": float(pairwise["cohens_kappa"].min()),
-        "pairwise_cohens_kappa_max": float(pairwise["cohens_kappa"].max()),
-        "pairwise_raw_agreement_mean": float(pairwise["raw_agreement"].mean()),
-        "majority_label_distribution": per_clip["majority_label"].value_counts().to_dict(),
+def build_raw_summary(
+    *,
+    samples: list[PrivateSample],
+    manual_labels: dict[str, int],
+    test_record_count: int,
+    args: argparse.Namespace,
+    device: torch.device,
+    run_metrics: dict[str, dict[str, Any]],
+    private_distribution: pd.DataFrame,
+    cmose_distribution: pd.DataFrame,
+    private_supervised_metrics: pd.DataFrame,
+    cmose_supervised_metrics: pd.DataFrame,
+) -> dict[str, Any]:
+    return {
+        "accepted_private_clips": len(samples),
+        "private_manual_labels_available": int(
+            sum(sample.clip_id in manual_labels for sample in samples)
+        ),
+        "manual_labels_csv": str(args.manual_labels_csv),
+        "manual_label_filter": "labels with notes containing 'Delete' are excluded from metric rows",
+        "cmose_test_clips": test_record_count,
+        "runs": args.runs,
+        "device": device.type,
+        "target_frames": args.target_frames,
+        "fusion_frames": args.fusion_frames,
+        "raw_prediction_files": {
+            "private_long": str(Path(args.output_dir) / "private_predictions.csv"),
+            "private_by_clip": str(Path(args.output_dir) / "private_predictions_by_clip.csv"),
+            "cmose_test_long": str(Path(args.output_dir) / "cmose_test_predictions.csv"),
+            "cmose_test_by_clip": str(Path(args.output_dir) / "cmose_test_predictions_by_clip.csv"),
+        },
+        "run_metrics": run_metrics,
+        "private_prediction_distribution": private_distribution.to_dict(orient="records"),
+        "cmose_test_prediction_distribution": cmose_distribution.to_dict(orient="records"),
+        "private_supervised_metrics": private_supervised_metrics.to_dict(orient="records"),
+        "cmose_supervised_metrics": cmose_supervised_metrics.to_dict(orient="records"),
     }
-    return per_clip, pairwise, summary
-
-
-def fleiss_kappa_from_votes(vote_matrix: np.ndarray, *, n_classes: int) -> float:
-    """Compute Fleiss' kappa from an items x raters integer label matrix."""
-    if vote_matrix.ndim != 2:
-        raise ValueError(f"Expected a 2-D vote matrix, got {vote_matrix.shape}")
-    n_items, n_raters = vote_matrix.shape
-    if n_items == 0 or n_raters < 2:
-        return float("nan")
-    counts = np.zeros((n_items, n_classes), dtype=np.float64)
-    for item_idx in range(n_items):
-        counts[item_idx] = np.bincount(vote_matrix[item_idx], minlength=n_classes)
-    p_j = counts.sum(axis=0) / float(n_items * n_raters)
-    p_i = (np.square(counts).sum(axis=1) - n_raters) / float(n_raters * (n_raters - 1))
-    p_bar = float(p_i.mean())
-    p_e_bar = float(np.square(p_j).sum())
-    if math.isclose(1.0 - p_e_bar, 0.0):
-        return float("nan")
-    return float((p_bar - p_e_bar) / (1.0 - p_e_bar))
-
-
-def load_source_reference(run_key: str, run_cfg: dict[str, str]) -> pd.DataFrame:
-    metrics_path = Path(run_cfg["metrics"])
-    if not metrics_path.exists():
-        return pd.DataFrame()
-    data = json.loads(metrics_path.read_text(encoding="utf-8"))
-    metrics = data.get("metrics", {})
-    confusion = np.asarray(metrics.get("confusion_matrix", []), dtype=np.int64)
-    rows = []
-    if confusion.shape == (4, 4):
-        true_counts = confusion.sum(axis=1)
-        pred_counts = confusion.sum(axis=0)
-        true_total = max(int(true_counts.sum()), 1)
-        pred_total = max(int(pred_counts.sum()), 1)
-        for class_id in CLASS_IDS:
-            rows.append(
-                {
-                    "run": run_key,
-                    "domain": "cmose_test_true",
-                    "class_id": class_id,
-                    "class_label": ID_TO_LABEL[class_id],
-                    "count": int(true_counts[class_id]),
-                    "proportion": float(true_counts[class_id] / true_total),
-                    "mean_confidence": np.nan,
-                    "mean_entropy": np.nan,
-                }
-            )
-            rows.append(
-                {
-                    "run": run_key,
-                    "domain": "cmose_test_predicted",
-                    "class_id": class_id,
-                    "class_label": ID_TO_LABEL[class_id],
-                    "count": int(pred_counts[class_id]),
-                    "proportion": float(pred_counts[class_id] / pred_total),
-                    "mean_confidence": np.nan,
-                    "mean_entropy": np.nan,
-                }
-            )
-    return pd.DataFrame(rows)
-
-
-def summarize_shift(distributions: pd.DataFrame, run_metrics: dict[str, dict[str, Any]]) -> pd.DataFrame:
-    rows = []
-    private = distributions[distributions["domain"] == "private_accepted"]
-    source_pred = distributions[distributions["domain"] == "cmose_test_predicted"]
-    source_true = distributions[distributions["domain"] == "cmose_test_true"]
-    for run_key in sorted(private["run"].unique()):
-        private_run = private[private["run"] == run_key].set_index("class_id")
-        source_pred_run = source_pred[source_pred["run"] == run_key].set_index("class_id")
-        source_true_run = source_true[source_true["run"] == run_key].set_index("class_id")
-        metrics = run_metrics.get(run_key, {})
-        dominant_class_id = int(private_run["proportion"].idxmax())
-        for class_id in CLASS_IDS:
-            private_prop = float(private_run.loc[class_id, "proportion"])
-            source_pred_prop = (
-                float(source_pred_run.loc[class_id, "proportion"])
-                if class_id in source_pred_run.index
-                else np.nan
-            )
-            source_true_prop = (
-                float(source_true_run.loc[class_id, "proportion"])
-                if class_id in source_true_run.index
-                else np.nan
-            )
-            rows.append(
-                {
-                    "run": run_key,
-                    "model": MODEL_RUNS[run_key]["model"],
-                    "class_id": class_id,
-                    "class_label": ID_TO_LABEL[class_id],
-                    "private_proportion": private_prop,
-                    "source_predicted_proportion": source_pred_prop,
-                    "source_true_proportion": source_true_prop,
-                    "private_minus_source_predicted": private_prop - source_pred_prop,
-                    "private_minus_source_true": private_prop - source_true_prop,
-                    "private_mean_confidence": float(private_run.loc[class_id, "mean_confidence"]),
-                    "private_mean_entropy": float(private_run.loc[class_id, "mean_entropy"]),
-                    "is_private_dominant": class_id == dominant_class_id,
-                    "source_test_accuracy": metrics.get("accuracy"),
-                    "source_test_macro_accuracy": metrics.get("macro_accuracy"),
-                    "source_test_f1_macro": metrics.get("f1_macro"),
-                    "source_test_mae": metrics.get("mae"),
-                    "source_test_mse": metrics.get("mse"),
-                }
-            )
-    return pd.DataFrame(rows)
 
 
 def load_run_metrics(run_cfg: dict[str, str]) -> dict[str, float]:
@@ -784,315 +672,6 @@ def load_run_metrics(run_cfg: dict[str, str]) -> dict[str, float]:
     }
 
 
-def plot_prediction_distribution(
-    distributions: pd.DataFrame,
-    output_path: Path,
-    *,
-    domain: str,
-    ylabel: str,
-) -> None:
-    predicted = distributions[distributions["domain"] == domain]
-    pivot = (
-        predicted.pivot_table(index="run", columns="class_label", values="proportion", fill_value=0.0)
-        .reindex(columns=CLASS_LABELS, fill_value=0.0)
-    )
-    ax = pivot.plot(kind="bar", stacked=True, figsize=(11, 6), color=class_color_list(pivot.columns))
-    ax.set_ylabel(ylabel)
-    ax.set_xlabel("CMOSE-trained run")
-    ax.set_ylim(0, 1)
-    handles, labels = ax.get_legend_handles_labels()
-    ax.legend(
-        handles[::-1],
-        labels[::-1],
-        title="Predicted class",
-        bbox_to_anchor=(1.02, 1),
-        loc="upper left",
-    )
-    ax.figure.tight_layout()
-    ax.figure.savefig(output_path, dpi=180)
-    plt.close(ax.figure)
-
-
-def plot_private_distribution(distributions: pd.DataFrame, output_path: Path) -> None:
-    plot_prediction_distribution(
-        distributions,
-        output_path,
-        domain="private_accepted",
-        ylabel="Private accepted prediction proportion",
-    )
-
-
-def plot_shift_heatmap(shift: pd.DataFrame, output_path: Path) -> None:
-    pivot = shift.pivot(index="run", columns="class_label", values="private_minus_source_predicted")[
-        CLASS_LABELS
-    ]
-    fig, ax = plt.subplots(figsize=(10, 5))
-    image = ax.imshow(pivot.values, cmap=HEATMAP_DIVERGING_CMAP, vmin=-1, vmax=1, aspect="auto")
-    ax.set_xticks(np.arange(len(pivot.columns)), labels=pivot.columns, rotation=25, ha="right")
-    ax.set_yticks(np.arange(len(pivot.index)), labels=pivot.index)
-    ax.set_title("Private proportion minus CMOSE test predicted proportion")
-    for i in range(pivot.shape[0]):
-        for j in range(pivot.shape[1]):
-            ax.text(j, i, f"{pivot.values[i, j]:+.2f}", ha="center", va="center", fontsize=8)
-    fig.colorbar(image, ax=ax, fraction=0.025, pad=0.02)
-    fig.tight_layout()
-    fig.savefig(output_path, dpi=180)
-    plt.close(fig)
-
-
-def plot_metric_bars(metrics: pd.DataFrame, output_path: Path, *, title: str) -> None:
-    metrics = annotate_run_columns(metrics)
-    if metrics.empty:
-        return
-
-    fig, axes = plt.subplots(2, 3, figsize=(18, 10))
-    for ax, (metric, metric_title) in zip(axes.flat, METRIC_SPECS, strict=True):
-        ordered = metrics.sort_values(metric, ascending=metric in ERROR_METRICS)
-        colors = [run_color(row.base_model, row.loss_slug) for row in ordered.itertuples(index=False)]
-        ax.barh(ordered["comparison_label"], ordered[metric].astype(float), color=colors)
-        ax.set_title(metric_title)
-        ax.set_xlabel(metric_title)
-        ax.set_ylabel("")
-        if metric in ERROR_METRICS:
-            ax.set_xlim(left=0.0)
-        else:
-            ax.set_xlim(0.0, 1.0)
-        ax.invert_yaxis()
-    fig.suptitle(title, fontsize=14)
-    fig.tight_layout()
-    fig.savefig(output_path, dpi=200, bbox_inches="tight")
-    plt.close(fig)
-
-
-def plot_metric_heatmaps(metrics: pd.DataFrame, viz_dir: Path, *, prefix: str) -> None:
-    metrics = annotate_run_columns(metrics)
-    if metrics.empty:
-        return
-    for metric, metric_title in METRIC_SPECS:
-        pivot = metrics.pivot_table(
-            index="base_model_display",
-            columns="loss_label",
-            values=metric,
-            aggfunc="first",
-        )
-        model_order = [
-            MODEL_DISPLAY_NAMES.get(model, model)
-            for model in MODEL_NAMES
-            if MODEL_DISPLAY_NAMES.get(model, model) in pivot.index
-        ]
-        loss_order = [LOSS_LABELS[loss] for loss in LOSS_SLUGS if LOSS_LABELS[loss] in pivot.columns]
-        pivot = pivot.reindex(index=model_order, columns=loss_order)
-        pivot.to_csv(viz_dir / f"{prefix}_heatmap_{metric}.csv")
-
-        fig, ax = plt.subplots(figsize=(8, 5))
-        heatmap_kwargs = {"vmin": 0.0}
-        if metric not in ERROR_METRICS:
-            heatmap_kwargs["vmax"] = 1.0
-        image = ax.imshow(
-            pivot.values.astype(float),
-            cmap=HEATMAP_SEQUENTIAL_CMAP,
-            aspect="auto",
-            **heatmap_kwargs,
-        )
-        ax.set_xticks(np.arange(len(pivot.columns)), labels=pivot.columns, rotation=25, ha="right")
-        ax.set_yticks(np.arange(len(pivot.index)), labels=pivot.index)
-        ax.set_title(f"{metric_title} by Model and Loss")
-        for i in range(pivot.shape[0]):
-            for j in range(pivot.shape[1]):
-                value = pivot.values[i, j]
-                ax.text(j, i, "" if pd.isna(value) else f"{value:.3f}", ha="center", va="center", fontsize=9)
-        fig.colorbar(image, ax=ax, fraction=0.035, pad=0.02)
-        fig.tight_layout()
-        fig.savefig(viz_dir / f"{prefix}_heatmap_{metric}.png", dpi=200, bbox_inches="tight")
-        plt.close(fig)
-
-
-def source_metrics_frame(run_metrics: dict[str, dict[str, Any]]) -> pd.DataFrame:
-    rows = []
-    for run, metrics in run_metrics.items():
-        row = {"run": run}
-        row.update({metric: metrics.get(metric, np.nan) for metric, _title in METRIC_SPECS})
-        rows.append(row)
-    return pd.DataFrame(rows)
-
-
-def plot_metric_delta_heatmap(
-    private_metrics: pd.DataFrame,
-    source_metrics: pd.DataFrame,
-    output_path: Path,
-) -> None:
-    if private_metrics.empty or source_metrics.empty:
-        return
-    private = private_metrics.set_index("run")
-    source = source_metrics.set_index("run")
-    rows = []
-    for run in sorted(set(private.index) & set(source.index)):
-        row = {"run": run}
-        for metric, _title in METRIC_SPECS:
-            row[metric] = float(private.loc[run, metric]) - float(source.loc[run, metric])
-        rows.append(row)
-    delta = annotate_run_columns(pd.DataFrame(rows))
-    if delta.empty:
-        return
-
-    pivot = delta.set_index("comparison_label")[[metric for metric, _title in METRIC_SPECS]]
-    fig, ax = plt.subplots(figsize=(10, 8))
-    image = ax.imshow(pivot.values.astype(float), cmap=HEATMAP_DIVERGING_CMAP, vmin=-1, vmax=1, aspect="auto")
-    ax.set_xticks(np.arange(len(pivot.columns)), labels=[title for _metric, title in METRIC_SPECS], rotation=25, ha="right")
-    ax.set_yticks(np.arange(len(pivot.index)), labels=pivot.index)
-    ax.set_title("Private manual metrics minus CMOSE test metrics")
-    for i in range(pivot.shape[0]):
-        for j in range(pivot.shape[1]):
-            ax.text(j, i, f"{pivot.values[i, j]:+.2f}", ha="center", va="center", fontsize=8)
-    fig.colorbar(image, ax=ax, fraction=0.025, pad=0.02)
-    fig.tight_layout()
-    fig.savefig(output_path, dpi=200, bbox_inches="tight")
-    plt.close(fig)
-
-
-def plot_true_label_distribution(distribution: pd.DataFrame, output_path: Path, *, title: str) -> None:
-    if distribution.empty:
-        return
-    frame = distribution.set_index("class_label").reindex(CLASS_LABELS)
-    fig, ax = plt.subplots(figsize=(7, 4))
-    ax.bar(frame.index, frame["proportion"].astype(float), color=class_color_list(frame.index))
-    ax.set_title(title)
-    ax.set_ylabel("Proportion")
-    ax.set_xlabel("Class")
-    ax.set_ylim(0.0, 1.0)
-    ax.tick_params(axis="x", rotation=25)
-    fig.tight_layout()
-    fig.savefig(output_path, dpi=200, bbox_inches="tight")
-    plt.close(fig)
-
-
-def plot_agreement_diagnostics(
-    agreement_per_clip: pd.DataFrame,
-    pairwise_kappa: pd.DataFrame,
-    output_dir: Path,
-    *,
-    title_prefix: str,
-) -> None:
-    if not agreement_per_clip.empty:
-        for column, title, filename in [
-            ("agreement_rate", "Agreement Rate", "agreement_rate_distribution.png"),
-            ("prediction_entropy", "Prediction Entropy", "prediction_entropy_distribution.png"),
-            ("mean_confidence", "Mean Confidence", "mean_confidence_distribution.png"),
-        ]:
-            fig, ax = plt.subplots(figsize=(7, 4))
-            ax.hist(agreement_per_clip[column].astype(float), bins=20, color=HISTOGRAM_COLOR, edgecolor="white")
-            ax.set_title(f"{title_prefix} {title} Distribution")
-            ax.set_xlabel(title)
-            ax.set_ylabel("Clip count")
-            fig.tight_layout()
-            fig.savefig(output_dir / filename, dpi=200, bbox_inches="tight")
-            plt.close(fig)
-
-        fig, ax = plt.subplots(figsize=(7, 5))
-        labels = agreement_per_clip["majority_label"].value_counts().reindex(CLASS_LABELS, fill_value=0)
-        ax.bar(labels.index, labels.values, color=class_color_list(labels.index))
-        ax.set_title(f"{title_prefix} Majority Label Distribution")
-        ax.set_ylabel("Clip count")
-        ax.tick_params(axis="x", rotation=25)
-        fig.tight_layout()
-        fig.savefig(output_dir / "majority_label_distribution.png", dpi=200, bbox_inches="tight")
-        plt.close(fig)
-
-    if not pairwise_kappa.empty:
-        for value_column, title, filename in [
-            ("cohens_kappa", "Pairwise Cohen's Kappa", "pairwise_cohens_kappa_heatmap.png"),
-            ("raw_agreement", "Pairwise Raw Agreement", "pairwise_raw_agreement_heatmap.png"),
-        ]:
-            runs = sorted(set(pairwise_kappa["run_a"]) | set(pairwise_kappa["run_b"]))
-            matrix = pd.DataFrame(np.nan, index=runs, columns=runs)
-            for row in pairwise_kappa.itertuples(index=False):
-                matrix.loc[row.run_a, row.run_b] = float(getattr(row, value_column))
-                matrix.loc[row.run_b, row.run_a] = float(getattr(row, value_column))
-            np.fill_diagonal(matrix.values, 1.0)
-            fig, ax = plt.subplots(figsize=(12, 10))
-            if value_column == "cohens_kappa":
-                image = ax.imshow(
-                    matrix.values.astype(float),
-                    cmap=HEATMAP_DIVERGING_CMAP,
-                    vmin=-1,
-                    vmax=1,
-                    aspect="auto",
-                )
-            else:
-                image = ax.imshow(
-                    matrix.values.astype(float),
-                    cmap=HEATMAP_SEQUENTIAL_CMAP,
-                    vmin=0,
-                    vmax=1,
-                    aspect="auto",
-                )
-            ax.set_xticks(np.arange(len(matrix.columns)), labels=matrix.columns, rotation=75, ha="right")
-            ax.set_yticks(np.arange(len(matrix.index)), labels=matrix.index)
-            ax.set_title(f"{title_prefix} {title}")
-            fig.colorbar(image, ax=ax, fraction=0.025, pad=0.02)
-            fig.tight_layout()
-            fig.savefig(output_dir / filename, dpi=200, bbox_inches="tight")
-            plt.close(fig)
-
-        ordered = pairwise_kappa.sort_values("cohens_kappa").head(25).copy()
-        ordered["pair"] = ordered["run_a"] + " vs " + ordered["run_b"]
-        fig, ax = plt.subplots(figsize=(10, 8))
-        ax.barh(ordered["pair"], ordered["cohens_kappa"].astype(float), color=LOW_AGREEMENT_COLOR)
-        ax.set_title(f"{title_prefix} Lowest Pairwise Cohen's Kappa")
-        ax.set_xlabel("Cohen's kappa")
-        ax.invert_yaxis()
-        fig.tight_layout()
-        fig.savefig(output_dir / "pairwise_cohens_kappa_lowest.png", dpi=200, bbox_inches="tight")
-        plt.close(fig)
-
-
-def write_manual_metric_visualizations(
-    *,
-    viz_dir: Path,
-    private_metrics: pd.DataFrame,
-    run_metrics: dict[str, dict[str, Any]],
-) -> None:
-    viz_dir.mkdir(parents=True, exist_ok=True)
-    private_metrics = annotate_run_columns(private_metrics)
-    source_metrics = annotate_run_columns(source_metrics_frame(run_metrics))
-    private_metrics.to_csv(viz_dir / "private_manual_metrics_summary.csv", index=False)
-    source_metrics.to_csv(viz_dir / "cmose_test_metrics_summary.csv", index=False)
-
-    if not private_metrics.empty:
-        plot_metric_bars(
-            private_metrics,
-            viz_dir / "private_manual_metrics_all_runs.png",
-            title="Private Manual-Label Metrics Across All Model/Loss Runs",
-        )
-        best_private = (
-            private_metrics.sort_values(
-                ["base_model", "f1_macro", "macro_accuracy", "accuracy", "f1_weighted", "mae", "mse"],
-                ascending=[True, False, False, False, False, True, True],
-            )
-            .drop_duplicates("base_model", keep="first")
-            .reset_index(drop=True)
-        )
-        best_private.to_csv(viz_dir / "private_manual_metrics_best_per_model.csv", index=False)
-        plot_metric_bars(
-            best_private,
-            viz_dir / "private_manual_metrics_best_per_model.png",
-            title="Private Manual-Label Metrics: Best Loss Per Model",
-        )
-        plot_metric_heatmaps(private_metrics, viz_dir, prefix="private_manual")
-
-    if not source_metrics.empty:
-        plot_metric_bars(
-            source_metrics,
-            viz_dir / "cmose_test_metrics_all_runs.png",
-            title="CMOSE Test Metrics Across All Model/Loss Runs",
-        )
-        plot_metric_delta_heatmap(
-            private_metrics,
-            source_metrics,
-            viz_dir / "private_minus_cmose_metric_delta.png",
-        )
-
-
 def write_markdown_report(
     *,
     output_path: Path,
@@ -1100,32 +679,55 @@ def write_markdown_report(
     dataset_output_root: Path,
     samples: list[PrivateSample],
     run_metrics: dict[str, dict[str, Any]],
-    shift: pd.DataFrame,
     distributions: pd.DataFrame,
-    supervised_metrics: pd.DataFrame | None = None,
-    agreement_summary: dict[str, Any] | None = None,
-    pairwise_kappa: pd.DataFrame | None = None,
+    private_supervised_metrics: pd.DataFrame | None = None,
+    cmose_supervised_metrics: pd.DataFrame | None = None,
 ) -> None:
-    private = distributions[distributions["domain"] == "private_accepted"].copy()
     lines = [
-        "# Domain Shift Analysis",
+        "# Raw Prediction Outputs",
         "",
-        "This report applies retained CMOSE-trained models to the private accepted subset.",
+        "This report records the direct predictions made by each configured CMOSE-trained run.",
         "",
-        f"- Accepted private clips analyzed after excluding `Delete` notes: {len(samples)}",
-        "- Private target metrics use the manual labels CSV and exclude rows whose notes contain `Delete`.",
-        "- Source reference uses each run's saved CMOSE test confusion matrix.",
+        f"- Accepted private clips predicted: {len(samples)}",
+        f"- Runs predicted: {len(run_metrics)}",
         "",
-        "## CMOSE Test Reference",
+        "## Raw CSV Files",
+        "",
+        "| Dataset | Long format | One row per clip | Distribution | Metrics |",
+        "|---|---|---|---|---|",
+        (
+            f"| Private | `{output_dir / 'private_predictions.csv'}` "
+            f"| `{output_dir / 'private_predictions_by_clip.csv'}` "
+            f"| `{dataset_output_root / PRIVATE_ASSESSMENT_DIR.name / 'prediction_distribution.csv'}` "
+            f"| `{dataset_output_root / PRIVATE_ASSESSMENT_DIR.name / 'supervised_metrics.csv'}` |"
+        ),
+        (
+            f"| CMOSE test | `{output_dir / 'cmose_test_predictions.csv'}` "
+            f"| `{output_dir / 'cmose_test_predictions_by_clip.csv'}` "
+            f"| `{dataset_output_root / CMOSE_TESTSET_ASSESSMENT_DIR.name / 'prediction_distribution.csv'}` "
+            f"| `{dataset_output_root / CMOSE_TESTSET_ASSESSMENT_DIR.name / 'supervised_metrics.csv'}` |"
+        ),
+        "",
+        "## Prediction Columns",
+        "",
+        "- `predictions.csv` / `*_predictions.csv`: one row per `run` and `clip_id`, including predicted class, confidence, margin, normalized entropy, and class probabilities.",
+        "- `predictions_by_clip.csv` / `*_predictions_by_clip.csv`: one row per clip, with each run's prediction in separate columns.",
+        "",
+        "## CMOSE Test Metrics",
         "",
         "| Run | Accuracy | Macro Accuracy | F1 Macro | F1 Weighted | MAE | MSE |",
         "|---|---:|---:|---:|---:|---:|---:|",
     ]
-    for run_key in sorted(run_metrics):
-        metrics = run_metrics[run_key]
+    cmose_metrics = cmose_supervised_metrics if cmose_supervised_metrics is not None else pd.DataFrame()
+    metric_rows = (
+        cmose_metrics.sort_values("run").to_dict(orient="records")
+        if not cmose_metrics.empty
+        else [{"run": run_key, **metrics} for run_key, metrics in sorted(run_metrics.items())]
+    )
+    for metrics in metric_rows:
         lines.append(
             "| "
-            + run_key
+            + str(metrics.get("run", ""))
             + f" | {metrics.get('accuracy', float('nan')):.4f}"
             + f" | {metrics.get('macro_accuracy', float('nan')):.4f}"
             + f" | {metrics.get('f1_macro', float('nan')):.4f}"
@@ -1134,7 +736,7 @@ def write_markdown_report(
             + f" | {metrics.get('mse', float('nan')):.4f} |"
         )
 
-    if supervised_metrics is not None and not supervised_metrics.empty:
+    if private_supervised_metrics is not None and not private_supervised_metrics.empty:
         lines.extend(
             [
                 "",
@@ -1144,7 +746,7 @@ def write_markdown_report(
                 "|---|---:|---:|---:|---:|---:|---:|",
             ]
         )
-        for row in supervised_metrics.sort_values("run").itertuples(index=False):
+        for row in private_supervised_metrics.sort_values("run").itertuples(index=False):
             lines.append(
                 f"| {row.run} | {row.accuracy:.4f} | {row.macro_accuracy:.4f} "
                 f"| {row.f1_macro:.4f} | {row.f1_weighted:.4f} | {row.mae:.4f} | {row.mse:.4f} |"
@@ -1153,97 +755,41 @@ def write_markdown_report(
     lines.extend(
         [
             "",
-            "## Private Prediction Distribution",
+            "## Prediction Distribution",
             "",
-            "| Run | HD | DE | EG | HE | Dominant | Mean Confidence | Mean Entropy |",
-            "|---|---:|---:|---:|---:|---|---:|---:|",
+            "| Dataset | Run | Highly Disengage | Disengage | Engage | Highly Engage |",
+            "|---|---|---:|---:|---:|---:|",
         ]
     )
-    for run_key in sorted(private["run"].unique()):
-        run_private = private[private["run"] == run_key].set_index("class_label")
-        props = [float(run_private.loc[label, "proportion"]) for label in CLASS_LABELS]
-        dominant_label = CLASS_LABELS[int(np.argmax(props))]
-        pred_rows = distributions[
-            (distributions["domain"] == "private_accepted") & (distributions["run"] == run_key)
-        ]
-        pred_count = max(int(pred_rows["count"].sum()), 1)
-        mean_conf = float((pred_rows["mean_confidence"] * pred_rows["count"]).sum() / pred_count)
-        mean_entropy = float((pred_rows["mean_entropy"] * pred_rows["count"]).sum() / pred_count)
-        lines.append(
-            "| "
-            + run_key
-            + " | "
-            + " | ".join(f"{prop:.3f}" for prop in props)
-            + f" | {CLASS_LABEL_SHORT[dominant_label]} | {mean_conf:.3f} | {mean_entropy:.3f} |"
-        )
-
-    lines.extend(
-        [
-            "",
-            "## Largest Distribution Shifts",
-            "",
-            "Positive values mean the class is predicted more often on private clips than on the same run's CMOSE test predictions.",
-            "",
-            "| Run | Class | Private - CMOSE Predicted | Private Proportion | CMOSE Predicted Proportion |",
-            "|---|---|---:|---:|---:|",
-        ]
-    )
-    top_shift = shift.assign(
-        abs_shift=shift["private_minus_source_predicted"].abs()
-    ).sort_values("abs_shift", ascending=False)
-    for row in top_shift.head(12).itertuples(index=False):
-        lines.append(
-            f"| {row.run} | {row.class_label} | {row.private_minus_source_predicted:+.3f} "
-            f"| {row.private_proportion:.3f} | {row.source_predicted_proportion:.3f} |"
-        )
-
-    if agreement_summary is not None and pairwise_kappa is not None:
-        lines.extend(
-            [
-                "",
-                "## Cross-Model Agreement",
-                "",
-                "| Metric | Value |",
-                "|---|---:|",
-                f"| Mean agreement rate | {agreement_summary['agreement_rate_mean']:.4f} |",
-                f"| Median agreement rate | {agreement_summary['agreement_rate_median']:.4f} |",
-                f"| Mean prediction entropy | {agreement_summary['prediction_entropy_mean']:.4f} |",
-                f"| Median prediction entropy | {agreement_summary['prediction_entropy_median']:.4f} |",
-                f"| Mean confidence | {agreement_summary['mean_confidence']:.4f} |",
-                f"| Fleiss' kappa | {agreement_summary['fleiss_kappa']:.4f} |",
-                f"| Mean pairwise Cohen's kappa | {agreement_summary['pairwise_cohens_kappa_mean']:.4f} |",
-                f"| Mean pairwise raw agreement | {agreement_summary['pairwise_raw_agreement_mean']:.4f} |",
-                "",
-                "Lowest pairwise Cohen's kappa values indicate the model pairs that disagree most often across private clips.",
-                "",
-                "| Model A | Model B | Cohen's Kappa | Raw Agreement |",
-                "|---|---|---:|---:|",
+    predicted_domains = {
+        "private_accepted": "Private",
+        "cmose_test_predicted": "CMOSE test",
+    }
+    for domain, label in predicted_domains.items():
+        domain_df = distributions[distributions["domain"] == domain]
+        for run_key in sorted(domain_df["run"].unique()):
+            run_distribution = domain_df[domain_df["run"] == run_key].set_index("class_label")
+            props = [
+                float(run_distribution.loc[class_label, "proportion"])
+                if class_label in run_distribution.index
+                else 0.0
+                for class_label in CLASS_LABELS
             ]
-        )
-        for row in pairwise_kappa.sort_values("cohens_kappa").head(8).itertuples(index=False):
             lines.append(
-                f"| {row.run_a} | {row.run_b} | {row.cohens_kappa:.4f} | {row.raw_agreement:.4f} |"
+                "| "
+                + label
+                + " | "
+                + run_key
+                + " | "
+                + " | ".join(f"{prop:.3f}" for prop in props)
+                + " |"
             )
 
-    lines.extend(
-        [
-            "",
-            "## Interpretation",
-            "",
-            "- Manual-label metrics quantify private target-domain performance after removing clips marked `Delete`.",
-            "- Distribution shifts diagnose how each source-trained run changes behavior on private clips relative to CMOSE test predictions.",
-            "- A class is treated as unstable when it shows a large private-vs-source prediction proportion shift and/or low private confidence.",
-            "",
-            "## Output Files",
-            "",
-            f"- `{output_dir / 'prediction_distribution.csv'}`",
-            f"- `{output_dir / 'domain_shift_by_class.csv'}`",
-            f"- `{output_dir / 'domain_shift_summary.json'}`",
-            f"- `{output_dir / 'private_vs_source_predicted_shift.png'}`",
-            f"- `{dataset_output_root / 'private'}`",
-            f"- `{dataset_output_root / 'cmose'}`",
-        ]
-    )
+    lines.extend(["", "## Run Metrics Files", ""])
+    for run_key in sorted(run_metrics):
+        lines.append(
+            f"- `{run_key}`: `{MODEL_RUNS[run_key]['metrics']}`"
+        )
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
@@ -1253,10 +799,9 @@ def main(argv: list[str] | None = None) -> None:
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     dataset_output_root = Path(args.dataset_output_root)
-    private_dataset_dir = dataset_output_root / "private"
-    cmose_dataset_dir = dataset_output_root / "cmose"
+    private_dataset_dir = dataset_output_root / PRIVATE_ASSESSMENT_DIR.name
+    cmose_dataset_dir = dataset_output_root / CMOSE_TESTSET_ASSESSMENT_DIR.name
     document_path = Path(args.document_path)
-    visualization_dir = Path(args.visualization_dir) if args.visualization_dir else output_dir / "visualizations"
     device = resolve_device(args.device)
 
     unknown_runs = [run for run in args.runs if run not in MODEL_RUNS]
@@ -1266,52 +811,58 @@ def main(argv: list[str] | None = None) -> None:
     print(f"Using device: {device}")
     samples = load_private_samples(args.accepted_csv)
     manual_labels = load_private_manual_labels(args.manual_labels_csv)
-    samples = [sample for sample in samples if sample.clip_id in manual_labels]
     sample_ids = [sample.clip_id for sample in samples]
-    private_true_labels = np.array([manual_labels[sample_id] for sample_id in sample_ids], dtype=np.int64)
+    private_true_labels = [manual_labels.get(sample_id) for sample_id in sample_ids]
     if not samples:
-        raise RuntimeError(
-            f"No accepted private clips with non-Delete manual labels were found in {args.manual_labels_csv}"
-        )
-    print(f"Accepted private clips with non-Delete manual labels: {len(samples)}")
+        raise RuntimeError(f"No accepted private clips were found in {args.accepted_csv}")
+    print(f"Accepted private clips: {len(samples)}")
+    print(f"Private manual labels attached: {sum(label is not None for label in private_true_labels)}")
 
     if args.from_existing:
         predictions_path = private_dataset_dir / "predictions.csv"
-        distributions_path = output_dir / "prediction_distribution.csv"
-        shift_path = output_dir / "domain_shift_by_class.csv"
-        for path in (predictions_path, distributions_path, shift_path):
+        cmose_predictions_path = cmose_dataset_dir / "predictions.csv"
+        for path in (predictions_path, cmose_predictions_path):
             if not path.exists():
                 raise FileNotFoundError(f"Cannot use --from_existing; missing {path}")
-        distributions = pd.read_csv(distributions_path)
-        shift = pd.read_csv(shift_path)
         predictions = pd.read_csv(predictions_path)
-        supervised_metrics_path = private_dataset_dir / "supervised_metrics.csv"
-        supervised_metrics = (
-            pd.read_csv(supervised_metrics_path) if supervised_metrics_path.exists() else pd.DataFrame()
-        )
-        agreement_per_clip, pairwise_kappa, agreement_summary = compute_model_agreement(
-            predictions,
+        predictions = attach_true_labels(predictions, manual_labels)
+        cmose_predictions = pd.read_csv(cmose_predictions_path)
+        private_distribution = distribution_frame(predictions, domain="private_accepted")
+        cmose_distribution = distribution_frame(cmose_predictions, domain="cmose_test_predicted")
+        distributions = pd.concat([private_distribution, cmose_distribution], ignore_index=True)
+        private_supervised_metrics = write_dataset_prediction_outputs(
+            output_dir=private_dataset_dir,
+            dataset_name="private",
+            predictions=predictions,
+            distributions=private_distribution,
             expected_runs=args.runs,
         )
-        plot_agreement_diagnostics(
-            agreement_per_clip,
-            pairwise_kappa,
-            private_dataset_dir,
-            title_prefix="PRIVATE",
+        cmose_supervised_metrics = write_dataset_prediction_outputs(
+            output_dir=cmose_dataset_dir,
+            dataset_name="cmose",
+            predictions=cmose_predictions,
+            distributions=cmose_distribution,
+            expected_runs=args.runs,
         )
-        true_distribution_path = private_dataset_dir / "true_label_distribution.csv"
-        if true_distribution_path.exists():
-            plot_true_label_distribution(
-                pd.read_csv(true_distribution_path),
-                private_dataset_dir / "true_label_distribution.png",
-                title="PRIVATE true label distribution",
-            )
         run_metrics = {run_key: load_run_metrics(MODEL_RUNS[run_key]) for run_key in args.runs}
-        plot_shift_heatmap(shift, output_dir / "private_vs_source_predicted_shift.png")
-        write_manual_metric_visualizations(
-            viz_dir=visualization_dir,
-            private_metrics=supervised_metrics,
-            run_metrics=run_metrics,
+        write_top_level_prediction_outputs(
+            output_dir=output_dir,
+            private_predictions=predictions,
+            cmose_predictions=cmose_predictions,
+            distributions=distributions,
+            expected_runs=args.runs,
+            summary=build_raw_summary(
+                samples=samples,
+                manual_labels=manual_labels,
+                test_record_count=int(cmose_predictions["clip_id"].nunique()),
+                args=args,
+                device=device,
+                run_metrics=run_metrics,
+                private_distribution=private_distribution,
+                cmose_distribution=cmose_distribution,
+                private_supervised_metrics=private_supervised_metrics,
+                cmose_supervised_metrics=cmose_supervised_metrics,
+            ),
         )
         write_markdown_report(
             output_path=document_path,
@@ -1319,14 +870,11 @@ def main(argv: list[str] | None = None) -> None:
             dataset_output_root=dataset_output_root,
             samples=samples,
             run_metrics=run_metrics,
-            shift=shift,
             distributions=distributions,
-            supervised_metrics=supervised_metrics,
-            agreement_summary=agreement_summary,
-            pairwise_kappa=pairwise_kappa,
+            private_supervised_metrics=private_supervised_metrics,
+            cmose_supervised_metrics=cmose_supervised_metrics,
         )
-        print(f"Regenerated plots from {output_dir}")
-        print(f"Saved metric visualizations to {visualization_dir}")
+        print(f"Regenerated raw prediction outputs from existing CSVs under {output_dir}")
         print(f"Saved markdown report to {document_path}")
         return
 
@@ -1479,73 +1027,39 @@ def main(argv: list[str] | None = None) -> None:
     cmose_predictions = pd.concat(cmose_prediction_tables, ignore_index=True)
     private_distribution = distribution_frame(predictions, domain="private_accepted")
     cmose_distribution = distribution_frame(cmose_predictions, domain="cmose_test_predicted")
-    cmose_true_distribution = true_distribution_frame(
-        cmose_sample_ids,
-        cmose_true_labels,
-        domain="cmose_test_true",
-    )
-    source_true_tables = []
-    for run_key in args.runs:
-        run_true_distribution = cmose_true_distribution.copy()
-        run_true_distribution["run"] = run_key
-        source_true_tables.append(run_true_distribution)
-    source_distribution = pd.concat([cmose_distribution, *source_true_tables], ignore_index=True)
-    distributions = pd.concat([private_distribution, source_distribution], ignore_index=True)
-    shift = summarize_shift(distributions, run_metrics)
-    private_supervised_metrics = compute_supervised_metrics(predictions)
-    agreement_per_clip, pairwise_kappa, agreement_summary = write_dataset_analysis_outputs(
+    distributions = pd.concat([private_distribution, cmose_distribution], ignore_index=True)
+    private_supervised_metrics = write_dataset_prediction_outputs(
         output_dir=private_dataset_dir,
         dataset_name="private",
         predictions=predictions,
-        distributions=private_distribution.assign(domain="private_predicted"),
+        distributions=private_distribution,
         expected_runs=args.runs,
-        true_labels=private_true_labels,
-        sample_ids=sample_ids,
     )
-    write_dataset_analysis_outputs(
+    cmose_supervised_metrics = write_dataset_prediction_outputs(
         output_dir=cmose_dataset_dir,
         dataset_name="cmose",
         predictions=cmose_predictions,
-        distributions=cmose_distribution.assign(domain="cmose_predicted"),
+        distributions=cmose_distribution,
         expected_runs=args.runs,
-        true_labels=cmose_true_labels,
-        sample_ids=cmose_sample_ids,
     )
-
-    distributions.to_csv(output_dir / "prediction_distribution.csv", index=False)
-    shift.to_csv(output_dir / "domain_shift_by_class.csv", index=False)
-
-    summary = {
-        "accepted_private_clips": len(samples),
-        "manual_labels_csv": str(args.manual_labels_csv),
-        "manual_label_filter": "non-Delete labels only",
-        "cmose_test_clips": len(test_records),
-        "runs": args.runs,
-        "device": device.type,
-        "target_frames": args.target_frames,
-        "fusion_frames": args.fusion_frames,
-        "run_metrics": run_metrics,
-        "private_distribution": private_distribution.to_dict(orient="records"),
-        "private_supervised_metrics": private_supervised_metrics.to_dict(orient="records"),
-        "agreement_summary": agreement_summary,
-        "largest_absolute_shifts": shift.assign(
-            abs_shift=shift["private_minus_source_predicted"].abs()
-        )
-        .sort_values("abs_shift", ascending=False)
-        .head(12)
-        .drop(columns=["abs_shift"])
-        .to_dict(orient="records"),
-    }
-    (output_dir / "domain_shift_summary.json").write_text(
-        json.dumps(summary, indent=2),
-        encoding="utf-8",
-    )
-
-    plot_shift_heatmap(shift, output_dir / "private_vs_source_predicted_shift.png")
-    write_manual_metric_visualizations(
-        viz_dir=visualization_dir,
-        private_metrics=private_supervised_metrics,
-        run_metrics=run_metrics,
+    write_top_level_prediction_outputs(
+        output_dir=output_dir,
+        private_predictions=predictions,
+        cmose_predictions=cmose_predictions,
+        distributions=distributions,
+        expected_runs=args.runs,
+        summary=build_raw_summary(
+            samples=samples,
+            manual_labels=manual_labels,
+            test_record_count=len(test_records),
+            args=args,
+            device=device,
+            run_metrics=run_metrics,
+            private_distribution=private_distribution,
+            cmose_distribution=cmose_distribution,
+            private_supervised_metrics=private_supervised_metrics,
+            cmose_supervised_metrics=cmose_supervised_metrics,
+        ),
     )
     write_markdown_report(
         output_path=document_path,
@@ -1553,14 +1067,11 @@ def main(argv: list[str] | None = None) -> None:
         dataset_output_root=dataset_output_root,
         samples=samples,
         run_metrics=run_metrics,
-        shift=shift,
         distributions=distributions,
-        supervised_metrics=private_supervised_metrics,
-        agreement_summary=agreement_summary,
-        pairwise_kappa=pairwise_kappa,
+        private_supervised_metrics=private_supervised_metrics,
+        cmose_supervised_metrics=cmose_supervised_metrics,
     )
-    print(f"Saved domain-shift outputs to {output_dir}")
-    print(f"Saved metric visualizations to {visualization_dir}")
+    print(f"Saved raw prediction outputs to {output_dir}")
     print(f"Saved markdown report to {document_path}")
 
 

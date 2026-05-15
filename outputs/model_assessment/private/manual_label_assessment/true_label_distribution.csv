@@ -1,0 +1,5 @@
+run,domain,class_id,class_label,count,proportion,mean_confidence,mean_entropy
+__labels__,private_true,0,Highly Disengage,11,0.029891304347826088,,
+__labels__,private_true,1,Disengage,52,0.14130434782608695,,
+__labels__,private_true,2,Engage,261,0.7092391304347826,,
+__labels__,private_true,3,Highly Engage,44,0.11956521739130435,,

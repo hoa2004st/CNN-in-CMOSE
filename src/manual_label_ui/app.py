@@ -25,6 +25,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from src.visualization.style import CLASS_COLORS, CLASS_LABELS
+from src.output_paths import MANUAL_LABELS_CSV, PRIVATE_ASSESSMENT_DIR
 
 
 LABELS = [
@@ -33,10 +34,10 @@ LABELS = [
 ]
 LABEL_BY_ID = {row["id"]: row["name"] for row in LABELS}
 UI_MODEL_RUNS = [
-    ("fusion", "openface_tcn_i3d_fusion/ce"),
-    ("i3d-mlp", "i3d_mlp/ce"),
-    ("openface-transformer", "transformer/ce"),
-    ("openface-tcn", "temporal_cnn/weighted_ce"),
+    ("fusion", ("openface_tcn_i3d_fusion/ce",)),
+    ("i3d-mlp", ("i3d_mlp/ce",)),
+    ("openface-transformer", ("transformer/ce",)),
+    ("openface-tcn", ("tcn/weighted_ce", "temporal_cnn/weighted_ce")),
 ]
 MANUAL_COLUMNS = [
     "clip_id",
@@ -67,11 +68,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--accepted_csv", default="data/private/accepted.csv")
     parser.add_argument(
         "--agreement_csv",
-        default="outputs/dataset_analysis/private/model_agreement_per_clip.csv",
+        default=str(PRIVATE_ASSESSMENT_DIR / "predictions_by_clip.csv"),
     )
     parser.add_argument(
         "--output_csv",
-        default="outputs/manual_labels/private_manual_labels.csv",
+        default=str(MANUAL_LABELS_CSV),
     )
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8766)
@@ -191,7 +192,15 @@ def load_ui_data(config: UiConfig) -> dict[str, Any]:
             continue
         manifest_row = accepted[clip_id]
         suggestions = []
-        for display_name, source_run in UI_MODEL_RUNS:
+        for display_name, source_runs in UI_MODEL_RUNS:
+            source_run = next(
+                (
+                    candidate
+                    for candidate in source_runs
+                    if f"predicted_label__{candidate}" in row
+                ),
+                source_runs[0],
+            )
             predicted_label = row.get(f"predicted_label__{source_run}", "")
             if not predicted_label:
                 raise ValueError(

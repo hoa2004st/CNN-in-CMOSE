@@ -1,9 +1,4 @@
-"""Canonical colors and labels for project visualizations.
-
-Every plot should take colors from this module so the same semantic item has
-the same color across training, domain-shift, agreement, and feature-space
-figures.
-"""
+"""Canonical colors and labels for training-log and feature-space visualizations."""
 
 from __future__ import annotations
 
@@ -87,14 +82,6 @@ DOMAIN_COLORS = {
     "Private": "#D55E00",
 }
 
-HEATMAP_SEQUENTIAL_CMAP = "YlGnBu"
-HEATMAP_DIVERGING_CMAP = "coolwarm"
-HEATMAP_CONFUSION_CMAP = HEATMAP_SEQUENTIAL_CMAP
-HISTOGRAM_COLOR = "#4C78A8"
-SUMMARY_BAR_COLOR = "#59A14F"
-REFERENCE_LINE_COLOR = "#D55E00"
-LOW_AGREEMENT_COLOR = "#D55E00"
-OVERLAY_BAR_COLOR = "#4C78A8"
 FALLBACK_COLOR = "#4D4D4D"
 
 CURVE_COLORS = {

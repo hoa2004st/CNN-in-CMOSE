@@ -1,76 +1,40 @@
 {
   "dataset": "cmose",
-  "num_samples": 1221,
-  "runs": [
-    "openface_mlp/weighted_ce",
-    "lstm/weighted_ce",
-    "transformer/ce",
-    "temporal_cnn/weighted_ce",
-    "i3d_mlp/ce",
-    "openface_tcn_i3d_fusion/ce"
-  ],
-  "agreement_summary": {
-    "num_clips": 1221,
-    "num_models": 6,
-    "agreement_rate_mean": 0.6880698880698881,
-    "agreement_rate_median": 0.6666666666666666,
-    "prediction_entropy_mean": 0.2907934676067984,
-    "prediction_entropy_median": 0.32501121082417705,
-    "mean_confidence": 0.7359163909947126,
-    "fleiss_kappa": 0.3830866423066096,
-    "pairwise_cohens_kappa_mean": 0.39569219590138277,
-    "pairwise_cohens_kappa_min": 0.22374170752812228,
-    "pairwise_cohens_kappa_max": 0.5865888104291146,
-    "pairwise_raw_agreement_mean": 0.688069888069888,
-    "majority_label_distribution": {
-      "Engage": 889,
-      "Disengage": 212,
-      "Highly Engage": 95,
-      "Highly Disengage": 25
-    }
+  "source": "C:\\HOA\\1.HUST\\Thesis\\CNN-in-CMOSE\\data\\CMOSE\\final_data_1.json",
+  "num_samples": 12197,
+  "splits": {
+    "unlabel": 2193,
+    "train": 8783,
+    "test": 1221
   },
-  "supervised_metrics": [
+  "class_distribution": [
     {
-      "run": "i3d_mlp/ce",
-      "accuracy": 0.7682227682227682,
-      "macro_accuracy": 0.5367667726092452,
-      "f1_macro": 0.5889255245634077,
-      "f1_weighted": 0.7533620425936851
+      "domain": "cmose",
+      "class_id": 0,
+      "class_label": "Highly Disengage",
+      "count": 347,
+      "proportion": 0.02844961875871116
     },
     {
-      "run": "lstm/weighted_ce",
-      "accuracy": 0.5700245700245701,
-      "macro_accuracy": 0.5205989265877782,
-      "f1_macro": 0.45018849258646826,
-      "f1_weighted": 0.5962654265936966
+      "domain": "cmose",
+      "class_id": 1,
+      "class_label": "Disengage",
+      "count": 2209,
+      "proportion": 0.18111010904320735
     },
     {
-      "run": "openface_mlp/weighted_ce",
-      "accuracy": 0.6101556101556102,
-      "macro_accuracy": 0.5376420212616171,
-      "f1_macro": 0.49282718573859696,
-      "f1_weighted": 0.6295081175055155
+      "domain": "cmose",
+      "class_id": 2,
+      "class_label": "Engage",
+      "count": 8470,
+      "proportion": 0.6944330573091744
     },
     {
-      "run": "openface_tcn_i3d_fusion/ce",
-      "accuracy": 0.7698607698607699,
-      "macro_accuracy": 0.5637376174084232,
-      "f1_macro": 0.5972155073759607,
-      "f1_weighted": 0.7555015643930407
-    },
-    {
-      "run": "temporal_cnn/weighted_ce",
-      "accuracy": 0.6945126945126945,
-      "macro_accuracy": 0.620047015433583,
-      "f1_macro": 0.5723056530799828,
-      "f1_weighted": 0.7084731518768674
-    },
-    {
-      "run": "transformer/ce",
-      "accuracy": 0.7485667485667485,
-      "macro_accuracy": 0.49845308548063916,
-      "f1_macro": 0.5440902512504544,
-      "f1_weighted": 0.7289245975325428
+      "domain": "cmose",
+      "class_id": 3,
+      "class_label": "Highly Engage",
+      "count": 1171,
+      "proportion": 0.09600721488890711
     }
   ]
 }

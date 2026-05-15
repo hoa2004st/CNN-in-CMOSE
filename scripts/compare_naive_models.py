@@ -12,6 +12,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from main import build_parser, run_experiment
+from src.output_paths import TRAINING_LOG_DIR, loss_slug, model_output_name
 
 
 MODELS = [
@@ -30,21 +31,11 @@ LOSSES = [
 ]
 
 
-def loss_slug(loss_name: str) -> str:
-    if loss_name == "cross_entropy":
-        return "ce"
-    if loss_name == "weighted_cross_entropy":
-        return "weighted_ce"
-    if loss_name == "ordinal":
-        return "ordinal"
-    return loss_name
-
-
 def build_runner_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Run all kept models across the configured loss sweep in one process.",
     )
-    parser.add_argument("--run_root", default="outputs")
+    parser.add_argument("--run_root", default=str(TRAINING_LOG_DIR))
     parser.add_argument("--epochs", type=int, default=400)
     parser.add_argument("--batch_size", type=int, default=64)
     parser.add_argument("--lr", type=float, default=1e-4)
@@ -80,7 +71,7 @@ def main() -> None:
     print(f"Logs: {log_dir}")
 
     for model in MODELS:
-        model_root = run_root / model
+        model_root = run_root / model_output_name(model)
         model_root.mkdir(parents=True, exist_ok=True)
 
         losses = list(args.naive_losses)
@@ -131,14 +122,14 @@ def main() -> None:
             print(f"[{timestamp}] Finished {model} with loss={loss}")
 
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    print(f"[{timestamp}] Generating visualizations for {run_root}")
+    print(f"[{timestamp}] Generating training-log visualizations for {run_root}")
     from scripts.visualize_models_outputs import main as visualize_main
 
     import sys
 
     previous_argv = sys.argv[:]
     try:
-        sys.argv = ["visualize_results.py", "--outputs_dir", str(run_root)]
+        sys.argv = ["visualize_models_outputs.py", "--outputs_dir", str(run_root)]
         visualize_main()
     finally:
         sys.argv = previous_argv

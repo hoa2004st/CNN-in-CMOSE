@@ -1,0 +1,5 @@
+domain,class_id,class_label,count,proportion
+cmose,0,Highly Disengage,347,0.02844961875871116
+cmose,1,Disengage,2209,0.18111010904320735
+cmose,2,Engage,8470,0.6944330573091744
+cmose,3,Highly Engage,1171,0.09600721488890711

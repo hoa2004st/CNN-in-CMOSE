@@ -23,6 +23,7 @@ from src.feature_extraction.extract_openface import (
 )
 from src.evaluation.metrics import evaluate_predictions
 from src.models.models import build_model
+from src.output_paths import training_run_dir
 from src.training.train import (
     fit_feature_normalizer,
     normalize_dataset_per_feature,
@@ -116,7 +117,7 @@ def resolve_output_dir(
 ) -> Path:
     if output_dir_arg:
         return Path(output_dir_arg)
-    return Path("outputs") / model_name
+    return training_run_dir(model_name=model_name, loss_name=loss_name)
 
 
 def resolve_device(device_name: str) -> torch.device:

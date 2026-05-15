@@ -33,6 +33,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from src.visualization.style import domain_color
+from src.output_paths import DOMAIN_DIFFERENCE_DIR
 
 META_COLS = {"frame", "face_id", "timestamp", "confidence", "success"}
 
@@ -330,7 +331,10 @@ def run(args: argparse.Namespace) -> None:
 def parse_args(argv: Iterable[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--private-accepted-csv", default="data/private/accepted.csv")
-    parser.add_argument("--output-dir", default="documents/feature_space_visualizations")
+    parser.add_argument(
+        "--output-dir",
+        default=str(DOMAIN_DIFFERENCE_DIR / "feature_space_visualizations"),
+    )
     parser.add_argument("--seed", type=int, default=20260509)
     parser.add_argument("--max-samples", type=int, default=None, help="Optional cap on accepted private samples.")
     parser.add_argument("--pca-dims", type=int, default=50)

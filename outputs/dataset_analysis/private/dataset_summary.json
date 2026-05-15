@@ -1,33 +1,37 @@
 {
   "dataset": "private",
-  "num_samples": 428,
-  "runs": [
-    "openface_mlp/weighted_ce",
-    "lstm/weighted_ce",
-    "transformer/ce",
-    "temporal_cnn/weighted_ce",
-    "i3d_mlp/ce",
-    "openface_tcn_i3d_fusion/ce"
-  ],
-  "agreement_summary": {
-    "num_clips": 428,
-    "num_models": 6,
-    "agreement_rate_mean": 0.33052959501557627,
-    "agreement_rate_median": 0.26666666666666666,
-    "prediction_entropy_mean": 0.6774934263501357,
-    "prediction_entropy_median": 0.7295739585136223,
-    "mean_confidence": 0.6359085474290952,
-    "fleiss_kappa": 0.0063273207535958316,
-    "pairwise_cohens_kappa_mean": 0.04233165033278552,
-    "pairwise_cohens_kappa_min": -0.04715884763594125,
-    "pairwise_cohens_kappa_max": 0.18316957163518177,
-    "pairwise_raw_agreement_mean": 0.3305295950155764,
-    "majority_label_distribution": {
-      "Engage": 271,
-      "Disengage": 66,
-      "Highly Disengage": 59,
-      "Highly Engage": 32
+  "accepted_manifest": "C:\\HOA\\1.HUST\\Thesis\\CNN-in-CMOSE\\data\\private\\accepted.csv",
+  "manual_labels_csv": "C:\\HOA\\1.HUST\\Thesis\\CNN-in-CMOSE\\outputs\\dataset_analysis\\private\\manual_labels\\private_manual_labels.csv",
+  "accepted_samples": 428,
+  "labeled_samples": 368,
+  "class_distribution": [
+    {
+      "domain": "private",
+      "class_id": 0,
+      "class_label": "Highly Disengage",
+      "count": 11,
+      "proportion": 0.029891304347826088
+    },
+    {
+      "domain": "private",
+      "class_id": 1,
+      "class_label": "Disengage",
+      "count": 52,
+      "proportion": 0.14130434782608695
+    },
+    {
+      "domain": "private",
+      "class_id": 2,
+      "class_label": "Engage",
+      "count": 261,
+      "proportion": 0.7092391304347826
+    },
+    {
+      "domain": "private",
+      "class_id": 3,
+      "class_label": "Highly Engage",
+      "count": 44,
+      "proportion": 0.11956521739130435
     }
-  },
-  "supervised_metrics": []
+  ]
 }

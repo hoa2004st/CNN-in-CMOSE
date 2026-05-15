@@ -1,0 +1,217 @@
+﻿run,domain,class_id,class_label,count,proportion,mean_confidence,mean_entropy
+i3d_mlp/ce,private_accepted,0,Highly Disengage,0,0.0,0.0,0.0
+i3d_mlp/ce,private_accepted,1,Disengage,12,0.03260869565217391,0.4399048412839572,0.8315831671158472
+i3d_mlp/ce,private_accepted,2,Engage,243,0.6603260869565217,0.6079851677143034,0.6374054476618767
+i3d_mlp/ce,private_accepted,3,Highly Engage,113,0.3070652173913043,0.5525324183755216,0.6696072756189161
+i3d_mlp/ordinal,private_accepted,0,Highly Disengage,9,0.024456521739130436,0.7162457638316684,0.5798369447390238
+i3d_mlp/ordinal,private_accepted,1,Disengage,2,0.005434782608695652,0.32988110184669495,0.9654999077320099
+i3d_mlp/ordinal,private_accepted,2,Engage,61,0.16576086956521738,0.7215559985794004,0.4377893190525594
+i3d_mlp/ordinal,private_accepted,3,Highly Engage,296,0.8043478260869565,0.8126821160517834,0.35094937429341766
+i3d_mlp/weighted_ce,private_accepted,0,Highly Disengage,18,0.04891304347826087,0.5584041724602381,0.8017285880115297
+i3d_mlp/weighted_ce,private_accepted,1,Disengage,49,0.1331521739130435,0.45327769432749065,0.8821652312668002
+i3d_mlp/weighted_ce,private_accepted,2,Engage,92,0.25,0.5894518850938134,0.6609499098166175
+i3d_mlp/weighted_ce,private_accepted,3,Highly Engage,209,0.5679347826086957,0.6498755373452839,0.6171085618471985
+lstm/ce,private_accepted,0,Highly Disengage,57,0.15489130434782608,0.4415085509158017,0.9010249031217474
+lstm/ce,private_accepted,1,Disengage,69,0.1875,0.4727760739084603,0.8204022404076396
+lstm/ce,private_accepted,2,Engage,157,0.4266304347826087,0.5509128860986916,0.7403331323034444
+lstm/ce,private_accepted,3,Highly Engage,85,0.23097826086956522,0.5842692010542926,0.6805388359462514
+lstm/ordinal,private_accepted,0,Highly Disengage,185,0.5027173913043478,0.7203616963850485,0.5240694137038411
+lstm/ordinal,private_accepted,1,Disengage,80,0.21739130434782608,0.41115557998418806,0.9053435556590557
+lstm/ordinal,private_accepted,2,Engage,39,0.10597826086956522,0.38303864307892627,0.9060432391288953
+lstm/ordinal,private_accepted,3,Highly Engage,64,0.17391304347826086,0.5946643105708063,0.7005894435569644
+lstm/weighted_ce,private_accepted,0,Highly Disengage,84,0.22826086956521738,0.6220688855364209,0.6626489369109982
+lstm/weighted_ce,private_accepted,1,Disengage,78,0.21195652173913043,0.45973275410823333,0.7837087439420896
+lstm/weighted_ce,private_accepted,2,Engage,148,0.40217391304347827,0.4758779126647356,0.7863208752226185
+lstm/weighted_ce,private_accepted,3,Highly Engage,58,0.15760869565217392,0.6586769099893242,0.5808591267158245
+openface_mlp/ce,private_accepted,0,Highly Disengage,0,0.0,0.0,0.0
+openface_mlp/ce,private_accepted,1,Disengage,137,0.37228260869565216,0.6971859794898625,0.4650908037476296
+openface_mlp/ce,private_accepted,2,Engage,227,0.6168478260869565,0.7241946194928123,0.42149840703947955
+openface_mlp/ce,private_accepted,3,Highly Engage,4,0.010869565217391304,0.74660325050354,0.3925294354557991
+openface_mlp/ordinal,private_accepted,0,Highly Disengage,0,0.0,0.0,0.0
+openface_mlp/ordinal,private_accepted,1,Disengage,243,0.6603260869565217,0.999963604618983,0.0001555371934127035
+openface_mlp/ordinal,private_accepted,2,Engage,125,0.33967391304347827,0.9999969358444214,1.9652977178338918e-05
+openface_mlp/ordinal,private_accepted,3,Highly Engage,0,0.0,0.0,0.0
+openface_mlp/weighted_ce,private_accepted,0,Highly Disengage,85,0.23097826086956522,0.5927886994446026,0.6853884045253782
+openface_mlp/weighted_ce,private_accepted,1,Disengage,57,0.15489130434782608,0.33673075678055747,0.936219989207753
+openface_mlp/weighted_ce,private_accepted,2,Engage,135,0.36684782608695654,0.3088016735182868,0.9593011215881065
+openface_mlp/weighted_ce,private_accepted,3,Highly Engage,91,0.24728260869565216,0.5624898904627496,0.6447252729436853
+openface_tcn_i3d_fusion/ce,private_accepted,0,Highly Disengage,185,0.5027173913043478,0.6691247244138976,0.5789099171354964
+openface_tcn_i3d_fusion/ce,private_accepted,1,Disengage,164,0.44565217391304346,0.7234691779424505,0.48438964838661797
+openface_tcn_i3d_fusion/ce,private_accepted,2,Engage,9,0.024456521739130436,0.6682550244861178,0.5007967087957594
+openface_tcn_i3d_fusion/ce,private_accepted,3,Highly Engage,10,0.02717391304347826,0.5436979860067368,0.7462242364883422
+openface_tcn_i3d_fusion/ordinal,private_accepted,0,Highly Disengage,13,0.035326086956521736,0.5561744020535395,0.6090717476147872
+openface_tcn_i3d_fusion/ordinal,private_accepted,1,Disengage,162,0.44021739130434784,0.5402923669712043,0.7347731248096183
+openface_tcn_i3d_fusion/ordinal,private_accepted,2,Engage,165,0.4483695652173913,0.5124833244265932,0.7497701858029221
+openface_tcn_i3d_fusion/ordinal,private_accepted,3,Highly Engage,28,0.07608695652173914,0.6178115042192596,0.5586273010287967
+openface_tcn_i3d_fusion/weighted_ce,private_accepted,0,Highly Disengage,131,0.35597826086956524,0.8221639845207447,0.3119838378322844
+openface_tcn_i3d_fusion/weighted_ce,private_accepted,1,Disengage,187,0.5081521739130435,0.7407566066731743,0.4758046021595358
+openface_tcn_i3d_fusion/weighted_ce,private_accepted,2,Engage,12,0.03260869565217391,0.49149633944034576,0.7112077052394549
+openface_tcn_i3d_fusion/weighted_ce,private_accepted,3,Highly Engage,38,0.10326086956521739,0.6831178461250506,0.5613145118481234
+tcn/ce,private_accepted,0,Highly Disengage,5,0.01358695652173913,0.672178840637207,0.47546935081481934
+tcn/ce,private_accepted,1,Disengage,45,0.12228260869565218,0.7041844738854303,0.4420306784721712
+tcn/ce,private_accepted,2,Engage,302,0.8206521739130435,0.9156209590616605,0.16048493664766847
+tcn/ce,private_accepted,3,Highly Engage,16,0.043478260869565216,0.8325345441699028,0.2638490448161974
+tcn/ordinal,private_accepted,0,Highly Disengage,7,0.019021739130434784,0.6641146540641785,0.5374719202518463
+tcn/ordinal,private_accepted,1,Disengage,19,0.051630434782608696,0.6951369486357036,0.48243943229317665
+tcn/ordinal,private_accepted,2,Engage,165,0.4483695652173913,0.8174340755650491,0.29775056434287267
+tcn/ordinal,private_accepted,3,Highly Engage,177,0.48097826086956524,0.8862518826446965,0.20229358216811127
+tcn/weighted_ce,private_accepted,0,Highly Disengage,6,0.016304347826086956,0.7524533768494924,0.44772466520468396
+tcn/weighted_ce,private_accepted,1,Disengage,34,0.09239130434782608,0.7218364433330648,0.4196112078463878
+tcn/weighted_ce,private_accepted,2,Engage,298,0.8097826086956522,0.9479956040846421,0.09157428932103782
+tcn/weighted_ce,private_accepted,3,Highly Engage,30,0.08152173913043478,0.9078247408072154,0.1628325526497084
+transformer/ce,private_accepted,0,Highly Disengage,11,0.029891304347826088,0.684267296032472,0.6153062880039215
+transformer/ce,private_accepted,1,Disengage,54,0.14673913043478262,0.5473619975425579,0.6951822715776937
+transformer/ce,private_accepted,2,Engage,267,0.7255434782608695,0.6786976893073164,0.580171876911367
+transformer/ce,private_accepted,3,Highly Engage,36,0.09782608695652174,0.5725898676448398,0.7040499813026853
+transformer/ordinal,private_accepted,0,Highly Disengage,23,0.0625,0.7499244537042535,0.4478051385477833
+transformer/ordinal,private_accepted,1,Disengage,205,0.5570652173913043,0.5933979865981311,0.6564886757513372
+transformer/ordinal,private_accepted,2,Engage,94,0.2554347826086957,0.5352552428524545,0.7083697230257886
+transformer/ordinal,private_accepted,3,Highly Engage,46,0.125,0.6884833878797033,0.563383201542108
+transformer/weighted_ce,private_accepted,0,Highly Disengage,39,0.10597826086956522,0.7144560225498982,0.5297460019206389
+transformer/weighted_ce,private_accepted,1,Disengage,171,0.46467391304347827,0.5753247575801715,0.6801280637233578
+transformer/weighted_ce,private_accepted,2,Engage,119,0.3233695652173913,0.5291819940595066,0.7495065579394332
+transformer/weighted_ce,private_accepted,3,Highly Engage,39,0.10597826086956522,0.5887008171815139,0.6922847418448864
+i3d_mlp/ce,cmose_test_predicted,0,Highly Disengage,17,0.013923013923013924,0.6707004782031564,0.5867251368129954
+i3d_mlp/ce,cmose_test_predicted,1,Disengage,172,0.14086814086814087,0.6666193978731022,0.5128162865375363
+i3d_mlp/ce,cmose_test_predicted,2,Engage,955,0.7821457821457821,0.790956589969665,0.38674575240152104
+i3d_mlp/ce,cmose_test_predicted,3,Highly Engage,77,0.06306306306306306,0.7316552597980994,0.41522291882414153
+i3d_mlp/ordinal,cmose_test_predicted,0,Highly Disengage,58,0.0475020475020475,0.865495680735029,0.25324362567652636
+i3d_mlp/ordinal,cmose_test_predicted,1,Disengage,314,0.2571662571662572,0.7793563038680205,0.36869390369048133
+i3d_mlp/ordinal,cmose_test_predicted,2,Engage,690,0.5651105651105651,0.8365217711182608,0.2921985903940842
+i3d_mlp/ordinal,cmose_test_predicted,3,Highly Engage,159,0.13022113022113022,0.8314151201608047,0.2772849458262095
+i3d_mlp/weighted_ce,cmose_test_predicted,0,Highly Disengage,55,0.04504504504504504,0.7555638681758534,0.45759342055429114
+i3d_mlp/weighted_ce,cmose_test_predicted,1,Disengage,333,0.2727272727272727,0.6774601493332837,0.5193178351554606
+i3d_mlp/weighted_ce,cmose_test_predicted,2,Engage,665,0.5446355446355446,0.718918776512146,0.47018011529873915
+i3d_mlp/weighted_ce,cmose_test_predicted,3,Highly Engage,168,0.1375921375921376,0.7093040281463237,0.4779007710079289
+lstm/ce,cmose_test_predicted,0,Highly Disengage,23,0.018837018837018837,0.543827535017677,0.7652190716370292
+lstm/ce,cmose_test_predicted,1,Disengage,129,0.10565110565110565,0.6369900100452955,0.6121694112932959
+lstm/ce,cmose_test_predicted,2,Engage,1001,0.8198198198198198,0.7835076876155861,0.4421043538308882
+lstm/ce,cmose_test_predicted,3,Highly Engage,68,0.055692055692055695,0.6125837428604856,0.6019724725800402
+lstm/ordinal,cmose_test_predicted,0,Highly Disengage,94,0.07698607698607698,0.6983292822508101,0.5343104138811852
+lstm/ordinal,cmose_test_predicted,1,Disengage,323,0.26453726453726456,0.487049049268197,0.8272505609243647
+lstm/ordinal,cmose_test_predicted,2,Engage,523,0.4283374283374283,0.4589561419436854,0.823786064042188
+lstm/ordinal,cmose_test_predicted,3,Highly Engage,281,0.23013923013923013,0.6214445529247093,0.6188379820979787
+lstm/weighted_ce,cmose_test_predicted,0,Highly Disengage,55,0.04504504504504504,0.7584663185206326,0.45227482332424684
+lstm/weighted_ce,cmose_test_predicted,1,Disengage,314,0.2571662571662572,0.690680530515446,0.49019499037675796
+lstm/weighted_ce,cmose_test_predicted,2,Engage,613,0.502047502047502,0.6455295844334763,0.577761589168141
+lstm/weighted_ce,cmose_test_predicted,3,Highly Engage,239,0.19574119574119575,0.7067481628521716,0.48477571030540945
+openface_mlp/ce,cmose_test_predicted,0,Highly Disengage,7,0.005733005733005733,0.49624096921512056,0.729032576084137
+openface_mlp/ce,cmose_test_predicted,1,Disengage,124,0.10155610155610155,0.6357534895500829,0.558577987695894
+openface_mlp/ce,cmose_test_predicted,2,Engage,1032,0.8452088452088452,0.7668344883262649,0.4243279304034486
+openface_mlp/ce,cmose_test_predicted,3,Highly Engage,58,0.0475020475020475,0.6613855757589998,0.47507655787570724
+openface_mlp/ordinal,cmose_test_predicted,0,Highly Disengage,0,0.0,0.0,0.0
+openface_mlp/ordinal,cmose_test_predicted,1,Disengage,467,0.3824733824733825,0.9996189693312063,0.0009388378975808912
+openface_mlp/ordinal,cmose_test_predicted,2,Engage,637,0.5217035217035217,0.9970014265605381,0.004467302737389905
+openface_mlp/ordinal,cmose_test_predicted,3,Highly Engage,117,0.09582309582309582,0.9986405591679435,0.003410794500665255
+openface_mlp/weighted_ce,cmose_test_predicted,0,Highly Disengage,36,0.029484029484029485,0.7026811382836766,0.4862110125314858
+openface_mlp/weighted_ce,cmose_test_predicted,1,Disengage,309,0.25307125307125306,0.5636706814218108,0.6359317831869891
+openface_mlp/weighted_ce,cmose_test_predicted,2,Engage,676,0.5536445536445537,0.6212847466475865,0.5734868899881055
+openface_mlp/weighted_ce,cmose_test_predicted,3,Highly Engage,200,0.1638001638001638,0.6557700142264367,0.5299311195942573
+openface_tcn_i3d_fusion/ce,cmose_test_predicted,0,Highly Disengage,25,0.020475020475020474,0.480133935213089,0.8410601425170898
+openface_tcn_i3d_fusion/ce,cmose_test_predicted,1,Disengage,144,0.11793611793611794,0.6018733624368906,0.6583018075260851
+openface_tcn_i3d_fusion/ce,cmose_test_predicted,2,Engage,948,0.7764127764127764,0.8517957460213814,0.2962700440894966
+openface_tcn_i3d_fusion/ce,cmose_test_predicted,3,Highly Engage,104,0.08517608517608517,0.7547531818541197,0.4464359920328626
+openface_tcn_i3d_fusion/ordinal,cmose_test_predicted,0,Highly Disengage,105,0.085995085995086,0.666237598657608,0.5544017130065532
+openface_tcn_i3d_fusion/ordinal,cmose_test_predicted,1,Disengage,273,0.22358722358722358,0.4042992633340996,0.9054580302465529
+openface_tcn_i3d_fusion/ordinal,cmose_test_predicted,2,Engage,580,0.475020475020475,0.4128270393815534,0.8954961307089905
+openface_tcn_i3d_fusion/ordinal,cmose_test_predicted,3,Highly Engage,263,0.2153972153972154,0.6501079134841382,0.5562019281978134
+openface_tcn_i3d_fusion/weighted_ce,cmose_test_predicted,0,Highly Disengage,53,0.043407043407043405,0.8071660264483038,0.36493343846731874
+openface_tcn_i3d_fusion/weighted_ce,cmose_test_predicted,1,Disengage,328,0.26863226863226863,0.6821254327348093,0.5107624355885314
+openface_tcn_i3d_fusion/weighted_ce,cmose_test_predicted,2,Engage,644,0.5274365274365275,0.6856536895314359,0.5423674561916301
+openface_tcn_i3d_fusion/weighted_ce,cmose_test_predicted,3,Highly Engage,196,0.16052416052416052,0.7649992564503028,0.3954531983614956
+tcn/ce,cmose_test_predicted,0,Highly Disengage,24,0.019656019656019656,0.68810926998655,0.5109562125677863
+tcn/ce,cmose_test_predicted,1,Disengage,147,0.12039312039312039,0.7165687777558152,0.4530032793896235
+tcn/ce,cmose_test_predicted,2,Engage,994,0.814086814086814,0.8333574675578227,0.3225468835476397
+tcn/ce,cmose_test_predicted,3,Highly Engage,56,0.04586404586404586,0.7322843303637845,0.38589027573886725
+tcn/ordinal,cmose_test_predicted,0,Highly Disengage,73,0.05978705978705979,0.7984793949617098,0.3537582842638012
+tcn/ordinal,cmose_test_predicted,1,Disengage,314,0.2571662571662572,0.6773404063312871,0.5321504101246168
+tcn/ordinal,cmose_test_predicted,2,Engage,609,0.4987714987714988,0.7366766250387984,0.45551219619565897
+tcn/ordinal,cmose_test_predicted,3,Highly Engage,225,0.18427518427518427,0.7535596174663968,0.403403052300758
+tcn/weighted_ce,cmose_test_predicted,0,Highly Disengage,37,0.030303030303030304,0.7749616463442106,0.39758180181839586
+tcn/weighted_ce,cmose_test_predicted,1,Disengage,259,0.21212121212121213,0.721750505757608,0.4440743346585313
+tcn/weighted_ce,cmose_test_predicted,2,Engage,720,0.5896805896805897,0.8167400855571032,0.32565518317678654
+tcn/weighted_ce,cmose_test_predicted,3,Highly Engage,205,0.1678951678951679,0.7328886308321139,0.4363756720658119
+transformer/ce,cmose_test_predicted,0,Highly Disengage,20,0.01638001638001638,0.5830285832285881,0.7004464104771614
+transformer/ce,cmose_test_predicted,1,Disengage,160,0.13104013104013104,0.6431896466761827,0.5762290387414396
+transformer/ce,cmose_test_predicted,2,Engage,972,0.7960687960687961,0.8033721422768915,0.37780653769648614
+transformer/ce,cmose_test_predicted,3,Highly Engage,69,0.056511056511056514,0.6625599062097245,0.49704343577226
+transformer/ordinal,cmose_test_predicted,0,Highly Disengage,92,0.07534807534807535,0.7658614023872043,0.4260362585115692
+transformer/ordinal,cmose_test_predicted,1,Disengage,346,0.2833742833742834,0.6204539209259727,0.6501068187759101
+transformer/ordinal,cmose_test_predicted,2,Engage,518,0.42424242424242425,0.5916196686075461,0.6811825181986835
+transformer/ordinal,cmose_test_predicted,3,Highly Engage,265,0.21703521703521703,0.7304267073577305,0.48612949488297946
+transformer/weighted_ce,cmose_test_predicted,0,Highly Disengage,64,0.05241605241605242,0.7321676816791296,0.49368341331137344
+transformer/weighted_ce,cmose_test_predicted,1,Disengage,316,0.2588042588042588,0.6379587739894662,0.5781710906590842
+transformer/weighted_ce,cmose_test_predicted,2,Engage,574,0.4701064701064701,0.6521234899136248,0.5729254289475052
+transformer/weighted_ce,cmose_test_predicted,3,Highly Engage,267,0.21867321867321868,0.7033187219042903,0.503884895296579
+openface_mlp/ce,cmose_test_true,0,Highly Disengage,35,0.028665028665028666,,
+openface_mlp/ce,cmose_test_true,1,Disengage,221,0.180999180999181,,
+openface_mlp/ce,cmose_test_true,2,Engage,847,0.6936936936936937,,
+openface_mlp/ce,cmose_test_true,3,Highly Engage,118,0.09664209664209664,,
+openface_mlp/weighted_ce,cmose_test_true,0,Highly Disengage,35,0.028665028665028666,,
+openface_mlp/weighted_ce,cmose_test_true,1,Disengage,221,0.180999180999181,,
+openface_mlp/weighted_ce,cmose_test_true,2,Engage,847,0.6936936936936937,,
+openface_mlp/weighted_ce,cmose_test_true,3,Highly Engage,118,0.09664209664209664,,
+openface_mlp/ordinal,cmose_test_true,0,Highly Disengage,35,0.028665028665028666,,
+openface_mlp/ordinal,cmose_test_true,1,Disengage,221,0.180999180999181,,
+openface_mlp/ordinal,cmose_test_true,2,Engage,847,0.6936936936936937,,
+openface_mlp/ordinal,cmose_test_true,3,Highly Engage,118,0.09664209664209664,,
+tcn/ce,cmose_test_true,0,Highly Disengage,35,0.028665028665028666,,
+tcn/ce,cmose_test_true,1,Disengage,221,0.180999180999181,,
+tcn/ce,cmose_test_true,2,Engage,847,0.6936936936936937,,
+tcn/ce,cmose_test_true,3,Highly Engage,118,0.09664209664209664,,
+tcn/weighted_ce,cmose_test_true,0,Highly Disengage,35,0.028665028665028666,,
+tcn/weighted_ce,cmose_test_true,1,Disengage,221,0.180999180999181,,
+tcn/weighted_ce,cmose_test_true,2,Engage,847,0.6936936936936937,,
+tcn/weighted_ce,cmose_test_true,3,Highly Engage,118,0.09664209664209664,,
+tcn/ordinal,cmose_test_true,0,Highly Disengage,35,0.028665028665028666,,
+tcn/ordinal,cmose_test_true,1,Disengage,221,0.180999180999181,,
+tcn/ordinal,cmose_test_true,2,Engage,847,0.6936936936936937,,
+tcn/ordinal,cmose_test_true,3,Highly Engage,118,0.09664209664209664,,
+lstm/ce,cmose_test_true,0,Highly Disengage,35,0.028665028665028666,,
+lstm/ce,cmose_test_true,1,Disengage,221,0.180999180999181,,
+lstm/ce,cmose_test_true,2,Engage,847,0.6936936936936937,,
+lstm/ce,cmose_test_true,3,Highly Engage,118,0.09664209664209664,,
+lstm/weighted_ce,cmose_test_true,0,Highly Disengage,35,0.028665028665028666,,
+lstm/weighted_ce,cmose_test_true,1,Disengage,221,0.180999180999181,,
+lstm/weighted_ce,cmose_test_true,2,Engage,847,0.6936936936936937,,
+lstm/weighted_ce,cmose_test_true,3,Highly Engage,118,0.09664209664209664,,
+lstm/ordinal,cmose_test_true,0,Highly Disengage,35,0.028665028665028666,,
+lstm/ordinal,cmose_test_true,1,Disengage,221,0.180999180999181,,
+lstm/ordinal,cmose_test_true,2,Engage,847,0.6936936936936937,,
+lstm/ordinal,cmose_test_true,3,Highly Engage,118,0.09664209664209664,,
+transformer/ce,cmose_test_true,0,Highly Disengage,35,0.028665028665028666,,
+transformer/ce,cmose_test_true,1,Disengage,221,0.180999180999181,,
+transformer/ce,cmose_test_true,2,Engage,847,0.6936936936936937,,
+transformer/ce,cmose_test_true,3,Highly Engage,118,0.09664209664209664,,
+transformer/weighted_ce,cmose_test_true,0,Highly Disengage,35,0.028665028665028666,,
+transformer/weighted_ce,cmose_test_true,1,Disengage,221,0.180999180999181,,
+transformer/weighted_ce,cmose_test_true,2,Engage,847,0.6936936936936937,,
+transformer/weighted_ce,cmose_test_true,3,Highly Engage,118,0.09664209664209664,,
+transformer/ordinal,cmose_test_true,0,Highly Disengage,35,0.028665028665028666,,
+transformer/ordinal,cmose_test_true,1,Disengage,221,0.180999180999181,,
+transformer/ordinal,cmose_test_true,2,Engage,847,0.6936936936936937,,
+transformer/ordinal,cmose_test_true,3,Highly Engage,118,0.09664209664209664,,
+i3d_mlp/ce,cmose_test_true,0,Highly Disengage,35,0.028665028665028666,,
+i3d_mlp/ce,cmose_test_true,1,Disengage,221,0.180999180999181,,
+i3d_mlp/ce,cmose_test_true,2,Engage,847,0.6936936936936937,,
+i3d_mlp/ce,cmose_test_true,3,Highly Engage,118,0.09664209664209664,,
+i3d_mlp/weighted_ce,cmose_test_true,0,Highly Disengage,35,0.028665028665028666,,
+i3d_mlp/weighted_ce,cmose_test_true,1,Disengage,221,0.180999180999181,,
+i3d_mlp/weighted_ce,cmose_test_true,2,Engage,847,0.6936936936936937,,
+i3d_mlp/weighted_ce,cmose_test_true,3,Highly Engage,118,0.09664209664209664,,
+i3d_mlp/ordinal,cmose_test_true,0,Highly Disengage,35,0.028665028665028666,,
+i3d_mlp/ordinal,cmose_test_true,1,Disengage,221,0.180999180999181,,
+i3d_mlp/ordinal,cmose_test_true,2,Engage,847,0.6936936936936937,,
+i3d_mlp/ordinal,cmose_test_true,3,Highly Engage,118,0.09664209664209664,,
+openface_tcn_i3d_fusion/ce,cmose_test_true,0,Highly Disengage,35,0.028665028665028666,,
+openface_tcn_i3d_fusion/ce,cmose_test_true,1,Disengage,221,0.180999180999181,,
+openface_tcn_i3d_fusion/ce,cmose_test_true,2,Engage,847,0.6936936936936937,,
+openface_tcn_i3d_fusion/ce,cmose_test_true,3,Highly Engage,118,0.09664209664209664,,
+openface_tcn_i3d_fusion/weighted_ce,cmose_test_true,0,Highly Disengage,35,0.028665028665028666,,
+openface_tcn_i3d_fusion/weighted_ce,cmose_test_true,1,Disengage,221,0.180999180999181,,
+openface_tcn_i3d_fusion/weighted_ce,cmose_test_true,2,Engage,847,0.6936936936936937,,
+openface_tcn_i3d_fusion/weighted_ce,cmose_test_true,3,Highly Engage,118,0.09664209664209664,,
+openface_tcn_i3d_fusion/ordinal,cmose_test_true,0,Highly Disengage,35,0.028665028665028666,,
+openface_tcn_i3d_fusion/ordinal,cmose_test_true,1,Disengage,221,0.180999180999181,,
+openface_tcn_i3d_fusion/ordinal,cmose_test_true,2,Engage,847,0.6936936936936937,,
+openface_tcn_i3d_fusion/ordinal,cmose_test_true,3,Highly Engage,118,0.09664209664209664,,

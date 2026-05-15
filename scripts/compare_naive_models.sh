@@ -5,14 +5,14 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
-RUN_ROOT="${1:-outputs}"
+RUN_ROOT="${1:-outputs/training_log}"
 LOG_DIR="$RUN_ROOT/logs"
 
 mkdir -p "$LOG_DIR"
 
 MODELS=(
   "openface_mlp"
-  "temporal_cnn"
+  "tcn"
   "lstm"
   "transformer"
   "i3d_mlp"
@@ -43,14 +43,22 @@ loss_slug() {
 echo "Run root: $RUN_ROOT"
 echo "Logs: $LOG_DIR"
 
-for model in "${MODELS[@]}"; do
-  model_root="$RUN_ROOT/$model"
+model_arg() {
+  case "$1" in
+    "tcn") echo "temporal_cnn" ;;
+    *) echo "$1" ;;
+  esac
+}
+
+for model_dir in "${MODELS[@]}"; do
+  model="$(model_arg "$model_dir")"
+  model_root="$RUN_ROOT/$model_dir"
   mkdir -p "$model_root"
 
   for loss in "${LOSSES[@]}"; do
     loss_dir_name="$(loss_slug "$loss")"
     output_dir="$model_root/$loss_dir_name"
-    log_path="$LOG_DIR/${model}_${loss_dir_name}.log"
+    log_path="$LOG_DIR/${model_dir}_${loss_dir_name}.log"
 
     mkdir -p "$output_dir"
 
@@ -68,6 +76,6 @@ for model in "${MODELS[@]}"; do
 done
 
 echo "[$(date +"%F %T")] Generating visualizations for $RUN_ROOT"
-python scripts/visualize_results.py --outputs_dir "$RUN_ROOT" 2>&1 | tee -a "$LOG_DIR/visualize_results.log"
+python scripts/visualize_models_outputs.py --outputs_dir "$RUN_ROOT" 2>&1 | tee -a "$LOG_DIR/visualize_models_outputs.log"
 
 echo "All comparison runs completed."

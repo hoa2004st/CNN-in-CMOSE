@@ -44,10 +44,11 @@ python main.py --model openface_tcn_i3d_fusion
 Run the comparison suite:
 
 ```bash
-python scripts/compare_naive_models.py --run_root outputs/comparison_public_cmose
+python scripts/compare_naive_models.py
 ```
 
-By default, the batch script writes one folder per kept model directly under `outputs/`, plus `outputs/logs/`.
+By default, the batch script writes model/loss runs under `outputs/training_log/`,
+then writes cross-run CMOSE test-set charts under `outputs/model_assessment/cmose_testset/`.
 
 Key options:
 
@@ -58,7 +59,7 @@ Key options:
 --epochs                 Maximum training epochs                             (default: 800)
 --batch_size             Mini-batch size                                     (default: 128)
 --lr                     Learning rate                                       (default: 1e-4)
---output_dir             Where to save artefacts                             (default: outputs/<model>)
+--output_dir             Where to save artefacts                             (default: outputs/training_log/<model>/<loss>)
 --seed                   Random seed                                         (default: 42)
 ```
 
@@ -66,7 +67,32 @@ Key options:
 
 ## Outputs
 
-Files written under `--output_dir`:
+The generated artifact tree is organized by question:
+
+```text
+outputs/
+    dataset_analysis/
+        cmose/
+        private/
+        comparison/
+            domain_difference/
+    training_log/
+        openface_mlp/
+        tcn/
+        lstm/
+        transformer/
+        i3d_mlp/
+        openface_tcn_i3d_fusion/
+            ce/
+            weighted_ce/
+            ordinal/
+    model_assessment/
+        cmose_testset/
+        private/
+        comparison/
+```
+
+Training files written under each `outputs/training_log/<model>/<loss>/` run:
 
 | File | Description |
 |---|---|
@@ -75,6 +101,45 @@ Files written under `--output_dir`:
 | `selection_summary.json` | Split usage and run assumptions |
 | `preprocessing_summary.json` | Normalization and tensor-shape summary |
 | `smote_summary.json` | Train/evaluation/test class counts; SMOTE is disabled |
+
+Training-log curves can be regenerated from completed runs:
+
+```bash
+python scripts/visualize_models_outputs.py
+```
+
+That command writes `training_curves.png` and `report.md` into each run folder,
+plus CMOSE test-set metric bars, heatmaps, confusion matrices, and summary CSVs
+under `outputs/model_assessment/cmose_testset/`.
+
+Dataset analysis charts can be regenerated with:
+
+```bash
+python scripts/visualize_dataset_analysis.py
+python scripts/feature_space_dataset_comparison.py
+python scripts/visualize_feature_space_domains.py
+```
+
+Raw per-model predictions for the CMOSE test split and accepted private clips can be generated with:
+
+```bash
+python -m src.feature_analysis.run_domain_shift_analysis
+```
+
+Key prediction files:
+
+| File | Description |
+|---|---|
+| `outputs/model_assessment/cmose_testset/predictions.csv` | Long-format CMOSE test predictions, one row per run and clip |
+| `outputs/model_assessment/cmose_testset/predictions_by_clip.csv` | CMOSE test predictions with every run side by side per clip |
+| `outputs/model_assessment/private/predictions.csv` | Long-format accepted-private predictions, one row per run and clip |
+| `outputs/model_assessment/private/predictions_by_clip.csv` | Accepted-private predictions with every run side by side per clip |
+
+Private/manual-label and CMOSE-vs-private assessment charts can be regenerated after prediction CSVs exist:
+
+```bash
+python scripts/visualize_model_assessment.py
+```
 
 ## Pipeline summary
 
