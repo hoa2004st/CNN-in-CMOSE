@@ -52,7 +52,7 @@ def build_runner_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--naive_losses",
         nargs="+",
-        default=["cross_entropy"],
+        default=LOSSES,
         choices=LOSSES,
         help="Losses used for all comparison models.",
     )

@@ -32,7 +32,10 @@ python -c "import torch; print('cuda_available=', torch.cuda.is_available()); pr
 python main.py --model temporal_cnn --device cuda --amp --epochs 2 --batch_size 4 --output_dir outputs/training_log/_smoke/tcn
 
 # Full comparison run via the shell script
-bash scripts/run_comparison_models.sh
+bash scripts/compare_naive_models.sh
+
+# Full Vast.ai GPU pipeline: train, evaluate, and regenerate visualizations
+bash scripts/run_vast_all.sh
 
 # Generate visualizations only
 python scripts/visualize_models_outputs.py --outputs_dir outputs/training_log

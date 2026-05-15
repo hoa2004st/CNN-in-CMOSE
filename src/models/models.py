@@ -17,22 +17,121 @@ class ModelSpec:
     input_kind: str
 
 
+class Chomp1d(nn.Module):
+    """Remove right-side padding so temporal convolutions remain causal."""
+
+    def __init__(self, chomp_size: int) -> None:
+        super().__init__()
+        self.chomp_size = int(chomp_size)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        if self.chomp_size == 0:
+            return x
+        return x[:, :, : -self.chomp_size].contiguous()
+
+
+class TemporalBlock(nn.Module):
+    """Canonical TCN residual block with causal dilated convolutions."""
+
+    def __init__(
+        self,
+        *,
+        in_channels: int,
+        out_channels: int,
+        kernel_size: int,
+        dilation: int,
+        dropout: float,
+    ) -> None:
+        super().__init__()
+        padding = (kernel_size - 1) * dilation
+        self.network = nn.Sequential(
+            nn.utils.parametrizations.weight_norm(
+                nn.Conv1d(
+                    in_channels,
+                    out_channels,
+                    kernel_size=kernel_size,
+                    padding=padding,
+                    dilation=dilation,
+                )
+            ),
+            Chomp1d(padding),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=dropout),
+            nn.utils.parametrizations.weight_norm(
+                nn.Conv1d(
+                    out_channels,
+                    out_channels,
+                    kernel_size=kernel_size,
+                    padding=padding,
+                    dilation=dilation,
+                )
+            ),
+            Chomp1d(padding),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=dropout),
+        )
+        self.downsample = (
+            nn.Conv1d(in_channels, out_channels, kernel_size=1)
+            if in_channels != out_channels
+            else None
+        )
+        self.activation = nn.ReLU(inplace=True)
+        self._init_weights()
+
+    def _init_weights(self) -> None:
+        for module in self.modules():
+            if isinstance(module, nn.Conv1d):
+                nn.init.normal_(module.weight, mean=0.0, std=0.01)
+                if module.bias is not None:
+                    nn.init.zeros_(module.bias)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        residual = x if self.downsample is None else self.downsample(x)
+        return self.activation(self.network(x) + residual)
+
+
+class TCNEncoder(nn.Module):
+    """Stack residual causal dilated TCN blocks over a temporal sequence."""
+
+    def __init__(
+        self,
+        *,
+        input_channels: int,
+        channels: list[int],
+        kernel_size: int = 3,
+        dropout: float = 0.2,
+    ) -> None:
+        super().__init__()
+        layers: list[nn.Module] = []
+        for idx, out_channels in enumerate(channels):
+            in_channels = input_channels if idx == 0 else channels[idx - 1]
+            layers.append(
+                TemporalBlock(
+                    in_channels=in_channels,
+                    out_channels=out_channels,
+                    kernel_size=kernel_size,
+                    dilation=2**idx,
+                    dropout=dropout,
+                )
+            )
+        self.network = nn.Sequential(*layers)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.network(x)
+
+
 class RawTemporalCNN(nn.Module):
-    """1-D temporal CNN over frame-level OpenFace features."""
+    """Canonical TCN classifier over frame-level OpenFace features."""
 
     def __init__(self, *, input_features: int = 709, num_classes: int = 4) -> None:
         super().__init__()
-        self.temporal = nn.Sequential(
-            nn.Conv1d(input_features, 256, kernel_size=5, padding=2),
-            nn.ReLU(inplace=True),
-            nn.MaxPool1d(kernel_size=2, stride=2),
-            nn.Conv1d(256, 128, kernel_size=5, padding=2),
-            nn.ReLU(inplace=True),
-            nn.MaxPool1d(kernel_size=2, stride=2),
-            nn.Conv1d(128, 128, kernel_size=3, padding=1),
-            nn.ReLU(inplace=True),
-            nn.AdaptiveAvgPool1d(1),
+        self.temporal = TCNEncoder(
+            input_channels=input_features,
+            channels=[256, 128, 128],
+            kernel_size=3,
+            dropout=0.2,
         )
+        self.pool = nn.AdaptiveAvgPool1d(1)
         self.classifier = nn.Sequential(
             nn.Flatten(),
             nn.Dropout(p=0.3),
@@ -45,6 +144,7 @@ class RawTemporalCNN(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = x.transpose(1, 2)
         x = self.temporal(x)
+        x = self.pool(x)
         return self.classifier(x)
 
 
@@ -166,7 +266,7 @@ class FlattenMLP(nn.Module):
 
 
 class OpenFaceTCNI3DFusionModel(nn.Module):
-    """Shared-fusion model with an OpenFace TCN branch and an I3D branch."""
+    """Shared-fusion model with canonical TCN branches for temporal encoding."""
 
     def __init__(
         self,
@@ -179,13 +279,11 @@ class OpenFaceTCNI3DFusionModel(nn.Module):
     ) -> None:
         super().__init__()
         self.reconstruction_weight = float(reconstruction_weight)
-        self.openface_encoder = nn.Sequential(
-            nn.Conv1d(openface_features, 256, kernel_size=5, padding=2),
-            nn.ReLU(inplace=True),
-            nn.Conv1d(256, 128, kernel_size=5, padding=2),
-            nn.ReLU(inplace=True),
-            nn.Conv1d(128, hidden_dim, kernel_size=3, padding=1),
-            nn.ReLU(inplace=True),
+        self.openface_encoder = TCNEncoder(
+            input_channels=openface_features,
+            channels=[256, 128, hidden_dim],
+            kernel_size=3,
+            dropout=0.2,
         )
         self.i3d_projection = nn.Sequential(
             nn.Linear(i3d_features, 256),
@@ -194,9 +292,11 @@ class OpenFaceTCNI3DFusionModel(nn.Module):
             nn.Linear(256, hidden_dim),
             nn.ReLU(inplace=True),
         )
-        self.i3d_temporal = nn.Sequential(
-            nn.Conv1d(hidden_dim, hidden_dim, kernel_size=3, padding=1),
-            nn.ReLU(inplace=True),
+        self.i3d_temporal = TCNEncoder(
+            input_channels=hidden_dim,
+            channels=[hidden_dim, hidden_dim],
+            kernel_size=3,
+            dropout=0.2,
         )
         self.shared_fusion = nn.Sequential(
             nn.Linear(hidden_dim * 2, hidden_dim),
