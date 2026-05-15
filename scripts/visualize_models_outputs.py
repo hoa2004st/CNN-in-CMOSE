@@ -353,17 +353,11 @@ def plot_confusion_matrices(runs: list[RunResult], assessment_dir: Path) -> None
 def plot_training_curves(run: RunResult, run_viz_dir: Path) -> None:
     train_losses = run.history.get("train_losses", [])
     eval_losses = run.history.get("eval_losses", [])
-    eval_accuracies = run.history.get("eval_accuracies", [])
-    eval_macro_accuracies = run.history.get("eval_macro_accuracies", [])
-    eval_f1_macros = run.history.get("eval_f1_macros", [])
-    eval_f1_weighteds = run.history.get("eval_f1_weighteds", [])
-    eval_maes = run.history.get("eval_maes", [])
-    eval_mses = run.history.get("eval_mses", [])
-    if not train_losses or not eval_accuracies:
+    if not train_losses:
         return
 
     epochs = list(range(1, len(train_losses) + 1))
-    fig, axes = plt.subplots(1, 4, figsize=(22, 5))
+    fig, axes = plt.subplots(1, 2, figsize=(15, 5), dpi=160)
 
     axes[0].plot(epochs, train_losses, label="Train Loss", linewidth=1.5, color=CURVE_COLORS["train_loss"])
     if eval_losses:
@@ -380,77 +374,93 @@ def plot_training_curves(run: RunResult, run_viz_dir: Path) -> None:
     axes[0].set_ylabel("Loss")
     axes[0].legend()
 
-    axes[1].plot(
-        epochs[: len(eval_accuracies)],
-        eval_accuracies,
-        label="Eval Accuracy",
-        linewidth=1.5,
-        color=CURVE_COLORS["eval_accuracy"],
-    )
-    if eval_macro_accuracies:
-        axes[1].plot(
-            epochs[: len(eval_macro_accuracies)],
-            eval_macro_accuracies,
-            label="Eval Macro Accuracy",
-            linewidth=1.5,
-            color=CURVE_COLORS["eval_macro_accuracy"],
-        )
-    axes[1].axvline(run.history.get("best_epoch", 0), color=CURVE_COLORS["best_epoch"], linestyle="--", linewidth=1)
-    axes[1].set_title(f"Evaluation Accuracy: {run.comparison_label}")
-    axes[1].set_xlabel("Epoch")
-    axes[1].set_ylabel("Score")
-    axes[1].set_ylim(0.0, 1.0)
-    axes[1].legend()
-
-    if eval_f1_macros:
-        axes[2].plot(
-            epochs[: len(eval_f1_macros)],
-            eval_f1_macros,
-            label="Eval Macro F1",
-            linewidth=1.5,
-            color=CURVE_COLORS["eval_f1_macro"],
-        )
-    if eval_f1_weighteds:
-        axes[2].plot(
-            epochs[: len(eval_f1_weighteds)],
-            eval_f1_weighteds,
-            label="Eval Weighted F1",
-            linewidth=1.5,
-            color=CURVE_COLORS["eval_f1_weighted"],
-        )
-    axes[2].axvline(run.history.get("best_epoch", 0), color=CURVE_COLORS["best_epoch"], linestyle="--", linewidth=1)
-    axes[2].set_title(f"Evaluation F1: {run.comparison_label}")
-    axes[2].set_xlabel("Epoch")
-    axes[2].set_ylabel("Score")
-    axes[2].set_ylim(0.0, 1.0)
-    axes[2].legend()
-
-    if eval_maes:
-        axes[3].plot(
-            epochs[: len(eval_maes)],
-            eval_maes,
-            label="Eval MAE",
-            linewidth=1.5,
-            color=CURVE_COLORS["eval_mae"],
-        )
-    if eval_mses:
-        axes[3].plot(
-            epochs[: len(eval_mses)],
-            eval_mses,
-            label="Eval MSE",
-            linewidth=1.5,
-            color=CURVE_COLORS["eval_mse"],
-        )
-    axes[3].axvline(run.history.get("best_epoch", 0), color=CURVE_COLORS["best_epoch"], linestyle="--", linewidth=1)
-    axes[3].set_title(f"Evaluation Error: {run.comparison_label}")
-    axes[3].set_xlabel("Epoch")
-    axes[3].set_ylabel("Error")
-    axes[3].set_ylim(bottom=0.0)
-    if eval_maes or eval_mses:
-        axes[3].legend()
+    _plot_combined_evaluation_metrics(run, axes[1], title=f"Evaluation Metrics: {run.comparison_label}")
 
     fig.tight_layout()
     fig.savefig(run_viz_dir / "training_curves.png", dpi=200, bbox_inches="tight")
+    plt.close(fig)
+    plot_evaluation_metrics(run, run_viz_dir / "evaluation_metrics.png")
+
+
+def _plot_combined_evaluation_metrics(run: RunResult, ax: plt.Axes, title: str) -> None:
+    epochs = list(range(1, len(run.history.get("train_losses", [])) + 1))
+    score_series = [
+        ("eval_accuracies", "Accuracy", CURVE_COLORS["eval_accuracy"]),
+        ("eval_macro_accuracies", "Macro Accuracy", CURVE_COLORS["eval_macro_accuracy"]),
+        ("eval_f1_macros", "Macro F1", CURVE_COLORS["eval_f1_macro"]),
+        ("eval_f1_weighteds", "Weighted F1", CURVE_COLORS["eval_f1_weighted"]),
+    ]
+    error_series = [
+        ("eval_maes", "MAE", CURVE_COLORS["eval_mae"]),
+        ("eval_mses", "MSE", CURVE_COLORS["eval_mse"]),
+    ]
+
+    handles = []
+    labels = []
+    last_values = []
+    for key, label, color in score_series:
+        values = run.history.get(key, [])
+        if not values:
+            continue
+        line = ax.plot(epochs[: len(values)], values, label=label, linewidth=1.5, color=color)[0]
+        handles.append(line)
+        labels.append(label)
+        last_values.append(float(values[-1]))
+
+    ax.set_title(title)
+    ax.set_xlabel("Epoch")
+    ax.set_ylabel("Score")
+    ax.set_ylim(0.0, 1.0)
+    ax.grid(axis="y", alpha=0.18)
+    ax.axvline(run.history.get("best_epoch", 0), color=CURVE_COLORS["best_epoch"], linestyle="--", linewidth=1)
+
+    error_ax = ax.twinx()
+    for key, label, color in error_series:
+        values = run.history.get(key, [])
+        if not values:
+            continue
+        line = error_ax.plot(
+            epochs[: len(values)],
+            values,
+            label=label,
+            linewidth=1.5,
+            linestyle=":",
+            color=color,
+        )[0]
+        handles.append(line)
+        labels.append(label)
+        last_values.append(float(values[-1]))
+    error_ax.set_ylabel("Error")
+    error_ax.set_ylim(bottom=0.0)
+
+    if handles:
+        legend_order = sorted(range(len(handles)), key=lambda index: last_values[index], reverse=True)
+        ax.legend(
+            [handles[index] for index in legend_order],
+            [labels[index] for index in legend_order],
+            loc="best",
+            fontsize=8,
+        )
+
+
+def plot_evaluation_metrics(run: RunResult, out_path: Path) -> None:
+    has_eval_metric = any(
+        run.history.get(key)
+        for key in (
+            "eval_accuracies",
+            "eval_macro_accuracies",
+            "eval_f1_macros",
+            "eval_f1_weighteds",
+            "eval_maes",
+            "eval_mses",
+        )
+    )
+    if not run.history.get("train_losses") or not has_eval_metric:
+        return
+    fig, ax = plt.subplots(figsize=(10, 5), dpi=160)
+    _plot_combined_evaluation_metrics(run, ax, title=f"Evaluation Metrics: {run.comparison_label}")
+    fig.tight_layout()
+    fig.savefig(out_path, dpi=200, bbox_inches="tight")
     plt.close(fig)
 
 
