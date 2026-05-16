@@ -38,6 +38,22 @@ from src.output_paths import DOMAIN_DIFFERENCE_DIR
 META_COLS = {"frame", "face_id", "timestamp", "confidence", "success"}
 
 
+def _resolve_cmose_openface_dir() -> Path:
+    candidates = [
+        REPO_ROOT / "data" / "CMOSE" / "features" / "openface",
+        REPO_ROOT / "data" / "CMOSE" / "secondFeature",
+        REPO_ROOT / "data" / "CMOSE" / "secondFeature" / "secondFeature",
+        REPO_ROOT / "data" / "CMOSE" / "openface-features" / "secondFeature",
+    ]
+    for candidate in candidates:
+        if candidate.exists() and any(candidate.glob("*.csv")):
+            return candidate
+    raise FileNotFoundError(
+        "Could not find CMOSE OpenFace CSV files. Checked: "
+        + ", ".join(str(candidate) for candidate in candidates)
+    )
+
+
 @dataclass(frozen=True)
 class SamplePaths:
     sample_id: str
@@ -235,7 +251,7 @@ def run(args: argparse.Namespace) -> None:
     accepted_csv = REPO_ROOT / args.private_accepted_csv
     private_i3d_root = REPO_ROOT / "data" / "private" / "features" / "i3d"
     cmose_i3d_root = REPO_ROOT / "data" / "CMOSE" / "features" / "i3d"
-    cmose_openface_root = REPO_ROOT / "data" / "CMOSE" / "secondFeature" / "secondFeature"
+    cmose_openface_root = _resolve_cmose_openface_dir()
 
     out_dir = REPO_ROOT / args.output_dir
     out_dir.mkdir(parents=True, exist_ok=True)

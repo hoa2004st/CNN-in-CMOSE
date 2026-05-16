@@ -48,6 +48,22 @@ def _list_csv_files(root: Path) -> list[Path]:
     return sorted(p for p in root.glob("*.csv") if p.is_file())
 
 
+def _resolve_cmose_openface_dir() -> Path:
+    candidates = [
+        REPO_ROOT / "data" / "CMOSE" / "features" / "openface",
+        REPO_ROOT / "data" / "CMOSE" / "secondFeature",
+        REPO_ROOT / "data" / "CMOSE" / "secondFeature" / "secondFeature",
+        REPO_ROOT / "data" / "CMOSE" / "openface-features" / "secondFeature",
+    ]
+    for candidate in candidates:
+        if candidate.exists() and _list_csv_files(candidate):
+            return candidate
+    raise FileNotFoundError(
+        "Could not find CMOSE OpenFace CSV files. Checked: "
+        + ", ".join(str(candidate) for candidate in candidates)
+    )
+
+
 def _manifest_path(value: object) -> Path:
     return REPO_ROOT / str(value).replace("\\", "/")
 
@@ -443,7 +459,7 @@ def _write_markdown(report: dict, group_summary: pd.DataFrame, out_path: Path) -
 
 def run(args: argparse.Namespace) -> None:
     private_openface = REPO_ROOT / "data" / "private" / "features" / "openface"
-    cmose_openface = REPO_ROOT / "data" / "CMOSE" / "secondFeature" / "secondFeature"
+    cmose_openface = _resolve_cmose_openface_dir()
     private_i3d_root = REPO_ROOT / "data" / "private" / "features" / "i3d"
     cmose_i3d_root = REPO_ROOT / "data" / "CMOSE" / "features" / "i3d"
     accepted_csv = REPO_ROOT / args.private_accepted_csv
