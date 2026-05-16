@@ -1,26 +1,26 @@
 # openface_mlp [Weighted CE]
 
 - Run folder: `openface_mlp/weighted_ce`
-- Metrics file: `outputs\training_log\openface_mlp\weighted_ce\metrics.json`
-- Accuracy: 0.6102
-- Macro Accuracy: 0.5376
-- Macro F1: 0.4928
-- Weighted F1: 0.6295
-- MAE: 0.4259
-- MSE: 0.5061
-- Best epoch: 95
+- Metrics file: `outputs/training_log/openface_mlp/weighted_ce/metrics.json`
+- Accuracy: 0.5717
+- Macro Accuracy: 0.5781
+- Macro F1: 0.4758
+- Weighted F1: 0.5982
+- MAE: 0.4816
+- MSE: 0.5962
+- Best epoch: 61
 
 ## Classification Report
 
 ```text
-              precision    recall  f1-score   support
+                  precision    recall  f1-score   support
 
-           0       0.36      0.37      0.37        35
-           1       0.36      0.50      0.42       221
-           2       0.81      0.65      0.72       847
-           3       0.38      0.64      0.47       118
+Highly Disengage       0.25      0.51      0.33        35
+       Disengage       0.35      0.55      0.43       221
+          Engage       0.83      0.56      0.67       847
+   Highly Engage       0.36      0.69      0.47       118
 
-    accuracy                           0.61      1221
-   macro avg       0.48      0.54      0.49      1221
-weighted avg       0.67      0.61      0.63      1221
+        accuracy                           0.57      1221
+       macro avg       0.45      0.58      0.48      1221
+    weighted avg       0.68      0.57      0.60      1221
 ```

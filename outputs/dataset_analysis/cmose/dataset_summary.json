@@ -1,6 +1,6 @@
 {
   "dataset": "cmose",
-  "source": "C:\\HOA\\1.HUST\\Thesis\\CNN-in-CMOSE\\data\\CMOSE\\final_data_1.json",
+  "source": "/workspace/CNN-in-CMOSE/data/CMOSE/final_data_1.json",
   "num_samples": 12197,
   "splits": {
     "unlabel": 2193,

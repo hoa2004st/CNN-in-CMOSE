@@ -1,26 +1,26 @@
 # lstm [CE]
 
 - Run folder: `lstm/ce`
-- Metrics file: `outputs\training_log\lstm\ce\metrics.json`
-- Accuracy: 0.7052
-- Macro Accuracy: 0.4139
-- Macro F1: 0.4429
-- Weighted F1: 0.6754
-- MAE: 0.3243
-- MSE: 0.3849
-- Best epoch: 13
+- Metrics file: `outputs/training_log/lstm/ce/metrics.json`
+- Accuracy: 0.7027
+- Macro Accuracy: 0.4015
+- Macro F1: 0.4289
+- Weighted F1: 0.6679
+- MAE: 0.3268
+- MSE: 0.3890
+- Best epoch: 12
 
 ## Classification Report
 
 ```text
-              precision    recall  f1-score   support
+                  precision    recall  f1-score   support
 
-           0       0.30      0.20      0.24        35
-           1       0.50      0.29      0.37       221
-           2       0.76      0.89      0.82       847
-           3       0.47      0.27      0.34       118
+Highly Disengage       0.33      0.23      0.27        35
+       Disengage       0.53      0.30      0.38       221
+          Engage       0.75      0.90      0.82       847
+   Highly Engage       0.39      0.18      0.24       118
 
-    accuracy                           0.71      1221
-   macro avg       0.51      0.41      0.44      1221
-weighted avg       0.67      0.71      0.68      1221
+        accuracy                           0.70      1221
+       macro avg       0.50      0.40      0.43      1221
+    weighted avg       0.66      0.70      0.67      1221
 ```

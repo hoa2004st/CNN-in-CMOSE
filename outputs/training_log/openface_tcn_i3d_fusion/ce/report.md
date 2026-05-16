@@ -1,26 +1,26 @@
 # fusion [CE]
 
 - Run folder: `openface_tcn_i3d_fusion/ce`
-- Metrics file: `outputs\training_log\openface_tcn_i3d_fusion\ce\metrics.json`
-- Accuracy: 0.7699
-- Macro Accuracy: 0.5637
-- Macro F1: 0.5972
-- Weighted F1: 0.7555
-- MAE: 0.2531
-- MSE: 0.3022
-- Best epoch: 6
+- Metrics file: `outputs/training_log/openface_tcn_i3d_fusion/ce/metrics.json`
+- Accuracy: 0.7469
+- Macro Accuracy: 0.4478
+- Macro F1: 0.4575
+- Weighted F1: 0.7265
+- MAE: 0.2875
+- MSE: 0.3645
+- Best epoch: 4
 
 ## Classification Report
 
 ```text
-              precision    recall  f1-score   support
+                  precision    recall  f1-score   support
 
-           0       0.52      0.37      0.43        35
-           1       0.64      0.42      0.50       221
-           2       0.81      0.91      0.86       847
-           3       0.63      0.56      0.59       118
+Highly Disengage       0.00      0.00      0.00        35
+       Disengage       0.52      0.44      0.48       221
+          Engage       0.81      0.90      0.85       847
+   Highly Engage       0.56      0.45      0.50       118
 
-    accuracy                           0.77      1221
-   macro avg       0.65      0.56      0.60      1221
-weighted avg       0.75      0.77      0.76      1221
+        accuracy                           0.75      1221
+       macro avg       0.47      0.45      0.46      1221
+    weighted avg       0.71      0.75      0.73      1221
 ```

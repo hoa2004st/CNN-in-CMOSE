@@ -1,26 +1,26 @@
 # tcn [CE]
 
 - Run folder: `tcn/ce`
-- Metrics file: `outputs\training_log\tcn\ce\metrics.json`
-- Accuracy: 0.7649
-- Macro Accuracy: 0.5012
-- Macro F1: 0.5478
-- Weighted F1: 0.7423
-- MAE: 0.2555
-- MSE: 0.2965
-- Best epoch: 43
+- Metrics file: `outputs/training_log/tcn/ce/metrics.json`
+- Accuracy: 0.7641
+- Macro Accuracy: 0.5859
+- Macro F1: 0.6084
+- Weighted F1: 0.7587
+- MAE: 0.2506
+- MSE: 0.2801
+- Best epoch: 50
 
 ## Classification Report
 
 ```text
-              precision    recall  f1-score   support
+                  precision    recall  f1-score   support
 
-           0       0.46      0.31      0.37        35
-           1       0.67      0.45      0.54       221
-           2       0.79      0.93      0.85       847
-           3       0.66      0.31      0.43       118
+Highly Disengage       0.54      0.43      0.48        35
+       Disengage       0.60      0.55      0.58       221
+          Engage       0.83      0.87      0.85       847
+   Highly Engage       0.58      0.49      0.53       118
 
-    accuracy                           0.76      1221
-   macro avg       0.65      0.50      0.55      1221
-weighted avg       0.75      0.76      0.74      1221
+        accuracy                           0.76      1221
+       macro avg       0.64      0.59      0.61      1221
+    weighted avg       0.76      0.76      0.76      1221
 ```

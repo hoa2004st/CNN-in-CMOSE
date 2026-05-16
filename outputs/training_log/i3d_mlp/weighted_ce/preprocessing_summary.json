@@ -11,5 +11,12 @@
     1024
   ],
   "normalization": "per-feature z-score using train-set statistics on I3D features",
-  "i3d_materialization": null
+  "i3d_materialization": {
+    "source_json": "data/CMOSE/final_data_1.json",
+    "output_dir": "data/CMOSE/features/i3d",
+    "embedding_dim": 1024,
+    "written_files": 12197,
+    "replaced_empty_embeddings": 295,
+    "skipped_invalid_records": 0
+  }
 }
