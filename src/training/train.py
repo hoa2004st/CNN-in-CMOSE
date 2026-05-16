@@ -257,8 +257,10 @@ def train_model(
 
     checkpoint_path = Path(checkpoint_path)
     checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
+    if checkpoint_path.exists():
+        checkpoint_path.unlink()
 
-    best_loss = math.inf
+    best_score = math.inf
     patience = max(1, int(patience))
     stale_epochs = 0
 
@@ -277,6 +279,7 @@ def train_model(
         "loss_name": loss_name,
         "focal_gamma": focal_gamma if loss_name == "focal" else None,
         "class_weights": class_weights,
+        "selection_metric": "eval_loss",
     }
 
     if progress_callback is not None:
@@ -329,15 +332,25 @@ def train_model(
         history["eval_maes"].append(eval_metrics["mae"])
         history["eval_mses"].append(eval_metrics["mse"])
 
-        if best_loss - eval_loss > min_delta:
-            best_loss = eval_loss
+        if math.isfinite(eval_loss):
+            selection_score = eval_loss
+            selection_metric = "eval_loss"
+        else:
+            selection_score = 1.0 - eval_metrics["f1_macro"]
+            selection_metric = "1_minus_eval_f1_macro"
+
+        if best_score - selection_score > min_delta:
+            best_score = selection_score
             history["best_epoch"] = epoch
+            history["selection_metric"] = selection_metric
             stale_epochs = 0
             torch.save(model.state_dict(), checkpoint_path)
             if progress_callback is not None:
                 progress_callback(
                     "Checkpoint updated: "
                     f"epoch={epoch}, eval_loss={eval_loss:.6f}, "
+                    f"selection_metric={selection_metric}, "
+                    f"selection_score={selection_score:.6f}, "
                     f"eval_acc={eval_metrics['accuracy']:.4f}, "
                     f"eval_macro_acc={eval_metrics['macro_accuracy']:.4f}, "
                     f"eval_f1_macro={eval_metrics['f1_macro']:.4f}, "
@@ -379,6 +392,11 @@ def train_model(
                 f"Loading best checkpoint from epoch {history['best_epoch']} at {checkpoint_path}"
             )
         model.load_state_dict(torch.load(checkpoint_path, map_location=device))
+    else:
+        raise RuntimeError(
+            f"No checkpoint was saved for this run at {checkpoint_path}. "
+            "Training did not produce a finite selection score."
+        )
     return history
 
 
