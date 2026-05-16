@@ -48,6 +48,10 @@ def _list_csv_files(root: Path) -> list[Path]:
     return sorted(p for p in root.glob("*.csv") if p.is_file())
 
 
+def _manifest_path(value: object) -> Path:
+    return REPO_ROOT / str(value).replace("\\", "/")
+
+
 def _load_accepted_private_entries(path: Path) -> pd.DataFrame:
     if not path.exists():
         raise FileNotFoundError(f"Accepted private manifest not found: {path}")
@@ -65,7 +69,7 @@ def _load_accepted_private_entries(path: Path) -> pd.DataFrame:
 def _accepted_openface_files(accepted: pd.DataFrame) -> list[Path]:
     files: list[Path] = []
     for rel in accepted["openface_csv"].astype(str):
-        path = REPO_ROOT / rel
+        path = _manifest_path(rel)
         if path.exists():
             files.append(path)
     return sorted(files)

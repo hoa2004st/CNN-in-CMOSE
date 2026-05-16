@@ -148,6 +148,10 @@ def resolve_cmose_openface_dir(path: str | Path) -> Path:
     )
 
 
+def _manifest_path(value: object) -> Path:
+    return Path(str(value).replace("\\", "/"))
+
+
 def load_private_samples(accepted_csv: str | Path) -> list[PrivateSample]:
     accepted_path = Path(accepted_csv)
     df = pd.read_csv(accepted_path)
@@ -159,13 +163,13 @@ def load_private_samples(accepted_csv: str | Path) -> list[PrivateSample]:
     accepted = df[df["is_accepted"].astype(str) == "1"].copy()
     samples: list[PrivateSample] = []
     for row in accepted.itertuples(index=False):
-        openface_csv = Path(str(row.openface_csv))
+        openface_csv = _manifest_path(row.openface_csv)
         if not openface_csv.exists():
             raise FileNotFoundError(f"Accepted OpenFace CSV does not exist: {openface_csv}")
         samples.append(
             PrivateSample(
                 clip_id=str(row.clip_id),
-                clip_path=Path(str(row.clip_path)),
+                clip_path=_manifest_path(row.clip_path),
                 openface_csv=openface_csv,
             )
         )

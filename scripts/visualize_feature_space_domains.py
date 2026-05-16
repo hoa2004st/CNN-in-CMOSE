@@ -62,12 +62,16 @@ def _load_accepted_manifest(path: Path) -> pd.DataFrame:
     return df[pd.to_numeric(df["is_accepted"], errors="coerce").eq(1)].copy()
 
 
+def _manifest_path(value: object) -> Path:
+    return REPO_ROOT / str(value).replace("\\", "/")
+
+
 def _private_samples(accepted_csv: Path, i3d_root: Path) -> list[SamplePaths]:
     accepted = _load_accepted_manifest(accepted_csv)
     samples: list[SamplePaths] = []
     for row in accepted.itertuples(index=False):
         sample_id = str(row.clip_id)
-        openface_csv = REPO_ROOT / str(row.openface_csv)
+        openface_csv = _manifest_path(row.openface_csv)
         i3d_npy = i3d_root / f"{sample_id}.npy"
         if openface_csv.exists() and i3d_npy.exists():
             samples.append(SamplePaths(sample_id, openface_csv, i3d_npy))
