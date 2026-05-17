@@ -35,148 +35,148 @@
   },
   "run_metrics": {
     "openface_mlp/ce": {
-      "accuracy": 0.7436527436527437,
-      "macro_accuracy": 0.4626028394699654,
-      "f1_macro": 0.5059807011595231,
-      "f1_weighted": 0.7194577693175169,
-      "mae": 0.2800982800982801,
-      "mse": 0.32923832923832924
+      "accuracy": 0.7248157248157249,
+      "macro_accuracy": 0.3851373474708017,
+      "f1_macro": 0.4241375578444544,
+      "f1_weighted": 0.6760054240618504,
+      "mae": 0.2972972972972973,
+      "mse": 0.3415233415233415
     },
     "openface_mlp/weighted_ce": {
-      "accuracy": 0.5716625716625716,
-      "macro_accuracy": 0.5781456126579846,
-      "f1_macro": 0.4757934294885112,
-      "f1_weighted": 0.598165129122175,
-      "mae": 0.48157248157248156,
-      "mse": 0.5962325962325963
+      "accuracy": 0.4995904995904996,
+      "macro_accuracy": 0.5113395396409989,
+      "f1_macro": 0.4099880158123982,
+      "f1_weighted": 0.5319847746430826,
+      "mae": 0.5708435708435708,
+      "mse": 0.7182637182637183
     },
     "openface_mlp/ordinal": {
-      "accuracy": 0.5356265356265356,
-      "macro_accuracy": 0.266457038384438,
-      "f1_macro": 0.2660303904421316,
-      "f1_weighted": 0.5344722733305318,
-      "mae": 0.5200655200655201,
-      "mse": 0.6363636363636364
+      "accuracy": 0.5470925470925471,
+      "macro_accuracy": 0.33883000666513763,
+      "f1_macro": 0.33886110390353236,
+      "f1_weighted": 0.5556350248694034,
+      "mae": 0.48402948402948404,
+      "mse": 0.547911547911548
     },
     "tcn/ce": {
-      "accuracy": 0.7641277641277642,
-      "macro_accuracy": 0.5858608897673523,
-      "f1_macro": 0.6083782996723225,
-      "f1_weighted": 0.7586940808546766,
-      "mae": 0.25061425061425063,
-      "mse": 0.2800982800982801
+      "accuracy": 0.7575757575757576,
+      "macro_accuracy": 0.49896819395595793,
+      "f1_macro": 0.5427950960656337,
+      "f1_weighted": 0.7368372498857658,
+      "mae": 0.26044226044226043,
+      "mse": 0.29811629811629814
     },
     "tcn/weighted_ce": {
-      "accuracy": 0.6183456183456183,
-      "macro_accuracy": 0.6103450569189716,
-      "f1_macro": 0.4950881540937332,
-      "f1_weighted": 0.6457221573810371,
-      "mae": 0.44963144963144963,
-      "mse": 0.5986895986895987
+      "accuracy": 0.6281736281736282,
+      "macro_accuracy": 0.6124383026562852,
+      "f1_macro": 0.49886031713420154,
+      "f1_weighted": 0.6520909187757403,
+      "mae": 0.4332514332514332,
+      "mse": 0.5659295659295659
     },
     "tcn/ordinal": {
-      "accuracy": 0.6846846846846847,
-      "macro_accuracy": 0.6263786517117433,
-      "f1_macro": 0.5695759529724473,
-      "f1_weighted": 0.7009810143152396,
-      "mae": 0.34725634725634724,
-      "mse": 0.4144144144144144
+      "accuracy": 0.6167076167076168,
+      "macro_accuracy": 0.6213568313314529,
+      "f1_macro": 0.506298387890248,
+      "f1_weighted": 0.645053375452281,
+      "mae": 0.43734643734643736,
+      "mse": 0.556920556920557
     },
     "lstm/ce": {
-      "accuracy": 0.7027027027027027,
-      "macro_accuracy": 0.4015016276209968,
-      "f1_macro": 0.4289433128594238,
-      "f1_weighted": 0.6679212798951529,
-      "mae": 0.32678132678132676,
-      "mse": 0.389025389025389
+      "accuracy": 0.7010647010647011,
+      "macro_accuracy": 0.3787831922450793,
+      "f1_macro": 0.40922846799077933,
+      "f1_weighted": 0.6611058095363617,
+      "mae": 0.3226863226863227,
+      "mse": 0.37182637182637185
     },
     "lstm/weighted_ce": {
-      "accuracy": 0.556920556920557,
-      "macro_accuracy": 0.5003574962153772,
-      "f1_macro": 0.4283926037352409,
-      "f1_weighted": 0.58665129008701,
-      "mae": 0.5151515151515151,
-      "mse": 0.6756756756756757
+      "accuracy": 0.597051597051597,
+      "macro_accuracy": 0.5506516573248197,
+      "f1_macro": 0.4727484653578984,
+      "f1_weighted": 0.6228095738805814,
+      "mae": 0.45782145782145783,
+      "mse": 0.5741195741195741
     },
     "lstm/ordinal": {
-      "accuracy": 0.4987714987714988,
-      "macro_accuracy": 0.5092287346479316,
-      "f1_macro": 0.4108346353447826,
-      "f1_weighted": 0.5310417381430358,
-      "mae": 0.5601965601965602,
-      "mse": 0.683046683046683
+      "accuracy": 0.43734643734643736,
+      "macro_accuracy": 0.5247309384171525,
+      "f1_macro": 0.3804633545079651,
+      "f1_weighted": 0.4674804505213891,
+      "mae": 0.6412776412776413,
+      "mse": 0.8116298116298116
     },
     "transformer/ce": {
-      "accuracy": 0.737919737919738,
-      "macro_accuracy": 0.5202319003393054,
-      "f1_macro": 0.5459871333086648,
-      "f1_weighted": 0.726291901970155,
-      "mae": 0.29238329238329236,
-      "mse": 0.3579033579033579
+      "accuracy": 0.7518427518427518,
+      "macro_accuracy": 0.49308090622329726,
+      "f1_macro": 0.5411335601347249,
+      "f1_weighted": 0.7324682186844874,
+      "mae": 0.27436527436527436,
+      "mse": 0.33005733005733007
     },
     "transformer/weighted_ce": {
-      "accuracy": 0.5831285831285832,
-      "macro_accuracy": 0.5884408395012944,
-      "f1_macro": 0.485312525795068,
-      "f1_weighted": 0.6111786833083124,
-      "mae": 0.47583947583947583,
-      "mse": 0.6101556101556102
+      "accuracy": 0.5823095823095823,
+      "macro_accuracy": 0.5831214670401654,
+      "f1_macro": 0.47812326707225483,
+      "f1_weighted": 0.6117575870844943,
+      "mae": 0.47665847665847666,
+      "mse": 0.6109746109746109
     },
     "transformer/ordinal": {
-      "accuracy": 0.647010647010647,
-      "macro_accuracy": 0.6028149318278929,
-      "f1_macro": 0.5358623889722879,
-      "f1_weighted": 0.6677578741914848,
-      "mae": 0.3988533988533989,
-      "mse": 0.49713349713349714
+      "accuracy": 0.5266175266175266,
+      "macro_accuracy": 0.587933232814498,
+      "f1_macro": 0.4455528138875515,
+      "f1_weighted": 0.5588389794793263,
+      "mae": 0.5405405405405406,
+      "mse": 0.6863226863226863
     },
     "i3d_mlp/ce": {
-      "accuracy": 0.7665847665847666,
-      "macro_accuracy": 0.5242481233983998,
-      "f1_macro": 0.5773884388038726,
-      "f1_weighted": 0.7491815769096066,
-      "mae": 0.257985257985258,
-      "mse": 0.31367731367731366
+      "accuracy": 0.7723177723177723,
+      "macro_accuracy": 0.5392378309626565,
+      "f1_macro": 0.5960371770447208,
+      "f1_weighted": 0.754897280039163,
+      "mae": 0.24733824733824733,
+      "mse": 0.2882882882882883
     },
     "i3d_mlp/weighted_ce": {
-      "accuracy": 0.665028665028665,
-      "macro_accuracy": 0.6301714758548801,
-      "f1_macro": 0.5631836547541512,
-      "f1_weighted": 0.6851400719878393,
-      "mae": 0.3701883701883702,
-      "mse": 0.4438984438984439
+      "accuracy": 0.687960687960688,
+      "macro_accuracy": 0.6176136425887173,
+      "f1_macro": 0.5685996593527671,
+      "f1_weighted": 0.7043453499626869,
+      "mae": 0.35053235053235055,
+      "mse": 0.4357084357084357
     },
     "i3d_mlp/ordinal": {
-      "accuracy": 0.6576576576576577,
-      "macro_accuracy": 0.6114863361056599,
-      "f1_macro": 0.5400105013751599,
-      "f1_weighted": 0.6773917828354474,
-      "mae": 0.38656838656838655,
-      "mse": 0.4832104832104832
+      "accuracy": 0.6076986076986077,
+      "macro_accuracy": 0.6172740157513111,
+      "f1_macro": 0.5044116370791696,
+      "f1_weighted": 0.6355054596009437,
+      "mae": 0.44717444717444715,
+      "mse": 0.5683865683865684
     },
     "openface_tcn_i3d_fusion/ce": {
-      "accuracy": 0.7469287469287469,
-      "macro_accuracy": 0.44776415689811866,
-      "f1_macro": 0.4575061645554428,
-      "f1_weighted": 0.7264541129308241,
-      "mae": 0.28746928746928746,
-      "mse": 0.36445536445536447
+      "accuracy": 0.7452907452907452,
+      "macro_accuracy": 0.4318219960950859,
+      "f1_macro": 0.4395751531994646,
+      "f1_weighted": 0.7199550032450244,
+      "mae": 0.29811629811629814,
+      "mse": 0.39803439803439805
     },
     "openface_tcn_i3d_fusion/weighted_ce": {
-      "accuracy": 0.6576576576576577,
-      "macro_accuracy": 0.6383281066798695,
-      "f1_macro": 0.5435530305559964,
-      "f1_weighted": 0.679548595437491,
-      "mae": 0.38493038493038495,
-      "mse": 0.47665847665847666
+      "accuracy": 0.6486486486486487,
+      "macro_accuracy": 0.6139406591776754,
+      "f1_macro": 0.5268343998740287,
+      "f1_weighted": 0.6732473841914459,
+      "mae": 0.4021294021294021,
+      "mse": 0.5118755118755118
     },
     "openface_tcn_i3d_fusion/ordinal": {
-      "accuracy": 0.5405405405405406,
-      "macro_accuracy": 0.5773769917203254,
-      "f1_macro": 0.4114726207849652,
-      "f1_weighted": 0.5755705042283048,
-      "mae": 0.542997542997543,
-      "mse": 0.7166257166257166
+      "accuracy": 0.5585585585585585,
+      "macro_accuracy": 0.5706757395599958,
+      "f1_macro": 0.4776230678349535,
+      "f1_weighted": 0.5873087113328154,
+      "mae": 0.48157248157248156,
+      "mse": 0.5651105651105651
     }
   },
   "private_prediction_distribution": [
@@ -185,280 +185,280 @@
       "domain": "private_accepted",
       "class_id": 0,
       "class_label": "Highly Disengage",
-      "count": 10,
-      "proportion": 0.02336448598130841,
-      "mean_confidence": 0.40502689480781556,
-      "mean_entropy": 0.9396825492382049
+      "count": 14,
+      "proportion": 0.03271028037383177,
+      "mean_confidence": 0.37313284618513926,
+      "mean_entropy": 0.9475509864943368
     },
     {
       "run": "i3d_mlp/ce",
       "domain": "private_accepted",
       "class_id": 1,
       "class_label": "Disengage",
-      "count": 18,
-      "proportion": 0.04205607476635514,
-      "mean_confidence": 0.38291862110296887,
-      "mean_entropy": 0.9447104665968153
-    },
-    {
-      "run": "i3d_mlp/ce",
-      "domain": "private_accepted",
-      "class_id": 2,
-      "class_label": "Engage",
-      "count": 245,
-      "proportion": 0.572429906542056,
-      "mean_confidence": 0.6324795449266628,
-      "mean_entropy": 0.6152929743029634
-    },
-    {
-      "run": "i3d_mlp/ce",
-      "domain": "private_accepted",
-      "class_id": 3,
-      "class_label": "Highly Engage",
-      "count": 155,
-      "proportion": 0.3621495327102804,
-      "mean_confidence": 0.5160961201114039,
-      "mean_entropy": 0.769749613154319
-    },
-    {
-      "run": "i3d_mlp/ordinal",
-      "domain": "private_accepted",
-      "class_id": 0,
-      "class_label": "Highly Disengage",
-      "count": 5,
-      "proportion": 0.011682242990654205,
-      "mean_confidence": 0.6219613075256347,
-      "mean_entropy": 0.6719313740730286
-    },
-    {
-      "run": "i3d_mlp/ordinal",
-      "domain": "private_accepted",
-      "class_id": 1,
-      "class_label": "Disengage",
-      "count": 1,
-      "proportion": 0.002336448598130841,
-      "mean_confidence": 0.6019676923751831,
-      "mean_entropy": 0.7557034492492676
-    },
-    {
-      "run": "i3d_mlp/ordinal",
-      "domain": "private_accepted",
-      "class_id": 2,
-      "class_label": "Engage",
-      "count": 158,
-      "proportion": 0.3691588785046729,
-      "mean_confidence": 0.7802614367838148,
-      "mean_entropy": 0.355210798132363
-    },
-    {
-      "run": "i3d_mlp/ordinal",
-      "domain": "private_accepted",
-      "class_id": 3,
-      "class_label": "Highly Engage",
-      "count": 264,
-      "proportion": 0.616822429906542,
-      "mean_confidence": 0.836114546679186,
-      "mean_entropy": 0.28164840011386055
-    },
-    {
-      "run": "i3d_mlp/weighted_ce",
-      "domain": "private_accepted",
-      "class_id": 0,
-      "class_label": "Highly Disengage",
-      "count": 7,
-      "proportion": 0.016355140186915886,
-      "mean_confidence": 0.4008164916719709,
-      "mean_entropy": 0.9267932772636414
-    },
-    {
-      "run": "i3d_mlp/weighted_ce",
-      "domain": "private_accepted",
-      "class_id": 1,
-      "class_label": "Disengage",
-      "count": 10,
-      "proportion": 0.02336448598130841,
-      "mean_confidence": 0.41773693561553954,
-      "mean_entropy": 0.9004254043102264
-    },
-    {
-      "run": "i3d_mlp/weighted_ce",
-      "domain": "private_accepted",
-      "class_id": 2,
-      "class_label": "Engage",
-      "count": 38,
-      "proportion": 0.08878504672897196,
-      "mean_confidence": 0.528902602823157,
-      "mean_entropy": 0.6971909035193292
-    },
-    {
-      "run": "i3d_mlp/weighted_ce",
-      "domain": "private_accepted",
-      "class_id": 3,
-      "class_label": "Highly Engage",
-      "count": 373,
-      "proportion": 0.8714953271028038,
-      "mean_confidence": 0.6987090857035353,
-      "mean_entropy": 0.5511663879090596
-    },
-    {
-      "run": "lstm/ce",
-      "domain": "private_accepted",
-      "class_id": 0,
-      "class_label": "Highly Disengage",
-      "count": 6,
-      "proportion": 0.014018691588785047,
-      "mean_confidence": 0.3936024109522502,
-      "mean_entropy": 0.9332916736602783
-    },
-    {
-      "run": "lstm/ce",
-      "domain": "private_accepted",
-      "class_id": 1,
-      "class_label": "Disengage",
-      "count": 12,
-      "proportion": 0.028037383177570093,
-      "mean_confidence": 0.4555240472157796,
-      "mean_entropy": 0.8229198704163233
-    },
-    {
-      "run": "lstm/ce",
-      "domain": "private_accepted",
-      "class_id": 2,
-      "class_label": "Engage",
-      "count": 358,
-      "proportion": 0.8364485981308412,
-      "mean_confidence": 0.671051994132596,
-      "mean_entropy": 0.6152627912646566
-    },
-    {
-      "run": "lstm/ce",
-      "domain": "private_accepted",
-      "class_id": 3,
-      "class_label": "Highly Engage",
-      "count": 52,
-      "proportion": 0.12149532710280374,
-      "mean_confidence": 0.5526668561192659,
-      "mean_entropy": 0.6751061356984652
-    },
-    {
-      "run": "lstm/ordinal",
-      "domain": "private_accepted",
-      "class_id": 0,
-      "class_label": "Highly Disengage",
       "count": 11,
       "proportion": 0.02570093457943925,
-      "mean_confidence": 0.47590233250097796,
-      "mean_entropy": 0.776432145725597
+      "mean_confidence": 0.3881992291320454,
+      "mean_entropy": 0.9258506135507063
     },
     {
-      "run": "lstm/ordinal",
-      "domain": "private_accepted",
-      "class_id": 1,
-      "class_label": "Disengage",
-      "count": 337,
-      "proportion": 0.7873831775700935,
-      "mean_confidence": 0.5481272739543406,
-      "mean_entropy": 0.7867549307622259
-    },
-    {
-      "run": "lstm/ordinal",
+      "run": "i3d_mlp/ce",
       "domain": "private_accepted",
       "class_id": 2,
       "class_label": "Engage",
-      "count": 50,
-      "proportion": 0.11682242990654206,
-      "mean_confidence": 0.431913201212883,
-      "mean_entropy": 0.8328672778606415
+      "count": 232,
+      "proportion": 0.5420560747663551,
+      "mean_confidence": 0.6468881741166115,
+      "mean_entropy": 0.6126348519505098
     },
     {
-      "run": "lstm/ordinal",
+      "run": "i3d_mlp/ce",
       "domain": "private_accepted",
       "class_id": 3,
       "class_label": "Highly Engage",
-      "count": 30,
-      "proportion": 0.07009345794392523,
-      "mean_confidence": 0.650475925207138,
-      "mean_entropy": 0.6009243647257487
+      "count": 171,
+      "proportion": 0.39953271028037385,
+      "mean_confidence": 0.600121855212931,
+      "mean_entropy": 0.6661318370211892
     },
     {
-      "run": "lstm/weighted_ce",
+      "run": "i3d_mlp/ordinal",
       "domain": "private_accepted",
       "class_id": 0,
       "class_label": "Highly Disengage",
-      "count": 76,
-      "proportion": 0.17757009345794392,
-      "mean_confidence": 0.6514842200436091,
-      "mean_entropy": 0.6214534657958307
+      "count": 2,
+      "proportion": 0.004672897196261682,
+      "mean_confidence": 0.4866103380918503,
+      "mean_entropy": 0.8470792770385742
     },
     {
-      "run": "lstm/weighted_ce",
+      "run": "i3d_mlp/ordinal",
       "domain": "private_accepted",
       "class_id": 1,
       "class_label": "Disengage",
-      "count": 225,
-      "proportion": 0.5257009345794392,
-      "mean_confidence": 0.6085066921181149,
-      "mean_entropy": 0.6828962628046672
+      "count": 2,
+      "proportion": 0.004672897196261682,
+      "mean_confidence": 0.5807344615459442,
+      "mean_entropy": 0.7559455037117004
     },
     {
-      "run": "lstm/weighted_ce",
+      "run": "i3d_mlp/ordinal",
       "domain": "private_accepted",
       "class_id": 2,
       "class_label": "Engage",
-      "count": 25,
-      "proportion": 0.05841121495327103,
-      "mean_confidence": 0.47586676478385925,
-      "mean_entropy": 0.7654861307144165
+      "count": 6,
+      "proportion": 0.014018691588785047,
+      "mean_confidence": 0.5689902305603027,
+      "mean_entropy": 0.7432347486416498
     },
     {
-      "run": "lstm/weighted_ce",
+      "run": "i3d_mlp/ordinal",
       "domain": "private_accepted",
       "class_id": 3,
       "class_label": "Highly Engage",
-      "count": 102,
-      "proportion": 0.2383177570093458,
-      "mean_confidence": 0.7367634194738725,
-      "mean_entropy": 0.5037419180951866
+      "count": 418,
+      "proportion": 0.9766355140186916,
+      "mean_confidence": 0.9833712321149105,
+      "mean_entropy": 0.04075997537295736
     },
     {
-      "run": "openface_mlp/ce",
+      "run": "i3d_mlp/weighted_ce",
       "domain": "private_accepted",
       "class_id": 0,
       "class_label": "Highly Disengage",
       "count": 3,
       "proportion": 0.007009345794392523,
-      "mean_confidence": 0.4872311254342397,
-      "mean_entropy": 0.6278238892555237
+      "mean_confidence": 0.5646983782450358,
+      "mean_entropy": 0.8144948482513428
+    },
+    {
+      "run": "i3d_mlp/weighted_ce",
+      "domain": "private_accepted",
+      "class_id": 1,
+      "class_label": "Disengage",
+      "count": 14,
+      "proportion": 0.03271028037383177,
+      "mean_confidence": 0.48181968714509693,
+      "mean_entropy": 0.7650729417800903
+    },
+    {
+      "run": "i3d_mlp/weighted_ce",
+      "domain": "private_accepted",
+      "class_id": 2,
+      "class_label": "Engage",
+      "count": 49,
+      "proportion": 0.11448598130841121,
+      "mean_confidence": 0.6691562703677586,
+      "mean_entropy": 0.5187984752107639
+    },
+    {
+      "run": "i3d_mlp/weighted_ce",
+      "domain": "private_accepted",
+      "class_id": 3,
+      "class_label": "Highly Engage",
+      "count": 362,
+      "proportion": 0.8457943925233645,
+      "mean_confidence": 0.8453144289512002,
+      "mean_entropy": 0.3035087188260722
+    },
+    {
+      "run": "lstm/ce",
+      "domain": "private_accepted",
+      "class_id": 0,
+      "class_label": "Highly Disengage",
+      "count": 1,
+      "proportion": 0.002336448598130841,
+      "mean_confidence": 0.36800023913383484,
+      "mean_entropy": 0.9440475702285767
+    },
+    {
+      "run": "lstm/ce",
+      "domain": "private_accepted",
+      "class_id": 1,
+      "class_label": "Disengage",
+      "count": 22,
+      "proportion": 0.0514018691588785,
+      "mean_confidence": 0.526121361689134,
+      "mean_entropy": 0.715300592509183
+    },
+    {
+      "run": "lstm/ce",
+      "domain": "private_accepted",
+      "class_id": 2,
+      "class_label": "Engage",
+      "count": 399,
+      "proportion": 0.9322429906542056,
+      "mean_confidence": 0.6734539274882553,
+      "mean_entropy": 0.6113198185923105
+    },
+    {
+      "run": "lstm/ce",
+      "domain": "private_accepted",
+      "class_id": 3,
+      "class_label": "Highly Engage",
+      "count": 6,
+      "proportion": 0.014018691588785047,
+      "mean_confidence": 0.4550080845753352,
+      "mean_entropy": 0.7996963858604431
+    },
+    {
+      "run": "lstm/ordinal",
+      "domain": "private_accepted",
+      "class_id": 0,
+      "class_label": "Highly Disengage",
+      "count": 21,
+      "proportion": 0.04906542056074766,
+      "mean_confidence": 0.6437939192567553,
+      "mean_entropy": 0.5870057074796586
+    },
+    {
+      "run": "lstm/ordinal",
+      "domain": "private_accepted",
+      "class_id": 1,
+      "class_label": "Disengage",
+      "count": 296,
+      "proportion": 0.6915887850467289,
+      "mean_confidence": 0.6098086549019491,
+      "mean_entropy": 0.6730751055922057
+    },
+    {
+      "run": "lstm/ordinal",
+      "domain": "private_accepted",
+      "class_id": 2,
+      "class_label": "Engage",
+      "count": 75,
+      "proportion": 0.17523364485981308,
+      "mean_confidence": 0.4742159116268158,
+      "mean_entropy": 0.7868759520848592
+    },
+    {
+      "run": "lstm/ordinal",
+      "domain": "private_accepted",
+      "class_id": 3,
+      "class_label": "Highly Engage",
+      "count": 36,
+      "proportion": 0.08411214953271028,
+      "mean_confidence": 0.6889898230632147,
+      "mean_entropy": 0.5517844549483724
+    },
+    {
+      "run": "lstm/weighted_ce",
+      "domain": "private_accepted",
+      "class_id": 0,
+      "class_label": "Highly Disengage",
+      "count": 7,
+      "proportion": 0.016355140186915886,
+      "mean_confidence": 0.6994777832712445,
+      "mean_entropy": 0.568076125213078
+    },
+    {
+      "run": "lstm/weighted_ce",
+      "domain": "private_accepted",
+      "class_id": 1,
+      "class_label": "Disengage",
+      "count": 174,
+      "proportion": 0.40654205607476634,
+      "mean_confidence": 0.5943363122213846,
+      "mean_entropy": 0.6193352197778637
+    },
+    {
+      "run": "lstm/weighted_ce",
+      "domain": "private_accepted",
+      "class_id": 2,
+      "class_label": "Engage",
+      "count": 147,
+      "proportion": 0.34345794392523366,
+      "mean_confidence": 0.5546273520203675,
+      "mean_entropy": 0.6715379756729619
+    },
+    {
+      "run": "lstm/weighted_ce",
+      "domain": "private_accepted",
+      "class_id": 3,
+      "class_label": "Highly Engage",
+      "count": 100,
+      "proportion": 0.2336448598130841,
+      "mean_confidence": 0.6215201410651207,
+      "mean_entropy": 0.6041915082186461
+    },
+    {
+      "run": "openface_mlp/ce",
+      "domain": "private_accepted",
+      "class_id": 0,
+      "class_label": "Highly Disengage",
+      "count": 0,
+      "proportion": 0.0,
+      "mean_confidence": 0.0,
+      "mean_entropy": 0.0
     },
     {
       "run": "openface_mlp/ce",
       "domain": "private_accepted",
       "class_id": 1,
       "class_label": "Disengage",
-      "count": 230,
-      "proportion": 0.5373831775700935,
-      "mean_confidence": 0.6069882343644681,
-      "mean_entropy": 0.5801796445380086
+      "count": 0,
+      "proportion": 0.0,
+      "mean_confidence": 0.0,
+      "mean_entropy": 0.0
     },
     {
       "run": "openface_mlp/ce",
       "domain": "private_accepted",
       "class_id": 2,
       "class_label": "Engage",
-      "count": 184,
-      "proportion": 0.42990654205607476,
-      "mean_confidence": 0.7334821724697299,
-      "mean_entropy": 0.3955778618616497
+      "count": 421,
+      "proportion": 0.9836448598130841,
+      "mean_confidence": 0.9080457783651465,
+      "mean_entropy": 0.2108211578855749
     },
     {
       "run": "openface_mlp/ce",
       "domain": "private_accepted",
       "class_id": 3,
       "class_label": "Highly Engage",
-      "count": 11,
-      "proportion": 0.02570093457943925,
-      "mean_confidence": 0.841687023639679,
-      "mean_entropy": 0.2447785356674682
+      "count": 7,
+      "proportion": 0.016355140186915886,
+      "mean_confidence": 0.6723257728985378,
+      "mean_entropy": 0.4364961790187018
     },
     {
       "run": "openface_mlp/ordinal",
@@ -475,430 +475,430 @@
       "domain": "private_accepted",
       "class_id": 1,
       "class_label": "Disengage",
-      "count": 4,
-      "proportion": 0.009345794392523364,
-      "mean_confidence": 0.9970297813415527,
-      "mean_entropy": 0.012656931532718454
+      "count": 220,
+      "proportion": 0.514018691588785,
+      "mean_confidence": 0.9993789420886473,
+      "mean_entropy": 0.0013235315892302668
     },
     {
       "run": "openface_mlp/ordinal",
       "domain": "private_accepted",
       "class_id": 2,
       "class_label": "Engage",
-      "count": 307,
-      "proportion": 0.7172897196261683,
-      "mean_confidence": 0.9933835930078736,
-      "mean_entropy": 0.010461085392290147
+      "count": 208,
+      "proportion": 0.48598130841121495,
+      "mean_confidence": 0.9956300026522233,
+      "mean_entropy": 0.004766483549290166
     },
     {
       "run": "openface_mlp/ordinal",
       "domain": "private_accepted",
       "class_id": 3,
       "class_label": "Highly Engage",
-      "count": 117,
-      "proportion": 0.2733644859813084,
-      "mean_confidence": 0.977413752140143,
-      "mean_entropy": 0.03178711284870431
+      "count": 0,
+      "proportion": 0.0,
+      "mean_confidence": 0.0,
+      "mean_entropy": 0.0
     },
     {
       "run": "openface_mlp/weighted_ce",
       "domain": "private_accepted",
       "class_id": 0,
       "class_label": "Highly Disengage",
-      "count": 76,
-      "proportion": 0.17757009345794392,
-      "mean_confidence": 0.572128132769936,
-      "mean_entropy": 0.7478491689421629
+      "count": 20,
+      "proportion": 0.04672897196261682,
+      "mean_confidence": 0.5609207600355148,
+      "mean_entropy": 0.6529591262340546
     },
     {
       "run": "openface_mlp/weighted_ce",
       "domain": "private_accepted",
       "class_id": 1,
       "class_label": "Disengage",
-      "count": 219,
-      "proportion": 0.5116822429906542,
-      "mean_confidence": 0.4845743812110326,
-      "mean_entropy": 0.7595921629640066
+      "count": 367,
+      "proportion": 0.8574766355140186,
+      "mean_confidence": 0.5698648627837283,
+      "mean_entropy": 0.6207492390510496
     },
     {
       "run": "openface_mlp/weighted_ce",
+      "domain": "private_accepted",
+      "class_id": 2,
+      "class_label": "Engage",
+      "count": 32,
+      "proportion": 0.07476635514018691,
+      "mean_confidence": 0.43229849450290203,
+      "mean_entropy": 0.8169426377862692
+    },
+    {
+      "run": "openface_mlp/weighted_ce",
+      "domain": "private_accepted",
+      "class_id": 3,
+      "class_label": "Highly Engage",
+      "count": 9,
+      "proportion": 0.02102803738317757,
+      "mean_confidence": 0.6387356089221107,
+      "mean_entropy": 0.6018673578898112
+    },
+    {
+      "run": "openface_tcn_i3d_fusion/ce",
+      "domain": "private_accepted",
+      "class_id": 0,
+      "class_label": "Highly Disengage",
+      "count": 0,
+      "proportion": 0.0,
+      "mean_confidence": 0.0,
+      "mean_entropy": 0.0
+    },
+    {
+      "run": "openface_tcn_i3d_fusion/ce",
+      "domain": "private_accepted",
+      "class_id": 1,
+      "class_label": "Disengage",
+      "count": 375,
+      "proportion": 0.8761682242990654,
+      "mean_confidence": 0.5071084986527761,
+      "mean_entropy": 0.8399161059061686
+    },
+    {
+      "run": "openface_tcn_i3d_fusion/ce",
       "domain": "private_accepted",
       "class_id": 2,
       "class_label": "Engage",
       "count": 31,
       "proportion": 0.07242990654205607,
-      "mean_confidence": 0.352456437003228,
-      "mean_entropy": 0.872371502460972
-    },
-    {
-      "run": "openface_mlp/weighted_ce",
-      "domain": "private_accepted",
-      "class_id": 3,
-      "class_label": "Highly Engage",
-      "count": 102,
-      "proportion": 0.2383177570093458,
-      "mean_confidence": 0.5550663281305164,
-      "mean_entropy": 0.659277540211584
-    },
-    {
-      "run": "openface_tcn_i3d_fusion/ce",
-      "domain": "private_accepted",
-      "class_id": 0,
-      "class_label": "Highly Disengage",
-      "count": 0,
-      "proportion": 0.0,
-      "mean_confidence": 0.0,
-      "mean_entropy": 0.0
-    },
-    {
-      "run": "openface_tcn_i3d_fusion/ce",
-      "domain": "private_accepted",
-      "class_id": 1,
-      "class_label": "Disengage",
-      "count": 407,
-      "proportion": 0.9509345794392523,
-      "mean_confidence": 0.6324702251601864,
-      "mean_entropy": 0.698364757385828
-    },
-    {
-      "run": "openface_tcn_i3d_fusion/ce",
-      "domain": "private_accepted",
-      "class_id": 2,
-      "class_label": "Engage",
-      "count": 21,
-      "proportion": 0.04906542056074766,
-      "mean_confidence": 0.6364323468435378,
-      "mean_entropy": 0.5265831592537108
+      "mean_confidence": 0.6601736362903349,
+      "mean_entropy": 0.5243807668166776
     },
     {
       "run": "openface_tcn_i3d_fusion/ce",
       "domain": "private_accepted",
       "class_id": 3,
       "class_label": "Highly Engage",
-      "count": 0,
-      "proportion": 0.0,
-      "mean_confidence": 0.0,
-      "mean_entropy": 0.0
+      "count": 22,
+      "proportion": 0.0514018691588785,
+      "mean_confidence": 0.39702876724980096,
+      "mean_entropy": 0.9087236659093336
     },
     {
       "run": "openface_tcn_i3d_fusion/ordinal",
       "domain": "private_accepted",
       "class_id": 0,
       "class_label": "Highly Disengage",
-      "count": 261,
-      "proportion": 0.6098130841121495,
-      "mean_confidence": 0.5712643965679111,
-      "mean_entropy": 0.6977960937781352
+      "count": 1,
+      "proportion": 0.002336448598130841,
+      "mean_confidence": 0.6793563365936279,
+      "mean_entropy": 0.5212161540985107
     },
     {
       "run": "openface_tcn_i3d_fusion/ordinal",
       "domain": "private_accepted",
       "class_id": 1,
       "class_label": "Disengage",
-      "count": 118,
-      "proportion": 0.2757009345794392,
-      "mean_confidence": 0.37664022940700337,
-      "mean_entropy": 0.9204092010603113
+      "count": 242,
+      "proportion": 0.5654205607476636,
+      "mean_confidence": 0.5888764405053509,
+      "mean_entropy": 0.6823555208927343
     },
     {
       "run": "openface_tcn_i3d_fusion/ordinal",
       "domain": "private_accepted",
       "class_id": 2,
       "class_label": "Engage",
-      "count": 45,
-      "proportion": 0.10514018691588785,
-      "mean_confidence": 0.3819853683312734,
-      "mean_entropy": 0.9258381485939026
+      "count": 170,
+      "proportion": 0.397196261682243,
+      "mean_confidence": 0.5266949806143256,
+      "mean_entropy": 0.7324757884530461
     },
     {
       "run": "openface_tcn_i3d_fusion/ordinal",
       "domain": "private_accepted",
       "class_id": 3,
       "class_label": "Highly Engage",
-      "count": 4,
-      "proportion": 0.009345794392523364,
-      "mean_confidence": 0.5833984985947609,
-      "mean_entropy": 0.6582576036453247
+      "count": 15,
+      "proportion": 0.035046728971962614,
+      "mean_confidence": 0.6143722275892893,
+      "mean_entropy": 0.5533516228199005
     },
     {
       "run": "openface_tcn_i3d_fusion/weighted_ce",
       "domain": "private_accepted",
       "class_id": 0,
       "class_label": "Highly Disengage",
-      "count": 11,
-      "proportion": 0.02570093457943925,
-      "mean_confidence": 0.8214324496009133,
-      "mean_entropy": 0.3098307312889533
+      "count": 2,
+      "proportion": 0.004672897196261682,
+      "mean_confidence": 0.6120564937591553,
+      "mean_entropy": 0.5818202495574951
     },
     {
       "run": "openface_tcn_i3d_fusion/weighted_ce",
       "domain": "private_accepted",
       "class_id": 1,
       "class_label": "Disengage",
-      "count": 261,
-      "proportion": 0.6098130841121495,
-      "mean_confidence": 0.7015845677405025,
-      "mean_entropy": 0.5427355660817861
+      "count": 225,
+      "proportion": 0.5257009345794392,
+      "mean_confidence": 0.6922483709123399,
+      "mean_entropy": 0.5507276607387596
     },
     {
       "run": "openface_tcn_i3d_fusion/weighted_ce",
       "domain": "private_accepted",
       "class_id": 2,
       "class_label": "Engage",
-      "count": 89,
-      "proportion": 0.20794392523364486,
-      "mean_confidence": 0.5152384742592158,
-      "mean_entropy": 0.7306608852375759
+      "count": 122,
+      "proportion": 0.2850467289719626,
+      "mean_confidence": 0.5488346961678051,
+      "mean_entropy": 0.6885868350013358
     },
     {
       "run": "openface_tcn_i3d_fusion/weighted_ce",
       "domain": "private_accepted",
       "class_id": 3,
       "class_label": "Highly Engage",
-      "count": 67,
-      "proportion": 0.15654205607476634,
-      "mean_confidence": 0.7130257700806233,
-      "mean_entropy": 0.48424317932395794
+      "count": 79,
+      "proportion": 0.18457943925233644,
+      "mean_confidence": 0.6552809820144991,
+      "mean_entropy": 0.5481863466056087
     },
     {
       "run": "tcn/ce",
+      "domain": "private_accepted",
+      "class_id": 0,
+      "class_label": "Highly Disengage",
+      "count": 5,
+      "proportion": 0.011682242990654205,
+      "mean_confidence": 0.7450417637825012,
+      "mean_entropy": 0.48335297107696534
+    },
+    {
+      "run": "tcn/ce",
+      "domain": "private_accepted",
+      "class_id": 1,
+      "class_label": "Disengage",
+      "count": 99,
+      "proportion": 0.23130841121495327,
+      "mean_confidence": 0.6757295769874496,
+      "mean_entropy": 0.44820198518308724
+    },
+    {
+      "run": "tcn/ce",
+      "domain": "private_accepted",
+      "class_id": 2,
+      "class_label": "Engage",
+      "count": 310,
+      "proportion": 0.7242990654205608,
+      "mean_confidence": 0.7902597569650219,
+      "mean_entropy": 0.34946163025992827
+    },
+    {
+      "run": "tcn/ce",
+      "domain": "private_accepted",
+      "class_id": 3,
+      "class_label": "Highly Engage",
+      "count": 14,
+      "proportion": 0.03271028037383177,
+      "mean_confidence": 0.8507885081427438,
+      "mean_entropy": 0.27521917490022524
+    },
+    {
+      "run": "tcn/ordinal",
       "domain": "private_accepted",
       "class_id": 0,
       "class_label": "Highly Disengage",
       "count": 29,
       "proportion": 0.06775700934579439,
-      "mean_confidence": 0.831856043174349,
-      "mean_entropy": 0.29792911518597975
+      "mean_confidence": 0.8753471045658506,
+      "mean_entropy": 0.2648096155048577
     },
     {
-      "run": "tcn/ce",
+      "run": "tcn/ordinal",
       "domain": "private_accepted",
       "class_id": 1,
       "class_label": "Disengage",
-      "count": 68,
-      "proportion": 0.1588785046728972,
-      "mean_confidence": 0.8208332035471412,
-      "mean_entropy": 0.3035977691949537
+      "count": 19,
+      "proportion": 0.04439252336448598,
+      "mean_confidence": 0.6549661755561829,
+      "mean_entropy": 0.5087873156819689
     },
     {
-      "run": "tcn/ce",
+      "run": "tcn/ordinal",
       "domain": "private_accepted",
       "class_id": 2,
       "class_label": "Engage",
-      "count": 321,
-      "proportion": 0.75,
-      "mean_confidence": 0.9539801370689059,
-      "mean_entropy": 0.0818309529689426
+      "count": 370,
+      "proportion": 0.8644859813084113,
+      "mean_confidence": 0.910479103391235,
+      "mean_entropy": 0.19529633382146525
     },
     {
-      "run": "tcn/ce",
+      "run": "tcn/ordinal",
       "domain": "private_accepted",
       "class_id": 3,
       "class_label": "Highly Engage",
       "count": 10,
       "proportion": 0.02336448598130841,
-      "mean_confidence": 0.8693184375762939,
-      "mean_entropy": 0.1875351384981318
-    },
-    {
-      "run": "tcn/ordinal",
-      "domain": "private_accepted",
-      "class_id": 0,
-      "class_label": "Highly Disengage",
-      "count": 8,
-      "proportion": 0.018691588785046728,
-      "mean_confidence": 0.7794001400470734,
-      "mean_entropy": 0.34125012159347534
-    },
-    {
-      "run": "tcn/ordinal",
-      "domain": "private_accepted",
-      "class_id": 1,
-      "class_label": "Disengage",
-      "count": 42,
-      "proportion": 0.09813084112149532,
-      "mean_confidence": 0.736935039361318,
-      "mean_entropy": 0.43208150193095207
-    },
-    {
-      "run": "tcn/ordinal",
-      "domain": "private_accepted",
-      "class_id": 2,
-      "class_label": "Engage",
-      "count": 362,
-      "proportion": 0.8457943925233645,
-      "mean_confidence": 0.9109015843486259,
-      "mean_entropy": 0.20356750878336896
-    },
-    {
-      "run": "tcn/ordinal",
-      "domain": "private_accepted",
-      "class_id": 3,
-      "class_label": "Highly Engage",
-      "count": 16,
-      "proportion": 0.037383177570093455,
-      "mean_confidence": 0.7977915294468403,
-      "mean_entropy": 0.28007934476045193
+      "mean_confidence": 0.8172255337238312,
+      "mean_entropy": 0.3042696924880147
     },
     {
       "run": "tcn/weighted_ce",
-      "domain": "private_accepted",
-      "class_id": 0,
-      "class_label": "Highly Disengage",
-      "count": 236,
-      "proportion": 0.5514018691588785,
-      "mean_confidence": 0.7638795504630622,
-      "mean_entropy": 0.4521981464349665
-    },
-    {
-      "run": "tcn/weighted_ce",
-      "domain": "private_accepted",
-      "class_id": 1,
-      "class_label": "Disengage",
-      "count": 8,
-      "proportion": 0.018691588785046728,
-      "mean_confidence": 0.5117596164345741,
-      "mean_entropy": 0.7216546759009361
-    },
-    {
-      "run": "tcn/weighted_ce",
-      "domain": "private_accepted",
-      "class_id": 2,
-      "class_label": "Engage",
-      "count": 80,
-      "proportion": 0.18691588785046728,
-      "mean_confidence": 0.5437782615423202,
-      "mean_entropy": 0.7443146325647831
-    },
-    {
-      "run": "tcn/weighted_ce",
-      "domain": "private_accepted",
-      "class_id": 3,
-      "class_label": "Highly Engage",
-      "count": 104,
-      "proportion": 0.24299065420560748,
-      "mean_confidence": 0.6868199018331674,
-      "mean_entropy": 0.6138631735140314
-    },
-    {
-      "run": "transformer/ce",
-      "domain": "private_accepted",
-      "class_id": 0,
-      "class_label": "Highly Disengage",
-      "count": 50,
-      "proportion": 0.11682242990654206,
-      "mean_confidence": 0.5384220463037491,
-      "mean_entropy": 0.7789721417427063
-    },
-    {
-      "run": "transformer/ce",
-      "domain": "private_accepted",
-      "class_id": 1,
-      "class_label": "Disengage",
-      "count": 188,
-      "proportion": 0.4392523364485981,
-      "mean_confidence": 0.5394641430454051,
-      "mean_entropy": 0.7212157595030805
-    },
-    {
-      "run": "transformer/ce",
-      "domain": "private_accepted",
-      "class_id": 2,
-      "class_label": "Engage",
-      "count": 151,
-      "proportion": 0.352803738317757,
-      "mean_confidence": 0.5298142796320631,
-      "mean_entropy": 0.7437636015430981
-    },
-    {
-      "run": "transformer/ce",
-      "domain": "private_accepted",
-      "class_id": 3,
-      "class_label": "Highly Engage",
-      "count": 39,
-      "proportion": 0.0911214953271028,
-      "mean_confidence": 0.5391591244783157,
-      "mean_entropy": 0.7580276720034771
-    },
-    {
-      "run": "transformer/ordinal",
       "domain": "private_accepted",
       "class_id": 0,
       "class_label": "Highly Disengage",
       "count": 24,
       "proportion": 0.056074766355140186,
-      "mean_confidence": 0.8747874746719996,
-      "mean_entropy": 0.23477565087766075
+      "mean_confidence": 0.7310334121187528,
+      "mean_entropy": 0.5031122649088502
+    },
+    {
+      "run": "tcn/weighted_ce",
+      "domain": "private_accepted",
+      "class_id": 1,
+      "class_label": "Disengage",
+      "count": 28,
+      "proportion": 0.06542056074766354,
+      "mean_confidence": 0.6200761401227542,
+      "mean_entropy": 0.5716438511652606
+    },
+    {
+      "run": "tcn/weighted_ce",
+      "domain": "private_accepted",
+      "class_id": 2,
+      "class_label": "Engage",
+      "count": 335,
+      "proportion": 0.7827102803738317,
+      "mean_confidence": 0.9053164512363833,
+      "mean_entropy": 0.1805885746383539
+    },
+    {
+      "run": "tcn/weighted_ce",
+      "domain": "private_accepted",
+      "class_id": 3,
+      "class_label": "Highly Engage",
+      "count": 41,
+      "proportion": 0.09579439252336448,
+      "mean_confidence": 0.8033424892076632,
+      "mean_entropy": 0.3572848822081053
+    },
+    {
+      "run": "transformer/ce",
+      "domain": "private_accepted",
+      "class_id": 0,
+      "class_label": "Highly Disengage",
+      "count": 15,
+      "proportion": 0.035046728971962614,
+      "mean_confidence": 0.5628202895323435,
+      "mean_entropy": 0.756890211502711
+    },
+    {
+      "run": "transformer/ce",
+      "domain": "private_accepted",
+      "class_id": 1,
+      "class_label": "Disengage",
+      "count": 43,
+      "proportion": 0.10046728971962617,
+      "mean_confidence": 0.5822000011455181,
+      "mean_entropy": 0.6458127533280572
+    },
+    {
+      "run": "transformer/ce",
+      "domain": "private_accepted",
+      "class_id": 2,
+      "class_label": "Engage",
+      "count": 361,
+      "proportion": 0.8434579439252337,
+      "mean_confidence": 0.7117230359702229,
+      "mean_entropy": 0.5210786788747581
+    },
+    {
+      "run": "transformer/ce",
+      "domain": "private_accepted",
+      "class_id": 3,
+      "class_label": "Highly Engage",
+      "count": 9,
+      "proportion": 0.02102803738317757,
+      "mean_confidence": 0.6111811002095541,
+      "mean_entropy": 0.6263135969638824
+    },
+    {
+      "run": "transformer/ordinal",
+      "domain": "private_accepted",
+      "class_id": 0,
+      "class_label": "Highly Disengage",
+      "count": 52,
+      "proportion": 0.12149532710280374,
+      "mean_confidence": 0.7207617341325834,
+      "mean_entropy": 0.5021514746432121
     },
     {
       "run": "transformer/ordinal",
       "domain": "private_accepted",
       "class_id": 1,
       "class_label": "Disengage",
-      "count": 279,
-      "proportion": 0.6518691588785047,
-      "mean_confidence": 0.7775715609818804,
-      "mean_entropy": 0.3687264119211491
+      "count": 311,
+      "proportion": 0.7266355140186916,
+      "mean_confidence": 0.5385569196038691,
+      "mean_entropy": 0.7722218333716561
     },
     {
       "run": "transformer/ordinal",
       "domain": "private_accepted",
       "class_id": 2,
       "class_label": "Engage",
-      "count": 95,
-      "proportion": 0.2219626168224299,
-      "mean_confidence": 0.6788395862830313,
-      "mean_entropy": 0.4965070937809191
+      "count": 16,
+      "proportion": 0.037383177570093455,
+      "mean_confidence": 0.40819679014384747,
+      "mean_entropy": 0.8314329124987125
     },
     {
       "run": "transformer/ordinal",
       "domain": "private_accepted",
       "class_id": 3,
       "class_label": "Highly Engage",
-      "count": 30,
-      "proportion": 0.07009345794392523,
-      "mean_confidence": 0.8077127009630203,
-      "mean_entropy": 0.3539666334788005
+      "count": 49,
+      "proportion": 0.11448598130841121,
+      "mean_confidence": 0.5524950124779526,
+      "mean_entropy": 0.7558336166702971
     },
     {
       "run": "transformer/weighted_ce",
       "domain": "private_accepted",
       "class_id": 0,
       "class_label": "Highly Disengage",
-      "count": 57,
-      "proportion": 0.13317757009345793,
-      "mean_confidence": 0.7145443145643201,
-      "mean_entropy": 0.5247343325039797
+      "count": 72,
+      "proportion": 0.16822429906542055,
+      "mean_confidence": 0.7223003974391354,
+      "mean_entropy": 0.49564308269570273
     },
     {
       "run": "transformer/weighted_ce",
       "domain": "private_accepted",
       "class_id": 1,
       "class_label": "Disengage",
-      "count": 139,
-      "proportion": 0.3247663551401869,
-      "mean_confidence": 0.577326714778118,
-      "mean_entropy": 0.6643181342443973
+      "count": 189,
+      "proportion": 0.441588785046729,
+      "mean_confidence": 0.6259537167334682,
+      "mean_entropy": 0.6246624016572558
     },
     {
       "run": "transformer/weighted_ce",
       "domain": "private_accepted",
       "class_id": 2,
       "class_label": "Engage",
-      "count": 172,
-      "proportion": 0.40186915887850466,
-      "mean_confidence": 0.5796913346925447,
-      "mean_entropy": 0.6835468527536059
+      "count": 130,
+      "proportion": 0.3037383177570093,
+      "mean_confidence": 0.56241530753099,
+      "mean_entropy": 0.7031277645092744
     },
     {
       "run": "transformer/weighted_ce",
       "domain": "private_accepted",
       "class_id": 3,
       "class_label": "Highly Engage",
-      "count": 60,
-      "proportion": 0.14018691588785046,
-      "mean_confidence": 0.5924776280919711,
-      "mean_entropy": 0.6867728193600973
+      "count": 37,
+      "proportion": 0.08644859813084112,
+      "mean_confidence": 0.645514605818568,
+      "mean_entropy": 0.6372387179651776
     }
   ],
   "cmose_test_prediction_distribution": [
@@ -909,358 +909,358 @@
       "class_label": "Highly Disengage",
       "count": 19,
       "proportion": 0.015561015561015561,
-      "mean_confidence": 0.594467547379042,
-      "mean_entropy": 0.6458352306171468
+      "mean_confidence": 0.8048389318742251,
+      "mean_entropy": 0.38398506884512146
     },
     {
       "run": "i3d_mlp/ce",
       "domain": "cmose_test_predicted",
       "class_id": 1,
       "class_label": "Disengage",
-      "count": 164,
-      "proportion": 0.13431613431613432,
-      "mean_confidence": 0.6731989356439289,
-      "mean_entropy": 0.5046032948828325
+      "count": 157,
+      "proportion": 0.1285831285831286,
+      "mean_confidence": 0.6854481490174676,
+      "mean_entropy": 0.4754708471239372
     },
     {
       "run": "i3d_mlp/ce",
       "domain": "cmose_test_predicted",
       "class_id": 2,
       "class_label": "Engage",
-      "count": 972,
-      "proportion": 0.7960687960687961,
-      "mean_confidence": 0.7972029851358614,
-      "mean_entropy": 0.3840685312934361
+      "count": 975,
+      "proportion": 0.7985257985257985,
+      "mean_confidence": 0.8371454066190964,
+      "mean_entropy": 0.3128565736115166
     },
     {
       "run": "i3d_mlp/ce",
       "domain": "cmose_test_predicted",
       "class_id": 3,
       "class_label": "Highly Engage",
-      "count": 66,
-      "proportion": 0.05405405405405406,
-      "mean_confidence": 0.7628580846569755,
-      "mean_entropy": 0.3624855252388498
+      "count": 70,
+      "proportion": 0.05733005733005733,
+      "mean_confidence": 0.7940309103046145,
+      "mean_entropy": 0.32429982243515304
     },
     {
       "run": "i3d_mlp/ordinal",
       "domain": "cmose_test_predicted",
       "class_id": 0,
       "class_label": "Highly Disengage",
-      "count": 54,
-      "proportion": 0.044226044226044224,
-      "mean_confidence": 0.8115613868942967,
-      "mean_entropy": 0.3063037892340432
+      "count": 76,
+      "proportion": 0.062244062244062245,
+      "mean_confidence": 0.8310577700796881,
+      "mean_entropy": 0.30080583559795215
     },
     {
       "run": "i3d_mlp/ordinal",
       "domain": "cmose_test_predicted",
       "class_id": 1,
       "class_label": "Disengage",
-      "count": 312,
-      "proportion": 0.25552825552825553,
-      "mean_confidence": 0.7764224660320159,
-      "mean_entropy": 0.37889084624237934
+      "count": 353,
+      "proportion": 0.2891072891072891,
+      "mean_confidence": 0.7724545638554494,
+      "mean_entropy": 0.3829285584248519
     },
     {
       "run": "i3d_mlp/ordinal",
       "domain": "cmose_test_predicted",
       "class_id": 2,
       "class_label": "Engage",
-      "count": 664,
-      "proportion": 0.5438165438165438,
-      "mean_confidence": 0.8284627123769507,
-      "mean_entropy": 0.3151486145956001
+      "count": 564,
+      "proportion": 0.4619164619164619,
+      "mean_confidence": 0.8076340556673124,
+      "mean_entropy": 0.3418641028514113
     },
     {
       "run": "i3d_mlp/ordinal",
       "domain": "cmose_test_predicted",
       "class_id": 3,
       "class_label": "Highly Engage",
-      "count": 191,
-      "proportion": 0.15642915642915642,
-      "mean_confidence": 0.8201398908779883,
-      "mean_entropy": 0.2971465589624568
+      "count": 228,
+      "proportion": 0.18673218673218672,
+      "mean_confidence": 0.8613377267069984,
+      "mean_entropy": 0.23833950164697806
     },
     {
       "run": "i3d_mlp/weighted_ce",
       "domain": "cmose_test_predicted",
       "class_id": 0,
       "class_label": "Highly Disengage",
-      "count": 45,
-      "proportion": 0.036855036855036855,
-      "mean_confidence": 0.7562685324086084,
-      "mean_entropy": 0.4421470520914429
+      "count": 47,
+      "proportion": 0.03849303849303849,
+      "mean_confidence": 0.7326178176605955,
+      "mean_entropy": 0.45568526891540695
     },
     {
       "run": "i3d_mlp/weighted_ce",
       "domain": "cmose_test_predicted",
       "class_id": 1,
       "class_label": "Disengage",
-      "count": 376,
-      "proportion": 0.30794430794430794,
-      "mean_confidence": 0.6782002109003827,
-      "mean_entropy": 0.5253740538015684
+      "count": 330,
+      "proportion": 0.2702702702702703,
+      "mean_confidence": 0.7059540302464457,
+      "mean_entropy": 0.4760110973620392
     },
     {
       "run": "i3d_mlp/weighted_ce",
       "domain": "cmose_test_predicted",
       "class_id": 2,
       "class_label": "Engage",
-      "count": 631,
-      "proportion": 0.5167895167895168,
-      "mean_confidence": 0.7134907981484137,
-      "mean_entropy": 0.48515124269724247
+      "count": 697,
+      "proportion": 0.5708435708435708,
+      "mean_confidence": 0.7345434644471966,
+      "mean_entropy": 0.4470844630170694
     },
     {
       "run": "i3d_mlp/weighted_ce",
       "domain": "cmose_test_predicted",
       "class_id": 3,
       "class_label": "Highly Engage",
-      "count": 169,
-      "proportion": 0.13841113841113842,
-      "mean_confidence": 0.7203840738570196,
-      "mean_entropy": 0.4557233035201959
+      "count": 147,
+      "proportion": 0.12039312039312039,
+      "mean_confidence": 0.7484015891341125,
+      "mean_entropy": 0.3970911471908664
     },
     {
       "run": "lstm/ce",
       "domain": "cmose_test_predicted",
       "class_id": 0,
       "class_label": "Highly Disengage",
-      "count": 24,
-      "proportion": 0.019656019656019656,
-      "mean_confidence": 0.5036694457133611,
-      "mean_entropy": 0.829190120100975
+      "count": 14,
+      "proportion": 0.011466011466011465,
+      "mean_confidence": 0.4320455959865025,
+      "mean_entropy": 0.9113237048898425
     },
     {
       "run": "lstm/ce",
       "domain": "cmose_test_predicted",
       "class_id": 1,
       "class_label": "Disengage",
-      "count": 124,
-      "proportion": 0.10155610155610155,
-      "mean_confidence": 0.6010005070317176,
-      "mean_entropy": 0.6530381542059683
+      "count": 140,
+      "proportion": 0.11466011466011466,
+      "mean_confidence": 0.6209931254386902,
+      "mean_entropy": 0.629718738581453
     },
     {
       "run": "lstm/ce",
       "domain": "cmose_test_predicted",
       "class_id": 2,
       "class_label": "Engage",
-      "count": 1019,
-      "proportion": 0.8345618345618345,
-      "mean_confidence": 0.8081251241274039,
-      "mean_entropy": 0.3994565320304495
+      "count": 1030,
+      "proportion": 0.8435708435708436,
+      "mean_confidence": 0.7798178330208492,
+      "mean_entropy": 0.43856041794552386
     },
     {
       "run": "lstm/ce",
       "domain": "cmose_test_predicted",
       "class_id": 3,
       "class_label": "Highly Engage",
-      "count": 54,
-      "proportion": 0.044226044226044224,
-      "mean_confidence": 0.5959136143878654,
-      "mean_entropy": 0.6290013790130615
+      "count": 37,
+      "proportion": 0.030303030303030304,
+      "mean_confidence": 0.5209141003118979,
+      "mean_entropy": 0.6864328674367957
     },
     {
       "run": "lstm/ordinal",
       "domain": "cmose_test_predicted",
       "class_id": 0,
       "class_label": "Highly Disengage",
-      "count": 72,
-      "proportion": 0.05896805896805897,
-      "mean_confidence": 0.6938986087010967,
-      "mean_entropy": 0.5303911291476753
+      "count": 100,
+      "proportion": 0.0819000819000819,
+      "mean_confidence": 0.6688511350750923,
+      "mean_entropy": 0.5736521707475185
     },
     {
       "run": "lstm/ordinal",
       "domain": "cmose_test_predicted",
       "class_id": 1,
       "class_label": "Disengage",
-      "count": 354,
-      "proportion": 0.28992628992628994,
-      "mean_confidence": 0.5717425629244013,
-      "mean_entropy": 0.720953688362224
+      "count": 390,
+      "proportion": 0.3194103194103194,
+      "mean_confidence": 0.580607848518934,
+      "mean_entropy": 0.7093847964054499
     },
     {
       "run": "lstm/ordinal",
       "domain": "cmose_test_predicted",
       "class_id": 2,
       "class_label": "Engage",
-      "count": 524,
-      "proportion": 0.42915642915642915,
-      "mean_confidence": 0.5142009550037275,
-      "mean_entropy": 0.7545384842020865
+      "count": 411,
+      "proportion": 0.3366093366093366,
+      "mean_confidence": 0.48806898901352336,
+      "mean_entropy": 0.7925058948442594
     },
     {
       "run": "lstm/ordinal",
       "domain": "cmose_test_predicted",
       "class_id": 3,
       "class_label": "Highly Engage",
-      "count": 271,
-      "proportion": 0.22194922194922195,
-      "mean_confidence": 0.6838465692592283,
-      "mean_entropy": 0.5339145583970081
-    },
-    {
-      "run": "lstm/weighted_ce",
-      "domain": "cmose_test_predicted",
-      "class_id": 0,
-      "class_label": "Highly Disengage",
-      "count": 67,
-      "proportion": 0.054873054873054876,
-      "mean_confidence": 0.6429144468770098,
-      "mean_entropy": 0.6122256680322227
-    },
-    {
-      "run": "lstm/weighted_ce",
-      "domain": "cmose_test_predicted",
-      "class_id": 1,
-      "class_label": "Disengage",
-      "count": 349,
-      "proportion": 0.2858312858312858,
-      "mean_confidence": 0.6172348325778557,
-      "mean_entropy": 0.6103406188993536
-    },
-    {
-      "run": "lstm/weighted_ce",
-      "domain": "cmose_test_predicted",
-      "class_id": 2,
-      "class_label": "Engage",
-      "count": 588,
-      "proportion": 0.48157248157248156,
-      "mean_confidence": 0.5548143067530223,
-      "mean_entropy": 0.6965332962825995
-    },
-    {
-      "run": "lstm/weighted_ce",
-      "domain": "cmose_test_predicted",
-      "class_id": 3,
-      "class_label": "Highly Engage",
-      "count": 217,
-      "proportion": 0.17772317772317772,
-      "mean_confidence": 0.6503961028591279,
-      "mean_entropy": 0.5734542488777143
-    },
-    {
-      "run": "openface_mlp/ce",
-      "domain": "cmose_test_predicted",
-      "class_id": 0,
-      "class_label": "Highly Disengage",
-      "count": 17,
-      "proportion": 0.013923013923013924,
-      "mean_confidence": 0.596251764718224,
-      "mean_entropy": 0.6040421392330352
-    },
-    {
-      "run": "openface_mlp/ce",
-      "domain": "cmose_test_predicted",
-      "class_id": 1,
-      "class_label": "Disengage",
-      "count": 143,
-      "proportion": 0.11711711711711711,
-      "mean_confidence": 0.6891855603748268,
-      "mean_entropy": 0.4845283271246622
-    },
-    {
-      "run": "openface_mlp/ce",
-      "domain": "cmose_test_predicted",
-      "class_id": 2,
-      "class_label": "Engage",
-      "count": 993,
-      "proportion": 0.8132678132678133,
-      "mean_confidence": 0.808136587596732,
-      "mean_entropy": 0.34466670946041345
-    },
-    {
-      "run": "openface_mlp/ce",
-      "domain": "cmose_test_predicted",
-      "class_id": 3,
-      "class_label": "Highly Engage",
-      "count": 68,
-      "proportion": 0.055692055692055695,
-      "mean_confidence": 0.7693416485015083,
-      "mean_entropy": 0.34978206916660864
-    },
-    {
-      "run": "openface_mlp/ordinal",
-      "domain": "cmose_test_predicted",
-      "class_id": 0,
-      "class_label": "Highly Disengage",
-      "count": 8,
-      "proportion": 0.006552006552006552,
-      "mean_confidence": 0.7298600971698761,
-      "mean_entropy": 0.37798812985420227
-    },
-    {
-      "run": "openface_mlp/ordinal",
-      "domain": "cmose_test_predicted",
-      "class_id": 1,
-      "class_label": "Disengage",
       "count": 320,
       "proportion": 0.2620802620802621,
-      "mean_confidence": 0.9737520664930344,
-      "mean_entropy": 0.04490731499370946
+      "mean_confidence": 0.6574477819725871,
+      "mean_entropy": 0.5802896432112903
+    },
+    {
+      "run": "lstm/weighted_ce",
+      "domain": "cmose_test_predicted",
+      "class_id": 0,
+      "class_label": "Highly Disengage",
+      "count": 63,
+      "proportion": 0.051597051597051594,
+      "mean_confidence": 0.7815633577013773,
+      "mean_entropy": 0.4136655819084909
+    },
+    {
+      "run": "lstm/weighted_ce",
+      "domain": "cmose_test_predicted",
+      "class_id": 1,
+      "class_label": "Disengage",
+      "count": 279,
+      "proportion": 0.2285012285012285,
+      "mean_confidence": 0.6828887329093017,
+      "mean_entropy": 0.49504285628863987
+    },
+    {
+      "run": "lstm/weighted_ce",
+      "domain": "cmose_test_predicted",
+      "class_id": 2,
+      "class_label": "Engage",
+      "count": 640,
+      "proportion": 0.5241605241605242,
+      "mean_confidence": 0.6921799451112747,
+      "mean_entropy": 0.5156370444223285
+    },
+    {
+      "run": "lstm/weighted_ce",
+      "domain": "cmose_test_predicted",
+      "class_id": 3,
+      "class_label": "Highly Engage",
+      "count": 239,
+      "proportion": 0.19574119574119575,
+      "mean_confidence": 0.720289704315832,
+      "mean_entropy": 0.4513508994833695
+    },
+    {
+      "run": "openface_mlp/ce",
+      "domain": "cmose_test_predicted",
+      "class_id": 0,
+      "class_label": "Highly Disengage",
+      "count": 13,
+      "proportion": 0.010647010647010647,
+      "mean_confidence": 0.47826085870082563,
+      "mean_entropy": 0.7310494505442106
+    },
+    {
+      "run": "openface_mlp/ce",
+      "domain": "cmose_test_predicted",
+      "class_id": 1,
+      "class_label": "Disengage",
+      "count": 98,
+      "proportion": 0.08026208026208026,
+      "mean_confidence": 0.5877869031867202,
+      "mean_entropy": 0.6142442405832057
+    },
+    {
+      "run": "openface_mlp/ce",
+      "domain": "cmose_test_predicted",
+      "class_id": 2,
+      "class_label": "Engage",
+      "count": 1078,
+      "proportion": 0.8828828828828829,
+      "mean_confidence": 0.7403686509946281,
+      "mean_entropy": 0.47515101617598005
+    },
+    {
+      "run": "openface_mlp/ce",
+      "domain": "cmose_test_predicted",
+      "class_id": 3,
+      "class_label": "Highly Engage",
+      "count": 32,
+      "proportion": 0.02620802620802621,
+      "mean_confidence": 0.6131979711353779,
+      "mean_entropy": 0.5040357583202422
+    },
+    {
+      "run": "openface_mlp/ordinal",
+      "domain": "cmose_test_predicted",
+      "class_id": 0,
+      "class_label": "Highly Disengage",
+      "count": 9,
+      "proportion": 0.007371007371007371,
+      "mean_confidence": 0.9988256163067288,
+      "mean_entropy": 0.005035171977764964
+    },
+    {
+      "run": "openface_mlp/ordinal",
+      "domain": "cmose_test_predicted",
+      "class_id": 1,
+      "class_label": "Disengage",
+      "count": 299,
+      "proportion": 0.24488124488124488,
+      "mean_confidence": 0.9951846049382136,
+      "mean_entropy": 0.009198262512579774
     },
     {
       "run": "openface_mlp/ordinal",
       "domain": "cmose_test_predicted",
       "class_id": 2,
       "class_label": "Engage",
-      "count": 829,
-      "proportion": 0.678951678951679,
-      "mean_confidence": 0.9794640579542866,
-      "mean_entropy": 0.04055598076768226
+      "count": 786,
+      "proportion": 0.6437346437346437,
+      "mean_confidence": 0.9968871097376631,
+      "mean_entropy": 0.005189979040291954
     },
     {
       "run": "openface_mlp/ordinal",
       "domain": "cmose_test_predicted",
       "class_id": 3,
       "class_label": "Highly Engage",
-      "count": 64,
-      "proportion": 0.05241605241605242,
-      "mean_confidence": 0.9224431337788701,
-      "mean_entropy": 0.13041312779219263
+      "count": 127,
+      "proportion": 0.10401310401310401,
+      "mean_confidence": 0.9952729457006679,
+      "mean_entropy": 0.00695971971786703
     },
     {
       "run": "openface_mlp/weighted_ce",
       "domain": "cmose_test_predicted",
       "class_id": 0,
       "class_label": "Highly Disengage",
-      "count": 73,
-      "proportion": 0.05978705978705979,
-      "mean_confidence": 0.5144361649474053,
-      "mean_entropy": 0.7613286359669411
+      "count": 83,
+      "proportion": 0.06797706797706797,
+      "mean_confidence": 0.518515591520861,
+      "mean_entropy": 0.7327121901045363
     },
     {
       "run": "openface_mlp/weighted_ce",
       "domain": "cmose_test_predicted",
       "class_id": 1,
       "class_label": "Disengage",
-      "count": 342,
-      "proportion": 0.2800982800982801,
-      "mean_confidence": 0.5069239574391939,
-      "mean_entropy": 0.7273790652901806
+      "count": 391,
+      "proportion": 0.3202293202293202,
+      "mean_confidence": 0.4339460977507979,
+      "mean_entropy": 0.8278294034549952
     },
     {
       "run": "openface_mlp/weighted_ce",
       "domain": "cmose_test_predicted",
       "class_id": 2,
       "class_label": "Engage",
-      "count": 580,
-      "proportion": 0.475020475020475,
-      "mean_confidence": 0.5212361566465477,
-      "mean_entropy": 0.7103890996795661
+      "count": 510,
+      "proportion": 0.4176904176904177,
+      "mean_confidence": 0.4518851526227652,
+      "mean_entropy": 0.830530503041604
     },
     {
       "run": "openface_mlp/weighted_ce",
       "domain": "cmose_test_predicted",
       "class_id": 3,
       "class_label": "Highly Engage",
-      "count": 226,
-      "proportion": 0.1850941850941851,
-      "mean_confidence": 0.5860077360298781,
-      "mean_entropy": 0.6194959257160668
+      "count": 237,
+      "proportion": 0.1941031941031941,
+      "mean_confidence": 0.6055016720093755,
+      "mean_entropy": 0.6205828087679445
     },
     {
       "run": "openface_tcn_i3d_fusion/ce",
@@ -1277,678 +1277,678 @@
       "domain": "cmose_test_predicted",
       "class_id": 1,
       "class_label": "Disengage",
-      "count": 190,
-      "proportion": 0.15561015561015562,
-      "mean_confidence": 0.37580320788057225,
-      "mean_entropy": 0.9312419649801756
+      "count": 153,
+      "proportion": 0.12530712530712532,
+      "mean_confidence": 0.3648788147892048,
+      "mean_entropy": 0.9437548763611737
     },
     {
       "run": "openface_tcn_i3d_fusion/ce",
       "domain": "cmose_test_predicted",
       "class_id": 2,
       "class_label": "Engage",
-      "count": 937,
-      "proportion": 0.7674037674037674,
-      "mean_confidence": 0.739884562400769,
-      "mean_entropy": 0.48392451740130427
+      "count": 960,
+      "proportion": 0.7862407862407862,
+      "mean_confidence": 0.7527810074388981,
+      "mean_entropy": 0.46529516082591726
     },
     {
       "run": "openface_tcn_i3d_fusion/ce",
       "domain": "cmose_test_predicted",
       "class_id": 3,
       "class_label": "Highly Engage",
-      "count": 94,
-      "proportion": 0.07698607698607698,
-      "mean_confidence": 0.32044086145593764,
-      "mean_entropy": 0.9785531733898406
-    },
-    {
-      "run": "openface_tcn_i3d_fusion/ordinal",
-      "domain": "cmose_test_predicted",
-      "class_id": 0,
-      "class_label": "Highly Disengage",
-      "count": 172,
-      "proportion": 0.14086814086814087,
-      "mean_confidence": 0.5214516007623007,
-      "mean_entropy": 0.7691847220886239
-    },
-    {
-      "run": "openface_tcn_i3d_fusion/ordinal",
-      "domain": "cmose_test_predicted",
-      "class_id": 1,
-      "class_label": "Disengage",
-      "count": 161,
-      "proportion": 0.13185913185913187,
-      "mean_confidence": 0.3066628058874829,
-      "mean_entropy": 0.978801845763781
-    },
-    {
-      "run": "openface_tcn_i3d_fusion/ordinal",
-      "domain": "cmose_test_predicted",
-      "class_id": 2,
-      "class_label": "Engage",
-      "count": 577,
-      "proportion": 0.4725634725634726,
-      "mean_confidence": 0.33615408850707873,
-      "mean_entropy": 0.9700665499763225
-    },
-    {
-      "run": "openface_tcn_i3d_fusion/ordinal",
-      "domain": "cmose_test_predicted",
-      "class_id": 3,
-      "class_label": "Highly Engage",
-      "count": 311,
-      "proportion": 0.2547092547092547,
-      "mean_confidence": 0.5880071963527962,
-      "mean_entropy": 0.6704024515231515
-    },
-    {
-      "run": "openface_tcn_i3d_fusion/weighted_ce",
-      "domain": "cmose_test_predicted",
-      "class_id": 0,
-      "class_label": "Highly Disengage",
-      "count": 72,
-      "proportion": 0.05896805896805897,
-      "mean_confidence": 0.8128362144860957,
-      "mean_entropy": 0.3690429167666783
-    },
-    {
-      "run": "openface_tcn_i3d_fusion/weighted_ce",
-      "domain": "cmose_test_predicted",
-      "class_id": 1,
-      "class_label": "Disengage",
-      "count": 321,
-      "proportion": 0.2628992628992629,
-      "mean_confidence": 0.6668299860857729,
-      "mean_entropy": 0.5442559086830816
-    },
-    {
-      "run": "openface_tcn_i3d_fusion/weighted_ce",
-      "domain": "cmose_test_predicted",
-      "class_id": 2,
-      "class_label": "Engage",
-      "count": 638,
-      "proportion": 0.5225225225225225,
-      "mean_confidence": 0.666927917904241,
-      "mean_entropy": 0.5645002441299747
-    },
-    {
-      "run": "openface_tcn_i3d_fusion/weighted_ce",
-      "domain": "cmose_test_predicted",
-      "class_id": 3,
-      "class_label": "Highly Engage",
-      "count": 190,
-      "proportion": 0.15561015561015562,
-      "mean_confidence": 0.7675457703439813,
-      "mean_entropy": 0.3959030159886951
-    },
-    {
-      "run": "tcn/ce",
-      "domain": "cmose_test_predicted",
-      "class_id": 0,
-      "class_label": "Highly Disengage",
-      "count": 28,
-      "proportion": 0.02293202293202293,
-      "mean_confidence": 0.7476580536791256,
-      "mean_entropy": 0.4310322341459271
-    },
-    {
-      "run": "tcn/ce",
-      "domain": "cmose_test_predicted",
-      "class_id": 1,
-      "class_label": "Disengage",
-      "count": 202,
-      "proportion": 0.16543816543816545,
-      "mean_confidence": 0.7855068119150577,
-      "mean_entropy": 0.3590645156028487
-    },
-    {
-      "run": "tcn/ce",
-      "domain": "cmose_test_predicted",
-      "class_id": 2,
-      "class_label": "Engage",
-      "count": 891,
-      "proportion": 0.7297297297297297,
-      "mean_confidence": 0.8525236128891089,
-      "mean_entropy": 0.27683808703646895
-    },
-    {
-      "run": "tcn/ce",
-      "domain": "cmose_test_predicted",
-      "class_id": 3,
-      "class_label": "Highly Engage",
-      "count": 100,
-      "proportion": 0.0819000819000819,
-      "mean_confidence": 0.7622499758005142,
-      "mean_entropy": 0.35551758481858997
-    },
-    {
-      "run": "tcn/ordinal",
-      "domain": "cmose_test_predicted",
-      "class_id": 0,
-      "class_label": "Highly Disengage",
-      "count": 38,
-      "proportion": 0.031122031122031123,
-      "mean_confidence": 0.7785227008556065,
-      "mean_entropy": 0.3718881605983418
-    },
-    {
-      "run": "tcn/ordinal",
-      "domain": "cmose_test_predicted",
-      "class_id": 1,
-      "class_label": "Disengage",
-      "count": 318,
-      "proportion": 0.26044226044226043,
-      "mean_confidence": 0.7021336631392533,
-      "mean_entropy": 0.4963130011521983
-    },
-    {
-      "run": "tcn/ordinal",
-      "domain": "cmose_test_predicted",
-      "class_id": 2,
-      "class_label": "Engage",
-      "count": 674,
-      "proportion": 0.552006552006552,
-      "mean_confidence": 0.7738171613800066,
-      "mean_entropy": 0.411542500230036
-    },
-    {
-      "run": "tcn/ordinal",
-      "domain": "cmose_test_predicted",
-      "class_id": 3,
-      "class_label": "Highly Engage",
-      "count": 191,
-      "proportion": 0.15642915642915642,
-      "mean_confidence": 0.7598518036422929,
-      "mean_entropy": 0.39729165408000866
-    },
-    {
-      "run": "tcn/weighted_ce",
-      "domain": "cmose_test_predicted",
-      "class_id": 0,
-      "class_label": "Highly Disengage",
       "count": 108,
       "proportion": 0.08845208845208845,
-      "mean_confidence": 0.6586780553614652,
-      "mean_entropy": 0.6011738569855138
+      "mean_confidence": 0.37899641747827884,
+      "mean_entropy": 0.9376563932056781
     },
     {
-      "run": "tcn/weighted_ce",
-      "domain": "cmose_test_predicted",
-      "class_id": 1,
-      "class_label": "Disengage",
-      "count": 267,
-      "proportion": 0.21867321867321868,
-      "mean_confidence": 0.556742365552245,
-      "mean_entropy": 0.7213041514353582
-    },
-    {
-      "run": "tcn/weighted_ce",
-      "domain": "cmose_test_predicted",
-      "class_id": 2,
-      "class_label": "Engage",
-      "count": 631,
-      "proportion": 0.5167895167895168,
-      "mean_confidence": 0.6304894565307961,
-      "mean_entropy": 0.6348953994489888
-    },
-    {
-      "run": "tcn/weighted_ce",
-      "domain": "cmose_test_predicted",
-      "class_id": 3,
-      "class_label": "Highly Engage",
-      "count": 215,
-      "proportion": 0.1760851760851761,
-      "mean_confidence": 0.6097344618897106,
-      "mean_entropy": 0.6396520385908526
-    },
-    {
-      "run": "transformer/ce",
-      "domain": "cmose_test_predicted",
-      "class_id": 0,
-      "class_label": "Highly Disengage",
-      "count": 27,
-      "proportion": 0.022113022113022112,
-      "mean_confidence": 0.6007816515586994,
-      "mean_entropy": 0.6635039492889687
-    },
-    {
-      "run": "transformer/ce",
-      "domain": "cmose_test_predicted",
-      "class_id": 1,
-      "class_label": "Disengage",
-      "count": 167,
-      "proportion": 0.13677313677313677,
-      "mean_confidence": 0.6471319989172998,
-      "mean_entropy": 0.5579087122114833
-    },
-    {
-      "run": "transformer/ce",
-      "domain": "cmose_test_predicted",
-      "class_id": 2,
-      "class_label": "Engage",
-      "count": 928,
-      "proportion": 0.76003276003276,
-      "mean_confidence": 0.7871266451889071,
-      "mean_entropy": 0.3991237099298501
-    },
-    {
-      "run": "transformer/ce",
-      "domain": "cmose_test_predicted",
-      "class_id": 3,
-      "class_label": "Highly Engage",
-      "count": 99,
-      "proportion": 0.08108108108108109,
-      "mean_confidence": 0.7035520817294265,
-      "mean_entropy": 0.44882298223298006
-    },
-    {
-      "run": "transformer/ordinal",
-      "domain": "cmose_test_predicted",
-      "class_id": 0,
-      "class_label": "Highly Disengage",
-      "count": 54,
-      "proportion": 0.044226044226044224,
-      "mean_confidence": 0.8459924591912164,
-      "mean_entropy": 0.3012868918961397
-    },
-    {
-      "run": "transformer/ordinal",
-      "domain": "cmose_test_predicted",
-      "class_id": 1,
-      "class_label": "Disengage",
-      "count": 319,
-      "proportion": 0.26126126126126126,
-      "mean_confidence": 0.7540201618566782,
-      "mean_entropy": 0.39396544679018397
-    },
-    {
-      "run": "transformer/ordinal",
-      "domain": "cmose_test_predicted",
-      "class_id": 2,
-      "class_label": "Engage",
-      "count": 669,
-      "proportion": 0.547911547911548,
-      "mean_confidence": 0.7549943718585911,
-      "mean_entropy": 0.426562581829426
-    },
-    {
-      "run": "transformer/ordinal",
-      "domain": "cmose_test_predicted",
-      "class_id": 3,
-      "class_label": "Highly Engage",
-      "count": 179,
-      "proportion": 0.1466011466011466,
-      "mean_confidence": 0.8216107774047212,
-      "mean_entropy": 0.30869350549062535
-    },
-    {
-      "run": "transformer/weighted_ce",
+      "run": "openface_tcn_i3d_fusion/ordinal",
       "domain": "cmose_test_predicted",
       "class_id": 0,
       "class_label": "Highly Disengage",
       "count": 67,
       "proportion": 0.054873054873054876,
-      "mean_confidence": 0.7135287976976651,
-      "mean_entropy": 0.5228034957353749
+      "mean_confidence": 0.679095645004244,
+      "mean_entropy": 0.5309271179000611
+    },
+    {
+      "run": "openface_tcn_i3d_fusion/ordinal",
+      "domain": "cmose_test_predicted",
+      "class_id": 1,
+      "class_label": "Disengage",
+      "count": 456,
+      "proportion": 0.37346437346437344,
+      "mean_confidence": 0.4045764861399667,
+      "mean_entropy": 0.9063083278505426
+    },
+    {
+      "run": "openface_tcn_i3d_fusion/ordinal",
+      "domain": "cmose_test_predicted",
+      "class_id": 2,
+      "class_label": "Engage",
+      "count": 523,
+      "proportion": 0.4283374283374283,
+      "mean_confidence": 0.41354730104169246,
+      "mean_entropy": 0.895747871061584
+    },
+    {
+      "run": "openface_tcn_i3d_fusion/ordinal",
+      "domain": "cmose_test_predicted",
+      "class_id": 3,
+      "class_label": "Highly Engage",
+      "count": 175,
+      "proportion": 0.14332514332514332,
+      "mean_confidence": 0.6990982018198286,
+      "mean_entropy": 0.4880949317969914
+    },
+    {
+      "run": "openface_tcn_i3d_fusion/weighted_ce",
+      "domain": "cmose_test_predicted",
+      "class_id": 0,
+      "class_label": "Highly Disengage",
+      "count": 75,
+      "proportion": 0.06142506142506143,
+      "mean_confidence": 0.805091731150945,
+      "mean_entropy": 0.38171379573332764
+    },
+    {
+      "run": "openface_tcn_i3d_fusion/weighted_ce",
+      "domain": "cmose_test_predicted",
+      "class_id": 1,
+      "class_label": "Disengage",
+      "count": 344,
+      "proportion": 0.28173628173628174,
+      "mean_confidence": 0.6704512698532537,
+      "mean_entropy": 0.551739775467404
+    },
+    {
+      "run": "openface_tcn_i3d_fusion/weighted_ce",
+      "domain": "cmose_test_predicted",
+      "class_id": 2,
+      "class_label": "Engage",
+      "count": 628,
+      "proportion": 0.5143325143325144,
+      "mean_confidence": 0.659885000461226,
+      "mean_entropy": 0.5733231516305808
+    },
+    {
+      "run": "openface_tcn_i3d_fusion/weighted_ce",
+      "domain": "cmose_test_predicted",
+      "class_id": 3,
+      "class_label": "Highly Engage",
+      "count": 174,
+      "proportion": 0.14250614250614252,
+      "mean_confidence": 0.7544371951585529,
+      "mean_entropy": 0.42076298330733874
+    },
+    {
+      "run": "tcn/ce",
+      "domain": "cmose_test_predicted",
+      "class_id": 0,
+      "class_label": "Highly Disengage",
+      "count": 22,
+      "proportion": 0.018018018018018018,
+      "mean_confidence": 0.6544578278606589,
+      "mean_entropy": 0.5813418139110912
+    },
+    {
+      "run": "tcn/ce",
+      "domain": "cmose_test_predicted",
+      "class_id": 1,
+      "class_label": "Disengage",
+      "count": 161,
+      "proportion": 0.13185913185913187,
+      "mean_confidence": 0.6862637883757953,
+      "mean_entropy": 0.4903892664620595
+    },
+    {
+      "run": "tcn/ce",
+      "domain": "cmose_test_predicted",
+      "class_id": 2,
+      "class_label": "Engage",
+      "count": 978,
+      "proportion": 0.800982800982801,
+      "mean_confidence": 0.7992268524652609,
+      "mean_entropy": 0.3783052747317824
+    },
+    {
+      "run": "tcn/ce",
+      "domain": "cmose_test_predicted",
+      "class_id": 3,
+      "class_label": "Highly Engage",
+      "count": 60,
+      "proportion": 0.04914004914004914,
+      "mean_confidence": 0.6910125389695168,
+      "mean_entropy": 0.451585598786672
+    },
+    {
+      "run": "tcn/ordinal",
+      "domain": "cmose_test_predicted",
+      "class_id": 0,
+      "class_label": "Highly Disengage",
+      "count": 81,
+      "proportion": 0.06633906633906633,
+      "mean_confidence": 0.7101235132158539,
+      "mean_entropy": 0.48461540671709324
+    },
+    {
+      "run": "tcn/ordinal",
+      "domain": "cmose_test_predicted",
+      "class_id": 1,
+      "class_label": "Disengage",
+      "count": 336,
+      "proportion": 0.2751842751842752,
+      "mean_confidence": 0.6257948631509429,
+      "mean_entropy": 0.6306612637590228
+    },
+    {
+      "run": "tcn/ordinal",
+      "domain": "cmose_test_predicted",
+      "class_id": 2,
+      "class_label": "Engage",
+      "count": 571,
+      "proportion": 0.46764946764946763,
+      "mean_confidence": 0.697506682989685,
+      "mean_entropy": 0.532135657669288
+    },
+    {
+      "run": "tcn/ordinal",
+      "domain": "cmose_test_predicted",
+      "class_id": 3,
+      "class_label": "Highly Engage",
+      "count": 233,
+      "proportion": 0.19082719082719082,
+      "mean_confidence": 0.7121769480183401,
+      "mean_entropy": 0.4875328338709
+    },
+    {
+      "run": "tcn/weighted_ce",
+      "domain": "cmose_test_predicted",
+      "class_id": 0,
+      "class_label": "Highly Disengage",
+      "count": 97,
+      "proportion": 0.07944307944307945,
+      "mean_confidence": 0.6844888117510018,
+      "mean_entropy": 0.5890090530834247
+    },
+    {
+      "run": "tcn/weighted_ce",
+      "domain": "cmose_test_predicted",
+      "class_id": 1,
+      "class_label": "Disengage",
+      "count": 204,
+      "proportion": 0.16707616707616707,
+      "mean_confidence": 0.5853671371644619,
+      "mean_entropy": 0.6801560659911118
+    },
+    {
+      "run": "tcn/weighted_ce",
+      "domain": "cmose_test_predicted",
+      "class_id": 2,
+      "class_label": "Engage",
+      "count": 666,
+      "proportion": 0.5454545454545454,
+      "mean_confidence": 0.7098150934811469,
+      "mean_entropy": 0.5212564323819032
+    },
+    {
+      "run": "tcn/weighted_ce",
+      "domain": "cmose_test_predicted",
+      "class_id": 3,
+      "class_label": "Highly Engage",
+      "count": 254,
+      "proportion": 0.20802620802620803,
+      "mean_confidence": 0.6744516468423558,
+      "mean_entropy": 0.5495909800620999
+    },
+    {
+      "run": "transformer/ce",
+      "domain": "cmose_test_predicted",
+      "class_id": 0,
+      "class_label": "Highly Disengage",
+      "count": 16,
+      "proportion": 0.013104013104013105,
+      "mean_confidence": 0.5496584456413984,
+      "mean_entropy": 0.7281048260629177
+    },
+    {
+      "run": "transformer/ce",
+      "domain": "cmose_test_predicted",
+      "class_id": 1,
+      "class_label": "Disengage",
+      "count": 163,
+      "proportion": 0.1334971334971335,
+      "mean_confidence": 0.6283184920717602,
+      "mean_entropy": 0.5947531573245862
+    },
+    {
+      "run": "transformer/ce",
+      "domain": "cmose_test_predicted",
+      "class_id": 2,
+      "class_label": "Engage",
+      "count": 971,
+      "proportion": 0.7952497952497952,
+      "mean_confidence": 0.8064733300162393,
+      "mean_entropy": 0.37254311065319023
+    },
+    {
+      "run": "transformer/ce",
+      "domain": "cmose_test_predicted",
+      "class_id": 3,
+      "class_label": "Highly Engage",
+      "count": 71,
+      "proportion": 0.05814905814905815,
+      "mean_confidence": 0.6733119601095227,
+      "mean_entropy": 0.4854329755188714
+    },
+    {
+      "run": "transformer/ordinal",
+      "domain": "cmose_test_predicted",
+      "class_id": 0,
+      "class_label": "Highly Disengage",
+      "count": 99,
+      "proportion": 0.08108108108108109,
+      "mean_confidence": 0.7192235890060964,
+      "mean_entropy": 0.5125507278875872
+    },
+    {
+      "run": "transformer/ordinal",
+      "domain": "cmose_test_predicted",
+      "class_id": 1,
+      "class_label": "Disengage",
+      "count": 337,
+      "proportion": 0.276003276003276,
+      "mean_confidence": 0.5826650672213614,
+      "mean_entropy": 0.7159126651216331
+    },
+    {
+      "run": "transformer/ordinal",
+      "domain": "cmose_test_predicted",
+      "class_id": 2,
+      "class_label": "Engage",
+      "count": 503,
+      "proportion": 0.411957411957412,
+      "mean_confidence": 0.5577568545730166,
+      "mean_entropy": 0.7440546240294666
+    },
+    {
+      "run": "transformer/ordinal",
+      "domain": "cmose_test_predicted",
+      "class_id": 3,
+      "class_label": "Highly Engage",
+      "count": 282,
+      "proportion": 0.23095823095823095,
+      "mean_confidence": 0.6861540793527102,
+      "mean_entropy": 0.557150477001853
+    },
+    {
+      "run": "transformer/weighted_ce",
+      "domain": "cmose_test_predicted",
+      "class_id": 0,
+      "class_label": "Highly Disengage",
+      "count": 71,
+      "proportion": 0.05814905814905815,
+      "mean_confidence": 0.7248656048741139,
+      "mean_entropy": 0.4975270149363598
     },
     {
       "run": "transformer/weighted_ce",
       "domain": "cmose_test_predicted",
       "class_id": 1,
       "class_label": "Disengage",
-      "count": 318,
-      "proportion": 0.26044226044226043,
-      "mean_confidence": 0.6440429033348395,
-      "mean_entropy": 0.5682829548165483
+      "count": 319,
+      "proportion": 0.26126126126126126,
+      "mean_confidence": 0.6334390004039931,
+      "mean_entropy": 0.5814258623926617
     },
     {
       "run": "transformer/weighted_ce",
       "domain": "cmose_test_predicted",
       "class_id": 2,
       "class_label": "Engage",
-      "count": 582,
-      "proportion": 0.47665847665847666,
-      "mean_confidence": 0.6491403494708726,
-      "mean_entropy": 0.5709362145756528
+      "count": 575,
+      "proportion": 0.47092547092547093,
+      "mean_confidence": 0.655654872033907,
+      "mean_entropy": 0.5730872797447703
     },
     {
       "run": "transformer/weighted_ce",
       "domain": "cmose_test_predicted",
       "class_id": 3,
       "class_label": "Highly Engage",
-      "count": 254,
-      "proportion": 0.20802620802620803,
-      "mean_confidence": 0.6855224629086772,
-      "mean_entropy": 0.5240694767260176
+      "count": 256,
+      "proportion": 0.20966420966420968,
+      "mean_confidence": 0.6972850024467334,
+      "mean_entropy": 0.5137705154484138
     }
   ],
   "private_supervised_metrics": [
     {
       "run": "i3d_mlp/ce",
-      "accuracy": 0.48641304347826086,
-      "macro_accuracy": 0.2992541462369049,
-      "f1_macro": 0.26737679368678235,
-      "f1_weighted": 0.5126860057246373,
-      "mae": 0.6413043478260869,
-      "mse": 0.9402173913043478
+      "accuracy": 0.47282608695652173,
+      "macro_accuracy": 0.2971894006376765,
+      "f1_macro": 0.24323525936429163,
+      "f1_weighted": 0.49616052484215173,
+      "mae": 0.6657608695652174,
+      "mse": 0.9972826086956522
     },
     {
       "run": "i3d_mlp/ordinal",
-      "accuracy": 0.358695652173913,
-      "macro_accuracy": 0.27200553278139483,
-      "f1_macro": 0.1925516060416932,
-      "f1_weighted": 0.3952303710934505,
-      "mae": 0.7934782608695652,
-      "mse": 1.1521739130434783
+      "accuracy": 0.13043478260869565,
+      "macro_accuracy": 0.24910745384883318,
+      "f1_macro": 0.06284588294482643,
+      "f1_weighted": 0.05214189190831384,
+      "mae": 1.076086956521739,
+      "mse": 1.5434782608695652
     },
     {
       "run": "i3d_mlp/weighted_ce",
-      "accuracy": 0.1793478260869565,
-      "macro_accuracy": 0.26460058141092624,
-      "f1_macro": 0.11187451277071156,
-      "f1_weighted": 0.1471696310659898,
-      "mae": 1.0054347826086956,
-      "mse": 1.434782608695652
+      "accuracy": 0.21195652173913043,
+      "macro_accuracy": 0.27609483428448944,
+      "f1_macro": 0.13100030092857962,
+      "f1_weighted": 0.19932510691375627,
+      "mae": 0.970108695652174,
+      "mse": 1.3994565217391304
     },
     {
       "run": "lstm/ce",
-      "accuracy": 0.6005434782608695,
-      "macro_accuracy": 0.24598103046378908,
-      "f1_macro": 0.24164377899000045,
-      "f1_weighted": 0.5598074728222968,
-      "mae": 0.4483695652173913,
-      "mse": 0.5516304347826086
+      "accuracy": 0.6711956521739131,
+      "macro_accuracy": 0.24901367789298823,
+      "f1_macro": 0.22594148123689006,
+      "f1_weighted": 0.5849215099642565,
+      "mae": 0.3641304347826087,
+      "mse": 0.43478260869565216
     },
     {
       "run": "lstm/ordinal",
-      "accuracy": 0.20108695652173914,
-      "macro_accuracy": 0.2694920022506229,
-      "f1_macro": 0.1541688067111796,
-      "f1_weighted": 0.17431499966503652,
-      "mae": 0.9347826086956522,
-      "mse": 1.2119565217391304
+      "accuracy": 0.23097826086956522,
+      "macro_accuracy": 0.2739748278541382,
+      "f1_macro": 0.18131696717353302,
+      "f1_weighted": 0.23675957736969463,
+      "mae": 0.904891304347826,
+      "mse": 1.1983695652173914
     },
     {
       "run": "lstm/weighted_ce",
-      "accuracy": 0.12228260869565218,
-      "macro_accuracy": 0.218578356509391,
-      "f1_macro": 0.11480721747388414,
-      "f1_weighted": 0.10147945827655973,
-      "mae": 1.1684782608695652,
-      "mse": 1.7934782608695652
+      "accuracy": 0.3342391304347826,
+      "macro_accuracy": 0.24030423599389117,
+      "f1_macro": 0.2055104703125159,
+      "f1_weighted": 0.3851198801579723,
+      "mae": 0.7880434782608695,
+      "mse": 1.0543478260869565
     },
     {
       "run": "openface_mlp/ce",
-      "accuracy": 0.3695652173913043,
-      "macro_accuracy": 0.2522355518045173,
-      "f1_macro": 0.20887081339712918,
-      "f1_weighted": 0.401011961722488,
-      "mae": 0.7038043478260869,
-      "mse": 0.8505434782608695
+      "accuracy": 0.7065217391304348,
+      "macro_accuracy": 0.2632140369209335,
+      "f1_macro": 0.23600340457726499,
+      "f1_weighted": 0.6001579962335836,
+      "mae": 0.3233695652173913,
+      "mse": 0.38315217391304346
     },
     {
       "run": "openface_mlp/ordinal",
-      "accuracy": 0.5081521739130435,
-      "macro_accuracy": 0.22163444792755138,
-      "f1_macro": 0.20055829228243022,
-      "f1_weighted": 0.4957742557292782,
-      "mae": 0.5543478260869565,
-      "mse": 0.6847826086956522
+      "accuracy": 0.3967391304347826,
+      "macro_accuracy": 0.22454317712938404,
+      "f1_macro": 0.18642290249433108,
+      "f1_weighted": 0.4247522922212363,
+      "mae": 0.7065217391304348,
+      "mse": 0.9130434782608695
     },
     {
       "run": "openface_mlp/weighted_ce",
-      "accuracy": 0.18478260869565216,
-      "macro_accuracy": 0.30955275567344537,
-      "f1_macro": 0.1671109831782953,
-      "f1_weighted": 0.15203915218374267,
-      "mae": 1.076086956521739,
-      "mse": 1.6684782608695652
+      "accuracy": 0.21467391304347827,
+      "macro_accuracy": 0.30785139190311606,
+      "f1_macro": 0.15096718350143007,
+      "f1_weighted": 0.17833212796732748,
+      "mae": 0.9293478260869565,
+      "mse": 1.2282608695652173
     },
     {
       "run": "openface_tcn_i3d_fusion/ce",
-      "accuracy": 0.16304347826086957,
-      "macro_accuracy": 0.24996315944591807,
-      "f1_macro": 0.07967323660754318,
-      "f1_weighted": 0.08648779257316229,
-      "mae": 0.9538043478260869,
-      "mse": 1.1875
+      "accuracy": 0.17119565217391305,
+      "macro_accuracy": 0.2383114969321866,
+      "f1_macro": 0.09731037813386767,
+      "f1_weighted": 0.12253270318412458,
+      "mae": 0.9510869565217391,
+      "mse": 1.1956521739130435
     },
     {
       "run": "openface_tcn_i3d_fusion/ordinal",
-      "accuracy": 0.10597826086956522,
-      "macro_accuracy": 0.15908253623770863,
-      "f1_macro": 0.08118391660461653,
-      "f1_weighted": 0.1405678127057097,
-      "mae": 1.5244565217391304,
-      "mse": 2.964673913043478
+      "accuracy": 0.3858695652173913,
+      "macro_accuracy": 0.25921013852048336,
+      "f1_macro": 0.1960740409016271,
+      "f1_weighted": 0.4185723696593261,
+      "mae": 0.7391304347826086,
+      "mse": 0.9891304347826086
     },
     {
       "run": "openface_tcn_i3d_fusion/weighted_ce",
-      "accuracy": 0.2907608695652174,
-      "macro_accuracy": 0.26172869276317556,
-      "f1_macro": 0.19047525432436613,
-      "f1_weighted": 0.3274947039856183,
-      "mae": 0.8668478260869565,
-      "mse": 1.2146739130434783
+      "accuracy": 0.3423913043478261,
+      "macro_accuracy": 0.2808020523537765,
+      "f1_macro": 0.215648982315649,
+      "f1_weighted": 0.3831596088842466,
+      "mae": 0.782608695652174,
+      "mse": 1.0543478260869565
     },
     {
       "run": "tcn/ce",
-      "accuracy": 0.6086956521739131,
-      "macro_accuracy": 0.3184681697612732,
-      "f1_macro": 0.30397544761013395,
-      "f1_weighted": 0.5910691580653877,
-      "mae": 0.47554347826086957,
-      "mse": 0.654891304347826
+      "accuracy": 0.5842391304347826,
+      "macro_accuracy": 0.3099496289151461,
+      "f1_macro": 0.32186716791979947,
+      "f1_weighted": 0.5766195379753732,
+      "mae": 0.4483695652173913,
+      "mse": 0.5135869565217391
     },
     {
       "run": "tcn/ordinal",
-      "accuracy": 0.6440217391304348,
-      "macro_accuracy": 0.26428241298930955,
-      "f1_macro": 0.2579184844319608,
-      "f1_weighted": 0.5923669447771782,
-      "mae": 0.39945652173913043,
-      "mse": 0.48641304347826086
+      "accuracy": 0.6521739130434783,
+      "macro_accuracy": 0.2812257187257187,
+      "f1_macro": 0.2720752997721025,
+      "f1_weighted": 0.5983327651607803,
+      "mae": 0.421195652173913,
+      "mse": 0.5679347826086957
     },
     {
       "run": "tcn/weighted_ce",
-      "accuracy": 0.1793478260869565,
-      "macro_accuracy": 0.24230199876751599,
-      "f1_macro": 0.14947325868378497,
-      "f1_weighted": 0.24309410074570256,
-      "mae": 1.388586956521739,
-      "mse": 2.6875
+      "accuracy": 0.6331521739130435,
+      "macro_accuracy": 0.30671435843849637,
+      "f1_macro": 0.30551973875403415,
+      "f1_weighted": 0.6065097687929312,
+      "mae": 0.45652173913043476,
+      "mse": 0.6521739130434783
     },
     {
       "run": "transformer/ce",
-      "accuracy": 0.41847826086956524,
-      "macro_accuracy": 0.3985494869115559,
-      "f1_macro": 0.3060162788646968,
-      "f1_weighted": 0.4609644208007678,
-      "mae": 0.7336956521739131,
-      "mse": 1.0815217391304348
+      "accuracy": 0.6494565217391305,
+      "macro_accuracy": 0.31656250837285316,
+      "f1_macro": 0.3150159528378867,
+      "f1_weighted": 0.6000573733828444,
+      "mae": 0.3967391304347826,
+      "mse": 0.4891304347826087
     },
     {
       "run": "transformer/ordinal",
-      "accuracy": 0.2717391304347826,
-      "macro_accuracy": 0.2836186801704043,
-      "f1_macro": 0.20088520163578372,
-      "f1_weighted": 0.2902848414366789,
-      "mae": 0.8478260869565217,
-      "mse": 1.108695652173913
+      "accuracy": 0.17119565217391305,
+      "macro_accuracy": 0.3465540685368272,
+      "f1_macro": 0.1889798891506497,
+      "f1_weighted": 0.12253170618209823,
+      "mae": 0.970108695652174,
+      "mse": 1.2581521739130435
     },
     {
       "run": "transformer/weighted_ce",
-      "accuracy": 0.41032608695652173,
-      "macro_accuracy": 0.31923679768507357,
-      "f1_macro": 0.2751335162931307,
-      "f1_weighted": 0.4586300553115146,
-      "mae": 0.7608695652173914,
-      "mse": 1.141304347826087
+      "accuracy": 0.358695652173913,
+      "macro_accuracy": 0.3885707204672722,
+      "f1_macro": 0.28110375638418006,
+      "f1_weighted": 0.4020376662387815,
+      "mae": 0.8097826086956522,
+      "mse": 1.1630434782608696
     }
   ],
   "cmose_supervised_metrics": [
     {
       "run": "i3d_mlp/ce",
-      "accuracy": 0.7665847665847666,
-      "macro_accuracy": 0.5242481233983998,
-      "f1_macro": 0.5773884388038726,
-      "f1_weighted": 0.7491815769096066,
-      "mae": 0.257985257985258,
-      "mse": 0.31367731367731366
+      "accuracy": 0.7723177723177723,
+      "macro_accuracy": 0.5392378309626565,
+      "f1_macro": 0.5960371770447208,
+      "f1_weighted": 0.754897280039163,
+      "mae": 0.24733824733824733,
+      "mse": 0.2882882882882883
     },
     {
       "run": "i3d_mlp/ordinal",
-      "accuracy": 0.6576576576576577,
-      "macro_accuracy": 0.6114863361056599,
-      "f1_macro": 0.5400105013751599,
-      "f1_weighted": 0.6773917828354474,
-      "mae": 0.38656838656838655,
-      "mse": 0.4832104832104832
+      "accuracy": 0.6076986076986077,
+      "macro_accuracy": 0.6172740157513111,
+      "f1_macro": 0.5044116370791696,
+      "f1_weighted": 0.6355054596009437,
+      "mae": 0.44717444717444715,
+      "mse": 0.5683865683865684
     },
     {
       "run": "i3d_mlp/weighted_ce",
-      "accuracy": 0.665028665028665,
-      "macro_accuracy": 0.6301714758548801,
-      "f1_macro": 0.5631836547541512,
-      "f1_weighted": 0.6851400719878393,
-      "mae": 0.3701883701883702,
-      "mse": 0.4438984438984439
+      "accuracy": 0.687960687960688,
+      "macro_accuracy": 0.6176136425887173,
+      "f1_macro": 0.5685996593527671,
+      "f1_weighted": 0.7043453499626869,
+      "mae": 0.35053235053235055,
+      "mse": 0.4357084357084357
     },
     {
       "run": "lstm/ce",
-      "accuracy": 0.7027027027027027,
-      "macro_accuracy": 0.4015016276209968,
-      "f1_macro": 0.4289433128594238,
-      "f1_weighted": 0.6679212798951529,
-      "mae": 0.32678132678132676,
-      "mse": 0.389025389025389
+      "accuracy": 0.7010647010647011,
+      "macro_accuracy": 0.3787831922450793,
+      "f1_macro": 0.40922846799077933,
+      "f1_weighted": 0.6611058095363617,
+      "mae": 0.3226863226863227,
+      "mse": 0.37182637182637185
     },
     {
       "run": "lstm/ordinal",
-      "accuracy": 0.4987714987714988,
-      "macro_accuracy": 0.5092287346479316,
-      "f1_macro": 0.4108346353447826,
-      "f1_weighted": 0.5310417381430358,
-      "mae": 0.5601965601965602,
-      "mse": 0.683046683046683
+      "accuracy": 0.43734643734643736,
+      "macro_accuracy": 0.5247309384171525,
+      "f1_macro": 0.3804633545079651,
+      "f1_weighted": 0.4674804505213891,
+      "mae": 0.6412776412776413,
+      "mse": 0.8116298116298116
     },
     {
       "run": "lstm/weighted_ce",
-      "accuracy": 0.5561015561015561,
-      "macro_accuracy": 0.4992262744959201,
-      "f1_macro": 0.42739588966849557,
-      "f1_weighted": 0.5860322066736945,
-      "mae": 0.5167895167895168,
-      "mse": 0.678951678951679
+      "accuracy": 0.597051597051597,
+      "macro_accuracy": 0.5506516573248197,
+      "f1_macro": 0.4727484653578984,
+      "f1_weighted": 0.6228095738805814,
+      "mae": 0.45782145782145783,
+      "mse": 0.5741195741195741
     },
     {
       "run": "openface_mlp/ce",
-      "accuracy": 0.7436527436527437,
-      "macro_accuracy": 0.4626028394699654,
-      "f1_macro": 0.5059807011595231,
-      "f1_weighted": 0.7194577693175169,
-      "mae": 0.2800982800982801,
-      "mse": 0.32923832923832924
+      "accuracy": 0.7248157248157249,
+      "macro_accuracy": 0.3851373474708017,
+      "f1_macro": 0.4241375578444544,
+      "f1_weighted": 0.6760054240618504,
+      "mae": 0.2972972972972973,
+      "mse": 0.3415233415233415
     },
     {
       "run": "openface_mlp/ordinal",
-      "accuracy": 0.5356265356265356,
-      "macro_accuracy": 0.266457038384438,
-      "f1_macro": 0.2660303904421316,
-      "f1_weighted": 0.5344722733305318,
-      "mae": 0.5200655200655201,
-      "mse": 0.6363636363636364
+      "accuracy": 0.5470925470925471,
+      "macro_accuracy": 0.33883000666513763,
+      "f1_macro": 0.33886110390353236,
+      "f1_weighted": 0.5556350248694034,
+      "mae": 0.48402948402948404,
+      "mse": 0.547911547911548
     },
     {
       "run": "openface_mlp/weighted_ce",
-      "accuracy": 0.5741195741195741,
-      "macro_accuracy": 0.5790310908161901,
-      "f1_macro": 0.4770613159246675,
-      "f1_weighted": 0.600515154135283,
-      "mae": 0.47911547911547914,
-      "mse": 0.5937755937755937
+      "accuracy": 0.4995904995904996,
+      "macro_accuracy": 0.5113395396409989,
+      "f1_macro": 0.4099880158123982,
+      "f1_weighted": 0.5319847746430826,
+      "mae": 0.5708435708435708,
+      "mse": 0.7182637182637183
     },
     {
       "run": "openface_tcn_i3d_fusion/ce",
-      "accuracy": 0.7469287469287469,
-      "macro_accuracy": 0.44776415689811866,
-      "f1_macro": 0.4575061645554428,
-      "f1_weighted": 0.7264541129308241,
-      "mae": 0.28746928746928746,
-      "mse": 0.36445536445536447
+      "accuracy": 0.7452907452907452,
+      "macro_accuracy": 0.4318219960950859,
+      "f1_macro": 0.4395751531994646,
+      "f1_weighted": 0.7199550032450244,
+      "mae": 0.29811629811629814,
+      "mse": 0.39803439803439805
     },
     {
       "run": "openface_tcn_i3d_fusion/ordinal",
-      "accuracy": 0.5405405405405406,
-      "macro_accuracy": 0.5773769917203254,
-      "f1_macro": 0.4114726207849652,
-      "f1_weighted": 0.5755705042283048,
-      "mae": 0.542997542997543,
-      "mse": 0.7166257166257166
+      "accuracy": 0.5585585585585585,
+      "macro_accuracy": 0.5706757395599958,
+      "f1_macro": 0.4776230678349535,
+      "f1_weighted": 0.5873087113328154,
+      "mae": 0.48157248157248156,
+      "mse": 0.5651105651105651
     },
     {
       "run": "openface_tcn_i3d_fusion/weighted_ce",
-      "accuracy": 0.6576576576576577,
-      "macro_accuracy": 0.6383281066798695,
-      "f1_macro": 0.5435530305559964,
-      "f1_weighted": 0.679548595437491,
-      "mae": 0.38493038493038495,
-      "mse": 0.47665847665847666
+      "accuracy": 0.6486486486486487,
+      "macro_accuracy": 0.6139406591776754,
+      "f1_macro": 0.5268343998740287,
+      "f1_weighted": 0.6732473841914459,
+      "mae": 0.4021294021294021,
+      "mse": 0.5118755118755118
     },
     {
       "run": "tcn/ce",
-      "accuracy": 0.764946764946765,
-      "macro_accuracy": 0.5861560491534207,
-      "f1_macro": 0.6088838702572497,
-      "f1_weighted": 0.7593994284768331,
-      "mae": 0.2497952497952498,
-      "mse": 0.27927927927927926
+      "accuracy": 0.7575757575757576,
+      "macro_accuracy": 0.49896819395595793,
+      "f1_macro": 0.5427950960656337,
+      "f1_weighted": 0.7368372498857658,
+      "mae": 0.26044226044226043,
+      "mse": 0.29811629811629814
     },
     {
       "run": "tcn/ordinal",
-      "accuracy": 0.6846846846846847,
-      "macro_accuracy": 0.6263786517117433,
-      "f1_macro": 0.5695759529724473,
-      "f1_weighted": 0.7009810143152396,
-      "mae": 0.34725634725634724,
-      "mse": 0.4144144144144144
+      "accuracy": 0.6167076167076168,
+      "macro_accuracy": 0.6213568313314529,
+      "f1_macro": 0.506298387890248,
+      "f1_weighted": 0.645053375452281,
+      "mae": 0.43734643734643736,
+      "mse": 0.556920556920557
     },
     {
       "run": "tcn/weighted_ce",
-      "accuracy": 0.6183456183456183,
-      "macro_accuracy": 0.6103450569189716,
-      "f1_macro": 0.4950881540937332,
-      "f1_weighted": 0.6457221573810371,
-      "mae": 0.44963144963144963,
-      "mse": 0.5986895986895987
+      "accuracy": 0.6281736281736282,
+      "macro_accuracy": 0.6124383026562852,
+      "f1_macro": 0.49886031713420154,
+      "f1_weighted": 0.6520909187757403,
+      "mae": 0.4332514332514332,
+      "mse": 0.5659295659295659
     },
     {
       "run": "transformer/ce",
-      "accuracy": 0.737919737919738,
-      "macro_accuracy": 0.5202319003393054,
-      "f1_macro": 0.5459871333086648,
-      "f1_weighted": 0.726291901970155,
-      "mae": 0.29238329238329236,
-      "mse": 0.3579033579033579
+      "accuracy": 0.7518427518427518,
+      "macro_accuracy": 0.49308090622329726,
+      "f1_macro": 0.5411335601347249,
+      "f1_weighted": 0.7324682186844874,
+      "mae": 0.27436527436527436,
+      "mse": 0.33005733005733007
     },
     {
       "run": "transformer/ordinal",
-      "accuracy": 0.647010647010647,
-      "macro_accuracy": 0.6028149318278929,
-      "f1_macro": 0.5358623889722879,
-      "f1_weighted": 0.6677578741914848,
-      "mae": 0.3988533988533989,
-      "mse": 0.49713349713349714
+      "accuracy": 0.5266175266175266,
+      "macro_accuracy": 0.587933232814498,
+      "f1_macro": 0.4455528138875515,
+      "f1_weighted": 0.5588389794793263,
+      "mae": 0.5405405405405406,
+      "mse": 0.6863226863226863
     },
     {
       "run": "transformer/weighted_ce",
-      "accuracy": 0.5831285831285832,
-      "macro_accuracy": 0.5884408395012944,
-      "f1_macro": 0.485312525795068,
-      "f1_weighted": 0.6111786833083124,
-      "mae": 0.47583947583947583,
-      "mse": 0.6101556101556102
+      "accuracy": 0.5823095823095823,
+      "macro_accuracy": 0.5831214670401654,
+      "f1_macro": 0.47812326707225483,
+      "f1_weighted": 0.6117575870844943,
+      "mae": 0.47665847665847666,
+      "mse": 0.6109746109746109
     }
   ]
 }

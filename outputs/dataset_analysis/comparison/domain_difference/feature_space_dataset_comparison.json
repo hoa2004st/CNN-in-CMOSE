@@ -39,15 +39,15 @@
       "median_standardized_wasserstein": 0.8332224416098719,
       "mean_ks_statistic": 0.495214130392396,
       "median_ks_statistic": 0.4778577978971963,
-      "mean_abs_standardized_mean_diff": 0.8405360651579495,
-      "median_abs_standardized_mean_diff": 0.6599401831626892
+      "mean_abs_standardized_mean_diff": 0.8405360669233903,
+      "median_abs_standardized_mean_diff": 0.659940242767334
     },
     "groups": [
       {
         "group": "face_landmark_2d",
         "feature_count": 136,
-        "mean_abs_standardized_mean_diff": 1.6641362879,
-        "median_abs_standardized_mean_diff": 1.6977958083,
+        "mean_abs_standardized_mean_diff": 1.6641363002,
+        "median_abs_standardized_mean_diff": 1.6977957487,
         "mean_standardized_wasserstein": 1.6775307145,
         "median_standardized_wasserstein": 1.7055455867,
         "mean_ks_statistic": 0.8815330016,
@@ -56,7 +56,7 @@
       {
         "group": "eye_landmark_2d",
         "feature_count": 112,
-        "mean_abs_standardized_mean_diff": 1.6506681453,
+        "mean_abs_standardized_mean_diff": 1.6506681421,
         "median_abs_standardized_mean_diff": 1.6894620657,
         "mean_standardized_wasserstein": 1.6628946645,
         "median_standardized_wasserstein": 1.698960552,
@@ -66,8 +66,8 @@
       {
         "group": "pdm",
         "feature_count": 40,
-        "mean_abs_standardized_mean_diff": 0.3611380471,
-        "median_abs_standardized_mean_diff": 0.230251506,
+        "mean_abs_standardized_mean_diff": 0.3611380447,
+        "median_abs_standardized_mean_diff": 0.2302514911,
         "mean_standardized_wasserstein": 0.7708076459,
         "median_standardized_wasserstein": 0.7588565881,
         "mean_ks_statistic": 0.3813679247,
@@ -76,8 +76,8 @@
       {
         "group": "eye_landmark_3d",
         "feature_count": 168,
-        "mean_abs_standardized_mean_diff": 0.4778563503,
-        "median_abs_standardized_mean_diff": 0.4059134126,
+        "mean_abs_standardized_mean_diff": 0.4778563517,
+        "median_abs_standardized_mean_diff": 0.4059134424,
         "mean_standardized_wasserstein": 0.6148498051,
         "median_standardized_wasserstein": 0.4960948943,
         "mean_ks_statistic": 0.3082324128,
@@ -86,8 +86,8 @@
       {
         "group": "face_landmark_3d",
         "feature_count": 204,
-        "mean_abs_standardized_mean_diff": 0.3910069841,
-        "median_abs_standardized_mean_diff": 0.4268037379,
+        "mean_abs_standardized_mean_diff": 0.3910069836,
+        "median_abs_standardized_mean_diff": 0.4268037528,
         "mean_standardized_wasserstein": 0.5712811436,
         "median_standardized_wasserstein": 0.4886260085,
         "mean_ks_statistic": 0.2986282732,
@@ -96,7 +96,7 @@
       {
         "group": "gaze",
         "feature_count": 8,
-        "mean_abs_standardized_mean_diff": 0.3422081023,
+        "mean_abs_standardized_mean_diff": 0.3422080912,
         "median_abs_standardized_mean_diff": 0.3151909709,
         "mean_standardized_wasserstein": 0.4224642384,
         "median_standardized_wasserstein": 0.4251678752,
@@ -106,7 +106,7 @@
       {
         "group": "head_pose",
         "feature_count": 6,
-        "mean_abs_standardized_mean_diff": 0.1142838149,
+        "mean_abs_standardized_mean_diff": 0.1142838084,
         "median_abs_standardized_mean_diff": 0.1493066847,
         "mean_standardized_wasserstein": 0.2376952657,
         "median_standardized_wasserstein": 0.1913138202,
@@ -116,8 +116,8 @@
       {
         "group": "au_presence",
         "feature_count": 18,
-        "mean_abs_standardized_mean_diff": 0.2310418894,
-        "median_abs_standardized_mean_diff": 0.2313873395,
+        "mean_abs_standardized_mean_diff": 0.2310418917,
+        "median_abs_standardized_mean_diff": 0.2313873172,
         "mean_standardized_wasserstein": 0.2310418885,
         "median_standardized_wasserstein": 0.2313873294,
         "mean_ks_statistic": 0.0830102268,
@@ -126,7 +126,7 @@
       {
         "group": "au_intensity",
         "feature_count": 17,
-        "mean_abs_standardized_mean_diff": 0.1570451509,
+        "mean_abs_standardized_mean_diff": 0.1570451505,
         "median_abs_standardized_mean_diff": 0.1300054491,
         "mean_standardized_wasserstein": 0.1691591091,
         "median_standardized_wasserstein": 0.138304726,
@@ -137,7 +137,7 @@
     "quality": {
       "private": {
         "sampled_rows": 54784,
-        "confidence_mean": 0.8337120327102805,
+        "confidence_mean": 0.8337120327102807,
         "confidence_median": 0.98,
         "confidence_p05": 0.03,
         "confidence_p95": 0.98,
@@ -147,7 +147,7 @@
       },
       "cmose": {
         "sampled_rows": 60000,
-        "confidence_mean": 0.9225220000000004,
+        "confidence_mean": 0.9225220000000003,
         "confidence_median": 0.98,
         "confidence_p05": 0.88,
         "confidence_p95": 0.98,
@@ -178,9 +178,9 @@
       {
         "feature": "y_54",
         "group": "face_landmark_2d",
-        "private_mean_z": 0.9390158057,
+        "private_mean_z": 0.9390157461,
         "cmose_mean_z": -0.8573839664,
-        "abs_standardized_mean_diff": 1.7963998318,
+        "abs_standardized_mean_diff": 1.7963997126,
         "standardized_wasserstein": 1.8056071709,
         "ks_statistic": 0.9712791375
       },
@@ -188,17 +188,17 @@
         "feature": "y_12",
         "group": "face_landmark_2d",
         "private_mean_z": 0.938488245,
-        "cmose_mean_z": -0.8569024801,
-        "abs_standardized_mean_diff": 1.7953907251,
+        "cmose_mean_z": -0.8569024205,
+        "abs_standardized_mean_diff": 1.7953906059,
         "standardized_wasserstein": 1.8051794148,
         "ks_statistic": 0.9705069607
       },
       {
         "feature": "y_64",
         "group": "face_landmark_2d",
-        "private_mean_z": 0.9384360909,
-        "cmose_mean_z": -0.8568546772,
-        "abs_standardized_mean_diff": 1.7952907085,
+        "private_mean_z": 0.9384361506,
+        "cmose_mean_z": -0.8568547368,
+        "abs_standardized_mean_diff": 1.795290947,
         "standardized_wasserstein": 1.804510455,
         "ks_statistic": 0.9712791472
       },
@@ -206,7 +206,7 @@
         "feature": "y_5",
         "group": "face_landmark_2d",
         "private_mean_z": 0.9378573895,
-        "cmose_mean_z": -0.8563263416,
+        "cmose_mean_z": -0.856326282,
         "abs_standardized_mean_diff": 1.7941837311,
         "standardized_wasserstein": 1.8040941517,
         "ks_statistic": 0.9689228777
@@ -214,9 +214,9 @@
       {
         "feature": "y_6",
         "group": "face_landmark_2d",
-        "private_mean_z": 0.9375311136,
-        "cmose_mean_z": -0.8560283184,
-        "abs_standardized_mean_diff": 1.793559432,
+        "private_mean_z": 0.9375309944,
+        "cmose_mean_z": -0.856028378,
+        "abs_standardized_mean_diff": 1.7935593128,
         "standardized_wasserstein": 1.8039021252,
         "ks_statistic": 0.9692030179
       },
@@ -224,7 +224,7 @@
         "feature": "y_48",
         "group": "face_landmark_2d",
         "private_mean_z": 0.9375235438,
-        "cmose_mean_z": -0.8560214043,
+        "cmose_mean_z": -0.8560214639,
         "abs_standardized_mean_diff": 1.7935450077,
         "standardized_wasserstein": 1.80261676,
         "ks_statistic": 0.9713109034
@@ -232,8 +232,8 @@
       {
         "feature": "y_4",
         "group": "face_landmark_2d",
-        "private_mean_z": 0.9373426437,
-        "cmose_mean_z": -0.8558564186,
+        "private_mean_z": 0.9373427033,
+        "cmose_mean_z": -0.855856359,
         "abs_standardized_mean_diff": 1.7931990623,
         "standardized_wasserstein": 1.8025375986,
         "ks_statistic": 0.9685323988
@@ -241,9 +241,9 @@
       {
         "feature": "y_60",
         "group": "face_landmark_2d",
-        "private_mean_z": 0.9372163415,
-        "cmose_mean_z": -0.855741024,
-        "abs_standardized_mean_diff": 1.7929573059,
+        "private_mean_z": 0.9372164011,
+        "cmose_mean_z": -0.8557411432,
+        "abs_standardized_mean_diff": 1.7929575443,
         "standardized_wasserstein": 1.8020647397,
         "ks_statistic": 0.9713609034
       },
@@ -259,17 +259,17 @@
       {
         "feature": "y_55",
         "group": "face_landmark_2d",
-        "private_mean_z": 0.9371287227,
-        "cmose_mean_z": -0.855660975,
-        "abs_standardized_mean_diff": 1.7927896976,
+        "private_mean_z": 0.9371287823,
+        "cmose_mean_z": -0.8556610942,
+        "abs_standardized_mean_diff": 1.7927899361,
         "standardized_wasserstein": 1.8022655099,
         "ks_statistic": 0.9713323306
       },
       {
         "feature": "y_7",
         "group": "face_landmark_2d",
-        "private_mean_z": 0.9361447692,
-        "cmose_mean_z": -0.8547625542,
+        "private_mean_z": 0.9361448288,
+        "cmose_mean_z": -0.8547626138,
         "abs_standardized_mean_diff": 1.790907383,
         "standardized_wasserstein": 1.8015377528,
         "ks_statistic": 0.9700910923
@@ -286,9 +286,9 @@
       {
         "feature": "y_53",
         "group": "face_landmark_2d",
-        "private_mean_z": 0.9356786609,
+        "private_mean_z": 0.9356787801,
         "cmose_mean_z": -0.8543370366,
-        "abs_standardized_mean_diff": 1.7900156975,
+        "abs_standardized_mean_diff": 1.7900158167,
         "standardized_wasserstein": 1.7990539851,
         "ks_statistic": 0.9704204245
       },
@@ -296,7 +296,7 @@
         "feature": "y_56",
         "group": "face_landmark_2d",
         "private_mean_z": 0.9356032014,
-        "cmose_mean_z": -0.8542679548,
+        "cmose_mean_z": -0.854268074,
         "abs_standardized_mean_diff": 1.7898712158,
         "standardized_wasserstein": 1.7994193648,
         "ks_statistic": 0.971338678
@@ -304,7 +304,7 @@
       {
         "feature": "y_13",
         "group": "face_landmark_2d",
-        "private_mean_z": 0.9355326891,
+        "private_mean_z": 0.9355327487,
         "cmose_mean_z": -0.8542037606,
         "abs_standardized_mean_diff": 1.7897365093,
         "standardized_wasserstein": 1.7988119611,
@@ -323,15 +323,15 @@
         "feature": "y_3",
         "group": "face_landmark_2d",
         "private_mean_z": 0.9353880286,
-        "cmose_mean_z": -0.8540715575,
-        "abs_standardized_mean_diff": 1.7894595861,
+        "cmose_mean_z": -0.8540716171,
+        "abs_standardized_mean_diff": 1.7894597054,
         "standardized_wasserstein": 1.7980844528,
         "ks_statistic": 0.9662736371
       },
       {
         "feature": "y_63",
         "group": "face_landmark_2d",
-        "private_mean_z": 0.9352957606,
+        "private_mean_z": 0.9352958798,
         "cmose_mean_z": -0.8539874554,
         "abs_standardized_mean_diff": 1.7892832756,
         "standardized_wasserstein": 1.7984316084,
@@ -341,15 +341,15 @@
         "feature": "y_65",
         "group": "face_landmark_2d",
         "private_mean_z": 0.9350504875,
-        "cmose_mean_z": -0.8537634015,
-        "abs_standardized_mean_diff": 1.7888138294,
+        "cmose_mean_z": -0.8537634611,
+        "abs_standardized_mean_diff": 1.7888139486,
         "standardized_wasserstein": 1.7980701801,
         "ks_statistic": 0.970688678
       },
       {
         "feature": "y_57",
         "group": "face_landmark_2d",
-        "private_mean_z": 0.934961915,
+        "private_mean_z": 0.9349619746,
         "cmose_mean_z": -0.8536826372,
         "abs_standardized_mean_diff": 1.7886445522,
         "standardized_wasserstein": 1.7981885078,
@@ -367,9 +367,9 @@
       {
         "feature": "y_62",
         "group": "face_landmark_2d",
-        "private_mean_z": 0.9346805215,
+        "private_mean_z": 0.9346807003,
         "cmose_mean_z": -0.8534258008,
-        "abs_standardized_mean_diff": 1.7881063223,
+        "abs_standardized_mean_diff": 1.7881064415,
         "standardized_wasserstein": 1.7972654604,
         "ks_statistic": 0.9706863026
       },
@@ -377,7 +377,7 @@
         "feature": "y_49",
         "group": "face_landmark_2d",
         "private_mean_z": 0.9345965385,
-        "cmose_mean_z": -0.8533489108,
+        "cmose_mean_z": -0.8533489704,
         "abs_standardized_mean_diff": 1.787945509,
         "standardized_wasserstein": 1.7968909327,
         "ks_statistic": 0.9700180588
@@ -394,8 +394,8 @@
       {
         "feature": "y_66",
         "group": "face_landmark_2d",
-        "private_mean_z": 0.9344517589,
-        "cmose_mean_z": -0.8532167673,
+        "private_mean_z": 0.9344518185,
+        "cmose_mean_z": -0.8532167077,
         "abs_standardized_mean_diff": 1.7876684666,
         "standardized_wasserstein": 1.7969267027,
         "ks_statistic": 0.9707339174
@@ -403,7 +403,7 @@
       {
         "feature": "y_67",
         "group": "face_landmark_2d",
-        "private_mean_z": 0.9343793392,
+        "private_mean_z": 0.9343792796,
         "cmose_mean_z": -0.8531506658,
         "abs_standardized_mean_diff": 1.7875299454,
         "standardized_wasserstein": 1.7967455514,
@@ -422,8 +422,8 @@
         "feature": "y_52",
         "group": "face_landmark_2d",
         "private_mean_z": 0.9333386421,
-        "cmose_mean_z": -0.8522003889,
-        "abs_standardized_mean_diff": 1.785539031,
+        "cmose_mean_z": -0.8522004485,
+        "abs_standardized_mean_diff": 1.7855391502,
         "standardized_wasserstein": 1.7944472531,
         "ks_statistic": 0.969585514
       }
@@ -442,15 +442,15 @@
         "median_standardized_wasserstein": 0.8821912346491455,
         "mean_ks_statistic": 0.49677193005840375,
         "median_ks_statistic": 0.4838277769568001,
-        "mean_abs_standardized_mean_diff": 0.8874392369039599,
+        "mean_abs_standardized_mean_diff": 0.8874392388046985,
         "median_abs_standardized_mean_diff": 0.8209275007247925
       },
       "groups": [
         {
           "group": "face_landmark_2d",
           "feature_count": 136,
-          "mean_abs_standardized_mean_diff": 1.7396776711,
-          "median_abs_standardized_mean_diff": 1.7653252482,
+          "mean_abs_standardized_mean_diff": 1.7396776676,
+          "median_abs_standardized_mean_diff": 1.7653253078,
           "mean_standardized_wasserstein": 1.74116944,
           "median_standardized_wasserstein": 1.7654005529,
           "mean_ks_statistic": 0.8976319896,
@@ -459,7 +459,7 @@
         {
           "group": "eye_landmark_2d",
           "feature_count": 112,
-          "mean_abs_standardized_mean_diff": 1.721790153,
+          "mean_abs_standardized_mean_diff": 1.7217901626,
           "median_abs_standardized_mean_diff": 1.7634590268,
           "mean_standardized_wasserstein": 1.7224415394,
           "median_standardized_wasserstein": 1.7634640032,
@@ -469,8 +469,8 @@
         {
           "group": "pdm",
           "feature_count": 40,
-          "mean_abs_standardized_mean_diff": 0.429091334,
-          "median_abs_standardized_mean_diff": 0.2434299439,
+          "mean_abs_standardized_mean_diff": 0.4290913435,
+          "median_abs_standardized_mean_diff": 0.2434299514,
           "mean_standardized_wasserstein": 0.8518121723,
           "median_standardized_wasserstein": 0.8288555321,
           "mean_ks_statistic": 0.3948599465,
@@ -479,8 +479,8 @@
         {
           "group": "eye_landmark_3d",
           "feature_count": 168,
-          "mean_abs_standardized_mean_diff": 0.5032508079,
-          "median_abs_standardized_mean_diff": 0.3430365473,
+          "mean_abs_standardized_mean_diff": 0.5032508098,
+          "median_abs_standardized_mean_diff": 0.3430365324,
           "mean_standardized_wasserstein": 0.6043368715,
           "median_standardized_wasserstein": 0.4589748963,
           "mean_ks_statistic": 0.2997430045,
@@ -489,8 +489,8 @@
         {
           "group": "face_landmark_3d",
           "feature_count": 204,
-          "mean_abs_standardized_mean_diff": 0.4192218208,
-          "median_abs_standardized_mean_diff": 0.324781388,
+          "mean_abs_standardized_mean_diff": 0.4192218215,
+          "median_abs_standardized_mean_diff": 0.3247814029,
           "mean_standardized_wasserstein": 0.5602962247,
           "median_standardized_wasserstein": 0.4246017789,
           "mean_ks_statistic": 0.2878762656,
@@ -499,7 +499,7 @@
         {
           "group": "gaze",
           "feature_count": 8,
-          "mean_abs_standardized_mean_diff": 0.3924614787,
+          "mean_abs_standardized_mean_diff": 0.3924614675,
           "median_abs_standardized_mean_diff": 0.393381834,
           "mean_standardized_wasserstein": 0.5073442203,
           "median_standardized_wasserstein": 0.5100227164,
@@ -509,7 +509,7 @@
         {
           "group": "head_pose",
           "feature_count": 6,
-          "mean_abs_standardized_mean_diff": 0.2637674001,
+          "mean_abs_standardized_mean_diff": 0.2637673927,
           "median_abs_standardized_mean_diff": 0.1456255615,
           "mean_standardized_wasserstein": 0.413892598,
           "median_standardized_wasserstein": 0.3504153708,
@@ -519,7 +519,7 @@
         {
           "group": "au_presence",
           "feature_count": 18,
-          "mean_abs_standardized_mean_diff": 0.2412316671,
+          "mean_abs_standardized_mean_diff": 0.2412316667,
           "median_abs_standardized_mean_diff": 0.2238846868,
           "mean_standardized_wasserstein": 0.2412316677,
           "median_standardized_wasserstein": 0.2238846953,
@@ -529,8 +529,8 @@
         {
           "group": "au_intensity",
           "feature_count": 17,
-          "mean_abs_standardized_mean_diff": 0.20366187,
-          "median_abs_standardized_mean_diff": 0.1764303744,
+          "mean_abs_standardized_mean_diff": 0.2036618725,
+          "median_abs_standardized_mean_diff": 0.1764304042,
           "mean_standardized_wasserstein": 0.2076291377,
           "median_standardized_wasserstein": 0.1764325176,
           "mean_ks_statistic": 0.0827606381,
@@ -550,7 +550,7 @@
         },
         "cmose": {
           "sampled_rows": 60000,
-          "confidence_mean": 0.9546825000000002,
+          "confidence_mean": 0.9546825000000003,
           "confidence_median": 0.98,
           "confidence_p05": 0.88,
           "confidence_p95": 0.98,
@@ -672,7 +672,7 @@
       },
       {
         "feature": "i3d_0714",
-        "abs_standardized_mean_diff": 3.352914571762085,
+        "abs_standardized_mean_diff": 3.352914810180664,
         "standardized_wasserstein": 3.3529143959593717,
         "ks_statistic": 0.8634963860425308
       },

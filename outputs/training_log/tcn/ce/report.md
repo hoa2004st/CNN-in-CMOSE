@@ -2,25 +2,25 @@
 
 - Run folder: `tcn/ce`
 - Metrics file: `outputs/training_log/tcn/ce/metrics.json`
-- Accuracy: 0.7641
-- Macro Accuracy: 0.5859
-- Macro F1: 0.6084
-- Weighted F1: 0.7587
-- MAE: 0.2506
-- MSE: 0.2801
-- Best epoch: 50
+- Accuracy: 0.7576
+- Macro Accuracy: 0.4990
+- Macro F1: 0.5428
+- Weighted F1: 0.7368
+- MAE: 0.2604
+- MSE: 0.2981
+- Best epoch: 26
 
 ## Classification Report
 
 ```text
                   precision    recall  f1-score   support
 
-Highly Disengage       0.54      0.43      0.48        35
-       Disengage       0.60      0.55      0.58       221
-          Engage       0.83      0.87      0.85       847
-   Highly Engage       0.58      0.49      0.53       118
+Highly Disengage       0.50      0.31      0.39        35
+       Disengage       0.66      0.48      0.55       221
+          Engage       0.79      0.91      0.85       847
+   Highly Engage       0.57      0.29      0.38       118
 
         accuracy                           0.76      1221
-       macro avg       0.64      0.59      0.61      1221
-    weighted avg       0.76      0.76      0.76      1221
+       macro avg       0.63      0.50      0.54      1221
+    weighted avg       0.74      0.76      0.74      1221
 ```

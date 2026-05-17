@@ -21,88 +21,88 @@ This report records the direct predictions made by each configured CMOSE-trained
 
 | Run | Accuracy | Macro Accuracy | F1 Macro | F1 Weighted | MAE | MSE |
 |---|---:|---:|---:|---:|---:|---:|
-| i3d_mlp/ce | 0.7666 | 0.5242 | 0.5774 | 0.7492 | 0.2580 | 0.3137 |
-| i3d_mlp/ordinal | 0.6577 | 0.6115 | 0.5400 | 0.6774 | 0.3866 | 0.4832 |
-| i3d_mlp/weighted_ce | 0.6650 | 0.6302 | 0.5632 | 0.6851 | 0.3702 | 0.4439 |
-| lstm/ce | 0.7027 | 0.4015 | 0.4289 | 0.6679 | 0.3268 | 0.3890 |
-| lstm/ordinal | 0.4988 | 0.5092 | 0.4108 | 0.5310 | 0.5602 | 0.6830 |
-| lstm/weighted_ce | 0.5561 | 0.4992 | 0.4274 | 0.5860 | 0.5168 | 0.6790 |
-| openface_mlp/ce | 0.7437 | 0.4626 | 0.5060 | 0.7195 | 0.2801 | 0.3292 |
-| openface_mlp/ordinal | 0.5356 | 0.2665 | 0.2660 | 0.5345 | 0.5201 | 0.6364 |
-| openface_mlp/weighted_ce | 0.5741 | 0.5790 | 0.4771 | 0.6005 | 0.4791 | 0.5938 |
-| openface_tcn_i3d_fusion/ce | 0.7469 | 0.4478 | 0.4575 | 0.7265 | 0.2875 | 0.3645 |
-| openface_tcn_i3d_fusion/ordinal | 0.5405 | 0.5774 | 0.4115 | 0.5756 | 0.5430 | 0.7166 |
-| openface_tcn_i3d_fusion/weighted_ce | 0.6577 | 0.6383 | 0.5436 | 0.6795 | 0.3849 | 0.4767 |
-| tcn/ce | 0.7649 | 0.5862 | 0.6089 | 0.7594 | 0.2498 | 0.2793 |
-| tcn/ordinal | 0.6847 | 0.6264 | 0.5696 | 0.7010 | 0.3473 | 0.4144 |
-| tcn/weighted_ce | 0.6183 | 0.6103 | 0.4951 | 0.6457 | 0.4496 | 0.5987 |
-| transformer/ce | 0.7379 | 0.5202 | 0.5460 | 0.7263 | 0.2924 | 0.3579 |
-| transformer/ordinal | 0.6470 | 0.6028 | 0.5359 | 0.6678 | 0.3989 | 0.4971 |
-| transformer/weighted_ce | 0.5831 | 0.5884 | 0.4853 | 0.6112 | 0.4758 | 0.6102 |
+| i3d_mlp/ce | 0.7723 | 0.5392 | 0.5960 | 0.7549 | 0.2473 | 0.2883 |
+| i3d_mlp/ordinal | 0.6077 | 0.6173 | 0.5044 | 0.6355 | 0.4472 | 0.5684 |
+| i3d_mlp/weighted_ce | 0.6880 | 0.6176 | 0.5686 | 0.7043 | 0.3505 | 0.4357 |
+| lstm/ce | 0.7011 | 0.3788 | 0.4092 | 0.6611 | 0.3227 | 0.3718 |
+| lstm/ordinal | 0.4373 | 0.5247 | 0.3805 | 0.4675 | 0.6413 | 0.8116 |
+| lstm/weighted_ce | 0.5971 | 0.5507 | 0.4727 | 0.6228 | 0.4578 | 0.5741 |
+| openface_mlp/ce | 0.7248 | 0.3851 | 0.4241 | 0.6760 | 0.2973 | 0.3415 |
+| openface_mlp/ordinal | 0.5471 | 0.3388 | 0.3389 | 0.5556 | 0.4840 | 0.5479 |
+| openface_mlp/weighted_ce | 0.4996 | 0.5113 | 0.4100 | 0.5320 | 0.5708 | 0.7183 |
+| openface_tcn_i3d_fusion/ce | 0.7453 | 0.4318 | 0.4396 | 0.7200 | 0.2981 | 0.3980 |
+| openface_tcn_i3d_fusion/ordinal | 0.5586 | 0.5707 | 0.4776 | 0.5873 | 0.4816 | 0.5651 |
+| openface_tcn_i3d_fusion/weighted_ce | 0.6486 | 0.6139 | 0.5268 | 0.6732 | 0.4021 | 0.5119 |
+| tcn/ce | 0.7576 | 0.4990 | 0.5428 | 0.7368 | 0.2604 | 0.2981 |
+| tcn/ordinal | 0.6167 | 0.6214 | 0.5063 | 0.6451 | 0.4373 | 0.5569 |
+| tcn/weighted_ce | 0.6282 | 0.6124 | 0.4989 | 0.6521 | 0.4333 | 0.5659 |
+| transformer/ce | 0.7518 | 0.4931 | 0.5411 | 0.7325 | 0.2744 | 0.3301 |
+| transformer/ordinal | 0.5266 | 0.5879 | 0.4456 | 0.5588 | 0.5405 | 0.6863 |
+| transformer/weighted_ce | 0.5823 | 0.5831 | 0.4781 | 0.6118 | 0.4767 | 0.6110 |
 
 ## Private Manual-Label Metrics
 
 | Run | Accuracy | Macro Accuracy | F1 Macro | F1 Weighted | MAE | MSE |
 |---|---:|---:|---:|---:|---:|---:|
-| i3d_mlp/ce | 0.4864 | 0.2993 | 0.2674 | 0.5127 | 0.6413 | 0.9402 |
-| i3d_mlp/ordinal | 0.3587 | 0.2720 | 0.1926 | 0.3952 | 0.7935 | 1.1522 |
-| i3d_mlp/weighted_ce | 0.1793 | 0.2646 | 0.1119 | 0.1472 | 1.0054 | 1.4348 |
-| lstm/ce | 0.6005 | 0.2460 | 0.2416 | 0.5598 | 0.4484 | 0.5516 |
-| lstm/ordinal | 0.2011 | 0.2695 | 0.1542 | 0.1743 | 0.9348 | 1.2120 |
-| lstm/weighted_ce | 0.1223 | 0.2186 | 0.1148 | 0.1015 | 1.1685 | 1.7935 |
-| openface_mlp/ce | 0.3696 | 0.2522 | 0.2089 | 0.4010 | 0.7038 | 0.8505 |
-| openface_mlp/ordinal | 0.5082 | 0.2216 | 0.2006 | 0.4958 | 0.5543 | 0.6848 |
-| openface_mlp/weighted_ce | 0.1848 | 0.3096 | 0.1671 | 0.1520 | 1.0761 | 1.6685 |
-| openface_tcn_i3d_fusion/ce | 0.1630 | 0.2500 | 0.0797 | 0.0865 | 0.9538 | 1.1875 |
-| openface_tcn_i3d_fusion/ordinal | 0.1060 | 0.1591 | 0.0812 | 0.1406 | 1.5245 | 2.9647 |
-| openface_tcn_i3d_fusion/weighted_ce | 0.2908 | 0.2617 | 0.1905 | 0.3275 | 0.8668 | 1.2147 |
-| tcn/ce | 0.6087 | 0.3185 | 0.3040 | 0.5911 | 0.4755 | 0.6549 |
-| tcn/ordinal | 0.6440 | 0.2643 | 0.2579 | 0.5924 | 0.3995 | 0.4864 |
-| tcn/weighted_ce | 0.1793 | 0.2423 | 0.1495 | 0.2431 | 1.3886 | 2.6875 |
-| transformer/ce | 0.4185 | 0.3985 | 0.3060 | 0.4610 | 0.7337 | 1.0815 |
-| transformer/ordinal | 0.2717 | 0.2836 | 0.2009 | 0.2903 | 0.8478 | 1.1087 |
-| transformer/weighted_ce | 0.4103 | 0.3192 | 0.2751 | 0.4586 | 0.7609 | 1.1413 |
+| i3d_mlp/ce | 0.4728 | 0.2972 | 0.2432 | 0.4962 | 0.6658 | 0.9973 |
+| i3d_mlp/ordinal | 0.1304 | 0.2491 | 0.0628 | 0.0521 | 1.0761 | 1.5435 |
+| i3d_mlp/weighted_ce | 0.2120 | 0.2761 | 0.1310 | 0.1993 | 0.9701 | 1.3995 |
+| lstm/ce | 0.6712 | 0.2490 | 0.2259 | 0.5849 | 0.3641 | 0.4348 |
+| lstm/ordinal | 0.2310 | 0.2740 | 0.1813 | 0.2368 | 0.9049 | 1.1984 |
+| lstm/weighted_ce | 0.3342 | 0.2403 | 0.2055 | 0.3851 | 0.7880 | 1.0543 |
+| openface_mlp/ce | 0.7065 | 0.2632 | 0.2360 | 0.6002 | 0.3234 | 0.3832 |
+| openface_mlp/ordinal | 0.3967 | 0.2245 | 0.1864 | 0.4248 | 0.7065 | 0.9130 |
+| openface_mlp/weighted_ce | 0.2147 | 0.3079 | 0.1510 | 0.1783 | 0.9293 | 1.2283 |
+| openface_tcn_i3d_fusion/ce | 0.1712 | 0.2383 | 0.0973 | 0.1225 | 0.9511 | 1.1957 |
+| openface_tcn_i3d_fusion/ordinal | 0.3859 | 0.2592 | 0.1961 | 0.4186 | 0.7391 | 0.9891 |
+| openface_tcn_i3d_fusion/weighted_ce | 0.3424 | 0.2808 | 0.2156 | 0.3832 | 0.7826 | 1.0543 |
+| tcn/ce | 0.5842 | 0.3099 | 0.3219 | 0.5766 | 0.4484 | 0.5136 |
+| tcn/ordinal | 0.6522 | 0.2812 | 0.2721 | 0.5983 | 0.4212 | 0.5679 |
+| tcn/weighted_ce | 0.6332 | 0.3067 | 0.3055 | 0.6065 | 0.4565 | 0.6522 |
+| transformer/ce | 0.6495 | 0.3166 | 0.3150 | 0.6001 | 0.3967 | 0.4891 |
+| transformer/ordinal | 0.1712 | 0.3466 | 0.1890 | 0.1225 | 0.9701 | 1.2582 |
+| transformer/weighted_ce | 0.3587 | 0.3886 | 0.2811 | 0.4020 | 0.8098 | 1.1630 |
 
 ## Prediction Distribution
 
 | Dataset | Run | Highly Disengage | Disengage | Engage | Highly Engage |
 |---|---|---:|---:|---:|---:|
-| Private | i3d_mlp/ce | 0.023 | 0.042 | 0.572 | 0.362 |
-| Private | i3d_mlp/ordinal | 0.012 | 0.002 | 0.369 | 0.617 |
-| Private | i3d_mlp/weighted_ce | 0.016 | 0.023 | 0.089 | 0.871 |
-| Private | lstm/ce | 0.014 | 0.028 | 0.836 | 0.121 |
-| Private | lstm/ordinal | 0.026 | 0.787 | 0.117 | 0.070 |
-| Private | lstm/weighted_ce | 0.178 | 0.526 | 0.058 | 0.238 |
-| Private | openface_mlp/ce | 0.007 | 0.537 | 0.430 | 0.026 |
-| Private | openface_mlp/ordinal | 0.000 | 0.009 | 0.717 | 0.273 |
-| Private | openface_mlp/weighted_ce | 0.178 | 0.512 | 0.072 | 0.238 |
-| Private | openface_tcn_i3d_fusion/ce | 0.000 | 0.951 | 0.049 | 0.000 |
-| Private | openface_tcn_i3d_fusion/ordinal | 0.610 | 0.276 | 0.105 | 0.009 |
-| Private | openface_tcn_i3d_fusion/weighted_ce | 0.026 | 0.610 | 0.208 | 0.157 |
-| Private | tcn/ce | 0.068 | 0.159 | 0.750 | 0.023 |
-| Private | tcn/ordinal | 0.019 | 0.098 | 0.846 | 0.037 |
-| Private | tcn/weighted_ce | 0.551 | 0.019 | 0.187 | 0.243 |
-| Private | transformer/ce | 0.117 | 0.439 | 0.353 | 0.091 |
-| Private | transformer/ordinal | 0.056 | 0.652 | 0.222 | 0.070 |
-| Private | transformer/weighted_ce | 0.133 | 0.325 | 0.402 | 0.140 |
-| CMOSE test | i3d_mlp/ce | 0.016 | 0.134 | 0.796 | 0.054 |
-| CMOSE test | i3d_mlp/ordinal | 0.044 | 0.256 | 0.544 | 0.156 |
-| CMOSE test | i3d_mlp/weighted_ce | 0.037 | 0.308 | 0.517 | 0.138 |
-| CMOSE test | lstm/ce | 0.020 | 0.102 | 0.835 | 0.044 |
-| CMOSE test | lstm/ordinal | 0.059 | 0.290 | 0.429 | 0.222 |
-| CMOSE test | lstm/weighted_ce | 0.055 | 0.286 | 0.482 | 0.178 |
-| CMOSE test | openface_mlp/ce | 0.014 | 0.117 | 0.813 | 0.056 |
-| CMOSE test | openface_mlp/ordinal | 0.007 | 0.262 | 0.679 | 0.052 |
-| CMOSE test | openface_mlp/weighted_ce | 0.060 | 0.280 | 0.475 | 0.185 |
-| CMOSE test | openface_tcn_i3d_fusion/ce | 0.000 | 0.156 | 0.767 | 0.077 |
-| CMOSE test | openface_tcn_i3d_fusion/ordinal | 0.141 | 0.132 | 0.473 | 0.255 |
-| CMOSE test | openface_tcn_i3d_fusion/weighted_ce | 0.059 | 0.263 | 0.523 | 0.156 |
-| CMOSE test | tcn/ce | 0.023 | 0.165 | 0.730 | 0.082 |
-| CMOSE test | tcn/ordinal | 0.031 | 0.260 | 0.552 | 0.156 |
-| CMOSE test | tcn/weighted_ce | 0.088 | 0.219 | 0.517 | 0.176 |
-| CMOSE test | transformer/ce | 0.022 | 0.137 | 0.760 | 0.081 |
-| CMOSE test | transformer/ordinal | 0.044 | 0.261 | 0.548 | 0.147 |
-| CMOSE test | transformer/weighted_ce | 0.055 | 0.260 | 0.477 | 0.208 |
+| Private | i3d_mlp/ce | 0.033 | 0.026 | 0.542 | 0.400 |
+| Private | i3d_mlp/ordinal | 0.005 | 0.005 | 0.014 | 0.977 |
+| Private | i3d_mlp/weighted_ce | 0.007 | 0.033 | 0.114 | 0.846 |
+| Private | lstm/ce | 0.002 | 0.051 | 0.932 | 0.014 |
+| Private | lstm/ordinal | 0.049 | 0.692 | 0.175 | 0.084 |
+| Private | lstm/weighted_ce | 0.016 | 0.407 | 0.343 | 0.234 |
+| Private | openface_mlp/ce | 0.000 | 0.000 | 0.984 | 0.016 |
+| Private | openface_mlp/ordinal | 0.000 | 0.514 | 0.486 | 0.000 |
+| Private | openface_mlp/weighted_ce | 0.047 | 0.857 | 0.075 | 0.021 |
+| Private | openface_tcn_i3d_fusion/ce | 0.000 | 0.876 | 0.072 | 0.051 |
+| Private | openface_tcn_i3d_fusion/ordinal | 0.002 | 0.565 | 0.397 | 0.035 |
+| Private | openface_tcn_i3d_fusion/weighted_ce | 0.005 | 0.526 | 0.285 | 0.185 |
+| Private | tcn/ce | 0.012 | 0.231 | 0.724 | 0.033 |
+| Private | tcn/ordinal | 0.068 | 0.044 | 0.864 | 0.023 |
+| Private | tcn/weighted_ce | 0.056 | 0.065 | 0.783 | 0.096 |
+| Private | transformer/ce | 0.035 | 0.100 | 0.843 | 0.021 |
+| Private | transformer/ordinal | 0.121 | 0.727 | 0.037 | 0.114 |
+| Private | transformer/weighted_ce | 0.168 | 0.442 | 0.304 | 0.086 |
+| CMOSE test | i3d_mlp/ce | 0.016 | 0.129 | 0.799 | 0.057 |
+| CMOSE test | i3d_mlp/ordinal | 0.062 | 0.289 | 0.462 | 0.187 |
+| CMOSE test | i3d_mlp/weighted_ce | 0.038 | 0.270 | 0.571 | 0.120 |
+| CMOSE test | lstm/ce | 0.011 | 0.115 | 0.844 | 0.030 |
+| CMOSE test | lstm/ordinal | 0.082 | 0.319 | 0.337 | 0.262 |
+| CMOSE test | lstm/weighted_ce | 0.052 | 0.229 | 0.524 | 0.196 |
+| CMOSE test | openface_mlp/ce | 0.011 | 0.080 | 0.883 | 0.026 |
+| CMOSE test | openface_mlp/ordinal | 0.007 | 0.245 | 0.644 | 0.104 |
+| CMOSE test | openface_mlp/weighted_ce | 0.068 | 0.320 | 0.418 | 0.194 |
+| CMOSE test | openface_tcn_i3d_fusion/ce | 0.000 | 0.125 | 0.786 | 0.088 |
+| CMOSE test | openface_tcn_i3d_fusion/ordinal | 0.055 | 0.373 | 0.428 | 0.143 |
+| CMOSE test | openface_tcn_i3d_fusion/weighted_ce | 0.061 | 0.282 | 0.514 | 0.143 |
+| CMOSE test | tcn/ce | 0.018 | 0.132 | 0.801 | 0.049 |
+| CMOSE test | tcn/ordinal | 0.066 | 0.275 | 0.468 | 0.191 |
+| CMOSE test | tcn/weighted_ce | 0.079 | 0.167 | 0.545 | 0.208 |
+| CMOSE test | transformer/ce | 0.013 | 0.133 | 0.795 | 0.058 |
+| CMOSE test | transformer/ordinal | 0.081 | 0.276 | 0.412 | 0.231 |
+| CMOSE test | transformer/weighted_ce | 0.058 | 0.261 | 0.471 | 0.210 |
 
 ## Run Metrics Files
 
