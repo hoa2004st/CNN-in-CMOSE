@@ -29,7 +29,6 @@ python scripts/compare_naive_models.py \
   --patience "$PATIENCE" \
   --device "$DEVICE" \
   --num_workers "$NUM_WORKERS" \
-  --amp \
   --naive_losses cross_entropy weighted_cross_entropy ordinal \
   2>&1 | tee -a "$RUN_ROOT/logs/compare_naive_models.log"
 
