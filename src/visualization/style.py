@@ -30,20 +30,20 @@ MODEL_ORDER = [
 ]
 MODEL_DISPLAY_NAMES = {
     "openface_mlp": "openface_mlp",
-    "temporal_cnn": "tcn",
-    "lstm": "lstm",
-    "transformer": "transformer",
+    "temporal_cnn": "openface_tcn",
+    "lstm": "openface_lstm",
+    "transformer": "openface_transformer",
     "i3d_mlp": "i3d_mlp",
     "openface_tcn_i3d_fusion": "fusion",
 }
 MODEL_DISPLAY_TO_KEY = {display: key for key, display in MODEL_DISPLAY_NAMES.items()}
 MODEL_COLORS = {
     "openface_mlp": "#0072B2",
-    "temporal_cnn": "#E69F00",
+    "temporal_cnn": "#56B4E9",
     "lstm": "#009E73",
-    "transformer": "#D55E00",
-    "i3d_mlp": "#CC79A7",
-    "openface_tcn_i3d_fusion": "#56B4E9",
+    "transformer": "#8BC34A",
+    "i3d_mlp": "#D55E00",
+    "openface_tcn_i3d_fusion": "#E69F00",
 }
 
 COMPARISON_LOSS_NAMES = ["cross_entropy", "weighted_cross_entropy", "ordinal"]

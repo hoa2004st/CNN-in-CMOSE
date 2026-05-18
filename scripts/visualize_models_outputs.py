@@ -37,11 +37,12 @@ from src.visualization.style import (
 METRIC_SPECS = [
     ("accuracy", "Accuracy"),
     ("macro_accuracy", "Macro Accuracy"),
-    ("f1_macro", "Macro F1"),
-    ("f1_weighted", "Weighted F1"),
     ("mae", "MAE"),
+    ("f1_weighted", "Weighted F1"),
+    ("f1_macro", "Macro F1"),
     ("mse", "MSE"),
 ]
+LOSS_LABEL_ORDER = ["CE", "Weighted CE", "Ordinal"]
 LOSS_LABELS = LOSS_DISPLAY_NAMES
 LOSS_SLUGS = LOSS_SLUG_TO_NAME
 
@@ -210,6 +211,15 @@ def _model_labels(frame: pd.DataFrame) -> list[str]:
     return labels
 
 
+def _loss_labels(frame: pd.DataFrame) -> list[str]:
+    if "loss_label" not in frame:
+        return []
+    present = set(frame["loss_label"].astype(str))
+    ordered = [label for label in LOSS_LABEL_ORDER if label in present]
+    ordered.extend(sorted(present - set(ordered)))
+    return ordered
+
+
 def _filter_ce_runs(summary_df: pd.DataFrame) -> pd.DataFrame:
     return summary_df[summary_df["loss"].isin(["cross_entropy", "ce"])].copy()
 
@@ -228,7 +238,7 @@ def _plot_metric_panel(frame: pd.DataFrame, out_path: Path, title: str) -> None:
             columns="loss_label",
             values=metric,
             aggfunc="first",
-        ).reindex(model_labels)
+        ).reindex(index=model_labels, columns=_loss_labels(frame))
         pivot.plot(kind="bar", ax=ax, width=0.78)
         ax.set_title(metric_title)
         ax.set_xlabel("")

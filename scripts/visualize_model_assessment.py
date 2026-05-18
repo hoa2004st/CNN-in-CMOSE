@@ -36,16 +36,18 @@ from src.visualization.style import (
     MODEL_DISPLAY_NAMES,
     MODEL_ORDER,
     class_color_list,
+    model_color,
 )
 
 METRIC_SPECS = [
     ("accuracy", "Accuracy"),
     ("macro_accuracy", "Macro Accuracy"),
-    ("f1_macro", "Macro F1"),
-    ("f1_weighted", "Weighted F1"),
     ("mae", "MAE"),
+    ("f1_weighted", "Weighted F1"),
+    ("f1_macro", "Macro F1"),
     ("mse", "MSE"),
 ]
+LOSS_LABEL_ORDER = ["CE", "Weighted CE", "Ordinal"]
 CLASS_IDS = list(range(len(CLASS_LABELS)))
 STACKED_CLASS_LABELS_BOTTOM_TO_TOP = ["Highly Disengage", "Disengage", "Engage", "Highly Engage"]
 
@@ -94,6 +96,15 @@ def _model_labels(frame: pd.DataFrame) -> list[str]:
     return [MODEL_DISPLAY_NAMES.get(model, model) for model in MODEL_ORDER if model in present]
 
 
+def _loss_labels(frame: pd.DataFrame) -> list[str]:
+    if "loss_label" not in frame:
+        return []
+    present = set(frame["loss_label"].astype(str))
+    ordered = [label for label in LOSS_LABEL_ORDER if label in present]
+    ordered.extend(sorted(present - set(ordered)))
+    return ordered
+
+
 def _metric_panel(frame: pd.DataFrame, out_path: Path, title: str) -> None:
     if frame.empty:
         return
@@ -111,7 +122,7 @@ def _metric_panel(frame: pd.DataFrame, out_path: Path, title: str) -> None:
             columns="loss_label",
             values=metric,
             aggfunc="first",
-        ).reindex(model_labels)
+        ).reindex(index=model_labels, columns=_loss_labels(frame))
         pivot.plot(kind="bar", ax=ax, width=0.78)
         ax.set_title(metric_title)
         ax.set_xlabel("")
@@ -415,14 +426,15 @@ def plot_performance_drop(cmose_metrics: pd.DataFrame, private_metrics: pd.DataF
     private_ce = _ce_frame(private_metrics)
     if cmose_ce.empty or private_ce.empty:
         return
-    metric_cols = [metric for metric in ("accuracy", "macro_accuracy", "f1_macro", "mae", "mse") if metric in cmose_ce.columns and metric in private_ce.columns]
-    merged = private_ce[["run", "base_model_display", *metric_cols]].merge(
+    metric_cols = [metric for metric, _title in METRIC_SPECS if metric in cmose_ce.columns and metric in private_ce.columns]
+    merged = private_ce[["run", "base_model", "base_model_display", *metric_cols]].merge(
         cmose_ce[["run", *metric_cols]],
         on="run",
         suffixes=("_private", "_cmose"),
     )
     if merged.empty:
         return
+    plot_ce_dataset_metric_lines(merged, metric_cols, out_dir)
     rows = []
     for row in merged.to_dict(orient="records"):
         for metric in metric_cols:
@@ -449,6 +461,52 @@ def plot_performance_drop(cmose_metrics: pd.DataFrame, private_metrics: pd.DataF
     ax.grid(axis="y", alpha=0.18)
     fig.tight_layout()
     fig.savefig(out_dir / "performance_drop_chart_ce_models.png", bbox_inches="tight")
+    plt.close(fig)
+
+
+def plot_ce_dataset_metric_lines(merged: pd.DataFrame, metric_cols: list[str], out_dir: Path) -> None:
+    metric_titles = dict(METRIC_SPECS)
+    ordered = merged.copy()
+    ordered["base_model_sort"] = ordered["base_model"].astype(str).map(
+        lambda model: MODEL_ORDER.index(model) if model in MODEL_ORDER else len(MODEL_ORDER)
+    )
+    ordered = ordered.sort_values(["base_model_sort", "base_model_display"])
+
+    fig, axes = plt.subplots(2, 3, figsize=(10.5, 11.5), dpi=160, sharex=True)
+    axes_list = axes.flatten()
+    x_values = [0, 1]
+    x_labels = ["CMOSE Test", "Private"]
+    legend_handles = []
+    legend_labels = []
+    for ax, metric in zip(axes_list, metric_cols):
+        for row in ordered.to_dict(orient="records"):
+            model_key = str(row["base_model"])
+            model_label = str(row["base_model_display"])
+            (line,) = ax.plot(
+                x_values,
+                [row[f"{metric}_cmose"], row[f"{metric}_private"]],
+                marker="o",
+                markersize=4,
+                linewidth=2.0,
+                color=model_color(model_key),
+                label=model_label,
+            )
+            if model_label not in legend_labels:
+                legend_handles.append(line)
+                legend_labels.append(model_label)
+        metric_title = metric_titles.get(metric, metric)
+        ax.set_title(metric_title)
+        ax.set_xticks(x_values, x_labels)
+        ax.set_ylabel(metric_title)
+        ax.grid(axis="y", alpha=0.18)
+        if metric in {"accuracy", "macro_accuracy", "f1_macro", "f1_weighted"}:
+            ax.set_ylim(0.0, 1.0)
+    for ax in axes_list[len(metric_cols):]:
+        ax.axis("off")
+    fig.suptitle("CE Models: CMOSE Test vs Private Metrics", fontsize=14, y=0.995)
+    fig.legend(legend_handles, legend_labels, loc="lower center", ncol=3, fontsize=9)
+    fig.tight_layout(rect=(0, 0.08, 1, 0.98))
+    fig.savefig(out_dir / "ce_models_cmose_private_metric_lines.png", bbox_inches="tight")
     plt.close(fig)
 
 
