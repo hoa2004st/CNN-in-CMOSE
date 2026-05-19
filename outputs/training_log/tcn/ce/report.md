@@ -1,7 +1,7 @@
-# tcn [CE]
+# openface_tcn [CE]
 
 - Run folder: `tcn/ce`
-- Metrics file: `outputs/training_log/tcn/ce/metrics.json`
+- Metrics file: `outputs\training_log\tcn\ce\metrics.json`
 - Accuracy: 0.7576
 - Macro Accuracy: 0.4990
 - Macro F1: 0.5428

@@ -1,7 +1,7 @@
 {
   "dataset": "private",
-  "accepted_manifest": "/workspace/CNN-in-CMOSE/data/private/accepted.csv",
-  "manual_labels_csv": "/workspace/CNN-in-CMOSE/outputs/dataset_analysis/private/manual_labels/private_manual_labels.csv",
+  "accepted_manifest": "C:\\Hofa\\Thesis\\CNN-in-CMOSE\\data\\private\\accepted.csv",
+  "manual_labels_csv": "C:\\Hofa\\Thesis\\CNN-in-CMOSE\\outputs\\dataset_analysis\\private\\manual_labels\\private_manual_labels.csv",
   "accepted_samples": 428,
   "labeled_samples": 368,
   "class_distribution": [

@@ -1,7 +1,7 @@
-# lstm [Ordinal]
+# openface_lstm [Ordinal]
 
 - Run folder: `lstm/ordinal`
-- Metrics file: `outputs/training_log/lstm/ordinal/metrics.json`
+- Metrics file: `outputs\training_log\lstm\ordinal\metrics.json`
 - Accuracy: 0.4373
 - Macro Accuracy: 0.5247
 - Macro F1: 0.3805

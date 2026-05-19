@@ -50,6 +50,7 @@ METRIC_SPECS = [
 LOSS_LABEL_ORDER = ["CE", "Weighted CE", "Ordinal"]
 CLASS_IDS = list(range(len(CLASS_LABELS)))
 STACKED_CLASS_LABELS_BOTTOM_TO_TOP = ["Highly Disengage", "Disengage", "Engage", "Highly Engage"]
+BAR_WIDTH = 0.52
 
 
 def _resolve(path: str | Path) -> Path:
@@ -123,7 +124,7 @@ def _metric_panel(frame: pd.DataFrame, out_path: Path, title: str) -> None:
             values=metric,
             aggfunc="first",
         ).reindex(index=model_labels, columns=_loss_labels(frame))
-        pivot.plot(kind="bar", ax=ax, width=0.78)
+        pivot.plot(kind="bar", ax=ax, width=BAR_WIDTH)
         ax.set_title(metric_title)
         ax.set_xlabel("")
         ax.set_ylabel(metric_title)
@@ -138,43 +139,31 @@ def _metric_panel(frame: pd.DataFrame, out_path: Path, title: str) -> None:
     plt.close(fig)
 
 
-def _ce_frame(frame: pd.DataFrame) -> pd.DataFrame:
+def _loss_frame(frame: pd.DataFrame, loss_name: str) -> pd.DataFrame:
     if frame.empty or "loss" not in frame.columns:
         return frame.copy()
-    return frame[frame["loss"].isin(["cross_entropy", "ce"])].copy()
+    slug = loss_slug(loss_name)
+    return frame[frame["loss"].map(loss_slug) == slug].copy()
 
 
-def _has_all_models(frame: pd.DataFrame) -> bool:
-    if frame.empty or "base_model" not in frame.columns:
-        return False
-    return set(MODEL_ORDER).issubset(set(frame["base_model"].astype(str)))
-
-
-def _one_run_per_model(frame: pd.DataFrame) -> pd.DataFrame:
-    if frame.empty or "base_model" not in frame.columns:
-        return frame.copy()
-    ordered = frame.copy()
-    ordered["loss_priority"] = ordered["loss"].map(
-        {
-            "cross_entropy": 0,
-            "ce": 0,
-            "weighted_cross_entropy": 1,
-            "weighted_ce": 1,
-            "ordinal": 2,
-        }
-    ).fillna(99)
-    ordered["base_model_sort"] = ordered["base_model"].astype(str).map(
-        lambda model: MODEL_ORDER.index(model) if model in MODEL_ORDER else len(MODEL_ORDER)
-    )
-    ordered = ordered.sort_values(["base_model_sort", "loss_priority", "run"])
-    return ordered.drop_duplicates(subset=["base_model"], keep="first").drop(columns=["loss_priority", "base_model_sort"])
-
-
-def _heatmap_frame(metrics: pd.DataFrame) -> pd.DataFrame:
-    ce_metrics = _ce_frame(metrics)
-    if _has_all_models(ce_metrics):
-        return ce_metrics
-    return _one_run_per_model(metrics)
+def _present_losses(frame: pd.DataFrame) -> list[tuple[str, str, str]]:
+    if frame.empty or "loss" not in frame.columns:
+        return []
+    present_slugs = {loss_slug(value) for value in frame["loss"].dropna()}
+    display_to_name = {LOSS_DISPLAY_NAMES.get(name, name): name for name in frame["loss"].dropna()}
+    ordered = []
+    for label in LOSS_LABEL_ORDER:
+        loss_name = display_to_name.get(label)
+        if loss_name is None:
+            continue
+        slug = loss_slug(loss_name)
+        if slug in present_slugs:
+            ordered.append((loss_name_from_slug(slug), slug, label))
+    ordered_slugs = {slug for _loss_name, slug, _label in ordered}
+    for slug in sorted(present_slugs - ordered_slugs):
+        name = loss_name_from_slug(slug)
+        ordered.append((name, slug, LOSS_DISPLAY_NAMES.get(name, slug)))
+    return ordered
 
 
 def plot_metric_summaries(metrics: pd.DataFrame, out_dir: Path, title_prefix: str) -> None:
@@ -182,7 +171,8 @@ def plot_metric_summaries(metrics: pd.DataFrame, out_dir: Path, title_prefix: st
     if metrics.empty:
         return
     _metric_panel(metrics, out_dir / "main_metrics_all_models_losses.png", f"{title_prefix}: 6 Models x 3 Losses")
-    heatmap(_heatmap_frame(metrics), out_dir / "metric_heatmap_ce_models.png", f"{title_prefix}: CE Metric Heatmap")
+    for loss_name, slug, loss_label in _present_losses(metrics):
+        heatmap(_loss_frame(metrics, loss_name), out_dir / f"metric_heatmap_{slug}_models.png", f"{title_prefix}: {loss_label} Metric Heatmap")
 
 
 def heatmap(frame: pd.DataFrame, out_path: Path, title: str) -> None:
@@ -310,11 +300,16 @@ def _plot_confusion(matrix: np.ndarray, title: str, out_path: Path) -> None:
 def plot_prediction_distribution(predictions: pd.DataFrame, out_dir: Path) -> None:
     if predictions.empty:
         return
-    ce_predictions = predictions[predictions["run"].map(lambda value: _split_run_key(value)[1] in {"cross_entropy", "ce"})]
-    if ce_predictions.empty:
+    predictions = _add_run_columns(predictions)
+    for loss_name, slug, loss_label in _present_losses(predictions):
+        _plot_prediction_distribution_for_loss(_loss_frame(predictions, loss_name), out_dir, slug, loss_label)
+
+
+def _plot_prediction_distribution_for_loss(predictions: pd.DataFrame, out_dir: Path, slug: str, loss_label: str) -> None:
+    if predictions.empty:
         return
     counts = (
-        ce_predictions.groupby(["run", "predicted_label"])
+        predictions.groupby(["run", "predicted_label"])
         .size()
         .rename("count")
         .reset_index()
@@ -337,27 +332,33 @@ def plot_prediction_distribution(predictions: pd.DataFrame, out_dir: Path) -> No
             bottom=bottoms,
             label=label,
             color=class_color_list([label])[0],
+            width=BAR_WIDTH,
         )
         bottoms += values
-    ax.set_title("Prediction Distribution: CE Runs")
+    ax.set_title(f"Prediction Distribution: {loss_label} Runs")
     ax.set_ylabel("Proportion")
     ax.set_ylim(0.0, 1.0)
     handles, labels = ax.get_legend_handles_labels()
     ax.legend(handles[::-1], labels[::-1], loc="upper right", fontsize=8)
     ax.grid(axis="y", alpha=0.18)
     fig.tight_layout()
-    fig.savefig(out_dir / "prediction_distribution_stack_barchart_ce_models.png", bbox_inches="tight")
+    fig.savefig(out_dir / f"prediction_distribution_stack_barchart_{slug}_models.png", bbox_inches="tight")
     plt.close(fig)
 
 
 def plot_confidence_agreement(predictions: pd.DataFrame, out_dir: Path) -> None:
     if predictions.empty:
         return
-    ce_predictions = predictions[predictions["run"].map(lambda value: _split_run_key(value)[1] in {"cross_entropy", "ce"})]
-    if ce_predictions.empty:
+    predictions = _add_run_columns(predictions)
+    for loss_name, slug, loss_label in _present_losses(predictions):
+        _plot_confidence_agreement_for_loss(_loss_frame(predictions, loss_name), out_dir, slug, loss_label)
+
+
+def _plot_confidence_agreement_for_loss(predictions: pd.DataFrame, out_dir: Path, slug: str, loss_label: str) -> None:
+    if predictions.empty:
         return
     rows = []
-    for clip_id, group in ce_predictions.groupby("clip_id"):
+    for clip_id, group in predictions.groupby("clip_id"):
         labels = group["predicted_label"].astype(str).tolist()
         if not labels:
             continue
@@ -377,7 +378,7 @@ def plot_confidence_agreement(predictions: pd.DataFrame, out_dir: Path) -> None:
     agreement_counts = frame["agreement_rate"].value_counts().sort_index()
     x_values = agreement_counts.index.to_numpy(dtype=float)
     min_spacing = float(np.diff(x_values).min()) if len(x_values) > 1 else 0.08
-    bar_width = min(0.08, min_spacing * 0.75)
+    bar_width = min(0.05, min_spacing * 0.55)
 
     fig, (scatter_ax, bar_ax) = plt.subplots(
         2,
@@ -401,7 +402,7 @@ def plot_confidence_agreement(predictions: pd.DataFrame, out_dir: Path) -> None:
             s=30,
             edgecolors="none",
         )
-    scatter_ax.set_title("Confidence vs Agreement: CE Runs")
+    scatter_ax.set_title(f"Confidence vs Agreement: {loss_label} Runs")
     scatter_ax.set_ylabel("Mean confidence")
     scatter_ax.set_ylim(0.0, 1.02)
     scatter_ax.grid(alpha=0.18)
@@ -414,27 +415,42 @@ def plot_confidence_agreement(predictions: pd.DataFrame, out_dir: Path) -> None:
     bar_ax.set_xticks(x_values)
     bar_ax.set_xticklabels([f"{value:.2f}" for value in x_values])
     bar_ax.grid(axis="y", alpha=0.18)
-    fig.savefig(out_dir / "confidence_agreement_scatter_ce_models.png", bbox_inches="tight")
+    fig.savefig(out_dir / f"confidence_agreement_scatter_{slug}_models.png", bbox_inches="tight")
     plt.close(fig)
-    frame.to_csv(out_dir / "confidence_agreement_ce_models.csv", index=False)
+    frame.to_csv(out_dir / f"confidence_agreement_{slug}_models.csv", index=False)
 
 
 def plot_performance_drop(cmose_metrics: pd.DataFrame, private_metrics: pd.DataFrame, out_dir: Path) -> None:
     cmose_metrics = _add_run_columns(cmose_metrics)
     private_metrics = _add_run_columns(private_metrics)
-    cmose_ce = _ce_frame(cmose_metrics)
-    private_ce = _ce_frame(private_metrics)
-    if cmose_ce.empty or private_ce.empty:
+    for loss_name, slug, loss_label in _present_losses(private_metrics):
+        _plot_performance_drop_for_loss(
+            _loss_frame(cmose_metrics, loss_name),
+            _loss_frame(private_metrics, loss_name),
+            out_dir,
+            slug,
+            loss_label,
+        )
+
+
+def _plot_performance_drop_for_loss(
+    cmose_metrics: pd.DataFrame,
+    private_metrics: pd.DataFrame,
+    out_dir: Path,
+    slug: str,
+    loss_label: str,
+) -> None:
+    if cmose_metrics.empty or private_metrics.empty:
         return
-    metric_cols = [metric for metric, _title in METRIC_SPECS if metric in cmose_ce.columns and metric in private_ce.columns]
-    merged = private_ce[["run", "base_model", "base_model_display", *metric_cols]].merge(
-        cmose_ce[["run", *metric_cols]],
+    metric_cols = [metric for metric, _title in METRIC_SPECS if metric in cmose_metrics.columns and metric in private_metrics.columns]
+    merged = private_metrics[["run", "base_model", "base_model_display", *metric_cols]].merge(
+        cmose_metrics[["run", *metric_cols]],
         on="run",
         suffixes=("_private", "_cmose"),
     )
     if merged.empty:
         return
-    plot_ce_dataset_metric_lines(merged, metric_cols, out_dir)
+    plot_loss_dataset_metric_lines(merged, metric_cols, out_dir, slug, loss_label)
     rows = []
     for row in merged.to_dict(orient="records"):
         for metric in metric_cols:
@@ -447,24 +463,34 @@ def plot_performance_drop(cmose_metrics: pd.DataFrame, private_metrics: pd.DataF
                 }
             )
     delta = pd.DataFrame(rows)
-    delta.to_csv(out_dir / "performance_drop_ce_models.csv", index=False)
+    delta.to_csv(out_dir / f"performance_drop_{slug}_models.csv", index=False)
     plot_metrics = [metric for metric in ("accuracy", "macro_accuracy", "f1_macro") if metric in metric_cols]
     if not plot_metrics:
         return
     pivot = delta[delta["metric"].isin(plot_metrics)].pivot_table(index="model", columns="metric", values="private_minus_cmose")
     fig, ax = plt.subplots(figsize=(9, 5), dpi=160)
-    pivot.plot(kind="bar", ax=ax)
+    pivot.plot(kind="bar", ax=ax, width=BAR_WIDTH)
     ax.axhline(0.0, color="#4D4D4D", linewidth=1)
-    ax.set_title("Private Minus CMOSE Performance: CE Runs")
+    ax.set_title(f"Private Minus CMOSE Performance: {loss_label} Runs")
     ax.set_ylabel("Metric delta")
     ax.tick_params(axis="x", rotation=35)
     ax.grid(axis="y", alpha=0.18)
     fig.tight_layout()
-    fig.savefig(out_dir / "performance_drop_chart_ce_models.png", bbox_inches="tight")
+    fig.savefig(out_dir / f"performance_drop_chart_{slug}_models.png", bbox_inches="tight")
     plt.close(fig)
 
 
 def plot_ce_dataset_metric_lines(merged: pd.DataFrame, metric_cols: list[str], out_dir: Path) -> None:
+    plot_loss_dataset_metric_lines(merged, metric_cols, out_dir, "ce", "CE")
+
+
+def plot_loss_dataset_metric_lines(
+    merged: pd.DataFrame,
+    metric_cols: list[str],
+    out_dir: Path,
+    slug: str,
+    loss_label: str,
+) -> None:
     metric_titles = dict(METRIC_SPECS)
     ordered = merged.copy()
     ordered["base_model_sort"] = ordered["base_model"].astype(str).map(
@@ -503,10 +529,10 @@ def plot_ce_dataset_metric_lines(merged: pd.DataFrame, metric_cols: list[str], o
             ax.set_ylim(0.0, 1.0)
     for ax in axes_list[len(metric_cols):]:
         ax.axis("off")
-    fig.suptitle("CE Models: CMOSE Test vs Private Metrics", fontsize=14, y=0.995)
+    fig.suptitle(f"{loss_label} Models: CMOSE Test vs Private Metrics", fontsize=14, y=0.995)
     fig.legend(legend_handles, legend_labels, loc="lower center", ncol=3, fontsize=9)
     fig.tight_layout(rect=(0, 0.08, 1, 0.98))
-    fig.savefig(out_dir / "ce_models_cmose_private_metric_lines.png", bbox_inches="tight")
+    fig.savefig(out_dir / f"{slug}_models_cmose_private_metric_lines.png", bbox_inches="tight")
     plt.close(fig)
 
 

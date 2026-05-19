@@ -1,7 +1,7 @@
-# lstm [Weighted CE]
+# openface_lstm [Weighted CE]
 
 - Run folder: `lstm/weighted_ce`
-- Metrics file: `outputs/training_log/lstm/weighted_ce/metrics.json`
+- Metrics file: `outputs\training_log\lstm\weighted_ce\metrics.json`
 - Accuracy: 0.5971
 - Macro Accuracy: 0.5507
 - Macro F1: 0.4727

@@ -1,7 +1,7 @@
 # fusion [CE]
 
 - Run folder: `openface_tcn_i3d_fusion/ce`
-- Metrics file: `outputs/training_log/openface_tcn_i3d_fusion/ce/metrics.json`
+- Metrics file: `outputs\training_log\openface_tcn_i3d_fusion\ce\metrics.json`
 - Accuracy: 0.7453
 - Macro Accuracy: 0.4318
 - Macro F1: 0.4396

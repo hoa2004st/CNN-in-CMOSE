@@ -1,7 +1,7 @@
 # openface_mlp [Weighted CE]
 
 - Run folder: `openface_mlp/weighted_ce`
-- Metrics file: `outputs/training_log/openface_mlp/weighted_ce/metrics.json`
+- Metrics file: `outputs\training_log\openface_mlp\weighted_ce\metrics.json`
 - Accuracy: 0.4996
 - Macro Accuracy: 0.5113
 - Macro F1: 0.4100

@@ -1,7 +1,7 @@
 # i3d_mlp [Weighted CE]
 
 - Run folder: `i3d_mlp/weighted_ce`
-- Metrics file: `outputs/training_log/i3d_mlp/weighted_ce/metrics.json`
+- Metrics file: `outputs\training_log\i3d_mlp\weighted_ce\metrics.json`
 - Accuracy: 0.6880
 - Macro Accuracy: 0.6176
 - Macro F1: 0.5686

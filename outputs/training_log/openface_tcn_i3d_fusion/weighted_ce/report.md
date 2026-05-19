@@ -1,7 +1,7 @@
 # fusion [Weighted CE]
 
 - Run folder: `openface_tcn_i3d_fusion/weighted_ce`
-- Metrics file: `outputs/training_log/openface_tcn_i3d_fusion/weighted_ce/metrics.json`
+- Metrics file: `outputs\training_log\openface_tcn_i3d_fusion\weighted_ce\metrics.json`
 - Accuracy: 0.6486
 - Macro Accuracy: 0.6139
 - Macro F1: 0.5268

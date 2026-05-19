@@ -1,7 +1,7 @@
 # openface_mlp [CE]
 
 - Run folder: `openface_mlp/ce`
-- Metrics file: `outputs/training_log/openface_mlp/ce/metrics.json`
+- Metrics file: `outputs\training_log\openface_mlp\ce\metrics.json`
 - Accuracy: 0.7248
 - Macro Accuracy: 0.3851
 - Macro F1: 0.4241

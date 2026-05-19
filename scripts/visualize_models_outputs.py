@@ -45,6 +45,7 @@ METRIC_SPECS = [
 LOSS_LABEL_ORDER = ["CE", "Weighted CE", "Ordinal"]
 LOSS_LABELS = LOSS_DISPLAY_NAMES
 LOSS_SLUGS = LOSS_SLUG_TO_NAME
+BAR_WIDTH = 0.52
 
 
 @dataclass
@@ -220,8 +221,26 @@ def _loss_labels(frame: pd.DataFrame) -> list[str]:
     return ordered
 
 
-def _filter_ce_runs(summary_df: pd.DataFrame) -> pd.DataFrame:
-    return summary_df[summary_df["loss"].isin(["cross_entropy", "ce"])].copy()
+def _present_losses(frame: pd.DataFrame) -> list[tuple[str, str, str]]:
+    if frame.empty or "loss" not in frame.columns:
+        return []
+    by_slug = {}
+    for row in frame.to_dict(orient="records"):
+        slug = str(row["run_name"]).split("/")[-1]
+        by_slug[slug] = (str(row["loss"]), str(row["loss_label"]))
+    ordered = []
+    for label in LOSS_LABEL_ORDER:
+        for slug, (loss_name, loss_label) in by_slug.items():
+            if loss_label == label:
+                ordered.append((loss_name, slug, loss_label))
+                break
+    ordered_slugs = {slug for _loss_name, slug, _loss_label in ordered}
+    ordered.extend((loss_name, slug, loss_label) for slug, (loss_name, loss_label) in sorted(by_slug.items()) if slug not in ordered_slugs)
+    return ordered
+
+
+def _filter_loss_runs(summary_df: pd.DataFrame, loss_name: str) -> pd.DataFrame:
+    return summary_df[summary_df["loss"].astype(str).eq(str(loss_name))].copy()
 
 
 def _plot_metric_panel(frame: pd.DataFrame, out_path: Path, title: str) -> None:
@@ -239,7 +258,7 @@ def _plot_metric_panel(frame: pd.DataFrame, out_path: Path, title: str) -> None:
             values=metric,
             aggfunc="first",
         ).reindex(index=model_labels, columns=_loss_labels(frame))
-        pivot.plot(kind="bar", ax=ax, width=0.78)
+        pivot.plot(kind="bar", ax=ax, width=BAR_WIDTH)
         ax.set_title(metric_title)
         ax.set_xlabel("")
         ax.set_ylabel(metric_title)
@@ -264,14 +283,18 @@ def plot_metric_bars(summary_df: pd.DataFrame, best_df: pd.DataFrame, assessment
 
 
 def plot_metric_heatmap(summary_df: pd.DataFrame, assessment_dir: Path) -> None:
-    ce_df = _filter_ce_runs(summary_df)
-    if ce_df.empty:
+    for loss_name, slug, loss_label in _present_losses(summary_df):
+        _plot_metric_heatmap_for_loss(_filter_loss_runs(summary_df, loss_name), assessment_dir, slug, loss_label)
+
+
+def _plot_metric_heatmap_for_loss(summary_df: pd.DataFrame, assessment_dir: Path, slug: str, loss_label: str) -> None:
+    if summary_df.empty:
         return
-    heat = ce_df.pivot_table(
+    heat = summary_df.pivot_table(
         index="base_model_display",
         values=[metric for metric, _title in METRIC_SPECS],
         aggfunc="first",
-    ).reindex(_model_labels(ce_df))
+    ).reindex(_model_labels(summary_df))
     if heat.empty:
         return
     heat = heat[[metric for metric, _title in METRIC_SPECS]]
@@ -285,10 +308,10 @@ def plot_metric_heatmap(summary_df: pd.DataFrame, assessment_dir: Path) -> None:
             value = heat.iat[row_idx, col_idx]
             if pd.notna(value):
                 ax.text(col_idx, row_idx, f"{value:.3f}", ha="center", va="center", fontsize=8, color="white")
-    ax.set_title("CMOSE Test Metric Heatmap: CE Runs")
+    ax.set_title(f"CMOSE Test Metric Heatmap: {loss_label} Runs")
     fig.colorbar(image, ax=ax, fraction=0.046, pad=0.04)
     fig.tight_layout()
-    fig.savefig(assessment_dir / "metric_heatmap_ce_models.png", bbox_inches="tight")
+    fig.savefig(assessment_dir / f"metric_heatmap_{slug}_models.png", bbox_inches="tight")
     plt.close(fig)
 
 

@@ -14,6 +14,7 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+import numpy as np
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
@@ -31,6 +32,7 @@ from src.visualization.style import CLASS_LABELS, class_color_list
 LABEL_TO_ID = {label: index for index, label in enumerate(CLASS_LABELS)}
 ID_TO_LABEL = {index: label for index, label in enumerate(CLASS_LABELS)}
 STACKED_CLASS_LABELS_BOTTOM_TO_TOP = ["Highly Disengage", "Disengage", "Engage", "Highly Engage"]
+BAR_WIDTH = 0.52
 
 
 def _resolve(path: str | Path) -> Path:
@@ -75,7 +77,7 @@ def _plot_class_distribution(rows: list[dict[str, object]], title: str, path: Pa
     labels = [str(row["class_label"]) for row in rows]
     counts = [int(row["count"]) for row in rows]
     fig, ax = plt.subplots(figsize=(8, 4.8), dpi=160)
-    ax.bar(labels, counts, color=class_color_list(labels))
+    ax.bar(labels, counts, color=class_color_list(labels), width=BAR_WIDTH)
     ax.set_title(title)
     ax.set_ylabel("Clips")
     ax.tick_params(axis="x", rotation=25)
@@ -91,7 +93,7 @@ def _plot_split_distribution(split_counts: Counter[str], path: Path) -> None:
     labels.extend(split for split in sorted(split_counts) if split not in labels)
     counts = [int(split_counts[split]) for split in labels]
     fig, ax = plt.subplots(figsize=(7, 4.5), dpi=160)
-    ax.bar(labels, counts, color=["#0072B2", "#E69F00", "#009E73", "#8C564B"][: len(labels)])
+    ax.bar(labels, counts, color=["#0072B2", "#E69F00", "#009E73", "#8C564B"][: len(labels)], width=BAR_WIDTH)
     ax.set_title("CMOSE Data Split")
     ax.set_ylabel("Clips")
     ax.grid(axis="y", alpha=0.18)
@@ -106,15 +108,25 @@ def _plot_stacked_distribution(cmose_rows: list[dict[str, object]], private_rows
         "CMOSE": {int(row["class_id"]): float(row["proportion"]) * 100 for row in cmose_rows},
         "Private": {int(row["class_id"]): float(row["proportion"]) * 100 for row in private_rows},
     }
-    bottoms = [0.0, 0.0]
-    fig, ax = plt.subplots(figsize=(7.5, 4.8), dpi=160)
+    x = np.linspace(0.0, 1.0, 300)
+    smooth_x = x * x * (3.0 - 2.0 * x)
+    bottoms = np.zeros_like(x)
+
+    fig, ax = plt.subplots(figsize=(2.8, 8.8), dpi=160)
     for label in STACKED_CLASS_LABELS_BOTTOM_TO_TOP:
         class_id = LABEL_TO_ID[label]
-        values = [rows_by_domain[domain].get(class_id, 0) for domain in datasets]
-        ax.bar(datasets, values, bottom=bottoms, label=label, color=class_color_list([label])[0])
-        bottoms = [bottom + value for bottom, value in zip(bottoms, values)]
+        cmose_value = rows_by_domain["CMOSE"].get(class_id, 0.0)
+        private_value = rows_by_domain["Private"].get(class_id, 0.0)
+        values = cmose_value + (private_value - cmose_value) * smooth_x
+        tops = bottoms + values
+        ax.fill_between(x, bottoms, tops, label=label, color=class_color_list([label])[0], linewidth=0)
+        ax.plot(x, tops, color="white", linewidth=0.8, alpha=0.65)
+        bottoms = tops
+
     ax.set_title("Class Distribution Comparison")
     ax.set_ylabel("Percentage")
+    ax.set_xticks([0.0, 1.0], datasets)
+    ax.set_xlim(0.0, 1.0)
     ax.set_ylim(0, 100)
     handles, labels = ax.get_legend_handles_labels()
     ax.legend(handles[::-1], labels[::-1], loc="upper right", fontsize=8)
