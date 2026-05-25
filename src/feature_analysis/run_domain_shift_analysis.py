@@ -32,7 +32,7 @@ from src.feature_extraction.extract_openface import (
     load_openface_matrix,
     resample_frames,
 )
-from src.evaluation.metrics import label_distance_metrics_from_confusion
+from src.evaluation.metrics import agreement_metrics_from_confusion, label_distance_metrics_from_confusion
 from src.models.models import build_model
 from src.output_paths import (
     CMOSE_TESTSET_ASSESSMENT_DIR,
@@ -475,6 +475,7 @@ def compute_supervised_metrics(predictions: pd.DataFrame) -> pd.DataFrame:
                     f1_score(y_true, y_pred, labels=CLASS_IDS, average="weighted", zero_division=0)
                 ),
                 **label_distance_metrics_from_confusion(confusion),
+                **agreement_metrics_from_confusion(confusion),
             }
         )
     return pd.DataFrame(rows)
@@ -660,12 +661,22 @@ def load_run_metrics(run_cfg: dict[str, str]) -> dict[str, float]:
     distance_metrics = {
         "mae": metrics.get("mae"),
         "mse": metrics.get("mse"),
+        "macro_mae": metrics.get("macro_mae"),
+    }
+    agreement_metrics = {
+        "cohen_kappa": metrics.get("cohen_kappa"),
+        "quadratic_weighted_kappa": metrics.get("quadratic_weighted_kappa"),
     }
     if any(value is None for value in distance_metrics.values()) and metrics.get("confusion_matrix"):
         distance_metrics.update(label_distance_metrics_from_confusion(metrics["confusion_matrix"]))
+    if any(value is None for value in agreement_metrics.values()) and metrics.get("confusion_matrix"):
+        agreement_metrics.update(agreement_metrics_from_confusion(metrics["confusion_matrix"]))
     for key, value in distance_metrics.items():
         if value is None:
             distance_metrics[key] = float("nan")
+    for key, value in agreement_metrics.items():
+        if value is None:
+            agreement_metrics[key] = float("nan")
     return {
         "accuracy": metrics.get("accuracy", float("nan")),
         "macro_accuracy": metrics.get("macro_accuracy", float("nan")),
@@ -673,6 +684,9 @@ def load_run_metrics(run_cfg: dict[str, str]) -> dict[str, float]:
         "f1_weighted": metrics.get("f1_weighted", float("nan")),
         "mae": distance_metrics.get("mae", float("nan")),
         "mse": distance_metrics.get("mse", float("nan")),
+        "macro_mae": distance_metrics.get("macro_mae", float("nan")),
+        "cohen_kappa": agreement_metrics.get("cohen_kappa", float("nan")),
+        "quadratic_weighted_kappa": agreement_metrics.get("quadratic_weighted_kappa", float("nan")),
     }
 
 

@@ -18,7 +18,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from src.evaluation.metrics import label_distance_metrics_from_confusion
+from src.evaluation.metrics import agreement_metrics_from_confusion, label_distance_metrics_from_confusion
 from src.output_paths import (
     CMOSE_TESTSET_ASSESSMENT_DIR,
     TRAINING_LOG_DIR,
@@ -36,11 +36,11 @@ from src.visualization.style import (
 
 METRIC_SPECS = [
     ("accuracy", "Accuracy"),
-    ("macro_accuracy", "Macro Accuracy"),
     ("mae", "MAE"),
-    ("f1_weighted", "Weighted F1"),
-    ("f1_macro", "Macro F1"),
-    ("mse", "MSE"),
+    ("cohen_kappa", "Cohen's Kappa"),
+    ("macro_accuracy", "Macro Accuracy"),
+    ("macro_mae", "Macro MAE"),
+    ("quadratic_weighted_kappa", "Quadratic Weighted Kappa"),
 ]
 LOSS_LABEL_ORDER = ["CE", "Weighted CE", "Ordinal"]
 LOSS_LABELS = LOSS_DISPLAY_NAMES
@@ -150,9 +150,16 @@ def build_summary_frame(runs: list[RunResult]) -> pd.DataFrame:
         distance_metrics = {
             "mae": metrics.get("mae"),
             "mse": metrics.get("mse"),
+            "macro_mae": metrics.get("macro_mae"),
+        }
+        agreement_metrics = {
+            "cohen_kappa": metrics.get("cohen_kappa"),
+            "quadratic_weighted_kappa": metrics.get("quadratic_weighted_kappa"),
         }
         if any(value is None for value in distance_metrics.values()) and metrics.get("confusion_matrix"):
             distance_metrics.update(label_distance_metrics_from_confusion(metrics["confusion_matrix"]))
+        if any(value is None for value in agreement_metrics.values()) and metrics.get("confusion_matrix"):
+            agreement_metrics.update(agreement_metrics_from_confusion(metrics["confusion_matrix"]))
         rows.append(
             {
                 "run_name": run.run_name,
@@ -169,6 +176,9 @@ def build_summary_frame(runs: list[RunResult]) -> pd.DataFrame:
                 "f1_weighted": metrics.get("f1_weighted"),
                 "mae": distance_metrics["mae"],
                 "mse": distance_metrics["mse"],
+                "macro_mae": distance_metrics["macro_mae"],
+                "cohen_kappa": agreement_metrics["cohen_kappa"],
+                "quadratic_weighted_kappa": agreement_metrics["quadratic_weighted_kappa"],
                 "epochs_requested": run.config.get("epochs"),
                 "batch_size": run.config.get("batch_size"),
                 "lr": run.config.get("lr"),
@@ -264,8 +274,11 @@ def _plot_metric_panel(frame: pd.DataFrame, out_path: Path, title: str) -> None:
         ax.set_ylabel(metric_title)
         ax.tick_params(axis="x", rotation=35)
         ax.grid(axis="y", alpha=0.18)
-        if metric in {"accuracy", "macro_accuracy", "f1_macro", "f1_weighted"}:
+        if metric in {"accuracy", "macro_accuracy"}:
             ax.set_ylim(0.0, 1.0)
+        elif metric in {"cohen_kappa", "quadratic_weighted_kappa"}:
+            ax.axhline(0.0, color="#4D4D4D", linewidth=0.8)
+            ax.set_ylim(-1.0, 1.0)
         handles, labels = ax.get_legend_handles_labels()
         ax.legend(handles, labels, title="Loss", fontsize=8)
     fig.suptitle(title, fontsize=14, y=0.995)

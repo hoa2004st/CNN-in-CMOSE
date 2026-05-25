@@ -23,7 +23,7 @@ from sklearn.metrics import (
 from torch.utils.data import DataLoader, TensorDataset
 from tqdm.auto import tqdm
 
-from src.evaluation.metrics import label_distance_metrics_from_confusion
+from src.evaluation.metrics import agreement_metrics_from_confusion, label_distance_metrics_from_confusion
 
 ArrayInput = np.ndarray | tuple[np.ndarray, ...]
 
@@ -504,6 +504,9 @@ def _compute_prediction_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict[
             "f1_weighted": 0.0,
             "mae": 0.0,
             "mse": 0.0,
+            "macro_mae": 0.0,
+            "cohen_kappa": 0.0,
+            "quadratic_weighted_kappa": 0.0,
         }
     confusion = confusion_matrix(y_true, y_pred, labels=list(range(4)))
     return {
@@ -512,6 +515,7 @@ def _compute_prediction_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict[
         "f1_macro": float(f1_score(y_true, y_pred, average="macro", zero_division=0)),
         "f1_weighted": float(f1_score(y_true, y_pred, average="weighted", zero_division=0)),
         **label_distance_metrics_from_confusion(confusion),
+        **agreement_metrics_from_confusion(confusion),
     }
 
 

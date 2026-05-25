@@ -29,6 +29,7 @@ from src.output_paths import (
     model_key_from_output_name,
     model_output_name,
 )
+from src.evaluation.metrics import agreement_metrics_from_confusion, label_distance_metrics_from_confusion
 from src.visualization.style import (
     CLASS_LABELS,
     CLASS_LABEL_SHORT,
@@ -41,11 +42,11 @@ from src.visualization.style import (
 
 METRIC_SPECS = [
     ("accuracy", "Accuracy"),
-    ("macro_accuracy", "Macro Accuracy"),
     ("mae", "MAE"),
-    ("f1_weighted", "Weighted F1"),
-    ("f1_macro", "Macro F1"),
-    ("mse", "MSE"),
+    ("cohen_kappa", "Cohen's Kappa"),
+    ("macro_accuracy", "Macro Accuracy"),
+    ("macro_mae", "Macro MAE"),
+    ("quadratic_weighted_kappa", "Quadratic Weighted Kappa"),
 ]
 LOSS_LABEL_ORDER = ["CE", "Weighted CE", "Ordinal"]
 CLASS_IDS = list(range(len(CLASS_LABELS)))
@@ -130,8 +131,11 @@ def _metric_panel(frame: pd.DataFrame, out_path: Path, title: str) -> None:
         ax.set_ylabel(metric_title)
         ax.tick_params(axis="x", rotation=35)
         ax.grid(axis="y", alpha=0.18)
-        if metric in {"accuracy", "macro_accuracy", "f1_macro", "f1_weighted"}:
+        if metric in {"accuracy", "macro_accuracy"}:
             ax.set_ylim(0.0, 1.0)
+        elif metric in {"cohen_kappa", "quadratic_weighted_kappa"}:
+            ax.axhline(0.0, color="#4D4D4D", linewidth=0.8)
+            ax.set_ylim(-1.0, 1.0)
         ax.legend(title="Loss", fontsize=8)
     fig.suptitle(title, fontsize=14, y=0.995)
     fig.tight_layout()
@@ -219,8 +223,6 @@ def _prediction_metrics(predictions: pd.DataFrame) -> pd.DataFrame:
             out=np.zeros(len(CLASS_IDS), dtype=np.float64),
             where=confusion.sum(axis=1) > 0,
         )
-        distances = np.abs(np.arange(len(CLASS_IDS))[:, None] - np.arange(len(CLASS_IDS))[None, :])
-        total = max(float(confusion.sum()), 1.0)
         rows.append(
             {
                 "run": run_key,
@@ -228,11 +230,33 @@ def _prediction_metrics(predictions: pd.DataFrame) -> pd.DataFrame:
                 "macro_accuracy": float(per_class_accuracy.mean()),
                 "f1_macro": float(f1_score(y_true, y_pred, labels=CLASS_IDS, average="macro", zero_division=0)),
                 "f1_weighted": float(f1_score(y_true, y_pred, labels=CLASS_IDS, average="weighted", zero_division=0)),
-                "mae": float((confusion * distances).sum() / total),
-                "mse": float((confusion * (distances**2)).sum() / total),
+                **label_distance_metrics_from_confusion(confusion),
+                **agreement_metrics_from_confusion(confusion),
             }
         )
     return pd.DataFrame(rows)
+
+
+def _with_prediction_metrics(metrics: pd.DataFrame, predictions: pd.DataFrame) -> pd.DataFrame:
+    required_metrics = [metric for metric, _title in METRIC_SPECS]
+    if predictions.empty or not any(metric not in metrics.columns for metric in required_metrics):
+        return metrics
+    computed = _prediction_metrics(predictions)
+    if computed.empty:
+        return metrics
+    if metrics.empty:
+        return computed
+    out = metrics.copy()
+    computed_by_run = computed.set_index("run")
+    for metric in computed.columns:
+        if metric == "run":
+            continue
+        values = out["run"].map(computed_by_run[metric]) if "run" in out.columns else pd.Series(index=out.index, dtype=float)
+        if metric not in out.columns:
+            out[metric] = values
+        else:
+            out[metric] = out[metric].fillna(values)
+    return out
 
 
 def plot_confusion_matrices(predictions: pd.DataFrame, out_dir: Path, title_prefix: str) -> None:
@@ -464,7 +488,7 @@ def _plot_performance_drop_for_loss(
             )
     delta = pd.DataFrame(rows)
     delta.to_csv(out_dir / f"performance_drop_{slug}_models.csv", index=False)
-    plot_metrics = [metric for metric in ("accuracy", "macro_accuracy", "f1_macro") if metric in metric_cols]
+    plot_metrics = [metric for metric, _title in METRIC_SPECS if metric in metric_cols]
     if not plot_metrics:
         return
     pivot = delta[delta["metric"].isin(plot_metrics)].pivot_table(index="model", columns="metric", values="private_minus_cmose")
@@ -525,8 +549,11 @@ def plot_loss_dataset_metric_lines(
         ax.set_xticks(x_values, x_labels)
         ax.set_ylabel(metric_title)
         ax.grid(axis="y", alpha=0.18)
-        if metric in {"accuracy", "macro_accuracy", "f1_macro", "f1_weighted"}:
+        if metric in {"accuracy", "macro_accuracy"}:
             ax.set_ylim(0.0, 1.0)
+        elif metric in {"cohen_kappa", "quadratic_weighted_kappa"}:
+            ax.axhline(0.0, color="#4D4D4D", linewidth=0.8)
+            ax.set_ylim(-1.0, 1.0)
     for ax in axes_list[len(metric_cols):]:
         ax.axis("off")
     fig.suptitle(f"{loss_label} Models: CMOSE Test vs Private Metrics", fontsize=14, y=0.995)
@@ -558,6 +585,14 @@ def run(args: argparse.Namespace) -> None:
         cmose_metrics.to_csv(cmose_dir / "supervised_metrics.csv", index=False)
     if private_metrics.empty and not private_predictions.empty:
         private_metrics = _prediction_metrics(private_predictions)
+        private_metrics.to_csv(private_dir / "supervised_metrics.csv", index=False)
+    cmose_metrics = _with_prediction_metrics(cmose_metrics, cmose_predictions)
+    private_metrics = _with_prediction_metrics(private_metrics, private_predictions)
+    if not cmose_predictions.empty:
+        cmose_prediction_metrics = _prediction_metrics(cmose_predictions)
+        if not cmose_prediction_metrics.empty:
+            cmose_prediction_metrics.to_csv(cmose_dir / "supervised_metrics.csv", index=False)
+    if not private_metrics.empty:
         private_metrics.to_csv(private_dir / "supervised_metrics.csv", index=False)
 
     plot_metric_summaries(cmose_metrics, cmose_dir, "CMOSE Test")
