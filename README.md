@@ -141,6 +141,45 @@ Private/manual-label and CMOSE-vs-private assessment charts can be regenerated a
 python scripts/visualize_model_assessment.py
 ```
 
+## DAiSEE dataset
+
+The same OpenFace + I3D extraction can be run on the public
+[DAiSEE](https://www.kaggle.com/datasets/olgaparfenova/daisee) engagement
+dataset and used in place of CMOSE. `scripts/daisee_extract_vast.sh` drives the
+whole thing on a vast.ai Ubuntu GPU box: it downloads DAiSEE from Kaggle,
+extracts features in the CMOSE format, builds the engagement labels, commits the
+small label files here, and uploads the large feature files to a private Kaggle
+dataset.
+
+```bash
+export GITHUB_TOKEN=... GIT_USER_EMAIL=you@example.com GIT_USER_NAME="You"
+export KAGGLE_USERNAME=... KAGGLE_KEY=...
+bash scripts/daisee_extract_vast.sh                 # full run
+STAGES="openface i3d" bash scripts/daisee_extract_vast.sh   # rerun a subset
+```
+
+Mappings used: engagement `0/1/2/3` -> `Highly Disengage/Disengage/Engage/Highly
+Engage`; split `Train/Validation/Test` -> `train/unlabel/test`. Each clip id gets
+a `_person0` suffix so the CMOSE loader works unchanged. Produced files:
+
+```text
+data/DaiSEE/
+    final_data_1.json   # committed to git
+    labels.csv          # committed to git
+    features/
+        openface/<clipid>_person0.csv   # 709 features, pushed to Kaggle
+        i3d/<clipid>_person0.npy        # 1024-dim,    pushed to Kaggle
+```
+
+Train on DAiSEE by pointing the existing pipeline at the new paths:
+
+```bash
+python main.py --model openface_tcn_i3d_fusion \
+  --labels_json     data/DaiSEE/final_data_1.json \
+  --feature_dir     data/DaiSEE/features/openface \
+  --i3d_feature_dir data/DaiSEE/features/i3d
+```
+
 ## Pipeline summary
 
 ```text

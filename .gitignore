@@ -209,6 +209,12 @@ __marimo__/
 
 
 data/CMOSE/
+
+# DAiSEE: keep labels in git, push large features to a private Kaggle dataset.
+data/DaiSEE/*
+!data/DaiSEE/final_data_1.json
+!data/DaiSEE/labels.csv
+
 .tmp
 third_party/opencv-*.exe
 
