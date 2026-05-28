@@ -78,6 +78,10 @@ def main() -> None:
         for loss in losses:
             loss_dir = model_root / loss_slug(loss)
             loss_dir.mkdir(parents=True, exist_ok=True)
+            if (loss_dir / "metrics.json").exists():
+                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                print(f"[{timestamp}] Skipping {model}/{loss} (metrics.json already exists)")
+                continue
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             print(f"[{timestamp}] Starting {model} with loss={loss}")
             print(f"[{timestamp}] Output: {loss_dir}")

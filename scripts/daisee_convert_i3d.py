@@ -33,7 +33,7 @@ def parse_args() -> argparse.Namespace:
         type=Path,
         default=Path("data/DaiSEE/features/i3d"),
     )
-    parser.add_argument("--person-suffix", default="_person0")
+    parser.add_argument("--person-suffix", default="")
     return parser.parse_args()
 
 

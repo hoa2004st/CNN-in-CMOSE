@@ -1,0 +1,16 @@
+C:\HOA\1.HUST\Thesis\CNN-in-CMOSE\.venv-i3d\Lib\site-packages\mmengine\optim\optimizer\zero_optimizer.py:11: DeprecationWarning: `TorchScript` support for functional optimizers is deprecated and will be removed in a future PyTorch release. Consider using the `torch.compile` optimizer instead.
+  from torch.distributed.optim import \
+C:\HOA\1.HUST\Thesis\CNN-in-CMOSE\.venv-i3d\Lib\site-packages\mmcv\cnn\bricks\transformer.py:33: UserWarning: Fail to import ``MultiScaleDeformableAttention`` from ``mmcv.ops.multi_scale_deform_attn``, You should install ``mmcv`` rather than ``mmcv-lite`` if you need this module. 
+  warnings.warn('Fail to import ``MultiScaleDeformableAttention`` from '
+C:\HOA\1.HUST\Thesis\CNN-in-CMOSE\.venv-i3d\Lib\site-packages\mmengine\runner\checkpoint.py:347: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  checkpoint = torch.load(filename, map_location=map_location)
+usage: daisee_convert_i3d.py [-h] --raw-root RAW_ROOT [--out-dir OUT_DIR]
+                             [--person-suffix PERSON_SUFFIX]
+daisee_convert_i3d.py: error: argument --person-suffix: expected one argument
+I3D conversion failed
+At C:\HOA\1.HUST\Thesis\CNN-in-CMOSE\scripts\extract_i3d_daisee.ps1:112 char:28
++ if ($LASTEXITCODE -ne 0) { throw "I3D conversion failed" }
++                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (I3D conversion failed:String) [], RuntimeException
+    + FullyQualifiedErrorId : I3D conversion failed
+ 

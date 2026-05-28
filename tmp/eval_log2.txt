@@ -1,0 +1,127 @@
+Device: cuda
+Private clips: 428  manual labels: 368
+
+--- CMOSE-trained models ---
+  Found 18 checkpoints under outputs\training_log
+  Fitting OpenFace normalizer from cmose train split (8783 samples)
+  Fitting I3D normalizer from cmose train split
+  Predicting [cmose/openface_mlp/ce]
+  Predicting [cmose/openface_mlp/weighted_ce]
+  Predicting [cmose/openface_mlp/ordinal]
+  Predicting [cmose/tcn/ce]
+  Predicting [cmose/tcn/weighted_ce]
+  Predicting [cmose/tcn/ordinal]
+  Predicting [cmose/lstm/ce]
+  Predicting [cmose/lstm/weighted_ce]
+  Predicting [cmose/lstm/ordinal]
+  Predicting [cmose/transformer/ce]
+  Predicting [cmose/transformer/weighted_ce]
+  Predicting [cmose/transformer/ordinal]
+  Predicting [cmose/i3d_mlp/ce]
+  Predicting [cmose/i3d_mlp/weighted_ce]
+  Predicting [cmose/i3d_mlp/ordinal]
+  Predicting [cmose/openface_tcn_i3d_fusion/ce]
+  Predicting [cmose/openface_tcn_i3d_fusion/weighted_ce]
+  Predicting [cmose/openface_tcn_i3d_fusion/ordinal]
+  Saved -> outputs\model_assessment\private_cmose
+                                      run  accuracy  f1_macro      mae
+                         cmose/i3d_mlp/ce  0.472826  0.243235 0.665761
+                    cmose/i3d_mlp/ordinal  0.130435  0.062846 1.076087
+                cmose/i3d_mlp/weighted_ce  0.211957  0.131000 0.970109
+                            cmose/lstm/ce  0.668478  0.225252 0.366848
+                       cmose/lstm/ordinal  0.230978  0.181317 0.904891
+                   cmose/lstm/weighted_ce  0.334239  0.205577 0.788043
+                    cmose/openface_mlp/ce  0.706522  0.236003 0.323370
+               cmose/openface_mlp/ordinal  0.396739  0.186423 0.706522
+           cmose/openface_mlp/weighted_ce  0.214674  0.150967 0.929348
+         cmose/openface_tcn_i3d_fusion/ce  0.171196  0.097310 0.951087
+    cmose/openface_tcn_i3d_fusion/ordinal  0.385870  0.196074 0.739130
+cmose/openface_tcn_i3d_fusion/weighted_ce  0.342391  0.215649 0.782609
+                             cmose/tcn/ce  0.584239  0.321867 0.448370
+                        cmose/tcn/ordinal  0.652174  0.272075 0.421196
+                    cmose/tcn/weighted_ce  0.633152  0.305520 0.456522
+                     cmose/transformer/ce  0.649457  0.315016 0.396739
+                cmose/transformer/ordinal  0.171196  0.188980 0.970109
+            cmose/transformer/weighted_ce  0.358696  0.281104 0.809783
+
+--- DaiSEE-trained models ---
+  Found 18 checkpoints under outputs\training_log\daisee
+  Fitting OpenFace normalizer from daisee train split (5358 samples)
+  Fitting I3D normalizer from daisee train split
+  Predicting [daisee/openface_mlp/ce]
+  Predicting [daisee/openface_mlp/weighted_ce]
+  Predicting [daisee/openface_mlp/ordinal]
+  Predicting [daisee/tcn/ce]
+  Predicting [daisee/tcn/weighted_ce]
+  Predicting [daisee/tcn/ordinal]
+  Predicting [daisee/lstm/ce]
+  Predicting [daisee/lstm/weighted_ce]
+  Predicting [daisee/lstm/ordinal]
+  Predicting [daisee/transformer/ce]
+  Predicting [daisee/transformer/weighted_ce]
+  Predicting [daisee/transformer/ordinal]
+  Predicting [daisee/i3d_mlp/ce]
+  Predicting [daisee/i3d_mlp/weighted_ce]
+  Predicting [daisee/i3d_mlp/ordinal]
+  Predicting [daisee/openface_tcn_i3d_fusion/ce]
+  Predicting [daisee/openface_tcn_i3d_fusion/weighted_ce]
+  Predicting [daisee/openface_tcn_i3d_fusion/ordinal]
+  Saved -> outputs\model_assessment\private_daisee
+                                       run  accuracy  f1_macro      mae
+                         daisee/i3d_mlp/ce  0.592391  0.242159 0.486413
+                    daisee/i3d_mlp/ordinal  0.195652  0.185528 1.187500
+                daisee/i3d_mlp/weighted_ce  0.176630  0.158163 1.130435
+                            daisee/lstm/ce  0.619565  0.191597 0.413043
+                       daisee/lstm/ordinal  0.173913  0.127972 1.184783
+                   daisee/lstm/weighted_ce  0.402174  0.236831 0.698370
+                    daisee/openface_mlp/ce  0.703804  0.206539 0.326087
+               daisee/openface_mlp/ordinal  0.649457  0.209502 0.383152
+           daisee/openface_mlp/weighted_ce  0.201087  0.161940 0.978261
+         daisee/openface_tcn_i3d_fusion/ce  0.649457  0.228499 0.394022
+    daisee/openface_tcn_i3d_fusion/ordinal  0.684783  0.271449 0.361413
+daisee/openface_tcn_i3d_fusion/weighted_ce  0.540761  0.236811 0.538043
+                             daisee/tcn/ce  0.684783  0.271449 0.361413
+                        daisee/tcn/ordinal  0.214674  0.158503 0.989130
+                    daisee/tcn/weighted_ce  0.508152  0.208971 0.527174
+                     daisee/transformer/ce  0.706522  0.207006 0.323370
+                daisee/transformer/ordinal  0.133152  0.107921 1.076087
+            daisee/transformer/weighted_ce  0.279891  0.195870 0.826087
+
+=== Side-by-side comparison saved -> outputs\model_assessment\private_comparison.csv ===
+                                       run  accuracy  macro_accuracy  f1_macro  f1_weighted      mae      mse  cohen_kappa  quadratic_weighted_kappa
+                          cmose/i3d_mlp/ce  0.472826        0.297189  0.243235     0.496161 0.665761 0.997283     0.078611                  0.012777
+                     cmose/i3d_mlp/ordinal  0.130435        0.249107  0.062846     0.052142 1.076087 1.543478     0.001865                 -0.004614
+                 cmose/i3d_mlp/weighted_ce  0.211957        0.276095  0.131000     0.199325 0.970109 1.399457     0.026979                  0.009843
+                             cmose/lstm/ce  0.668478        0.248056  0.225252     0.583410 0.366848 0.437500    -0.005712                  0.009562
+                        cmose/lstm/ordinal  0.230978        0.273975  0.181317     0.236760 0.904891 1.198370     0.007462                  0.039511
+                    cmose/lstm/weighted_ce  0.334239        0.240304  0.205577     0.385177 0.788043 1.054348     0.003867                 -0.001122
+                     cmose/openface_mlp/ce  0.706522        0.263214  0.236003     0.600158 0.323370 0.383152     0.028145                  0.048206
+                cmose/openface_mlp/ordinal  0.396739        0.224543  0.186423     0.424752 0.706522 0.913043    -0.038491                 -0.129990
+            cmose/openface_mlp/weighted_ce  0.214674        0.307851  0.150967     0.178332 0.929348 1.228261     0.038148                  0.044178
+          cmose/openface_tcn_i3d_fusion/ce  0.171196        0.238311  0.097310     0.122533 0.951087 1.195652    -0.003630                 -0.010434
+     cmose/openface_tcn_i3d_fusion/ordinal  0.385870        0.259210  0.196074     0.418572 0.739130 0.989130     0.034098                 -0.093950
+ cmose/openface_tcn_i3d_fusion/weighted_ce  0.342391        0.280802  0.215649     0.383160 0.782609 1.054348     0.053442                 -0.017154
+                              cmose/tcn/ce  0.584239        0.309950  0.321867     0.576620 0.448370 0.513587     0.060175                  0.200662
+                         cmose/tcn/ordinal  0.652174        0.281226  0.272075     0.598333 0.421196 0.567935     0.065823                  0.158475
+                     cmose/tcn/weighted_ce  0.633152        0.306714  0.305520     0.606510 0.456522 0.652174     0.111556                  0.108167
+                      cmose/transformer/ce  0.649457        0.316563  0.315016     0.600057 0.396739 0.489130     0.064001                  0.160839
+                 cmose/transformer/ordinal  0.171196        0.346554  0.188980     0.122532 0.970109 1.258152     0.024992                  0.156064
+             cmose/transformer/weighted_ce  0.358696        0.388571  0.281104     0.402038 0.809783 1.163043     0.072355                  0.158992
+                         daisee/i3d_mlp/ce  0.592391        0.265500  0.242159     0.558339 0.486413 0.671196     0.031460                  0.027601
+                    daisee/i3d_mlp/ordinal  0.195652        0.311636  0.185528     0.178523 1.187500 2.029891     0.053730                  0.017063
+                daisee/i3d_mlp/weighted_ce  0.176630        0.322646  0.158163     0.160959 1.130435 1.831522     0.023163                 -0.007277
+                            daisee/lstm/ce  0.619565        0.218391  0.191597     0.543551 0.413043 0.478261    -0.101938                  0.019736
+                       daisee/lstm/ordinal  0.173913        0.250410  0.127972     0.175695 1.184783 1.956522    -0.003949                  0.071489
+                   daisee/lstm/weighted_ce  0.402174        0.256198  0.236831     0.444022 0.698370 0.910326    -0.003906                  0.075502
+                    daisee/openface_mlp/ce  0.703804        0.248084  0.206539     0.585942 0.326087 0.385870    -0.007586                  0.002291
+               daisee/openface_mlp/ordinal  0.649457        0.236627  0.209502     0.565592 0.383152 0.448370    -0.054488                 -0.014774
+           daisee/openface_mlp/weighted_ce  0.201087        0.253553  0.161940     0.201753 0.978261 1.364130    -0.010234                  0.055503
+         daisee/openface_tcn_i3d_fusion/ce  0.649457        0.252547  0.228499     0.575443 0.394022 0.486413    -0.001413                  0.022032
+    daisee/openface_tcn_i3d_fusion/ordinal  0.684783        0.293343  0.271449     0.609929 0.361413 0.459239     0.099504                  0.076667
+daisee/openface_tcn_i3d_fusion/weighted_ce  0.540761        0.285092  0.236811     0.527998 0.538043 0.711957     0.049285                  0.062830
+                             daisee/tcn/ce  0.684783        0.293343  0.271449     0.609929 0.361413 0.459239     0.099504                  0.076667
+                        daisee/tcn/ordinal  0.214674        0.244236  0.158503     0.234320 0.989130 1.429348    -0.031142                  0.045221
+                    daisee/tcn/weighted_ce  0.508152        0.225317  0.208971     0.498185 0.527174 0.597826    -0.079406                  0.076811
+                     daisee/transformer/ce  0.706522        0.249042  0.207006     0.587268 0.323370 0.383152    -0.004017                 -0.001158
+                daisee/transformer/ordinal  0.133152        0.225823  0.107921     0.104440 1.076087 1.543478    -0.034546                 -0.009271
+            daisee/transformer/weighted_ce  0.279891        0.255442  0.195870     0.312990 0.826087 1.048913    -0.001068                  0.130120

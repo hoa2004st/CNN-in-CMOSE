@@ -208,6 +208,8 @@ __marimo__/
 
 
 
+kaggle.json
+
 data/CMOSE/
 
 # DAiSEE: keep labels in git, push large features to a private Kaggle dataset.

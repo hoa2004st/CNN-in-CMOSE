@@ -1,0 +1,10 @@
+{
+  "model": "transformer",
+  "sample_count": 20736,
+  "train_sample_count": 14109,
+  "evaluation_sample_count": 3622,
+  "test_sample_count": 3005,
+  "raw_feature_count": 709,
+  "target_frames": 150,
+  "normalization": "per-feature z-score using train-set statistics on OpenFace features"
+}

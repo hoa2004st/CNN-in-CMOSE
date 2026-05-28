@@ -1,0 +1,13 @@
+Input:C:\HOA\1.HUST\Thesis\CNN-in-CMOSE\data\DaiSEE\clips\1100011003.avi
+Input full path:C:\HOA\1.HUST\Thesis\CNN-in-CMOSE\data\DaiSEE\clips\1100011003.avi
+Camera parameters:500,500,320,240
+Output HOG:1100011003.hog
+Output video:1100011003.avi
+Output aligned directory:1100011003_aligned
+Output csv:1100011003.csv
+Gaze: 1
+AUs: 1
+Landmarks 2D: 1
+Landmarks 3D: 1
+Pose: 1
+Shape parameters: 1

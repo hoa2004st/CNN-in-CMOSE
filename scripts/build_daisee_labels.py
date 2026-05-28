@@ -70,8 +70,8 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--person-suffix",
-        default="_person0",
-        help="Suffix appended to each clip id to satisfy the CMOSE loader.",
+        default="",
+        help="Suffix appended to each clip id (empty = match data/private convention).",
     )
     return parser.parse_args()
 

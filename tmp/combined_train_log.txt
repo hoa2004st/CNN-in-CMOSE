@@ -1,0 +1,4 @@
+Run root: outputs\training_log\combined
+Logs: outputs\training_log\combined\logs
+[2026-05-28 17:54:39] Starting openface_mlp with loss=cross_entropy
+[2026-05-28 17:54:39] Output: outputs\training_log\combined\openface_mlp\ce

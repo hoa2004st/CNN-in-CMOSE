@@ -68,7 +68,10 @@ def load_cmose_metadata(
         if csv_path is None:
             continue
 
-        base_video_id, person_suffix = sample_id.rsplit("_person", 1)
+        if "_person" in sample_id:
+            base_video_id, person_suffix = sample_id.rsplit("_person", 1)
+        else:
+            base_video_id, person_suffix = sample_id, "0"
         records.append(
             SampleMeta(
                 sample_id=sample_id,
@@ -146,7 +149,12 @@ def load_openface_matrix(
             f"Expected 709 OpenFace features in {csv_path}, found {len(feature_cols)}"
         )
 
-    matrix = df[feature_cols].to_numpy(dtype=np.float32, copy=True)
+    matrix = (
+        df[feature_cols]
+        .apply(pd.to_numeric, errors="coerce")
+        .fillna(0.0)
+        .to_numpy(dtype=np.float32, copy=True)
+    )
     return resample_frames(matrix, target_frames=target_frames)
 
 
@@ -185,15 +193,28 @@ def load_dataset_matrices(
     """Load all selected samples into a 3-D array."""
     if not records:
         raise ValueError("No records provided to load_dataset_matrices")
-    matrices = [
-        load_openface_matrix(record.csv_path, target_frames=target_frames)
-        for record in tqdm(
-            records,
-            desc=progress_desc or "Loading samples",
-            unit="sample",
-            leave=False,
+    matrices, sample_ids, label_list = [], [], []
+    skipped = 0
+    for record in tqdm(
+        records,
+        desc=progress_desc or "Loading samples",
+        unit="sample",
+        leave=False,
+    ):
+        try:
+            matrices.append(
+                load_openface_matrix(record.csv_path, target_frames=target_frames)
+            )
+            sample_ids.append(record.sample_id)
+            label_list.append(record.label_id)
+        except Exception:
+            skipped += 1
+    if skipped:
+        import logging
+        logging.getLogger(__name__).warning(
+            "load_dataset_matrices: skipped %d samples with bad OpenFace CSVs", skipped
         )
-    ]
-    sample_ids = [record.sample_id for record in records]
-    labels = np.array([record.label_id for record in records], dtype=np.int64)
+    if not matrices:
+        raise ValueError("All records failed to load")
+    labels = np.array(label_list, dtype=np.int64)
     return np.stack(matrices, axis=0), labels, sample_ids

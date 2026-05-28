@@ -1,0 +1,185 @@
+Run root: outputs\training_log\daisee
+Logs: outputs\training_log\daisee\logs
+[2026-05-27 09:19:00] Skipping openface_mlp/cross_entropy (metrics.json already exists)
+[2026-05-27 09:19:00] Skipping openface_mlp/weighted_cross_entropy (metrics.json already exists)
+[2026-05-27 09:19:00] Skipping openface_mlp/ordinal (metrics.json already exists)
+[2026-05-27 09:19:00] Skipping temporal_cnn/cross_entropy (metrics.json already exists)
+[2026-05-27 09:19:00] Skipping temporal_cnn/weighted_cross_entropy (metrics.json already exists)
+[2026-05-27 09:19:00] Skipping temporal_cnn/ordinal (metrics.json already exists)
+[2026-05-27 09:19:00] Skipping lstm/cross_entropy (metrics.json already exists)
+[2026-05-27 09:19:00] Skipping lstm/weighted_cross_entropy (metrics.json already exists)
+[2026-05-27 09:19:00] Skipping lstm/ordinal (metrics.json already exists)
+[2026-05-27 09:19:00] Skipping transformer/cross_entropy (metrics.json already exists)
+[2026-05-27 09:19:00] Skipping transformer/weighted_cross_entropy (metrics.json already exists)
+[2026-05-27 09:19:00] Skipping transformer/ordinal (metrics.json already exists)
+[2026-05-27 09:19:00] Starting i3d_mlp with loss=cross_entropy
+[2026-05-27 09:19:00] Output: outputs\training_log\daisee\i3d_mlp\ce
+
+============================================================
+CMOSE TEST RESULTS
+============================================================
+  Model         : i3d_mlp
+  Accuracy      : 0.5342
+  Macro Acc     : 0.2807
+  F1 (macro)    : 0.2736
+  F1 (weighted) : 0.5207
+  MAE           : 0.4865
+  MSE           : 0.5314
+  Best epoch    : 10
+
+Classification Report:
+                  precision    recall  f1-score   support
+
+Highly Disengage       0.00      0.00      0.00         4
+       Disengage       0.00      0.00      0.00        84
+          Engage       0.55      0.58      0.56       882
+   Highly Engage       0.52      0.55      0.53       814
+
+        accuracy                           0.53      1784
+       macro avg       0.27      0.28      0.27      1784
+    weighted avg       0.51      0.53      0.52      1784
+
+[2026-05-27 09:32:14] Finished i3d_mlp with loss=cross_entropy
+[2026-05-27 09:32:14] Starting i3d_mlp with loss=weighted_cross_entropy
+[2026-05-27 09:32:14] Output: outputs\training_log\daisee\i3d_mlp\weighted_ce
+
+============================================================
+CMOSE TEST RESULTS
+============================================================
+  Model         : i3d_mlp
+  Accuracy      : 0.3845
+  Macro Acc     : 0.2861
+  F1 (macro)    : 0.2564
+  F1 (weighted) : 0.4331
+  MAE           : 0.8380
+  MSE           : 1.3772
+  Best epoch    : 2
+
+Classification Report:
+                  precision    recall  f1-score   support
+
+Highly Disengage       0.00      0.00      0.00         4
+       Disengage       0.08      0.37      0.12        84
+          Engage       0.53      0.35      0.42       882
+   Highly Engage       0.55      0.42      0.48       814
+
+        accuracy                           0.38      1784
+       macro avg       0.29      0.29      0.26      1784
+    weighted avg       0.52      0.38      0.43      1784
+
+[2026-05-27 09:32:43] Finished i3d_mlp with loss=weighted_cross_entropy
+[2026-05-27 09:32:43] Starting i3d_mlp with loss=ordinal
+[2026-05-27 09:32:43] Output: outputs\training_log\daisee\i3d_mlp\ordinal
+
+============================================================
+CMOSE TEST RESULTS
+============================================================
+  Model         : i3d_mlp
+  Accuracy      : 0.3049
+  Macro Acc     : 0.2808
+  F1 (macro)    : 0.2198
+  F1 (weighted) : 0.3638
+  MAE           : 0.9899
+  MSE           : 1.6816
+  Best epoch    : 13
+
+Classification Report:
+                  precision    recall  f1-score   support
+
+Highly Disengage       0.00      0.00      0.00         4
+       Disengage       0.07      0.54      0.13        84
+          Engage       0.48      0.30      0.37       882
+   Highly Engage       0.59      0.28      0.38       814
+
+        accuracy                           0.30      1784
+       macro avg       0.28      0.28      0.22      1784
+    weighted avg       0.51      0.30      0.36      1784
+
+[2026-05-27 09:33:26] Finished i3d_mlp with loss=ordinal
+[2026-05-27 09:33:26] Starting openface_tcn_i3d_fusion with loss=cross_entropy
+[2026-05-27 09:33:26] Output: outputs\training_log\daisee\openface_tcn_i3d_fusion\ce
+
+============================================================
+CMOSE TEST RESULTS
+============================================================
+  Model         : openface_tcn_i3d_fusion
+  Accuracy      : 0.5392
+  Macro Acc     : 0.2838
+  F1 (macro)    : 0.2766
+  F1 (weighted) : 0.5259
+  MAE           : 0.4793
+  MSE           : 0.5196
+  Best epoch    : 6
+
+Classification Report:
+                  precision    recall  f1-score   support
+
+Highly Disengage       0.00      0.00      0.00         4
+       Disengage       0.00      0.00      0.00        84
+          Engage       0.55      0.56      0.55       882
+   Highly Engage       0.53      0.58      0.55       814
+
+        accuracy                           0.54      1784
+       macro avg       0.27      0.28      0.28      1784
+    weighted avg       0.51      0.54      0.53      1784
+
+[2026-05-27 09:34:45] Finished openface_tcn_i3d_fusion with loss=cross_entropy
+[2026-05-27 09:34:45] Starting openface_tcn_i3d_fusion with loss=weighted_cross_entropy
+[2026-05-27 09:34:45] Output: outputs\training_log\daisee\openface_tcn_i3d_fusion\weighted_ce
+
+============================================================
+CMOSE TEST RESULTS
+============================================================
+  Model         : openface_tcn_i3d_fusion
+  Accuracy      : 0.4944
+  Macro Acc     : 0.2500
+  F1 (macro)    : 0.1655
+  F1 (weighted) : 0.3274
+  MAE           : 0.5090
+  MSE           : 0.5168
+  Best epoch    : 1
+
+Classification Report:
+                  precision    recall  f1-score   support
+
+Highly Disengage       0.00      0.00      0.00         4
+       Disengage       0.00      0.00      0.00        84
+          Engage       0.49      1.00      0.66       882
+   Highly Engage       0.00      0.00      0.00       814
+
+        accuracy                           0.49      1784
+       macro avg       0.12      0.25      0.17      1784
+    weighted avg       0.24      0.49      0.33      1784
+
+[2026-05-27 09:35:52] Finished openface_tcn_i3d_fusion with loss=weighted_cross_entropy
+[2026-05-27 09:35:52] Starting openface_tcn_i3d_fusion with loss=ordinal
+[2026-05-27 09:35:52] Output: outputs\training_log\daisee\openface_tcn_i3d_fusion\ordinal
+
+============================================================
+CMOSE TEST RESULTS
+============================================================
+  Model         : openface_tcn_i3d_fusion
+  Accuracy      : 0.4944
+  Macro Acc     : 0.2500
+  F1 (macro)    : 0.1655
+  F1 (weighted) : 0.3274
+  MAE           : 0.5090
+  MSE           : 0.5168
+  Best epoch    : 2
+
+Classification Report:
+                  precision    recall  f1-score   support
+
+Highly Disengage       0.00      0.00      0.00         4
+       Disengage       0.00      0.00      0.00        84
+          Engage       0.49      1.00      0.66       882
+   Highly Engage       0.00      0.00      0.00       814
+
+        accuracy                           0.49      1784
+       macro avg       0.12      0.25      0.17      1784
+    weighted avg       0.24      0.49      0.33      1784
+
+[2026-05-27 09:36:59] Finished openface_tcn_i3d_fusion with loss=ordinal
+[2026-05-27 09:36:59] Generating training-log visualizations for outputs\training_log\daisee
+Saved per-run training curves under outputs\training_log\daisee and CMOSE assessment charts under outputs\model_assessment\cmose_testset
+All comparison runs completed.

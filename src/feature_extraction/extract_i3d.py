@@ -99,18 +99,36 @@ def load_i3d_dataset_matrices(
     progress_desc: str | None = None,
 ) -> np.ndarray:
     """Load aligned precomputed I3D features for a list of sample ids."""
-    matrices = [
-        load_i3d_matrix(
-            resolve_i3d_feature_path(sample_id, feature_dir),
-            target_frames=target_frames,
+    import logging
+    matrices: list[np.ndarray] = []
+    feat_dim: int | None = None
+    skipped = 0
+    for sample_id in tqdm(
+        sample_ids,
+        desc=progress_desc or "Loading I3D features",
+        unit="sample",
+        leave=False,
+    ):
+        try:
+            mat = load_i3d_matrix(
+                resolve_i3d_feature_path(sample_id, feature_dir),
+                target_frames=target_frames,
+            )
+            if feat_dim is None:
+                feat_dim = mat.shape[-1]
+            matrices.append(mat)
+        except Exception:
+            matrices.append(None)  # type: ignore[arg-type]
+            skipped += 1
+    if skipped:
+        dim = feat_dim or 1024
+        logging.getLogger(__name__).warning(
+            "load_i3d_dataset_matrices: %d missing I3D files replaced with zeros", skipped
         )
-        for sample_id in tqdm(
-            sample_ids,
-            desc=progress_desc or "Loading I3D features",
-            unit="sample",
-            leave=False,
-        )
-    ]
+        matrices = [
+            m if m is not None else np.zeros((target_frames, dim), dtype=np.float32)
+            for m in matrices
+        ]
     return np.stack(matrices, axis=0).astype(np.float32, copy=False)
 
 
@@ -121,15 +139,36 @@ def load_i3d_dataset_vectors(
     progress_desc: str | None = None,
 ) -> np.ndarray:
     """Load aligned I3D features as one vector per sample (N, F)."""
-    vectors = []
+    import logging
+    vectors: list[np.ndarray] = []
+    feat_dim: int | None = None
+    skipped = 0
     for sample_id in tqdm(
         sample_ids,
         desc=progress_desc or "Loading I3D vectors",
         unit="sample",
         leave=False,
     ):
-        matrix = load_i3d_matrix(resolve_i3d_feature_path(sample_id, feature_dir), target_frames=None)
-        vectors.append(matrix.mean(axis=0).astype(np.float32, copy=False))
+        try:
+            matrix = load_i3d_matrix(
+                resolve_i3d_feature_path(sample_id, feature_dir), target_frames=None
+            )
+            vec = matrix.mean(axis=0).astype(np.float32, copy=False)
+            if feat_dim is None:
+                feat_dim = vec.shape[0]
+            vectors.append(vec)
+        except Exception:
+            vectors.append(None)  # type: ignore[arg-type]
+            skipped += 1
+    if skipped:
+        dim = feat_dim or 1024
+        logging.getLogger(__name__).warning(
+            "load_i3d_dataset_vectors: %d missing I3D files replaced with zeros", skipped
+        )
+        vectors = [
+            v if v is not None else np.zeros((dim,), dtype=np.float32)
+            for v in vectors
+        ]
     return np.stack(vectors, axis=0).astype(np.float32, copy=False)
 
 

@@ -1,0 +1,49 @@
+Device: cuda
+Private clips: 428  manual labels: 368
+
+--- CMOSE-trained models ---
+  Found 18 checkpoints under outputs\training_log
+  Fitting OpenFace normalizer from cmose train split (8783 samples)
+  Fitting I3D normalizer from cmose train split
+  Predicting [cmose/openface_mlp/ce]
+  Predicting [cmose/openface_mlp/weighted_ce]
+  Predicting [cmose/openface_mlp/ordinal]
+  Predicting [cmose/tcn/ce]
+  Predicting [cmose/tcn/weighted_ce]
+  Predicting [cmose/tcn/ordinal]
+  Predicting [cmose/lstm/ce]
+  Predicting [cmose/lstm/weighted_ce]
+  Predicting [cmose/lstm/ordinal]
+  Predicting [cmose/transformer/ce]
+  Predicting [cmose/transformer/weighted_ce]
+  Predicting [cmose/transformer/ordinal]
+  Predicting [cmose/i3d_mlp/ce]
+  Predicting [cmose/i3d_mlp/weighted_ce]
+  Predicting [cmose/i3d_mlp/ordinal]
+  Predicting [cmose/openface_tcn_i3d_fusion/ce]
+  Predicting [cmose/openface_tcn_i3d_fusion/weighted_ce]
+  Predicting [cmose/openface_tcn_i3d_fusion/ordinal]
+  Saved -> outputs\model_assessment\private_cmose
+                                      run  accuracy  f1_macro      mae
+                         cmose/i3d_mlp/ce  0.472826  0.243235 0.665761
+                    cmose/i3d_mlp/ordinal  0.130435  0.062846 1.076087
+                cmose/i3d_mlp/weighted_ce  0.211957  0.131000 0.970109
+                            cmose/lstm/ce  0.668478  0.225252 0.366848
+                       cmose/lstm/ordinal  0.230978  0.181317 0.904891
+                   cmose/lstm/weighted_ce  0.334239  0.205577 0.788043
+                    cmose/openface_mlp/ce  0.706522  0.236003 0.323370
+               cmose/openface_mlp/ordinal  0.396739  0.186423 0.706522
+           cmose/openface_mlp/weighted_ce  0.214674  0.150967 0.929348
+         cmose/openface_tcn_i3d_fusion/ce  0.171196  0.097310 0.951087
+    cmose/openface_tcn_i3d_fusion/ordinal  0.385870  0.196074 0.739130
+cmose/openface_tcn_i3d_fusion/weighted_ce  0.342391  0.215649 0.782609
+                             cmose/tcn/ce  0.584239  0.321867 0.448370
+                        cmose/tcn/ordinal  0.652174  0.272075 0.421196
+                    cmose/tcn/weighted_ce  0.633152  0.305520 0.456522
+                     cmose/transformer/ce  0.649457  0.315016 0.396739
+                cmose/transformer/ordinal  0.171196  0.188980 0.970109
+            cmose/transformer/weighted_ce  0.358696  0.281104 0.809783
+
+--- DaiSEE-trained models ---
+  Found 18 checkpoints under outputs\training_log\daisee
+  Fitting OpenFace normalizer from daisee train split (5358 samples)
