@@ -1,6 +1,6 @@
 # openface_transformer [CE]
 
-- Run folder: `transformer/ce`
+- Run folder: `daisee/transformer/ce`
 - Metrics file: `outputs\training_log\daisee\transformer\ce\metrics.json`
 - Accuracy: 0.4989
 - Macro Accuracy: 0.2625

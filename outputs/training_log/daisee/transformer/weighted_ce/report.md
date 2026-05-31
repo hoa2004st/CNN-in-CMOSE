@@ -1,6 +1,6 @@
 # openface_transformer [Weighted CE]
 
-- Run folder: `transformer/weighted_ce`
+- Run folder: `daisee/transformer/weighted_ce`
 - Metrics file: `outputs\training_log\daisee\transformer\weighted_ce\metrics.json`
 - Accuracy: 0.3952
 - Macro Accuracy: 0.3014

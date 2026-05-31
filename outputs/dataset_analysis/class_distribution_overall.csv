@@ -1,0 +1,13 @@
+dataset,class_label,count,proportion
+CMOSE,Highly Disengage,347,0.02845
+CMOSE,Disengage,2209,0.18111
+CMOSE,Engage,8470,0.694433
+CMOSE,Highly Engage,1171,0.096007
+DaiSEE,Highly Disengage,61,0.007117
+DaiSEE,Disengage,440,0.051336
+DaiSEE,Engage,4312,0.503092
+DaiSEE,Highly Engage,3758,0.438455
+Combined,Highly Disengage,408,0.019646
+Combined,Disengage,2649,0.127552
+Combined,Engage,12782,0.615466
+Combined,Highly Engage,4929,0.237336

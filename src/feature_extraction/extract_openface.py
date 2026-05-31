@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
@@ -23,6 +24,44 @@ LABEL_MAP = {
 ID_TO_LABEL = {value: key for key, value in LABEL_MAP.items()}
 
 OPENFACE_META_COLS = ["frame", "face_id", "timestamp", "confidence", "success"]
+
+# Regex patterns that map each semantic group to its OpenFace column names.
+# Groups: gaze(8), eye(280), face(340), head(46), au(35) → total 709.
+OPENFACE_FEATURE_GROUP_PATTERNS: dict[str, str] = {
+    "gaze": r"^gaze_",
+    "eye": r"^eye_lmk_",
+    "face": r"^[xXyYzZ]_\d+$",
+    "head": r"^(pose_|p_)",
+    "au": r"^AU",
+}
+# Canonical group order used everywhere (determines concat order in the model).
+OPENFACE_GROUP_ORDER: list[str] = ["gaze", "eye", "face", "head", "au"]
+
+
+def build_group_column_indices(feature_columns: list[str]) -> dict[str, np.ndarray]:
+    """Return per-group integer index arrays for slicing the feature tensor.
+
+    Returns a dict mapping group name → 1-D int64 ndarray of column positions
+    within *feature_columns* (i.e. within the 709-dim feature slice, not the
+    full 714-col CSV).  Every column must belong to exactly one group.
+    """
+    group_indices: dict[str, list[int]] = {g: [] for g in OPENFACE_GROUP_ORDER}
+    unmatched: list[str] = []
+    compiled = {g: re.compile(pat) for g, pat in OPENFACE_FEATURE_GROUP_PATTERNS.items()}
+    for idx, col in enumerate(feature_columns):
+        matched = False
+        for group in OPENFACE_GROUP_ORDER:
+            if compiled[group].match(col):
+                group_indices[group].append(idx)
+                matched = True
+                break
+        if not matched:
+            unmatched.append(col)
+    if unmatched:
+        raise ValueError(
+            f"build_group_column_indices: {len(unmatched)} columns matched no group: {unmatched[:10]}"
+        )
+    return {g: np.array(idxs, dtype=np.int64) for g, idxs in group_indices.items()}
 
 
 @dataclass(frozen=True)

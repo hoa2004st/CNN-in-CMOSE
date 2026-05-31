@@ -1,6 +1,6 @@
 # openface_tcn [Weighted CE]
 
-- Run folder: `tcn/weighted_ce`
+- Run folder: `combined/tcn/weighted_ce`
 - Metrics file: `outputs\training_log\combined\tcn\weighted_ce\metrics.json`
 - Accuracy: 0.5291
 - Macro Accuracy: 0.5563

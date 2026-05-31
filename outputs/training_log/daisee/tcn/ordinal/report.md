@@ -1,6 +1,6 @@
 # openface_tcn [Ordinal]
 
-- Run folder: `tcn/ordinal`
+- Run folder: `daisee/tcn/ordinal`
 - Metrics file: `outputs\training_log\daisee\tcn\ordinal\metrics.json`
 - Accuracy: 0.2321
 - Macro Accuracy: 0.3759

@@ -5,6 +5,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 
+import numpy as np
 import torch
 import torch.nn as nn
 
@@ -350,6 +351,241 @@ class OpenFaceTCNI3DFusionModel(nn.Module):
         return logits
 
 
+class GroupEncoder(nn.Module):
+    """Temporal encoder for one semantic feature group.
+
+    Wraps either a small Transformer or a TCN and always produces a fixed
+    (batch, embed_dim) representation via mean-pool + LayerNorm.
+    """
+
+    def __init__(
+        self,
+        *,
+        in_dim: int,
+        embed_dim: int,
+        arch: str,
+        dropout: float = 0.2,
+    ) -> None:
+        super().__init__()
+        if arch not in ("transformer", "tcn"):
+            raise ValueError(f"GroupEncoder arch must be 'transformer' or 'tcn', got '{arch}'")
+        self.arch = arch
+        self.embed_dim = embed_dim
+        if arch == "transformer":
+            self.proj = nn.Linear(in_dim, embed_dim)
+            self.pos = PositionalEncoding(d_model=embed_dim)
+            encoder_layer = nn.TransformerEncoderLayer(
+                d_model=embed_dim,
+                nhead=4,
+                dim_feedforward=embed_dim * 2,
+                dropout=dropout,
+                batch_first=True,
+                activation="gelu",
+            )
+            self.encoder: nn.Module = nn.TransformerEncoder(encoder_layer, num_layers=2)
+        else:
+            self.encoder = TCNEncoder(
+                input_channels=in_dim,
+                channels=[embed_dim, embed_dim],
+                kernel_size=3,
+                dropout=dropout,
+            )
+        self.norm = nn.LayerNorm(embed_dim)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        # x: (B, T, in_dim)
+        if self.arch == "transformer":
+            x = self.proj(x)
+            x = self.pos(x)
+            x = self.encoder(x)
+            x = x.mean(dim=1)
+        else:
+            x = self.encoder(x.transpose(1, 2))  # → (B, embed_dim, T)
+            x = x.mean(dim=2)                    # → (B, embed_dim)
+        return self.norm(x)
+
+
+class OpenFaceTemporalHybrid(nn.Module):
+    """Hybrid model: each OpenFace semantic group gets its own Transformer or TCN encoder.
+
+    Each GroupEncoder produces a fixed embed_dim vector.  All group vectors are
+    concatenated and passed through a shared MLP classifier.  Each group also has
+    an auxiliary classification head trained jointly via a weighted auxiliary loss.
+
+    Args:
+        group_indices: maps group name → int64 index array into the 709-dim feature
+                       axis (built by build_group_column_indices).
+        group_architectures: maps group name → "transformer" | "tcn".
+        embed_dim: output dimension of each GroupEncoder (default 64).
+        aux_weight: weight applied to the mean of auxiliary group losses (default 0.2).
+        num_classes: number of engagement classes (default 4).
+    """
+
+    def __init__(
+        self,
+        *,
+        group_indices: dict[str, "np.ndarray"],
+        group_architectures: dict[str, str],
+        embed_dim: int = 64,
+        aux_weight: float = 0.2,
+        num_classes: int = 4,
+    ) -> None:
+        super().__init__()
+        self.aux_weight = float(aux_weight)
+        self.group_names: list[str] = list(group_indices.keys())
+
+        self.encoders = nn.ModuleDict()
+        self.aux_heads = nn.ModuleDict()
+        for name in self.group_names:
+            idxs = group_indices[name]
+            arch = group_architectures.get(name, "tcn")
+            self.encoders[name] = GroupEncoder(
+                in_dim=len(idxs),
+                embed_dim=embed_dim,
+                arch=arch,
+            )
+            self.aux_heads[name] = nn.Sequential(
+                nn.Dropout(p=0.3),
+                nn.Linear(embed_dim, num_classes),
+            )
+            # Register index buffer for device-agnostic slicing
+            self.register_buffer(
+                f"_idx_{name}",
+                torch.from_numpy(np.asarray(idxs, dtype=np.int64)),
+                persistent=True,
+            )
+
+        fusion_dim = embed_dim * len(self.group_names)
+        self.fusion = nn.Sequential(
+            nn.Linear(fusion_dim, 128),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.3),
+            nn.Linear(128, num_classes),
+        )
+
+    def _encode_groups(self, x: torch.Tensor) -> dict[str, torch.Tensor]:
+        embeddings: dict[str, torch.Tensor] = {}
+        for name in self.group_names:
+            idx = getattr(self, f"_idx_{name}")
+            group_x = x[:, :, idx]          # (B, T, group_dim)
+            embeddings[name] = self.encoders[name](group_x)
+        return embeddings
+
+    def forward_with_aux(
+        self, x: torch.Tensor
+    ) -> tuple[torch.Tensor, dict[str, torch.Tensor]]:
+        embeddings = self._encode_groups(x)
+        fused = torch.cat([embeddings[n] for n in self.group_names], dim=-1)
+        main_logits = self.fusion(fused)
+        aux_logits = {name: self.aux_heads[name](emb) for name, emb in embeddings.items()}
+        return main_logits, aux_logits
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        embeddings = self._encode_groups(x)
+        fused = torch.cat([embeddings[n] for n in self.group_names], dim=-1)
+        return self.fusion(fused)
+
+
+# Backward-compatibility alias
+SemanticGroupFusionModel = OpenFaceTemporalHybrid
+
+
+class OpenFaceTemporalI3DHybrid(nn.Module):
+    """Hybrid model: OpenFace semantic group encoders + I3D temporal stream.
+
+    Extends OpenFaceTemporalHybrid by adding an I3D encoder (always TCN) as an
+    additional stream.  All group embeddings and the I3D embedding are concatenated
+    and passed through a shared MLP classifier.  Each group and the I3D stream each
+    have an auxiliary classification head.
+
+    Args:
+        group_indices: maps group name → int64 index array (from build_group_column_indices).
+        group_architectures: maps group name → "transformer" | "tcn".
+        i3d_input_dim: I3D feature dimension (typically 1024).
+        embed_dim: embedding size for every encoder (default 64).
+        aux_weight: auxiliary loss weight (default 0.2).
+        num_classes: number of engagement classes (default 4).
+    """
+
+    def __init__(
+        self,
+        *,
+        group_indices: dict[str, "np.ndarray"],
+        group_architectures: dict[str, str],
+        i3d_input_dim: int = 1024,
+        embed_dim: int = 64,
+        aux_weight: float = 0.2,
+        num_classes: int = 4,
+    ) -> None:
+        super().__init__()
+        self.aux_weight = float(aux_weight)
+        self.group_names: list[str] = list(group_indices.keys())
+
+        # OpenFace group encoders + aux heads
+        self.encoders = nn.ModuleDict()
+        self.aux_heads = nn.ModuleDict()
+        for name in self.group_names:
+            idxs = group_indices[name]
+            arch = group_architectures.get(name, "tcn")
+            self.encoders[name] = GroupEncoder(in_dim=len(idxs), embed_dim=embed_dim, arch=arch)
+            self.aux_heads[name] = nn.Sequential(nn.Dropout(p=0.3), nn.Linear(embed_dim, num_classes))
+            self.register_buffer(
+                f"_idx_{name}",
+                torch.from_numpy(np.asarray(idxs, dtype=np.int64)),
+                persistent=True,
+            )
+
+        # I3D encoder (always TCN) + aux head
+        self.i3d_encoder = TCNEncoder(
+            input_channels=i3d_input_dim,
+            channels=[embed_dim, embed_dim],
+            kernel_size=3,
+            dropout=0.2,
+        )
+        self.i3d_pool = nn.AdaptiveAvgPool1d(1)
+        self.i3d_norm = nn.LayerNorm(embed_dim)
+        self.aux_heads["i3d"] = nn.Sequential(nn.Dropout(p=0.3), nn.Linear(embed_dim, num_classes))
+
+        fusion_dim = embed_dim * (len(self.group_names) + 1)  # +1 for I3D
+        self.fusion = nn.Sequential(
+            nn.Linear(fusion_dim, 128),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.3),
+            nn.Linear(128, num_classes),
+        )
+
+    def _encode_openface_groups(self, x_of: torch.Tensor) -> dict[str, torch.Tensor]:
+        embeddings: dict[str, torch.Tensor] = {}
+        for name in self.group_names:
+            idx = getattr(self, f"_idx_{name}")
+            embeddings[name] = self.encoders[name](x_of[:, :, idx])
+        return embeddings
+
+    def _encode_i3d(self, x_i3d: torch.Tensor) -> torch.Tensor:
+        # x_i3d: (B, T, 1024)
+        h = self.i3d_encoder(x_i3d.transpose(1, 2))   # → (B, embed_dim, T)
+        h = self.i3d_pool(h).squeeze(-1)               # → (B, embed_dim)
+        return self.i3d_norm(h)
+
+    def forward_with_aux(
+        self, x_of: torch.Tensor, x_i3d: torch.Tensor
+    ) -> tuple[torch.Tensor, dict[str, torch.Tensor]]:
+        embeddings = self._encode_openface_groups(x_of)
+        embeddings["i3d"] = self._encode_i3d(x_i3d)
+        all_names = self.group_names + ["i3d"]
+        fused = torch.cat([embeddings[n] for n in all_names], dim=-1)
+        main_logits = self.fusion(fused)
+        aux_logits = {name: self.aux_heads[name](emb) for name, emb in embeddings.items()}
+        return main_logits, aux_logits
+
+    def forward(self, x_of: torch.Tensor, x_i3d: torch.Tensor) -> torch.Tensor:
+        embeddings = self._encode_openface_groups(x_of)
+        embeddings["i3d"] = self._encode_i3d(x_i3d)
+        all_names = self.group_names + ["i3d"]
+        fused = torch.cat([embeddings[n] for n in all_names], dim=-1)
+        return self.fusion(fused)
+
+
 def build_model(
     model_name: str,
     *,
@@ -395,3 +631,47 @@ def build_model(
             ModelSpec(name=model_name, input_kind="multimodal_sequence"),
         )
     raise ValueError(f"Unknown model: {model_name}")
+
+
+def build_openface_temporal_hybrid(
+    *,
+    group_indices: "dict[str, np.ndarray]",
+    group_architectures: "dict[str, str]",
+    embed_dim: int = 64,
+    aux_weight: float = 0.2,
+    num_classes: int = 4,
+) -> tuple["OpenFaceTemporalHybrid", ModelSpec]:
+    """Construct an OpenFaceTemporalHybrid (OpenFace-only semantic group fusion)."""
+    model = OpenFaceTemporalHybrid(
+        group_indices=group_indices,
+        group_architectures=group_architectures,
+        embed_dim=embed_dim,
+        aux_weight=aux_weight,
+        num_classes=num_classes,
+    )
+    return model, ModelSpec(name="openface_temporal_hybrid", input_kind="sequence")
+
+
+# Backward-compatibility alias
+build_semantic_group_model = build_openface_temporal_hybrid
+
+
+def build_openface_temporal_i3d_hybrid(
+    *,
+    group_indices: "dict[str, np.ndarray]",
+    group_architectures: "dict[str, str]",
+    i3d_input_dim: int = 1024,
+    embed_dim: int = 64,
+    aux_weight: float = 0.2,
+    num_classes: int = 4,
+) -> tuple["OpenFaceTemporalI3DHybrid", ModelSpec]:
+    """Construct an OpenFaceTemporalI3DHybrid (OpenFace semantic groups + I3D)."""
+    model = OpenFaceTemporalI3DHybrid(
+        group_indices=group_indices,
+        group_architectures=group_architectures,
+        i3d_input_dim=i3d_input_dim,
+        embed_dim=embed_dim,
+        aux_weight=aux_weight,
+        num_classes=num_classes,
+    )
+    return model, ModelSpec(name="openface_temporal_i3d_hybrid", input_kind="multimodal_sequence")

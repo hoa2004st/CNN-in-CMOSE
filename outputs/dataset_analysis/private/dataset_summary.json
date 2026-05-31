@@ -1,37 +1,24 @@
 {
   "dataset": "private",
-  "accepted_manifest": "C:\\Hofa\\Thesis\\CNN-in-CMOSE\\data\\private\\accepted.csv",
-  "manual_labels_csv": "C:\\Hofa\\Thesis\\CNN-in-CMOSE\\outputs\\dataset_analysis\\private\\manual_labels\\private_manual_labels.csv",
-  "accepted_samples": 428,
-  "labeled_samples": 368,
-  "class_distribution": [
-    {
-      "domain": "private",
-      "class_id": 0,
-      "class_label": "Highly Disengage",
+  "total_clips": 368,
+  "usage": "test_only",
+  "class_distribution": {
+    "Highly Disengage": {
       "count": 11,
-      "proportion": 0.029891304347826088
+      "proportion": 0.029891
     },
-    {
-      "domain": "private",
-      "class_id": 1,
-      "class_label": "Disengage",
+    "Disengage": {
       "count": 52,
-      "proportion": 0.14130434782608695
+      "proportion": 0.141304
     },
-    {
-      "domain": "private",
-      "class_id": 2,
-      "class_label": "Engage",
+    "Engage": {
       "count": 261,
-      "proportion": 0.7092391304347826
+      "proportion": 0.709239
     },
-    {
-      "domain": "private",
-      "class_id": 3,
-      "class_label": "Highly Engage",
+    "Highly Engage": {
       "count": 44,
-      "proportion": 0.11956521739130435
+      "proportion": 0.119565
     }
-  ]
+  },
+  "label_source": "C:\\HOA\\1.HUST\\Thesis\\CNN-in-CMOSE\\data\\private\\private_manual_labels.csv"
 }

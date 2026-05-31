@@ -1,6 +1,6 @@
 # i3d_mlp [CE]
 
-- Run folder: `i3d_mlp/ce`
+- Run folder: `daisee/i3d_mlp/ce`
 - Metrics file: `outputs\training_log\daisee\i3d_mlp\ce\metrics.json`
 - Accuracy: 0.5342
 - Macro Accuracy: 0.2807

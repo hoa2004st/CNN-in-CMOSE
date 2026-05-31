@@ -18,7 +18,6 @@ from sklearn.metrics import (
     balanced_accuracy_score,
     classification_report,
     confusion_matrix,
-    f1_score,
 )
 from torch.utils.data import DataLoader, TensorDataset
 from tqdm.auto import tqdm
@@ -269,10 +268,10 @@ def train_model(
         "eval_losses": [],
         "eval_accuracies": [],
         "eval_macro_accuracies": [],
-        "eval_f1_macros": [],
-        "eval_f1_weighteds": [],
         "eval_maes": [],
-        "eval_mses": [],
+        "eval_macro_maes": [],
+        "eval_cohen_kappas": [],
+        "eval_qwks": [],
         "best_epoch": 0,
         "patience": patience,
         "stopped_early": False,
@@ -304,7 +303,7 @@ def train_model(
 
             optimizer.zero_grad()
             with torch.amp.autocast("cuda", enabled=use_amp):
-                logits, aux_loss = _forward_model_with_aux(model, feature_batches)
+                logits, aux_loss = _forward_model_with_aux(model, feature_batches, y_batch=y_batch)
                 loss = criterion(logits, y_batch) + aux_loss
             scaler.scale(loss).backward()
             scaler.step(optimizer)
@@ -327,17 +326,17 @@ def train_model(
         history["eval_losses"].append(eval_loss)
         history["eval_accuracies"].append(eval_metrics["accuracy"])
         history["eval_macro_accuracies"].append(eval_metrics["macro_accuracy"])
-        history["eval_f1_macros"].append(eval_metrics["f1_macro"])
-        history["eval_f1_weighteds"].append(eval_metrics["f1_weighted"])
         history["eval_maes"].append(eval_metrics["mae"])
-        history["eval_mses"].append(eval_metrics["mse"])
+        history["eval_macro_maes"].append(eval_metrics["macro_mae"])
+        history["eval_cohen_kappas"].append(eval_metrics["cohen_kappa"])
+        history["eval_qwks"].append(eval_metrics["quadratic_weighted_kappa"])
 
         if math.isfinite(eval_loss):
             selection_score = eval_loss
             selection_metric = "eval_loss"
         else:
-            selection_score = 1.0 - eval_metrics["f1_macro"]
-            selection_metric = "1_minus_eval_f1_macro"
+            selection_score = 1.0 - eval_metrics["macro_accuracy"]
+            selection_metric = "1_minus_macro_accuracy"
 
         if best_score - selection_score > min_delta:
             best_score = selection_score
@@ -353,10 +352,8 @@ def train_model(
                     f"selection_score={selection_score:.6f}, "
                     f"eval_acc={eval_metrics['accuracy']:.4f}, "
                     f"eval_macro_acc={eval_metrics['macro_accuracy']:.4f}, "
-                    f"eval_f1_macro={eval_metrics['f1_macro']:.4f}, "
-                    f"eval_f1_weighted={eval_metrics['f1_weighted']:.4f}, "
                     f"eval_mae={eval_metrics['mae']:.4f}, "
-                    f"eval_mse={eval_metrics['mse']:.4f}"
+                    f"eval_qwk={eval_metrics['quadratic_weighted_kappa']:.4f}"
                 )
         else:
             stale_epochs += 1
@@ -379,10 +376,8 @@ def train_model(
                 f"{epoch}/{epochs}, train_loss={train_loss:.6f}, "
                 f"eval_loss={eval_loss:.6f}, eval_acc={eval_metrics['accuracy']:.4f}, "
                 f"eval_macro_acc={eval_metrics['macro_accuracy']:.4f}, "
-                f"eval_f1_macro={eval_metrics['f1_macro']:.4f}, "
-                f"eval_f1_weighted={eval_metrics['f1_weighted']:.4f}, "
                 f"eval_mae={eval_metrics['mae']:.4f}, "
-                f"eval_mse={eval_metrics['mse']:.4f}, "
+                f"eval_qwk={eval_metrics['quadratic_weighted_kappa']:.4f}, "
                 f"stale_epochs={stale_epochs}, epoch_time_s={epoch_seconds:.2f}"
             )
 
@@ -484,7 +479,7 @@ def _evaluate_loss_and_metrics(
             ]
             y_batch = y_batch.to(device, non_blocking=pin_memory)
             with torch.amp.autocast("cuda", enabled=use_amp):
-                logits, aux_loss = _forward_model_with_aux(model, feature_batches)
+                logits, aux_loss = _forward_model_with_aux(model, feature_batches, y_batch=y_batch)
                 loss = criterion(logits, y_batch) + aux_loss
             total_loss += loss.item() * len(y_batch)
             total_samples += len(y_batch)
@@ -500,10 +495,7 @@ def _compute_prediction_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict[
         return {
             "accuracy": 0.0,
             "macro_accuracy": 0.0,
-            "f1_macro": 0.0,
-            "f1_weighted": 0.0,
             "mae": 0.0,
-            "mse": 0.0,
             "macro_mae": 0.0,
             "cohen_kappa": 0.0,
             "quadratic_weighted_kappa": 0.0,
@@ -512,8 +504,6 @@ def _compute_prediction_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict[
     return {
         "accuracy": float(accuracy_score(y_true, y_pred)),
         "macro_accuracy": float(balanced_accuracy_score(y_true, y_pred)),
-        "f1_macro": float(f1_score(y_true, y_pred, average="macro", zero_division=0)),
-        "f1_weighted": float(f1_score(y_true, y_pred, average="weighted", zero_division=0)),
         **label_distance_metrics_from_confusion(confusion),
         **agreement_metrics_from_confusion(confusion),
     }
@@ -545,12 +535,29 @@ def _forward_model(model: nn.Module, feature_batches: list[torch.Tensor]) -> tor
 def _forward_model_with_aux(
     model: nn.Module,
     feature_batches: list[torch.Tensor],
+    *,
+    y_batch: torch.Tensor | None = None,
 ) -> tuple[torch.Tensor, torch.Tensor]:
+    """Run forward pass and return (main_logits, scalar_aux_loss).
+
+    Handles two aux conventions:
+    - Scalar tensor (e.g. reconstruction loss): returned as-is.
+    - Dict of aux logits (SemanticGroupFusionModel): CE loss over each group
+      is averaged and scaled by model.aux_weight.
+    """
     if hasattr(model, "forward_with_aux"):
         if len(feature_batches) == 1:
-            logits, aux_loss = model.forward_with_aux(feature_batches[0])
+            logits, aux = model.forward_with_aux(feature_batches[0])
         else:
-            logits, aux_loss = model.forward_with_aux(*feature_batches)
-        return logits, aux_loss
+            logits, aux = model.forward_with_aux(*feature_batches)
+        if isinstance(aux, dict):
+            if y_batch is None:
+                return logits, logits.new_zeros(())
+            aux_weight = float(getattr(model, "aux_weight", 0.2))
+            aux_loss = aux_weight * torch.stack(
+                [F.cross_entropy(a, y_batch) for a in aux.values()]
+            ).mean()
+            return logits, aux_loss
+        return logits, aux
     logits = _forward_model(model, feature_batches)
     return logits, logits.new_zeros(())

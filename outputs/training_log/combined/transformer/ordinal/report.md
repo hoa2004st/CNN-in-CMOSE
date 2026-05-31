@@ -1,6 +1,6 @@
 # openface_transformer [Ordinal]
 
-- Run folder: `transformer/ordinal`
+- Run folder: `combined/transformer/ordinal`
 - Metrics file: `outputs\training_log\combined\transformer\ordinal\metrics.json`
 - Accuracy: 0.5012
 - Macro Accuracy: 0.5481

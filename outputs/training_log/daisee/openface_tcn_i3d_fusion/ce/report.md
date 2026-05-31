@@ -1,6 +1,6 @@
 # fusion [CE]
 
-- Run folder: `openface_tcn_i3d_fusion/ce`
+- Run folder: `daisee/openface_tcn_i3d_fusion/ce`
 - Metrics file: `outputs\training_log\daisee\openface_tcn_i3d_fusion\ce\metrics.json`
 - Accuracy: 0.5392
 - Macro Accuracy: 0.2838

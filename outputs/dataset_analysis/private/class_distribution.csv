@@ -1,5 +1,5 @@
-domain,class_id,class_label,count,proportion
-private,0,Highly Disengage,11,0.029891304347826088
-private,1,Disengage,52,0.14130434782608695
-private,2,Engage,261,0.7092391304347826
-private,3,Highly Engage,44,0.11956521739130435
+class,label_id,count,proportion
+Highly Disengage,0,11,0.029891
+Disengage,1,52,0.141304
+Engage,2,261,0.709239
+Highly Engage,3,44,0.119565

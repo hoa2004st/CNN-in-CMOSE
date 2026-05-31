@@ -1,6 +1,6 @@
 # openface_transformer [Ordinal]
 
-- Run folder: `transformer/ordinal`
+- Run folder: `daisee/transformer/ordinal`
 - Metrics file: `outputs\training_log\daisee\transformer\ordinal\metrics.json`
 - Accuracy: 0.3716
 - Macro Accuracy: 0.4522

@@ -1,6 +1,6 @@
 # openface_lstm [CE]
 
-- Run folder: `lstm/ce`
+- Run folder: `daisee/lstm/ce`
 - Metrics file: `outputs\training_log\daisee\lstm\ce\metrics.json`
 - Accuracy: 0.4989
 - Macro Accuracy: 0.2594

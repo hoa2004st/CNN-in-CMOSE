@@ -55,7 +55,7 @@ LOSS_SLUGS = list(COMPARISON_LOSS_SLUGS)
 MODEL_RUNS = {}
 for _model in MODEL_NAMES:
     for _loss_slug in LOSS_SLUGS:
-        _run_dir = training_run_dir(model_name=_model, loss_name=_loss_slug)
+        _run_dir = training_run_dir(model_name=_model, loss_name=_loss_slug, dataset="cmose")
         _config = {
             "model": _model,
             "checkpoint": str(_run_dir / "best_model.pth"),

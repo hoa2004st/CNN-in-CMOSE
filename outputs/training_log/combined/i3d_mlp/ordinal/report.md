@@ -1,6 +1,6 @@
 # i3d_mlp [Ordinal]
 
-- Run folder: `i3d_mlp/ordinal`
+- Run folder: `combined/i3d_mlp/ordinal`
 - Metrics file: `outputs\training_log\combined\i3d_mlp\ordinal\metrics.json`
 - Accuracy: 0.5221
 - Macro Accuracy: 0.5299

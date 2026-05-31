@@ -47,6 +47,11 @@ LOSS_LABELS = LOSS_DISPLAY_NAMES
 LOSS_SLUGS = LOSS_SLUG_TO_NAME
 BAR_WIDTH = 0.52
 
+DATASET_ORDER = ["cmose", "daisee", "combined"]
+DATASET_DISPLAY = {"cmose": "CMOSE", "daisee": "DaiSEE", "combined": "Combined"}
+DATASET_COLORS = {"cmose": "#0072B2", "daisee": "#009E73", "combined": "#D55E00"}
+LOSS_LINE_STYLES = {"CE": "-", "Weighted CE": "--", "Ordinal": ":"}
+
 
 @dataclass
 class RunResult:
@@ -56,6 +61,13 @@ class RunResult:
     config: dict
     history: dict
     metrics: dict
+
+    @property
+    def dataset(self) -> str:
+        parts = self.run_name.split("/")
+        if parts[0] in DATASET_ORDER:
+            return parts[0]
+        return "cmose"
 
     @property
     def base_model(self) -> str:
@@ -163,6 +175,7 @@ def build_summary_frame(runs: list[RunResult]) -> pd.DataFrame:
         rows.append(
             {
                 "run_name": run.run_name,
+                "dataset": run.dataset,
                 "model_label": run.model_label,
                 "comparison_label": run.comparison_label,
                 "base_model": run.base_model,
@@ -542,6 +555,138 @@ def write_run_report(run: RunResult, run_viz_dir: Path) -> None:
     (run_viz_dir / "report.md").write_text("\n".join(lines), encoding="utf-8")
 
 
+def plot_per_model_training_curves(runs: list[RunResult], outputs_dir: Path) -> None:
+    """For each model, one chart with (dataset × loss) grid of loss curves."""
+    from itertools import product
+
+    by_model: dict[str, list[RunResult]] = {}
+    for run in runs:
+        by_model.setdefault(run.base_model, []).append(run)
+
+    for model_key_name, model_runs in by_model.items():
+        datasets_present = [d for d in DATASET_ORDER if any(r.dataset == d for r in model_runs)]
+        losses_present = [ll for ll in LOSS_LABEL_ORDER if any(r.loss_label == ll for r in model_runs)]
+        if not datasets_present or not losses_present:
+            continue
+
+        n_rows = len(datasets_present)
+        n_cols = len(losses_present)
+        fig, axes = plt.subplots(n_rows, n_cols, figsize=(6 * n_cols, 4 * n_rows), dpi=150, squeeze=False)
+
+        for row_idx, dataset_slug in enumerate(datasets_present):
+            for col_idx, loss_label in enumerate(losses_present):
+                ax = axes[row_idx][col_idx]
+                run_match = next(
+                    (r for r in model_runs if r.dataset == dataset_slug and r.loss_label == loss_label),
+                    None,
+                )
+                dataset_display = DATASET_DISPLAY.get(dataset_slug, dataset_slug)
+                ax.set_title(f"{dataset_display} — {loss_label}", fontsize=10)
+                ax.set_xlabel("Epoch")
+                ax.set_ylabel("Loss")
+                if run_match is None:
+                    ax.text(0.5, 0.5, "No run", ha="center", va="center", transform=ax.transAxes)
+                    ax.axis("off")
+                    continue
+                train_losses = run_match.history.get("train_losses", [])
+                eval_losses = run_match.history.get("eval_losses", [])
+                if not train_losses:
+                    ax.text(0.5, 0.5, "No data", ha="center", va="center", transform=ax.transAxes)
+                    continue
+                epochs = list(range(1, len(train_losses) + 1))
+                dataset_color = DATASET_COLORS.get(dataset_slug, "#4D4D4D")
+                ax.plot(epochs, train_losses, label="Train", linewidth=1.5, color=dataset_color, linestyle="-")
+                if eval_losses:
+                    ax.plot(
+                        epochs[: len(eval_losses)],
+                        eval_losses,
+                        label="Eval",
+                        linewidth=1.5,
+                        color=dataset_color,
+                        linestyle="--",
+                    )
+                best_epoch = run_match.history.get("best_epoch", 0)
+                if best_epoch:
+                    ax.axvline(best_epoch, color="#999999", linestyle=":", linewidth=1.0, label=f"Best ({best_epoch})")
+                ax.legend(fontsize=8)
+                ax.grid(axis="y", alpha=0.18)
+
+        model_display = MODEL_DISPLAY_NAMES.get(model_key_name, model_key_name)
+        fig.suptitle(f"Training Curves: {model_display}", fontsize=13, y=1.01)
+        fig.tight_layout()
+
+        logs_dir = outputs_dir / "logs"
+        logs_dir.mkdir(parents=True, exist_ok=True)
+        fig.savefig(logs_dir / f"{model_key_name}_training_curves.png", dpi=160, bbox_inches="tight")
+        plt.close(fig)
+
+
+def plot_epoch_counts_overview(summary_df: pd.DataFrame, outputs_dir: Path) -> None:
+    """Bar chart per dataset showing best_epoch for each model × loss combination."""
+    if summary_df.empty or "best_epoch" not in summary_df.columns:
+        return
+
+    datasets_present = [d for d in DATASET_ORDER if d in summary_df["dataset"].values]
+    if not datasets_present:
+        return
+
+    n_rows = len(datasets_present)
+    fig, axes = plt.subplots(n_rows, 1, figsize=(14, 4 * n_rows), dpi=150, squeeze=False)
+
+    loss_colors = {
+        "CE": "#0072B2",
+        "Weighted CE": "#009E73",
+        "Ordinal": "#D55E00",
+    }
+
+    for row_idx, dataset_slug in enumerate(datasets_present):
+        ax = axes[row_idx][0]
+        df_ds = summary_df[summary_df["dataset"] == dataset_slug].copy()
+        if df_ds.empty:
+            ax.axis("off")
+            continue
+
+        model_labels = [MODEL_DISPLAY_NAMES.get(m, m) for m in MODEL_ORDER if m in df_ds["base_model"].values]
+        losses_present = [ll for ll in LOSS_LABEL_ORDER if ll in df_ds["loss_label"].values]
+        n_losses = len(losses_present)
+        group_width = 0.7
+        bar_width = group_width / max(n_losses, 1)
+        offsets = [i * bar_width - group_width / 2 + bar_width / 2 for i in range(n_losses)]
+
+        x_positions = list(range(len(model_labels)))
+        model_display_to_key = {MODEL_DISPLAY_NAMES.get(m, m): m for m in MODEL_ORDER}
+
+        for loss_idx, loss_label in enumerate(losses_present):
+            df_loss = df_ds[df_ds["loss_label"] == loss_label]
+            heights = []
+            for display in model_labels:
+                model_k = model_display_to_key.get(display, display)
+                row_match = df_loss[df_loss["base_model"] == model_k]
+                val = float(row_match["best_epoch"].iloc[0]) if not row_match.empty and pd.notna(row_match["best_epoch"].iloc[0]) else 0.0
+                heights.append(val)
+            bar_positions = [x + offsets[loss_idx] for x in x_positions]
+            color = loss_colors.get(loss_label, "#4D4D4D")
+            bars = ax.bar(bar_positions, heights, width=bar_width * 0.9, label=loss_label, color=color, alpha=0.85)
+            for bar, height in zip(bars, heights):
+                if height > 0:
+                    ax.text(bar.get_x() + bar.get_width() / 2, height + 1, str(int(height)), ha="center", va="bottom", fontsize=7)
+
+        dataset_display = DATASET_DISPLAY.get(dataset_slug, dataset_slug)
+        ax.set_title(f"{dataset_display}", fontsize=11)
+        ax.set_xticks(x_positions)
+        ax.set_xticklabels(model_labels, rotation=20, ha="right")
+        ax.set_ylabel("Best Epoch")
+        ax.legend(title="Loss", fontsize=8)
+        ax.grid(axis="y", alpha=0.2)
+        ax.set_ylim(bottom=0)
+
+    fig.suptitle("Epoch Counts by Model and Dataset", fontsize=14, y=1.01)
+    fig.tight_layout()
+    outputs_dir.mkdir(parents=True, exist_ok=True)
+    fig.savefig(outputs_dir / "epoch_counts_overview.png", dpi=160, bbox_inches="tight")
+    plt.close(fig)
+
+
 def visualize_run(run: RunResult) -> None:
     run.run_dir.mkdir(parents=True, exist_ok=True)
     plot_training_curves(run, run.run_dir)
@@ -571,6 +716,9 @@ def main() -> None:
 
     for run in runs:
         visualize_run(run)
+
+    plot_per_model_training_curves(runs, outputs_dir)
+    plot_epoch_counts_overview(summary_df, outputs_dir)
 
     print(
         f"Saved per-run training curves under {outputs_dir} and CMOSE assessment charts under {assessment_dir}"

@@ -1,6 +1,6 @@
 # i3d_mlp [Ordinal]
 
-- Run folder: `i3d_mlp/ordinal`
+- Run folder: `daisee/i3d_mlp/ordinal`
 - Metrics file: `outputs\training_log\daisee\i3d_mlp\ordinal\metrics.json`
 - Accuracy: 0.3049
 - Macro Accuracy: 0.2808

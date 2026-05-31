@@ -1,6 +1,6 @@
 # openface_transformer [Weighted CE]
 
-- Run folder: `transformer/weighted_ce`
+- Run folder: `combined/transformer/weighted_ce`
 - Metrics file: `outputs\training_log\combined\transformer\weighted_ce\metrics.json`
 - Accuracy: 0.5245
 - Macro Accuracy: 0.5094

@@ -44,7 +44,7 @@ from src.feature_extraction.extract_openface import (
     resample_frames,
 )
 from src.models.models import build_model
-from src.output_paths import MODEL_ASSESSMENT_DIR, MANUAL_LABELS_CSV, model_output_name, loss_slug
+from src.output_paths import MODEL_ASSESSMENT_DIR, NAIVE_ASSESSMENT_DIR, MANUAL_LABELS_CSV, model_output_name, loss_slug
 
 # ---------------------------------------------------------------------------
 # Configuration
@@ -85,7 +85,7 @@ class TestConfig:
 TRAIN_CONFIGS: list[TrainConfig] = [
     TrainConfig(
         name="cmose",
-        training_root=REPO_ROOT / "outputs/training_log",
+        training_root=REPO_ROOT / "outputs/training_log/cmose",
         labels_json=REPO_ROOT / "data/CMOSE/final_data_1.json",
         openface_dir=REPO_ROOT / "data/CMOSE/secondFeature",
         i3d_dir=REPO_ROOT / "data/CMOSE/features/i3d",
@@ -397,7 +397,13 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--fusion_frames",  type=int, default=75)
     p.add_argument("--batch_size",     type=int, default=64)
     p.add_argument("--device", choices=["auto", "cpu", "cuda"], default="auto")
-    p.add_argument("--output_dir", default=str(MODEL_ASSESSMENT_DIR))
+    p.add_argument("--output_dir", default=str(NAIVE_ASSESSMENT_DIR))
+    p.add_argument(
+        "--only_test_set",
+        default=None,
+        choices=["cmose_test", "daisee_test", "private"],
+        help="If set, evaluate only this test set and merge results into the existing CSV.",
+    )
     return p
 
 
@@ -410,6 +416,10 @@ def main(argv: list[str] | None = None) -> None:
     print(f"Device: {device}")
 
     all_rows: list[dict[str, Any]] = []
+    active_test_configs = (
+        [tc for tc in TEST_CONFIGS if tc.name == args.only_test_set]
+        if args.only_test_set else TEST_CONFIGS
+    )
 
     for train_cfg in TRAIN_GROUPS_ACTIVE(TRAIN_CONFIGS):
         # Discover checkpoints
@@ -440,7 +450,7 @@ def main(argv: list[str] | None = None) -> None:
         i3d_mean, i3d_std = _fit_i3d_norm(train_ids, feature_dir=train_cfg.i3d_dir,
                                             target_frames=args.fusion_frames)
 
-        for test_cfg in TEST_CONFIGS:
+        for test_cfg in active_test_configs:
             print(f"\n  Test set: {test_cfg.name}")
 
             # Load and normalize test features
@@ -523,6 +533,12 @@ def main(argv: list[str] | None = None) -> None:
 
     results = pd.DataFrame(all_rows)
     out_csv = out / "full_matrix.csv"
+
+    if args.only_test_set and out_csv.exists():
+        existing = pd.read_csv(out_csv)
+        existing = existing[existing["test_set"] != args.only_test_set]
+        results = pd.concat([existing, results], ignore_index=True)
+
     results.to_csv(out_csv, index=False)
     print(f"\n{'='*60}")
     print(f"Full matrix saved -> {out_csv}")

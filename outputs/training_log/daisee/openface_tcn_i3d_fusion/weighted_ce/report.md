@@ -1,6 +1,6 @@
 # fusion [Weighted CE]
 
-- Run folder: `openface_tcn_i3d_fusion/weighted_ce`
+- Run folder: `daisee/openface_tcn_i3d_fusion/weighted_ce`
 - Metrics file: `outputs\training_log\daisee\openface_tcn_i3d_fusion\weighted_ce\metrics.json`
 - Accuracy: 0.4944
 - Macro Accuracy: 0.2500

@@ -1,0 +1,480 @@
+{
+  "ablation_root": "outputs\\training_log\\combined\\semantic_group_fusion",
+  "total_variants": 32,
+  "best_hybrid": {
+    "arch_key": "T_TCN_TCN_TCN_TCN",
+    "group_architectures": "{\"gaze\": \"transformer\", \"eye\": \"tcn\", \"face\": \"tcn\", \"head\": \"tcn\", \"au\": \"tcn\"}",
+    "metrics": {
+      "quadratic_weighted_kappa": 0.6008445140638834,
+      "accuracy": 0.769041769041769,
+      "macro_accuracy": 0.5937948415221143,
+      "f1_macro": 0.619247702094723,
+      "f1_weighted": 0.7625684224750058,
+      "mae": 0.2457002457002457,
+      "mse": 0.2751842751842752
+    }
+  },
+  "naive": {
+    "arch_key": "transformer",
+    "metrics_path": "outputs\\training_log\\combined\\transformer\\ce\\metrics.json",
+    "metrics": {
+      "quadratic_weighted_kappa": 0.3815158097421828,
+      "accuracy": 0.6066555740432612,
+      "macro_accuracy": 0.43943877558771444,
+      "f1_macro": 0.47829314521306415,
+      "f1_weighted": 0.5875287479699701,
+      "mae": 0.4096505823627288,
+      "mse": 0.44292845257903496
+    }
+  },
+  "all_variants_ranked": [
+    {
+      "rank": 1,
+      "arch_key": "T_TCN_TCN_TCN_TCN",
+      "group_architectures": "{\"gaze\": \"transformer\", \"eye\": \"tcn\", \"face\": \"tcn\", \"head\": \"tcn\", \"au\": \"tcn\"}",
+      "metrics": {
+        "quadratic_weighted_kappa": 0.6008445140638834,
+        "accuracy": 0.769041769041769,
+        "macro_accuracy": 0.5937948415221143,
+        "f1_macro": 0.619247702094723,
+        "f1_weighted": 0.7625684224750058,
+        "mae": 0.2457002457002457,
+        "mse": 0.2751842751842752
+      }
+    },
+    {
+      "rank": 2,
+      "arch_key": "T_TCN_TCN_TCN_T",
+      "group_architectures": "{\"gaze\": \"transformer\", \"eye\": \"tcn\", \"face\": \"tcn\", \"head\": \"tcn\", \"au\": \"transformer\"}",
+      "metrics": {
+        "quadratic_weighted_kappa": 0.5872956124616382,
+        "accuracy": 0.7657657657657657,
+        "macro_accuracy": 0.5803367936332678,
+        "f1_macro": 0.6015158943974654,
+        "f1_weighted": 0.7625469674688993,
+        "mae": 0.25225225225225223,
+        "mse": 0.2882882882882883
+      }
+    },
+    {
+      "rank": 3,
+      "arch_key": "TCN_TCN_T_TCN_TCN",
+      "group_architectures": "{\"gaze\": \"tcn\", \"eye\": \"tcn\", \"face\": \"transformer\", \"head\": \"tcn\", \"au\": \"tcn\"}",
+      "metrics": {
+        "quadratic_weighted_kappa": 0.5839448625894704,
+        "accuracy": 0.76003276003276,
+        "macro_accuracy": 0.5971416465343774,
+        "f1_macro": 0.6135174720719891,
+        "f1_weighted": 0.7577549085149147,
+        "mae": 0.2588042588042588,
+        "mse": 0.2964782964782965
+      }
+    },
+    {
+      "rank": 4,
+      "arch_key": "TCN_T_T_TCN_TCN",
+      "group_architectures": "{\"gaze\": \"tcn\", \"eye\": \"transformer\", \"face\": \"transformer\", \"head\": \"tcn\", \"au\": \"tcn\"}",
+      "metrics": {
+        "quadratic_weighted_kappa": 0.5835970597967193,
+        "accuracy": 0.7731367731367731,
+        "macro_accuracy": 0.573214619604994,
+        "f1_macro": 0.6100182442553671,
+        "f1_weighted": 0.7626322927711208,
+        "mae": 0.24242424242424243,
+        "mse": 0.2751842751842752
+      }
+    },
+    {
+      "rank": 5,
+      "arch_key": "TCN_TCN_T_TCN_T",
+      "group_architectures": "{\"gaze\": \"tcn\", \"eye\": \"tcn\", \"face\": \"transformer\", \"head\": \"tcn\", \"au\": \"transformer\"}",
+      "metrics": {
+        "quadratic_weighted_kappa": 0.5793180353133822,
+        "accuracy": 0.7641277641277642,
+        "macro_accuracy": 0.6145033023715158,
+        "f1_macro": 0.6239686067646291,
+        "f1_weighted": 0.7616973463048261,
+        "mae": 0.2588042588042588,
+        "mse": 0.3046683046683047
+      }
+    },
+    {
+      "rank": 6,
+      "arch_key": "TCN_T_TCN_TCN_TCN",
+      "group_architectures": "{\"gaze\": \"tcn\", \"eye\": \"transformer\", \"face\": \"tcn\", \"head\": \"tcn\", \"au\": \"tcn\"}",
+      "metrics": {
+        "quadratic_weighted_kappa": 0.5709768095572734,
+        "accuracy": 0.7706797706797707,
+        "macro_accuracy": 0.5844880941590812,
+        "f1_macro": 0.6075259361931712,
+        "f1_weighted": 0.7639996986432103,
+        "mae": 0.25061425061425063,
+        "mse": 0.2964782964782965
+      }
+    },
+    {
+      "rank": 7,
+      "arch_key": "TCN_TCN_TCN_TCN_T",
+      "group_architectures": "{\"gaze\": \"tcn\", \"eye\": \"tcn\", \"face\": \"tcn\", \"head\": \"tcn\", \"au\": \"transformer\"}",
+      "metrics": {
+        "quadratic_weighted_kappa": 0.5644013850512399,
+        "accuracy": 0.7633087633087633,
+        "macro_accuracy": 0.578343889410689,
+        "f1_macro": 0.6129125666302551,
+        "f1_weighted": 0.7546079919058613,
+        "mae": 0.2547092547092547,
+        "mse": 0.29238329238329236
+      }
+    },
+    {
+      "rank": 8,
+      "arch_key": "TCN_T_TCN_TCN_T",
+      "group_architectures": "{\"gaze\": \"tcn\", \"eye\": \"transformer\", \"face\": \"tcn\", \"head\": \"tcn\", \"au\": \"transformer\"}",
+      "metrics": {
+        "quadratic_weighted_kappa": 0.5637246794930693,
+        "accuracy": 0.7788697788697788,
+        "macro_accuracy": 0.5770171186558388,
+        "f1_macro": 0.6144834734279371,
+        "f1_weighted": 0.7671740105323368,
+        "mae": 0.24242424242424243,
+        "mse": 0.28665028665028663
+      }
+    },
+    {
+      "rank": 9,
+      "arch_key": "T_T_TCN_TCN_T",
+      "group_architectures": "{\"gaze\": \"transformer\", \"eye\": \"transformer\", \"face\": \"tcn\", \"head\": \"tcn\", \"au\": \"transformer\"}",
+      "metrics": {
+        "quadratic_weighted_kappa": 0.5599023396372451,
+        "accuracy": 0.7518427518427518,
+        "macro_accuracy": 0.5820310999614,
+        "f1_macro": 0.6003332380693588,
+        "f1_weighted": 0.7484068053538155,
+        "mae": 0.26863226863226863,
+        "mse": 0.31122031122031124
+      }
+    },
+    {
+      "rank": 10,
+      "arch_key": "T_TCN_T_TCN_TCN",
+      "group_architectures": "{\"gaze\": \"transformer\", \"eye\": \"tcn\", \"face\": \"transformer\", \"head\": \"tcn\", \"au\": \"tcn\"}",
+      "metrics": {
+        "quadratic_weighted_kappa": 0.557929475435236,
+        "accuracy": 0.7592137592137592,
+        "macro_accuracy": 0.5653703248623034,
+        "f1_macro": 0.5972343331788266,
+        "f1_weighted": 0.7531745007530363,
+        "mae": 0.2596232596232596,
+        "mse": 0.2989352989352989
+      }
+    },
+    {
+      "rank": 11,
+      "arch_key": "T_TCN_T_TCN_T",
+      "group_architectures": "{\"gaze\": \"transformer\", \"eye\": \"tcn\", \"face\": \"transformer\", \"head\": \"tcn\", \"au\": \"transformer\"}",
+      "metrics": {
+        "quadratic_weighted_kappa": 0.5536947439167705,
+        "accuracy": 0.7567567567567568,
+        "macro_accuracy": 0.5731638682173441,
+        "f1_macro": 0.6013795900480612,
+        "f1_weighted": 0.7501428857802636,
+        "mae": 0.26371826371826373,
+        "mse": 0.3046683046683047
+      }
+    },
+    {
+      "rank": 12,
+      "arch_key": "T_T_T_TCN_T",
+      "group_architectures": "{\"gaze\": \"transformer\", \"eye\": \"transformer\", \"face\": \"transformer\", \"head\": \"tcn\", \"au\": \"transformer\"}",
+      "metrics": {
+        "quadratic_weighted_kappa": 0.545217960835835,
+        "accuracy": 0.7583947583947583,
+        "macro_accuracy": 0.5704020985811976,
+        "f1_macro": 0.5932489192327787,
+        "f1_weighted": 0.7530763829465495,
+        "mae": 0.26453726453726456,
+        "mse": 0.3153153153153153
+      }
+    },
+    {
+      "rank": 13,
+      "arch_key": "T_T_TCN_TCN_TCN",
+      "group_architectures": "{\"gaze\": \"transformer\", \"eye\": \"transformer\", \"face\": \"tcn\", \"head\": \"tcn\", \"au\": \"tcn\"}",
+      "metrics": {
+        "quadratic_weighted_kappa": 0.5448036081158294,
+        "accuracy": 0.7624897624897625,
+        "macro_accuracy": 0.5493984783457275,
+        "f1_macro": 0.5801877821920379,
+        "f1_weighted": 0.7507922476751433,
+        "mae": 0.2588042588042588,
+        "mse": 0.3013923013923014
+      }
+    },
+    {
+      "rank": 14,
+      "arch_key": "TCN_TCN_TCN_T_T",
+      "group_architectures": "{\"gaze\": \"tcn\", \"eye\": \"tcn\", \"face\": \"tcn\", \"head\": \"transformer\", \"au\": \"transformer\"}",
+      "metrics": {
+        "quadratic_weighted_kappa": 0.5420683963372911,
+        "accuracy": 0.7665847665847666,
+        "macro_accuracy": 0.5420674109720607,
+        "f1_macro": 0.5789383294301327,
+        "f1_weighted": 0.7504318625630101,
+        "mae": 0.25307125307125306,
+        "mse": 0.294021294021294
+      }
+    },
+    {
+      "rank": 15,
+      "arch_key": "TCN_T_T_T_TCN",
+      "group_architectures": "{\"gaze\": \"tcn\", \"eye\": \"transformer\", \"face\": \"transformer\", \"head\": \"transformer\", \"au\": \"tcn\"}",
+      "metrics": {
+        "quadratic_weighted_kappa": 0.5420614293818427,
+        "accuracy": 0.742014742014742,
+        "macro_accuracy": 0.5632730271631748,
+        "f1_macro": 0.5795128396496525,
+        "f1_weighted": 0.7397455404422194,
+        "mae": 0.2800982800982801,
+        "mse": 0.32596232596232594
+      }
+    },
+    {
+      "rank": 16,
+      "arch_key": "TCN_TCN_TCN_TCN_TCN",
+      "group_architectures": "{\"gaze\": \"tcn\", \"eye\": \"tcn\", \"face\": \"tcn\", \"head\": \"tcn\", \"au\": \"tcn\"}",
+      "metrics": {
+        "quadratic_weighted_kappa": 0.5395849315904288,
+        "accuracy": 0.7583947583947583,
+        "macro_accuracy": 0.5776474567759803,
+        "f1_macro": 0.6120528792130011,
+        "f1_weighted": 0.7501530133230551,
+        "mae": 0.2628992628992629,
+        "mse": 0.30876330876330876
+      }
+    },
+    {
+      "rank": 17,
+      "arch_key": "T_T_TCN_T_T",
+      "group_architectures": "{\"gaze\": \"transformer\", \"eye\": \"transformer\", \"face\": \"tcn\", \"head\": \"transformer\", \"au\": \"transformer\"}",
+      "metrics": {
+        "quadratic_weighted_kappa": 0.5345572990110548,
+        "accuracy": 0.7608517608517609,
+        "macro_accuracy": 0.5399063548614894,
+        "f1_macro": 0.5767266836527899,
+        "f1_weighted": 0.7476814519953638,
+        "mae": 0.2596232596232596,
+        "mse": 0.3022113022113022
+      }
+    },
+    {
+      "rank": 18,
+      "arch_key": "TCN_TCN_TCN_T_TCN",
+      "group_architectures": "{\"gaze\": \"tcn\", \"eye\": \"tcn\", \"face\": \"tcn\", \"head\": \"transformer\", \"au\": \"tcn\"}",
+      "metrics": {
+        "quadratic_weighted_kappa": 0.5343536778429121,
+        "accuracy": 0.7542997542997543,
+        "macro_accuracy": 0.5536615609533221,
+        "f1_macro": 0.5896245062576546,
+        "f1_weighted": 0.7445609318268178,
+        "mae": 0.26617526617526616,
+        "mse": 0.30876330876330876
+      }
+    },
+    {
+      "rank": 19,
+      "arch_key": "TCN_T_TCN_T_TCN",
+      "group_architectures": "{\"gaze\": \"tcn\", \"eye\": \"transformer\", \"face\": \"tcn\", \"head\": \"transformer\", \"au\": \"tcn\"}",
+      "metrics": {
+        "quadratic_weighted_kappa": 0.5310833146053032,
+        "accuracy": 0.7411957411957412,
+        "macro_accuracy": 0.5528730220201261,
+        "f1_macro": 0.5690821158262973,
+        "f1_weighted": 0.7380558353143027,
+        "mae": 0.28255528255528256,
+        "mse": 0.3316953316953317
+      }
+    },
+    {
+      "rank": 20,
+      "arch_key": "T_T_TCN_T_TCN",
+      "group_architectures": "{\"gaze\": \"transformer\", \"eye\": \"transformer\", \"face\": \"tcn\", \"head\": \"transformer\", \"au\": \"tcn\"}",
+      "metrics": {
+        "quadratic_weighted_kappa": 0.5257906227532644,
+        "accuracy": 0.7592137592137592,
+        "macro_accuracy": 0.5444916091793641,
+        "f1_macro": 0.5759242251387924,
+        "f1_weighted": 0.7470136004633945,
+        "mae": 0.26453726453726456,
+        "mse": 0.31367731367731366
+      }
+    },
+    {
+      "rank": 21,
+      "arch_key": "TCN_TCN_T_T_TCN",
+      "group_architectures": "{\"gaze\": \"tcn\", \"eye\": \"tcn\", \"face\": \"transformer\", \"head\": \"transformer\", \"au\": \"tcn\"}",
+      "metrics": {
+        "quadratic_weighted_kappa": 0.5225803894430239,
+        "accuracy": 0.7616707616707616,
+        "macro_accuracy": 0.5330589355355965,
+        "f1_macro": 0.5817105333385718,
+        "f1_weighted": 0.7463812592347359,
+        "mae": 0.257985257985258,
+        "mse": 0.2989352989352989
+      }
+    },
+    {
+      "rank": 22,
+      "arch_key": "T_T_T_TCN_TCN",
+      "group_architectures": "{\"gaze\": \"transformer\", \"eye\": \"transformer\", \"face\": \"transformer\", \"head\": \"tcn\", \"au\": \"tcn\"}",
+      "metrics": {
+        "quadratic_weighted_kappa": 0.5204679621864895,
+        "accuracy": 0.7428337428337428,
+        "macro_accuracy": 0.5244317813972487,
+        "f1_macro": 0.5567914955204493,
+        "f1_weighted": 0.7285995832346844,
+        "mae": 0.276003276003276,
+        "mse": 0.31367731367731366
+      }
+    },
+    {
+      "rank": 23,
+      "arch_key": "T_TCN_T_T_TCN",
+      "group_architectures": "{\"gaze\": \"transformer\", \"eye\": \"tcn\", \"face\": \"transformer\", \"head\": \"transformer\", \"au\": \"tcn\"}",
+      "metrics": {
+        "quadratic_weighted_kappa": 0.5193843623281466,
+        "accuracy": 0.7674037674037674,
+        "macro_accuracy": 0.5200602510876235,
+        "f1_macro": 0.5721457236902754,
+        "f1_weighted": 0.7489754764931529,
+        "mae": 0.25225225225225223,
+        "mse": 0.2932022932022932
+      }
+    },
+    {
+      "rank": 24,
+      "arch_key": "TCN_T_T_TCN_T",
+      "group_architectures": "{\"gaze\": \"tcn\", \"eye\": \"transformer\", \"face\": \"transformer\", \"head\": \"tcn\", \"au\": \"transformer\"}",
+      "metrics": {
+        "quadratic_weighted_kappa": 0.5163313541753778,
+        "accuracy": 0.7567567567567568,
+        "macro_accuracy": 0.5176004227803376,
+        "f1_macro": 0.5721982140508699,
+        "f1_weighted": 0.7389448707954426,
+        "mae": 0.26044226044226043,
+        "mse": 0.29484029484029484
+      }
+    },
+    {
+      "rank": 25,
+      "arch_key": "TCN_TCN_T_T_T",
+      "group_architectures": "{\"gaze\": \"tcn\", \"eye\": \"tcn\", \"face\": \"transformer\", \"head\": \"transformer\", \"au\": \"transformer\"}",
+      "metrics": {
+        "quadratic_weighted_kappa": 0.5090304202626801,
+        "accuracy": 0.7616707616707616,
+        "macro_accuracy": 0.5222308666589461,
+        "f1_macro": 0.5638505208911845,
+        "f1_weighted": 0.7478541801824649,
+        "mae": 0.2620802620802621,
+        "mse": 0.31122031122031124
+      }
+    },
+    {
+      "rank": 26,
+      "arch_key": "T_TCN_TCN_T_T",
+      "group_architectures": "{\"gaze\": \"transformer\", \"eye\": \"tcn\", \"face\": \"tcn\", \"head\": \"transformer\", \"au\": \"transformer\"}",
+      "metrics": {
+        "quadratic_weighted_kappa": 0.50612410411745,
+        "accuracy": 0.7502047502047502,
+        "macro_accuracy": 0.5462462263558974,
+        "f1_macro": 0.5843903172325665,
+        "f1_weighted": 0.7382930633141992,
+        "mae": 0.2727272727272727,
+        "mse": 0.3235053235053235
+      }
+    },
+    {
+      "rank": 27,
+      "arch_key": "TCN_T_TCN_T_T",
+      "group_architectures": "{\"gaze\": \"tcn\", \"eye\": \"transformer\", \"face\": \"tcn\", \"head\": \"transformer\", \"au\": \"transformer\"}",
+      "metrics": {
+        "quadratic_weighted_kappa": 0.5002426272949378,
+        "accuracy": 0.7575757575757576,
+        "macro_accuracy": 0.5236044975599041,
+        "f1_macro": 0.5624479479394802,
+        "f1_weighted": 0.7410376867629928,
+        "mae": 0.266994266994267,
+        "mse": 0.3177723177723178
+      }
+    },
+    {
+      "rank": 28,
+      "arch_key": "T_T_T_T_TCN",
+      "group_architectures": "{\"gaze\": \"transformer\", \"eye\": \"transformer\", \"face\": \"transformer\", \"head\": \"transformer\", \"au\": \"tcn\"}",
+      "metrics": {
+        "quadratic_weighted_kappa": 0.479957473832355,
+        "accuracy": 0.7592137592137592,
+        "macro_accuracy": 0.5117103009380721,
+        "f1_macro": 0.558136967955823,
+        "f1_weighted": 0.7391698656475039,
+        "mae": 0.26617526617526616,
+        "mse": 0.3202293202293202
+      }
+    },
+    {
+      "rank": 29,
+      "arch_key": "T_TCN_TCN_T_TCN",
+      "group_architectures": "{\"gaze\": \"transformer\", \"eye\": \"tcn\", \"face\": \"tcn\", \"head\": \"transformer\", \"au\": \"tcn\"}",
+      "metrics": {
+        "quadratic_weighted_kappa": 0.47883395215230373,
+        "accuracy": 0.7583947583947583,
+        "macro_accuracy": 0.5073219312184235,
+        "f1_macro": 0.5567776588439362,
+        "f1_weighted": 0.7360374364812435,
+        "mae": 0.26453726453726456,
+        "mse": 0.3153153153153153
+      }
+    },
+    {
+      "rank": 30,
+      "arch_key": "T_T_T_T_T",
+      "group_architectures": "{\"gaze\": \"transformer\", \"eye\": \"transformer\", \"face\": \"transformer\", \"head\": \"transformer\", \"au\": \"transformer\"}",
+      "metrics": {
+        "quadratic_weighted_kappa": 0.4705458302795833,
+        "accuracy": 0.7518427518427518,
+        "macro_accuracy": 0.49718195563160666,
+        "f1_macro": 0.5420875535512087,
+        "f1_weighted": 0.7323733773225403,
+        "mae": 0.2727272727272727,
+        "mse": 0.32514332514332517
+      }
+    },
+    {
+      "rank": 31,
+      "arch_key": "TCN_T_T_T_T",
+      "group_architectures": "{\"gaze\": \"tcn\", \"eye\": \"transformer\", \"face\": \"transformer\", \"head\": \"transformer\", \"au\": \"transformer\"}",
+      "metrics": {
+        "quadratic_weighted_kappa": 0.4694954390412691,
+        "accuracy": 0.7542997542997543,
+        "macro_accuracy": 0.4989984365312925,
+        "f1_macro": 0.5520137046760372,
+        "f1_weighted": 0.7321406028436532,
+        "mae": 0.26863226863226863,
+        "mse": 0.3177723177723178
+      }
+    },
+    {
+      "rank": 32,
+      "arch_key": "T_TCN_T_T_T",
+      "group_architectures": "{\"gaze\": \"transformer\", \"eye\": \"tcn\", \"face\": \"transformer\", \"head\": \"transformer\", \"au\": \"transformer\"}",
+      "metrics": {
+        "quadratic_weighted_kappa": 0.4562882770346467,
+        "accuracy": 0.7575757575757576,
+        "macro_accuracy": 0.48733541904483624,
+        "f1_macro": 0.5420389856822494,
+        "f1_weighted": 0.7290840796102137,
+        "mae": 0.26617526617526616,
+        "mse": 0.3153153153153153
+      }
+    }
+  ]
+}

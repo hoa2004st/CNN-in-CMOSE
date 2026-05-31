@@ -1,6 +1,6 @@
 # i3d_mlp [CE]
 
-- Run folder: `i3d_mlp/ce`
+- Run folder: `combined/i3d_mlp/ce`
 - Metrics file: `outputs\training_log\combined\i3d_mlp\ce\metrics.json`
 - Accuracy: 0.6326
 - Macro Accuracy: 0.4500

@@ -1,6 +1,6 @@
 # openface_transformer [CE]
 
-- Run folder: `transformer/ce`
+- Run folder: `combined/transformer/ce`
 - Metrics file: `outputs\training_log\combined\transformer\ce\metrics.json`
 - Accuracy: 0.6067
 - Macro Accuracy: 0.4394

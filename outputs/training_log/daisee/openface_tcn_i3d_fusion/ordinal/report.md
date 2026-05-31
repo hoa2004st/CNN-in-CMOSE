@@ -1,6 +1,6 @@
 # fusion [Ordinal]
 
-- Run folder: `openface_tcn_i3d_fusion/ordinal`
+- Run folder: `daisee/openface_tcn_i3d_fusion/ordinal`
 - Metrics file: `outputs\training_log\daisee\openface_tcn_i3d_fusion\ordinal\metrics.json`
 - Accuracy: 0.4944
 - Macro Accuracy: 0.2500

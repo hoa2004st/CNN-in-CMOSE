@@ -15,12 +15,16 @@ DATASET_PRIVATE_DIR = DATASET_ANALYSIS_DIR / "private"
 DATASET_COMPARISON_DIR = DATASET_ANALYSIS_DIR / "comparison"
 DOMAIN_DIFFERENCE_DIR = DATASET_COMPARISON_DIR / "domain_difference"
 
-CMOSE_TESTSET_ASSESSMENT_DIR = MODEL_ASSESSMENT_DIR / "cmose_testset"
-PRIVATE_ASSESSMENT_DIR = MODEL_ASSESSMENT_DIR / "private"
+NAIVE_ASSESSMENT_DIR = MODEL_ASSESSMENT_DIR / "naive"
+HYBRID_ASSESSMENT_DIR = MODEL_ASSESSMENT_DIR / "hybrid"
 MODEL_COMPARISON_ASSESSMENT_DIR = MODEL_ASSESSMENT_DIR / "comparison"
+
+# Legacy aliases
+CMOSE_TESTSET_ASSESSMENT_DIR = NAIVE_ASSESSMENT_DIR
+PRIVATE_ASSESSMENT_DIR = NAIVE_ASSESSMENT_DIR
 RAW_PREDICTION_DIR = MODEL_COMPARISON_ASSESSMENT_DIR / "raw_predictions"
 
-MANUAL_LABELS_DIR = DATASET_PRIVATE_DIR / "manual_labels"
+MANUAL_LABELS_DIR = Path("data/private")
 MANUAL_LABELS_CSV = MANUAL_LABELS_DIR / "private_manual_labels.csv"
 
 MODEL_OUTPUT_DIR_NAMES = {
@@ -30,6 +34,10 @@ MODEL_OUTPUT_DIR_NAMES = {
     "transformer": "transformer",
     "i3d_mlp": "i3d_mlp",
     "openface_tcn_i3d_fusion": "openface_tcn_i3d_fusion",
+    "openface_temporal_hybrid": "openface_temporal_hybrid",
+    "openface_temporal_i3d_hybrid": "openface_temporal_i3d_hybrid",
+    # Backward-compat alias → same folder as openface_temporal_hybrid
+    "semantic_group_fusion": "openface_temporal_hybrid",
 }
 
 MODEL_OUTPUT_ALIASES = {
@@ -37,6 +45,9 @@ MODEL_OUTPUT_ALIASES = {
     "temporal_cnn": "temporal_cnn",
     "tcn": "temporal_cnn",
     "id3_mlp": "i3d_mlp",
+    "openface_temporal_hybrid": "openface_temporal_hybrid",
+    "openface_temporal_i3d_hybrid": "openface_temporal_i3d_hybrid",
+    "semantic_group_fusion": "openface_temporal_hybrid",
 }
 
 LOSS_NAME_TO_SLUG = {
@@ -85,10 +96,14 @@ def training_run_dir(
     *,
     model_name: object,
     loss_name: object,
+    dataset: str | None = None,
     root: str | Path = TRAINING_LOG_DIR,
 ) -> Path:
-    """Return outputs/training_log/<model>/<loss> for a model/loss run."""
-    return Path(root) / model_output_name(model_name) / loss_slug(loss_name)
+    """Return outputs/training_log/[<dataset>/]<model>/<loss> for a model/loss run."""
+    base = Path(root)
+    if dataset is not None:
+        base = base / dataset
+    return base / model_output_name(model_name) / loss_slug(loss_name)
 
 
 def training_run_key(model_name: object, loss_name: object) -> str:

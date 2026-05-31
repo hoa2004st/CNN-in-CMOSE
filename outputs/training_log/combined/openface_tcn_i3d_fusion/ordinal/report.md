@@ -1,6 +1,6 @@
 # fusion [Ordinal]
 
-- Run folder: `openface_tcn_i3d_fusion/ordinal`
+- Run folder: `combined/openface_tcn_i3d_fusion/ordinal`
 - Metrics file: `outputs\training_log\combined\openface_tcn_i3d_fusion\ordinal\metrics.json`
 - Accuracy: 0.4849
 - Macro Accuracy: 0.5206

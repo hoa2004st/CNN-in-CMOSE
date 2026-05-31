@@ -1,6 +1,6 @@
 # openface_mlp [Ordinal]
 
-- Run folder: `openface_mlp/ordinal`
+- Run folder: `daisee/openface_mlp/ordinal`
 - Metrics file: `outputs\training_log\daisee\openface_mlp\ordinal\metrics.json`
 - Accuracy: 0.4725
 - Macro Accuracy: 0.2551

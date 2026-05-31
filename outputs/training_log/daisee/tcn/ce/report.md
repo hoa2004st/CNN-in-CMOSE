@@ -1,6 +1,6 @@
 # openface_tcn [CE]
 
-- Run folder: `tcn/ce`
+- Run folder: `daisee/tcn/ce`
 - Metrics file: `outputs\training_log\daisee\tcn\ce\metrics.json`
 - Accuracy: 0.5202
 - Macro Accuracy: 0.2723

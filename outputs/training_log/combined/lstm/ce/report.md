@@ -1,6 +1,6 @@
 # openface_lstm [CE]
 
-- Run folder: `lstm/ce`
+- Run folder: `combined/lstm/ce`
 - Metrics file: `outputs\training_log\combined\lstm\ce\metrics.json`
 - Accuracy: 0.6100
 - Macro Accuracy: 0.4126

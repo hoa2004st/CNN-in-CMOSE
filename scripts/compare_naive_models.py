@@ -36,6 +36,7 @@ def build_runner_parser() -> argparse.ArgumentParser:
         description="Run all kept models across the configured loss sweep in one process.",
     )
     parser.add_argument("--run_root", default=str(TRAINING_LOG_DIR))
+    parser.add_argument("--dataset", default="cmose", help="Dataset subfolder name (e.g. cmose, daisee, combined).")
     parser.add_argument("--epochs", type=int, default=400)
     parser.add_argument("--batch_size", type=int, default=64)
     parser.add_argument("--lr", type=float, default=1e-4)
@@ -61,7 +62,7 @@ def build_runner_parser() -> argparse.ArgumentParser:
 
 def main() -> None:
     args = build_runner_parser().parse_args()
-    run_root = Path(args.run_root)
+    run_root = Path(args.run_root) / args.dataset
     log_dir = run_root / "logs"
     log_dir.mkdir(parents=True, exist_ok=True)
 

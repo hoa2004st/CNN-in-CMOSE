@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import gc
+import json
 import logging
 from pathlib import Path
 
@@ -16,13 +17,20 @@ from src.feature_extraction.extract_i3d import (
 )
 from src.feature_extraction.extract_openface import (
     ID_TO_LABEL,
+    build_group_column_indices,
     describe_selection,
+    get_openface_feature_columns,
     load_cmose_metadata,
     load_dataset_matrices,
     resample_frames,
 )
 from src.evaluation.metrics import evaluate_predictions
-from src.models.models import build_model
+from src.models.models import (
+    build_model,
+    build_openface_temporal_hybrid,
+    build_openface_temporal_i3d_hybrid,
+)
+build_semantic_group_model = build_openface_temporal_hybrid  # backward compat
 from src.output_paths import training_run_dir
 from src.training.train import (
     fit_feature_normalizer,
@@ -44,8 +52,9 @@ CMOSE_TRAIN_SPLIT = "train"
 CMOSE_EVAL_SPLIT_KEY = "unlabel"
 CMOSE_TEST_SPLIT_KEY = "test"
 I3D_ONLY_MODELS = {"i3d_mlp"}
-MULTIMODAL_MODELS = {"openface_tcn_i3d_fusion"}
+MULTIMODAL_MODELS = {"openface_tcn_i3d_fusion", "openface_temporal_i3d_hybrid"}
 I3D_ENABLED_MODELS = I3D_ONLY_MODELS | MULTIMODAL_MODELS
+HYBRID_MODELS = {"openface_temporal_hybrid", "openface_temporal_i3d_hybrid", "semantic_group_fusion"}
 _OPENFACE_SPLIT_CACHE: dict[tuple[str, str, int], dict[str, object]] = {}
 _I3D_SPLIT_CACHE: dict[tuple[str, int, tuple[str, ...], tuple[str, ...], tuple[str, ...]], dict[str, object]] = {}
 
@@ -114,10 +123,11 @@ def resolve_output_dir(
     model_name: str,
     loss_name: str,
     focal_gamma: float,
+    dataset: str | None = None,
 ) -> Path:
     if output_dir_arg:
         return Path(output_dir_arg)
-    return training_run_dir(model_name=model_name, loss_name=loss_name)
+    return training_run_dir(model_name=model_name, loss_name=loss_name, dataset=dataset)
 
 
 def resolve_device(device_name: str) -> torch.device:
@@ -295,9 +305,27 @@ def build_parser() -> argparse.ArgumentParser:
             "transformer",
             "i3d_mlp",
             "openface_tcn_i3d_fusion",
+            "openface_temporal_hybrid",
+            "openface_temporal_i3d_hybrid",
+            "semantic_group_fusion",  # alias for openface_temporal_hybrid
         ],
         default="temporal_cnn",
         help="Model architecture to train under the CMOSE train/evaluation/test split.",
+    )
+    parser.add_argument(
+        "--group_architectures",
+        default=None,
+        help=(
+            'JSON dict mapping each OpenFace feature group to "transformer" or "tcn". '
+            'E.g. \'{"gaze":"transformer","eye":"tcn","face":"tcn","head":"transformer","au":"tcn"}\'. '
+            "Required when --model=semantic_group_fusion."
+        ),
+    )
+    parser.add_argument(
+        "--aux_weight",
+        type=float,
+        default=0.2,
+        help="Weight applied to auxiliary group losses in semantic_group_fusion.",
     )
     parser.add_argument(
         "--target_frames",
@@ -330,8 +358,40 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--num_workers", type=int, default=4)
     parser.add_argument("--amp", action="store_true", help="Use automatic mixed precision on CUDA.")
     parser.add_argument("--output_dir")
+    parser.add_argument("--dataset", default="cmose", help="Dataset subfolder under training_log (e.g. cmose, daisee, combined).")
     parser.add_argument("--seed", type=int, default=42)
     return parser
+
+
+def _parse_group_architectures(s: str) -> dict[str, str]:
+    """Parse --group_architectures value accepting JSON or the bare {key:val,...} form.
+
+    PowerShell strips double quotes when passing string variables to native commands,
+    turning '{"gaze":"transformer"}' into '{gaze:transformer}'.  Both forms are
+    accepted here, as well as plain comma-separated key=value pairs.
+    """
+    s = s.strip()
+    try:
+        return json.loads(s)
+    except json.JSONDecodeError:
+        pass
+    s = s.strip("{}")
+    result: dict[str, str] = {}
+    for part in s.split(","):
+        part = part.strip()
+        if not part:
+            continue
+        if ":" in part:
+            k, v = part.split(":", 1)
+        elif "=" in part:
+            k, v = part.split("=", 1)
+        else:
+            raise ValueError(
+                f"Cannot parse group_architectures pair {part!r}. "
+                'Expected JSON or "key:value,..." format.'
+            )
+        result[k.strip().strip("\"'")] = v.strip().strip("\"'")
+    return result
 
 
 def run_experiment(args: argparse.Namespace) -> None:
@@ -357,6 +417,7 @@ def run_experiment(args: argparse.Namespace) -> None:
         model_name=args.model,
         loss_name=args.loss,
         focal_gamma=args.focal_gamma,
+        dataset=getattr(args, "dataset", None),
     )
     output_dir.mkdir(parents=True, exist_ok=True)
     openface_splits = _load_openface_splits_cached(
@@ -439,12 +500,38 @@ def run_experiment(args: argparse.Namespace) -> None:
         X_test_i3d_raw = i3d_splits["X_test_i3d_raw"]
         i3d_materialization_summary = i3d_splits["i3d_materialization_summary"]
         i3d_input_features = int(X_train_i3d_raw.shape[-1])
-    model, model_spec = build_model(
-        args.model,
-        input_features=input_features,
-        i3d_input_features=i3d_input_features,
-        num_classes=len(ID_TO_LABEL),
-    )
+    if args.model in HYBRID_MODELS:
+        if args.group_architectures is None:
+            raise ValueError(
+                f"--group_architectures is required for --model={args.model}. "
+                'Example: \'{"gaze":"transformer","eye":"tcn","face":"tcn","head":"tcn","au":"tcn"}\''
+            )
+        group_arch_map: dict[str, str] = _parse_group_architectures(args.group_architectures)
+        first_csv = openface_splits["train_records"][0].csv_path
+        feature_columns = get_openface_feature_columns(first_csv)
+        group_indices = build_group_column_indices(feature_columns)
+        if args.model == "openface_temporal_i3d_hybrid":
+            model, model_spec = build_openface_temporal_i3d_hybrid(
+                group_indices=group_indices,
+                group_architectures=group_arch_map,
+                i3d_input_dim=i3d_input_features if i3d_input_features else 1024,
+                aux_weight=args.aux_weight,
+                num_classes=len(ID_TO_LABEL),
+            )
+        else:
+            model, model_spec = build_openface_temporal_hybrid(
+                group_indices=group_indices,
+                group_architectures=group_arch_map,
+                aux_weight=args.aux_weight,
+                num_classes=len(ID_TO_LABEL),
+            )
+    else:
+        model, model_spec = build_model(
+            args.model,
+            input_features=input_features,
+            i3d_input_features=i3d_input_features,
+            num_classes=len(ID_TO_LABEL),
+        )
 
     if model_spec.input_kind == "multimodal_sequence":
         if X_train_i3d_raw is None or X_eval_i3d_raw is None or X_test_i3d_raw is None:
@@ -741,6 +828,12 @@ def run_experiment(args: argparse.Namespace) -> None:
                     args.i3d_feature_dir if args.model in I3D_ENABLED_MODELS else None
                 ),
                 "fusion_frames": args.fusion_frames if args.model in I3D_ENABLED_MODELS else None,
+                "group_architectures": (
+                    args.group_architectures if args.model in HYBRID_MODELS else None
+                ),
+                "aux_weight": (
+                    args.aux_weight if args.model in HYBRID_MODELS else None
+                ),
                 "selection_split": {
                     "train_key": CMOSE_TRAIN_SPLIT,
                     "evaluation_key": CMOSE_EVAL_SPLIT_KEY,
@@ -762,10 +855,10 @@ def run_experiment(args: argparse.Namespace) -> None:
     print(f"  Model         : {args.model}")
     print(f"  Accuracy      : {metrics['accuracy']:.4f}")
     print(f"  Macro Acc     : {metrics['macro_accuracy']:.4f}")
-    print(f"  F1 (macro)    : {metrics['f1_macro']:.4f}")
-    print(f"  F1 (weighted) : {metrics['f1_weighted']:.4f}")
     print(f"  MAE           : {metrics['mae']:.4f}")
-    print(f"  MSE           : {metrics['mse']:.4f}")
+    print(f"  Macro MAE     : {metrics['macro_mae']:.4f}")
+    print(f"  Cohen Kappa   : {metrics['cohen_kappa']:.4f}")
+    print(f"  QWK           : {metrics['quadratic_weighted_kappa']:.4f}")
     print(f"  Best epoch    : {history['best_epoch']}")
     print("\nClassification Report:")
     print(metrics["classification_report"])

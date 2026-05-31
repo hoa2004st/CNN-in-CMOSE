@@ -1,4 +1,8 @@
-"""Evaluation metrics for CMOSE classification and label-distance scoring."""
+"""Evaluation metrics for CMOSE classification and label-distance scoring.
+
+Universal 6 metrics (matching full_matrix.csv):
+  accuracy | macro_accuracy | mae | macro_mae | cohen_kappa | quadratic_weighted_kappa
+"""
 
 from __future__ import annotations
 
@@ -8,9 +12,6 @@ from sklearn.metrics import (
     balanced_accuracy_score,
     classification_report,
     confusion_matrix,
-    f1_score,
-    mean_absolute_error,
-    mean_squared_error,
 )
 
 
@@ -45,7 +46,6 @@ def label_distance_metrics_from_confusion(confusion: np.ndarray) -> dict[str, fl
 
     return {
         "mae": float((confusion * distances).sum() / total),
-        "mse": float((confusion * distances**2).sum() / total),
         "macro_mae": float(np.nanmean(per_class_mae)) if np.any(row_sums > 0) else 0.0,
     }
 
@@ -85,15 +85,12 @@ def _kappa_from_confusion(confusion: np.ndarray, *, weights: str | None = None) 
     return float(1.0 - observed_disagreement / expected_disagreement)
 
 
-def evaluate_predictions(y_true: np.ndarray, y_pred: np.ndarray) -> dict[str, float | dict | str]:
-    labels = list(range(4))
-    accuracy = float(accuracy_score(y_true, y_pred))
-    macro_accuracy = float(balanced_accuracy_score(y_true, y_pred))
-    f1_macro = float(f1_score(y_true, y_pred, average="macro", zero_division=0))
-    f1_weighted = float(f1_score(y_true, y_pred, average="weighted", zero_division=0))
-    mae = float(mean_absolute_error(y_true, y_pred))
-    mse = float(mean_squared_error(y_true, y_pred))
+METRIC_COLS = ["accuracy", "macro_accuracy", "mae", "macro_mae", "cohen_kappa", "quadratic_weighted_kappa"]
 
+
+def evaluate_predictions(y_true: np.ndarray, y_pred: np.ndarray) -> dict:
+    """Return the 6 universal metrics + confusion matrix + classification report."""
+    labels = list(range(4))
     cm = confusion_matrix(y_true, y_pred, labels=labels)
     with np.errstate(divide="ignore", invalid="ignore"):
         row_sums = cm.sum(axis=1, keepdims=True)
@@ -101,28 +98,18 @@ def evaluate_predictions(y_true: np.ndarray, y_pred: np.ndarray) -> dict[str, fl
         cm_normalized = np.nan_to_num(cm_normalized)
 
     report_dict = classification_report(
-        y_true,
-        y_pred,
-        labels=labels,
+        y_true, y_pred, labels=labels,
         target_names=["Highly Disengage", "Disengage", "Engage", "Highly Engage"],
-        output_dict=True,
-        zero_division=0,
+        output_dict=True, zero_division=0,
     )
     report_text = classification_report(
-        y_true,
-        y_pred,
-        labels=labels,
+        y_true, y_pred, labels=labels,
         target_names=["Highly Disengage", "Disengage", "Engage", "Highly Engage"],
         zero_division=0,
     )
-
     return {
-        "accuracy": accuracy,
-        "macro_accuracy": macro_accuracy,
-        "f1_macro": f1_macro,
-        "f1_weighted": f1_weighted,
-        "mae": mae,
-        "mse": mse,
+        "accuracy": float(accuracy_score(y_true, y_pred)),
+        "macro_accuracy": float(balanced_accuracy_score(y_true, y_pred)),
         **label_distance_metrics_from_confusion(cm),
         **agreement_metrics_from_confusion(cm),
         "confusion_matrix": cm.astype(int).tolist(),

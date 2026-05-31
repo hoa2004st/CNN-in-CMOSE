@@ -1,6 +1,6 @@
 # openface_mlp [Ordinal]
 
-- Run folder: `openface_mlp/ordinal`
+- Run folder: `combined/openface_mlp/ordinal`
 - Metrics file: `outputs\training_log\combined\openface_mlp\ordinal\metrics.json`
 - Accuracy: 0.2962
 - Macro Accuracy: 0.3511

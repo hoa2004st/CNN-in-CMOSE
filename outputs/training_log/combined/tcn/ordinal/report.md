@@ -1,6 +1,6 @@
 # openface_tcn [Ordinal]
 
-- Run folder: `tcn/ordinal`
+- Run folder: `combined/tcn/ordinal`
 - Metrics file: `outputs\training_log\combined\tcn\ordinal\metrics.json`
 - Accuracy: 0.4982
 - Macro Accuracy: 0.5668

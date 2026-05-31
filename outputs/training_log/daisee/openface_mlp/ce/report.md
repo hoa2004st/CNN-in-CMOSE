@@ -1,6 +1,6 @@
 # openface_mlp [CE]
 
-- Run folder: `openface_mlp/ce`
+- Run folder: `daisee/openface_mlp/ce`
 - Metrics file: `outputs\training_log\daisee\openface_mlp\ce\metrics.json`
 - Accuracy: 0.4916
 - Macro Accuracy: 0.2555
