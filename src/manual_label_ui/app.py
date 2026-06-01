@@ -243,8 +243,6 @@ def load_ui_data(config: UiConfig) -> dict[str, Any]:
     clips.sort(
         key=lambda item: (
             item["manual_label_id"] is not None,
-            -item["prediction_entropy"],
-            item["agreement_rate"],
             item["clip_id"],
         )
     )
@@ -279,23 +277,13 @@ HTML = r"""<!doctype html>
     .clip-item { width: 100%; text-align: left; border: 0; border-bottom: 1px solid #edf0f4; background: transparent; padding: 10px 12px; cursor: pointer; display: grid; gap: 4px; }
     .clip-item:hover, .clip-item.active { background: #eef5fb; }
     .clip-title { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; font-weight: 650; }
-    .clip-meta { color: var(--muted); font-size: 12px; }
     .done { color: var(--ok); font-weight: 650; }
     .workspace { overflow: auto; padding: 18px; }
     .layout { display: grid; grid-template-columns: minmax(420px, 1.35fr) minmax(320px, .9fr); gap: 18px; align-items: start; }
     video { width: 100%; max-height: calc(100vh - 160px); background: #000; border: 1px solid var(--line); border-radius: 6px; }
     .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px; }
     .panel h2 { margin: 0 0 10px; font-size: 16px; }
-    .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
-    .metric { border: 1px solid var(--line); border-radius: 6px; padding: 8px; background: #fbfcfe; }
-    .metric span { display: block; color: var(--muted); font-size: 11px; }
-    .metric strong { display: block; margin-top: 2px; font-size: 14px; }
-    table { width: 100%; border-collapse: collapse; margin-bottom: 14px; }
-    th, td { padding: 8px 6px; border-bottom: 1px solid #edf0f4; font-size: 13px; text-align: left; }
-    th { color: var(--muted); font-weight: 650; }
-    .confidence { text-align: right; font-variant-numeric: tabular-nums; }
     .label-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 10px; }
-    .label-chip { border-left: 4px solid var(--label-color, var(--line)); padding-left: 6px; font-weight: 650; }
     .label-options button { border: 1px solid var(--line); border-left: 5px solid var(--label-color, var(--line)); border-radius: 6px; background: #fff; padding: 10px; cursor: pointer; font-weight: 650; }
     .label-options button.selected { border-color: var(--label-color, var(--accent)); background: #f7fbff; color: var(--ink); box-shadow: inset 0 0 0 1px var(--label-color, var(--accent)); }
     textarea { width: 100%; min-height: 76px; resize: vertical; border: 1px solid var(--line); border-radius: 6px; padding: 8px; font: inherit; margin-bottom: 10px; }
@@ -328,16 +316,6 @@ HTML = r"""<!doctype html>
           <video id="video" controls loop preload="metadata"></video>
         </div>
         <div class="panel">
-          <h2>Suggestions</h2>
-          <div class="metrics">
-            <div class="metric"><span>Majority</span><strong id="majority">-</strong></div>
-            <div class="metric"><span>Agreement</span><strong id="agreement">-</strong></div>
-            <div class="metric"><span>Mean conf.</span><strong id="meanConf">-</strong></div>
-          </div>
-          <table>
-            <thead><tr><th>Run</th><th>Label</th><th class="confidence">Conf.</th></tr></thead>
-            <tbody id="suggestions"></tbody>
-          </table>
           <h2>Manual Label</h2>
           <div id="labelOptions" class="label-options"></div>
           <textarea id="notes" placeholder="Notes"></textarea>
@@ -359,7 +337,6 @@ HTML = r"""<!doctype html>
 
     const el = id => document.getElementById(id);
     const fmtPct = value => Number.isFinite(value) ? `${(value * 100).toFixed(1)}%` : "-";
-    const fmtNum = value => Number.isFinite(value) ? value.toFixed(3) : "-";
     const labelColors = () => Object.fromEntries(data.labels.map(label => [label.name, label.color]));
 
     async function loadData() {
@@ -393,8 +370,7 @@ HTML = r"""<!doctype html>
       filtered = data.clips.filter(clip => clip.clip_id.toLowerCase().includes(q));
       el("clipList").innerHTML = filtered.map((clip, index) => `
         <button class="clip-item ${index === activeIndex ? "active" : ""}" data-index="${index}">
-          <span class="clip-title"><span>${clip.clip_id}</span><span>${clip.manual_label ? "<span class='done'>Saved</span>" : ""}</span></span>
-          <span class="clip-meta">${clip.majority_label} | agreement ${fmtPct(clip.agreement_rate)} | entropy ${fmtNum(clip.prediction_entropy)}</span>
+          <span class="clip-title"><span>${clip.clip_id}</span><span>${clip.manual_label ? "<span class='done'>Saved: " + clip.manual_label + "</span>" : ""}</span></span>
         </button>
       `).join("");
       el("clipList").querySelectorAll("button").forEach(button => {
@@ -409,19 +385,7 @@ HTML = r"""<!doctype html>
       selectedLabel = clip.manual_label_id;
       el("clipTitle").textContent = clip.clip_id;
       el("video").src = clip.video_url;
-      el("majority").textContent = `${clip.majority_label} (${clip.majority_vote_count}/${clip.num_models})`;
-      el("majority").style.color = labelColors()[clip.majority_label] || "";
-      el("agreement").textContent = fmtPct(clip.agreement_rate);
-      el("meanConf").textContent = fmtPct(clip.mean_confidence);
       el("notes").value = clip.notes || "";
-      const colors = labelColors();
-      el("suggestions").innerHTML = clip.suggestions.map(suggestion => `
-        <tr>
-          <td>${suggestion.run}</td>
-          <td><span class="label-chip" style="--label-color:${colors[suggestion.label] || "var(--muted)"}">${suggestion.label}</span></td>
-          <td class="confidence">${fmtPct(suggestion.confidence)}</td>
-        </tr>
-      `).join("");
       paintSelectedLabel();
       renderList();
       el("message").textContent = "";
