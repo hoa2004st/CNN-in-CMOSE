@@ -820,10 +820,35 @@ def _build_config(args: argparse.Namespace) -> Config:
     )
 
 
+def _generate_predictions(config: Config) -> None:
+    import subprocess
+    print(f"Predictions file not found: {config.predictions_csv}")
+    print("Generating predictions — this may take several minutes...")
+    result = subprocess.run(
+        [sys.executable, "-m", "src.feature_analysis.run_domain_shift_analysis"],
+        cwd=str(config.repo_root),
+    )
+    if result.returncode != 0:
+        print(
+            f"Generation failed (exit {result.returncode}).\n"
+            f"Run manually: python -m src.feature_analysis.run_domain_shift_analysis"
+        )
+        sys.exit(1)
+    if not config.predictions_csv.exists():
+        print(
+            f"Generation succeeded but {config.predictions_csv} was not created.\n"
+            f"Check --predictions_csv path or re-run: python -m src.feature_analysis.run_domain_shift_analysis"
+        )
+        sys.exit(1)
+    print(f"Predictions ready: {config.predictions_csv}")
+
+
 def main(argv: list[str] | None = None) -> None:
     args = build_parser().parse_args(argv)
     config = _build_config(args)
-    _build_clips(config)   # fail fast if predictions CSV is missing / malformed
+    if not config.predictions_csv.exists():
+        _generate_predictions(config)
+    _build_clips(config)   # fail fast if predictions CSV is malformed
     server = ThesisClipServer((config.host, config.port), config)
     url = f"http://{config.host}:{config.port}/"
     print(f"Thesis clip browser: {url}")

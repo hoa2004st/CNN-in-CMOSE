@@ -25,7 +25,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from src.visualization.style import CLASS_COLORS, CLASS_LABELS
-from src.output_paths import MANUAL_LABELS_CSV, PRIVATE_ASSESSMENT_DIR
+from src.output_paths import MANUAL_LABELS_CSV, NAIVE_ASSESSMENT_DIR
 
 
 LABELS = [
@@ -68,7 +68,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--accepted_csv", default="data/private/accepted.csv")
     parser.add_argument(
         "--agreement_csv",
-        default=str(PRIVATE_ASSESSMENT_DIR / "predictions_by_clip.csv"),
+        default=str(NAIVE_ASSESSMENT_DIR / "predictions_by_clip.csv"),
+        help="Wide per-clip predictions CSV (predicted_label__ columns). Optional — app runs without it.",
     )
     parser.add_argument(
         "--output_csv",
@@ -182,40 +183,68 @@ def load_ui_data(config: UiConfig) -> dict[str, Any]:
         for row in accepted_rows
         if row.get("clip_id") and str(row.get("is_accepted", "")).strip() == "1"
     }
-    agreement_rows = read_csv_rows(config.agreement_csv)
+
+    # Predictions are optional — load only if the file exists and has predicted_label__ columns
+    predictions_by_clip: dict[str, dict[str, str]] = {}
+    has_predictions = False
+    if config.agreement_csv.exists():
+        try:
+            agreement_rows = read_csv_rows(config.agreement_csv)
+            if agreement_rows:
+                has_predictions = any(
+                    col.startswith("predicted_label__") for col in agreement_rows[0]
+                )
+            if has_predictions:
+                predictions_by_clip = {
+                    row["clip_id"]: row for row in agreement_rows if row.get("clip_id")
+                }
+        except FileNotFoundError:
+            pass
+
     manual = load_manual_labels(config.output_csv)
 
     clips: list[dict[str, Any]] = []
-    for row in agreement_rows:
-        clip_id = row.get("clip_id", "")
-        if clip_id not in accepted:
-            continue
-        manifest_row = accepted[clip_id]
-        suggestions = []
-        for display_name, source_runs in UI_MODEL_RUNS:
-            source_run = next(
-                (
-                    candidate
-                    for candidate in source_runs
-                    if f"predicted_label__{candidate}" in row
-                ),
-                source_runs[0],
-            )
-            predicted_label = row.get(f"predicted_label__{source_run}", "")
-            if not predicted_label:
-                raise ValueError(
-                    f"{config.agreement_csv} is missing prediction columns for {source_run}"
+    for clip_id, manifest_row in accepted.items():
+        pred_row = predictions_by_clip.get(clip_id, {})
+        suggestions: list[dict[str, Any]] = []
+        if has_predictions and pred_row:
+            for display_name, source_runs in UI_MODEL_RUNS:
+                source_run = next(
+                    (
+                        candidate
+                        for candidate in source_runs
+                        if f"predicted_label__{candidate}" in pred_row
+                    ),
+                    None,
                 )
-            suggestions.append(
-                {
-                    "run": display_name,
-                    "source_run": source_run,
-                    "label": predicted_label,
-                    "label_id": as_int(row.get(f"predicted_id__{source_run}")),
-                    "confidence": as_float(row.get(f"confidence__{source_run}")),
-                }
-            )
-        metrics = ui_agreement_metrics(suggestions)
+                if source_run is None:
+                    continue
+                predicted_label = pred_row.get(f"predicted_label__{source_run}", "")
+                if not predicted_label:
+                    continue
+                suggestions.append(
+                    {
+                        "run": display_name,
+                        "source_run": source_run,
+                        "label": predicted_label,
+                        "label_id": as_int(pred_row.get(f"predicted_id__{source_run}")),
+                        "confidence": as_float(pred_row.get(f"confidence__{source_run}")),
+                    }
+                )
+
+        if suggestions:
+            metrics = ui_agreement_metrics(suggestions)
+        else:
+            metrics = {
+                "num_models": 0,
+                "agreement_rate": None,
+                "prediction_entropy": None,
+                "mean_confidence": None,
+                "majority_class_id": None,
+                "majority_label": "",
+                "majority_vote_count": 0,
+            }
+
         clip_path = manifest_row.get("clip_path", "")
         rel_clip_path = str(Path(clip_path).as_posix()) if clip_path else ""
         manual_row = manual.get(clip_id)
@@ -223,7 +252,7 @@ def load_ui_data(config: UiConfig) -> dict[str, Any]:
             {
                 "clip_id": clip_id,
                 "clip_path": rel_clip_path,
-                "video_url": "/media/" + rel_clip_path,
+                "video_url": "/media/" + rel_clip_path if rel_clip_path else "",
                 "majority_label": metrics["majority_label"],
                 "majority_class_id": metrics["majority_class_id"],
                 "majority_vote_count": metrics["majority_vote_count"],
