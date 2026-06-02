@@ -28,6 +28,35 @@ data/CMOSE/
 
 `sample_id` is a CMOSE person-track key such as `video10_100_person0`.
 
+## Installation
+
+Requires Python 3.10+ (developed on 3.12 / 3.13). Create a virtual environment and
+install the dependencies from `requirements.txt`:
+
+```bash
+# Create and activate a virtual environment
+python -m venv .venv
+# Windows (PowerShell):
+.venv\Scripts\Activate.ps1
+# Linux / macOS:
+# source .venv/bin/activate
+
+# Upgrade pip, then install all dependencies
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
+
+This installs the CPU build of PyTorch. For GPU (CUDA) training and the I3D
+feature-extraction pipeline, install the matching PyTorch wheels instead, e.g.:
+
+```bash
+python -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+```
+
+The `umap-learn` package (used only by `scripts/visualize_feature_space_domains.py`)
+and `torchvision`/`torchaudio` are listed as optional extras in `requirements.txt`;
+uncomment them there if you need those workflows.
+
 ## Usage
 
 Run a single model:

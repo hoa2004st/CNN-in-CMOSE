@@ -26,7 +26,17 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from src.visualization.style import CLASS_COLORS, CLASS_LABELS
-from src.output_paths import NAIVE_ASSESSMENT_DIR, MANUAL_LABELS_CSV
+from src.output_paths import (
+    MODEL_COMPARISON_ASSESSMENT_DIR,
+    NAIVE_ASSESSMENT_DIR,
+    MANUAL_LABELS_CSV,
+)
+
+# Combined per-clip CSV (naive + hybrid runs) written by
+# scripts/generate_hybrid_clip_predictions.py. Falls back to the naive-only CSV
+# when the combined file has not been generated yet.
+COMBINED_PREDICTIONS_CSV = MODEL_COMPARISON_ASSESSMENT_DIR / "predictions_by_clip_all_groups.csv"
+NAIVE_PREDICTIONS_CSV = NAIVE_ASSESSMENT_DIR / "predictions_by_clip.csv"
 
 LABELS = [
     {"id": index, "name": label, "color": CLASS_COLORS[label]}
@@ -80,8 +90,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--predictions_csv",
-        default=str(NAIVE_ASSESSMENT_DIR / "predictions_by_clip.csv"),
-        help="Wide per-clip predictions CSV (predicted_label__<run> columns).",
+        default=str(COMBINED_PREDICTIONS_CSV),
+        help=(
+            "Wide per-clip predictions CSV (predicted_label__<run> columns). "
+            "Defaults to the combined naive+hybrid CSV, falling back to the "
+            "naive-only CSV when the combined file is absent."
+        ),
     )
     parser.add_argument("--accepted_csv", default="data/private/accepted.csv")
     parser.add_argument("--manual_labels_csv", default=str(MANUAL_LABELS_CSV))
@@ -417,6 +431,19 @@ HTML = r"""<!doctype html>
     .gt-src { font-size:10px; color:var(--muted); }
     .group-row { display:flex; align-items:center; gap:6px; margin-bottom:4px; font-size:11px; }
     .group-split-warn { font-size:10px; color:var(--warn); margin-top:3px; }
+    /* grouped predictions: summary bar + expandable model rows */
+    .grp { border:1px solid var(--line); border-radius:6px; margin-bottom:7px; overflow:hidden; }
+    .grp-head { display:flex; align-items:center; gap:7px; width:100%; border:0; background:#fbfcfe; padding:6px 8px; cursor:pointer; text-align:left; font:inherit; }
+    .grp-head:hover { background:#f0f6ff; }
+    .grp-caret { font-size:9px; color:var(--muted); transition:transform .15s; flex-shrink:0; width:9px; }
+    .grp.open .grp-caret { transform:rotate(90deg); }
+    .grp-name { flex-shrink:0; }
+    .propbar { flex:1; display:flex; height:15px; min-width:50px; border:1px solid var(--line); border-radius:3px; overflow:hidden; background:#fff; }
+    .propbar span { display:block; height:100%; }
+    .grp-meta { flex-shrink:0; font-size:10px; color:var(--muted); white-space:nowrap; }
+    .grp-models { display:none; border-top:1px solid var(--line); padding:2px 8px 4px; }
+    .grp.open .grp-models { display:block; }
+    .grp-models th,.grp-models td { padding:3px 4px; }
     .tag-buttons { display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-bottom:7px; }
     .tag-btn { border:1px solid var(--line); border-radius:5px; background:#fff; padding:7px; cursor:pointer; font-size:11.5px; font-weight:700; text-align:center; }
     .tag-btn:hover { background:#f0f6ff; }
@@ -468,17 +495,10 @@ HTML = r"""<!doctype html>
       <div id="gtContent"><span style="color:var(--muted)">No label</span></div>
     </div>
 
-    <div class="card" id="groupCard" style="display:none">
-      <h3>Model Groups</h3>
-      <div id="groupContent"></div>
-    </div>
-
     <div class="card">
-      <h3>Model Predictions</h3>
-      <table>
-        <thead><tr><th>Run</th><th>Group</th><th>Prediction</th><th class="conf">Conf</th></tr></thead>
-        <tbody id="predTbody"></tbody>
-      </table>
+      <h3>Predictions by Group</h3>
+      <div id="groupsContent"></div>
+      <div class="group-split-warn" id="groupWarn" style="display:none">Groups disagree</div>
     </div>
 
     <div class="card">
@@ -506,6 +526,9 @@ HTML = r"""<!doctype html>
   let activeIndex = 0;
   let activeFilter = 'all';
   let selectedTag = null;
+  const GROUP_ORDER = ['Naive', 'OF-Hybrid', 'OF+I3D-Hybrid'];
+  const GROUP_CSS = {'Naive':'g-naive', 'OF-Hybrid':'g-of-hybrid', 'OF+I3D-Hybrid':'g-of-i3d-hybrid'};
+  let openGroups = new Set();  // model groups expanded to per-model rows
 
   const el = id => document.getElementById(id);
   const pct = v => isFinite(v) ? `${(v*100).toFixed(1)}%` : '—';
@@ -615,39 +638,74 @@ HTML = r"""<!doctype html>
       el('gtContent').innerHTML = `<span style="color:var(--muted)">No label available</span>`;
     }
 
-    // Group summary
-    const gm = clip.group_majorities || {};
-    const gs = Object.keys(gm);
-    if (gs.length >= 2) {
-      const allSame = new Set(gs.map(g => gm[g].id)).size === 1;
-      el('groupCard').style.display = '';
-      el('groupContent').innerHTML = gs.map(g => {
-        const pred = gm[g];
-        return `<div class="group-row">
-          <span class="${pred.css}">${g}</span>
-          <span class="lchip" style="--lc:${cm[pred.label]||'var(--line)'}">${pred.label}</span>
-        </div>`;
-      }).join('') + (!allSame ? `<div class="group-split-warn">Groups disagree</div>` : '');
-    } else {
-      el('groupCard').style.display = 'none';
-    }
-
-    // Predictions table
-    el('predTbody').innerHTML = clip.predictions.map(p => {
-      const c = cm[p.label] || 'var(--line)';
-      const short = p.run.length > 24 ? p.run.slice(0,24)+'…' : p.run;
-      return `<tr>
-        <td title="${p.run}">${short}</td>
-        <td><span class="${p.group_css}">${p.group}</span></td>
-        <td><span class="lchip" style="--lc:${c}">${p.label}</span></td>
-        <td class="conf">${pct(p.confidence)}</td>
-      </tr>`;
-    }).join('');
+    // Predictions grouped by model group (summary bar + expandable rows)
+    renderGroups(clip, cm);
 
     el('thesisNotes').value = clip.thesis_notes || '';
     paintTag();
     renderList();
     el('msg').textContent = '';
+  }
+
+  function renderGroups(clip, cm) {
+    // Bucket this clip's per-model predictions by model group.
+    const byGroup = {};
+    for (const p of clip.predictions) (byGroup[p.group] = byGroup[p.group] || []).push(p);
+    const groups = GROUP_ORDER.filter(g => byGroup[g]);
+    for (const g of Object.keys(byGroup)) if (!groups.includes(g)) groups.push(g);
+
+    const gm = clip.group_majorities || {};
+    el('groupsContent').innerHTML = groups.map(g => {
+      const preds = byGroup[g];
+      const total = preds.length;
+      const counts = {};
+      for (const p of preds) counts[p.label] = (counts[p.label] || 0) + 1;
+      // Majority label: prefer backend's (consistent tie-break), else most frequent here.
+      const majLabel = (gm[g] && gm[g].label)
+        || Object.keys(counts).sort((a, b) => counts[b] - counts[a])[0] || '';
+      const majCount = counts[majLabel] || 0;
+      // Stacked proportion bar, segments in fixed class order for stable colors.
+      const segs = data.labels.filter(l => counts[l.name]).map(l => {
+        const w = (counts[l.name] / total * 100).toFixed(2);
+        return `<span style="width:${w}%;background:${l.color}" title="${l.name}: ${counts[l.name]}/${total}"></span>`;
+      }).join('');
+      const rows = preds.map(p => {
+        const c = cm[p.label] || 'var(--line)';
+        const short = p.run.length > 26 ? p.run.slice(0, 26) + '…' : p.run;
+        return `<tr>
+          <td title="${p.run}">${short}</td>
+          <td><span class="lchip" style="--lc:${c}">${p.label}</span></td>
+          <td class="conf">${pct(p.confidence)}</td>
+        </tr>`;
+      }).join('');
+      const open = openGroups.has(g) ? ' open' : '';
+      return `<div class="grp${open}" data-g="${g}">
+        <button class="grp-head" type="button">
+          <span class="grp-caret">▶</span>
+          <span class="${GROUP_CSS[g] || 'g-naive'} grp-name">${g}</span>
+          <span class="propbar">${segs}</span>
+          <span class="grp-meta">${majLabel ? majLabel + ' ' : ''}${majCount}/${total}</span>
+        </button>
+        <div class="grp-models">
+          <table>
+            <thead><tr><th>Run</th><th>Prediction</th><th class="conf">Conf</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      </div>`;
+    }).join('');
+
+    el('groupsContent').querySelectorAll('.grp-head').forEach(btn => btn.addEventListener('click', () => {
+      const grp = btn.closest('.grp');
+      const g = grp.dataset.g;
+      if (openGroups.has(g)) openGroups.delete(g); else openGroups.add(g);
+      grp.classList.toggle('open');
+    }));
+
+    // Groups-disagree warning (only meaningful with >=2 groups).
+    const ids = groups.map(g => gm[g] && gm[g].id).filter(v => v !== undefined && v !== null);
+    const disagree = ids.length >= 2 && new Set(ids).size > 1;
+    el('groupWarn').style.display = disagree ? '' : 'none';
   }
 
   function paintTag() {
@@ -809,9 +867,17 @@ class ThesisClipServer(ThreadingHTTPServer):
 
 def _build_config(args: argparse.Namespace) -> Config:
     root = _resolve_root()
+    predictions_csv = _resolve(root, args.predictions_csv)
+    # When the default combined CSV is missing, fall back to the naive-only CSV
+    # (which the generator below can create). A user-specified path is left as-is.
+    is_default = _resolve(root, str(COMBINED_PREDICTIONS_CSV)) == predictions_csv
+    if is_default and not predictions_csv.exists():
+        naive = _resolve(root, str(NAIVE_PREDICTIONS_CSV))
+        print(f"Combined predictions CSV not found; using naive-only: {naive}")
+        predictions_csv = naive
     return Config(
         repo_root=root,
-        predictions_csv=_resolve(root, args.predictions_csv),
+        predictions_csv=predictions_csv,
         accepted_csv=_resolve(root, args.accepted_csv),
         manual_labels_csv=_resolve(root, args.manual_labels_csv),
         output_csv=_resolve(root, args.output_csv),

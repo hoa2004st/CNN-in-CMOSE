@@ -1,8 +1,36 @@
+# Merged dependencies for CNN-in-CMOSE.
+# Consolidated from the former requirements.txt, requirements-vast-cu131.txt,
+# and requirements.lock.vast-cu131.txt. Only packages directly imported by the
+# project code (src/, scripts/, tests/, main.py) are listed here; transitive
+# dependencies are resolved by pip.
+
+# --- Core: numerical / data ---
 numpy>=1.24.0
 pandas>=2.0.0
+scipy>=1.10.0
+
+# --- Machine learning ---
 scikit-learn>=1.3.0
 torch>=2.0.0
+
+# --- Plotting / visualization ---
 matplotlib>=3.7.0
 seaborn>=0.12.0
+
+# --- Utilities ---
 tqdm>=4.65.0
+
+# --- Testing ---
 pytest>=7.4.0
+
+# --- Optional: GPU I3D feature extraction ---------------------------------
+# torchvision/torchaudio are not imported by the Python code, but the I3D
+# feature-extraction pipeline (scripts/*vast*, scripts/extract_i3d_daisee.ps1)
+# installs them. For a CUDA build, install with the matching PyTorch index, e.g.:
+#   pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+# torchvision>=0.15.0
+# torchaudio>=2.0.0
+
+# --- Optional: feature-space domain visualization -------------------------
+# Imported lazily in scripts/visualize_feature_space_domains.py (UMAP projection).
+# umap-learn>=0.5.4
