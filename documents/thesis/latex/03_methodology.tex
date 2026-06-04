@@ -1,0 +1,89 @@
+% Auto-generated from documents/thesis/03_methodology.md by src.analysis.thesis_latex.
+% Needs \usepackage{graphicx,booktabs} and your bibliography for \cite.
+
+\chapter{Methodology}
+
+\section{Overview}
+
+We frame engagement recognition as 4-class ordinal classification of a fixed-length clip. Figure 3.1 shows the conceptual pipeline: (1) per-frame OpenFace descriptors and I3D motion features are extracted and resampled to fixed length; (2) OpenFace features are split into five \textbf{semantic groups}; (3) each group --- and, in the multimodal variant, the I3D stream --- is encoded by its own temporal encoder into a fixed embedding; (4) embeddings are concatenated and classified, with an auxiliary head supervising each stream. Baselines replace steps (2)--(3) with a single monolithic encoder. The same models are trained and evaluated under a \textbf{3$\times$3 cross-dataset protocol} and four loss functions.
+
+% --- note from draft (Markdown blockquote) ---
+% TODO: draw Figure 3.1 (conceptual framework). A clean block diagram of streams → encoders →
+% fusion → classifier, mirroring `src/models/models.py:OpenFaceTemporalI3DHybrid`.
+
+\section{Data and Preprocessing}
+
+\textbf{Datasets.} We use three training sources and three test sets (Table T1):
+
+\begin{itemize}
+  \item \textbf{CMOSE} \cite{cmose}: 12,197 clips; splits \texttt{train} (8,783) / \texttt{unlabel} (2,193, used as validation) / \texttt{test} (1,221).
+  \item \textbf{DAiSEE} \cite{daisee}: 8,571 clips; \texttt{Train/Validation/Test} mapped to \texttt{train/unlabel/test}.
+  \item \textbf{Combined}: CMOSE $\cup$ DAiSEE (20,768 clips), ids prefixed to avoid collision.
+  \item \textbf{Private (self-collected)}: a held-out set of \textbf{366 clips that we collected and manually labeled} ourselves, used \textbf{for testing only} (never in training or model selection). Its label prior differs again from both public corpora --- 58.2\% Engage, 30.6\% Highly-Engage, 8.5\% Disengage, and only 2.7\% Highly-Disengage. Because it is independently sourced and labeled, it is the most realistic measure of how the models would behave in deployment, and it anchors Section 4.6.
+\end{itemize}
+
+% --- note from draft (Markdown blockquote) ---
+% TODO: describe the private-set collection methodology — recording setup, number of
+% participants/sessions, clip segmentation, the labeling protocol and rubric you applied, and
+% any inter-rater or self-consistency checks. This is a genuine contribution and deserves a
+% full paragraph; the pipeline/feature processing is identical to CMOSE.
+
+All four share the four ordinal labels HD/DE/EG/HE. Class proportions (Table T1, Figure \texttt{dataset\_class\_distribution\_overall}) are heavily skewed and skewed \emph{differently} across CMOSE (Engage-dominated) and DAiSEE (Engage + Highly-Engage), which is central to Sections 4.5--4.6.
+
+\textbf{Features.} Per-frame OpenFace 2.0 \cite{openface2} descriptors (709-dim) and precomputed I3D \cite{i3d} features (1024-dim). Each clip is resampled along time to a fixed length (\textbf{300 frames} for OpenFace in single-dataset runs, \textbf{150} for the larger Combined runs due to memory; \textbf{75} frames for the I3D stream).
+
+\textbf{Normalization.} Per-feature z-score using statistics fit on the \textbf{training split only}; the validation, test, and private sets are transformed with the train statistics to prevent leakage. OpenFace and I3D are normalized independently.
+
+% --- note from draft (Markdown blockquote) ---
+% TODO: confirm the exact resampling function and any clipping; cite `extract_openface.py` /
+% `extract_i3d.py`.
+
+\section{Semantic-Group Decomposition}
+
+The 709 OpenFace features are partitioned by name prefix into five behaviorally meaningful groups, in a fixed order (\texttt{OPENFACE\_GROUP\_ORDER}):
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+Group & Dim & Content \\
+\midrule
+Gaze & 8 & gaze direction vectors / angles \\
+Eye landmarks & 280 & 2D/3D eye-region landmarks \\
+Face landmarks & 340 & facial landmark coordinates \\
+Head pose & 46 & head translation/rotation \\
+Action units & 35 & AU presence/intensity \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+This decomposition is the inductive prior of the method: the five subsystems have different temporal dynamics (e.g. rapid micro-saccades vs. slow head turns), so each can be matched to a suitable encoder.
+
+\section{Hybrid Architecture (Proposed)}
+
+\textbf{Per-group encoder.} Each group is encoded by a \texttt{GroupEncoder} that is either a \textbf{TCN} (a stack of dilated 1-D convolutions \cite{tcn}) or a \textbf{Transformer} encoder \cite{transformer}, followed by temporal pooling and a LayerNorm, producing a fixed \textbf{64-dim} embedding.
+
+\textbf{Fusion and heads.} The five group embeddings are concatenated (320-dim) and passed through a 2-layer MLP classifier (320$\rightarrow$128$\rightarrow$4) with dropout. Each group additionally has an \textbf{auxiliary classification head}; the total loss is the main-head loss plus \texttt{aux\_weight = 0.2} times the mean of the per-group auxiliary losses. The auxiliary supervision encourages every stream to be individually discriminative (\texttt{OpenFaceTemporalHybrid}, \texttt{src/models/models.py}).
+
+\textbf{Multimodal variant.} \texttt{OpenFaceTemporalI3DHybrid} adds a sixth stream: an I3D TCN encoder (also 64-dim) with its own auxiliary head; the fusion MLP then takes 384-dim input. The I3D encoder is always a TCN.
+
+\textbf{Configuration / arch\_key.} A hybrid configuration is specified by the encoder chosen for each of the five groups, written as an \texttt{arch\_key} of five tokens in group order, e.g. \texttt{T\_TCN\_TCN\_T\_TCN} (\texttt{T} = Transformer, \texttt{TCN} = TCN). With two choices per group there are \textbf{2$^5$ = 32} configurations, evaluated both without and with I3D (Section 4.4).
+
+\section{Baseline Models}
+
+Five monolithic baselines (allow-list \texttt{MODEL\_ORDER}): \texttt{openface\_mlp} (flattened OpenFace $\rightarrow$ MLP), \texttt{openface\_tcn} (\texttt{temporal\_cnn}), \texttt{openface\_lstm}, \texttt{openface\_transformer} (all on the full 709-dim OpenFace sequence), and \texttt{i3d\_mlp} (I3D features $\rightarrow$ MLP). The \texttt{openface\_tcn\_i3d\_fusion} model exists in the codebase but is \textbf{excluded from assessment} to keep the comparison focused on the semantic-group hypothesis.
+
+\section{Loss Functions}
+
+Each model is trained under \textbf{cross-entropy}, \textbf{weighted cross-entropy} (inverse-frequency weights), and an \textbf{ordinal (EMD) loss}; \textbf{focal loss} \cite{focal} is available. Weights for the weighted/ordinal variants are computed from the training split.
+
+\section{Training Protocol}
+
+Adam \cite{adam} with learning rate 1e-4; mini-batch training with early stopping on \textbf{validation loss} (the \texttt{unlabel} split), patience 10, restoring the best-epoch checkpoint. Per the project convention, only train and validation \textbf{loss} are logged per epoch (no per-epoch classification metrics); final metrics are computed once on the held-out test split. Fixed seed 42. Figure \texttt{loss\_curves\_cmose\_ce} shows representative curves and confirms stable convergence and early stopping.
+
+\section{Evaluation Protocol}
+
+\textbf{Cross-dataset matrix.} Every model/loss is trained on each of \{CMOSE, DAiSEE, Combined\} and evaluated on each of \{CMOSE-test, DAiSEE-test, Private\} --- a 3$\times$3 matrix per configuration.
+
+\textbf{Metrics.} Six metrics (Section 2.4): accuracy, macro-accuracy, MAE, macro-MAE, Cohen's kappa, and QWK; \textbf{QWK and macro-accuracy are primary}. Confusion matrices and per-class F1 are used for error analysis.
+
+\textbf{Aggregation.} All \textasciitilde{}237 runs are aggregated by \texttt{src/analysis/aggregate.py}; figures/tables are produced by \texttt{python -m src.analysis.make\_thesis\_artifacts} into \texttt{outputs/thesis/}.

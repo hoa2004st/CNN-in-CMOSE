@@ -10,7 +10,7 @@ loads a checkpoint or touches the GPU, so it runs in seconds on CPU.
 
 from __future__ import annotations
 
-from src.analysis import tables
+from src.analysis import tables, thesis_latex
 from src.visualization import (
     figbase,
     figures_confusion,
@@ -48,8 +48,14 @@ def main() -> None:
     for path in table_paths:
         print(f"          - {path}")
 
+    latex_paths = thesis_latex.make_all()
+    print(f"[latex] {len(latex_paths)} Overleaf snippet/chapter file(s)")
+    for path in latex_paths:
+        print(f"          - {path}")
+
     print(f"\nDone. {len(figure_paths)} figures -> {figbase.FIGURE_DIR}")
     print(f"      {len(table_paths)} tables  -> {figbase.TABLE_DIR}")
+    print(f"      {len(latex_paths)} LaTeX files (figure snippets + {thesis_latex.CHAPTERS_LATEX_DIR})")
 
 
 if __name__ == "__main__":

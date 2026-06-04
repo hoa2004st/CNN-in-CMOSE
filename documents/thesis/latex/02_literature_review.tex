@@ -1,0 +1,57 @@
+% Auto-generated from documents/thesis/02_literature_review.md by src.analysis.thesis_latex.
+% Needs \usepackage{graphicx,booktabs} and your bibliography for \cite.
+
+\chapter{Literature Review}
+
+\section{Scope of Research}
+
+This review is scoped to \textbf{vision-based automatic engagement recognition} --- classifying a learner's engagement level from facial video --- and to the technical components this thesis builds on: facial-behavior and motion feature extraction, temporal sequence modeling, loss functions for imbalanced ordinal targets, and the metrics used to evaluate them. We do not cover physiological-sensor or clickstream-based engagement estimation, nor general facial-expression recognition except where it informs feature design.
+
+\section{Related Work}
+
+\textbf{Engagement datasets and benchmarks.} DAiSEE \cite{daisee} is the most widely used in-the-wild benchmark, with four ordinal engagement levels. CMOSE \cite{cmose} is a more recent, larger, expert-labeled multimodal dataset that ships precomputed OpenFace and I3D features and reports strong inter-rater reliability; it is the primary dataset of this thesis. A systematic review of computer-vision engagement detection \cite{review_engagement_cv} catalogs the common pipelines and notes the field's recurring imbalance and subjectivity problems.
+
+\textbf{Feature-based approaches.} A large body of work feeds OpenFace descriptors (action units, gaze, head pose) into sequence models --- e.g. OpenFace + BiLSTM \cite{openface_bilstm} --- or applies dimensionality reduction and resampling (PCA/SVD, SMOTE) before a CNN/MLP classifier \cite{openface_pca_smote}. Classical pipelines compare LR/SVM/MLP/KNN/XGBoost on aggregated features \cite{classical_ml_engagement}. These establish that OpenFace features carry real engagement signal but typically treat the 709-dim vector as a single homogeneous input.
+
+\textbf{End-to-end video approaches.} Other systems learn directly from frames, e.g. EfficientNetV2 + LSTM \cite{efficientnet_lstm_engagement}, or borrow context/relationship modeling from affect recognition \cite{context_aware_emotion_3d}. These capture appearance and motion but are heavier and less interpretable than feature-based models.
+
+\textbf{Gap.} Across both camps, two gaps persist that this thesis targets: (i) heterogeneous facial descriptors are encoded monolithically rather than per behavioral subsystem, and (ii) cross-dataset generalization is rarely measured. Our semantic-group hybrid addresses (i); our 3$\times$3 study addresses (ii).
+
+\section{Foundational Knowledge: Feature Extraction}
+
+\textbf{OpenFace 2.0} \cite{openface2} is an open-source toolkit that, per frame, estimates facial landmarks, head pose, eye-gaze vectors, and facial action-unit (AU) intensities. In CMOSE the per-frame descriptor is \textbf{709-dimensional}, which this thesis partitions into five semantic groups (Section 3.3): \textbf{gaze (8)}, \textbf{eye landmarks (280)}, \textbf{face landmarks (340)}, \textbf{head pose (46)}, and \textbf{action units (35)}.
+
+\textbf{I3D} \cite{i3d} (Inflated 3D ConvNet) inflates 2D ImageNet filters into 3D and is pretrained on Kinetics; it produces a 1024-dimensional spatiotemporal feature per temporal window, capturing appearance and motion that landmark-based descriptors miss. CMOSE provides precomputed I3D features used here as a complementary motion stream.
+
+\section{Foundational Knowledge: Temporal Architectures, Losses, and Metrics}
+
+\textbf{Temporal architectures.} Three families model the time axis of a clip:
+\begin{itemize}
+  \item \textbf{Temporal Convolutional Networks (TCN)} \cite{tcn} apply dilated causal 1-D convolutions; they have a fixed, local-to-global receptive field and strong inductive bias for short temporal motifs.
+  \item \textbf{LSTM} \cite{lstm} recurrently integrates the sequence, suited to long dependencies.
+  \item \textbf{Transformers} \cite{transformer} use self-attention to relate all frames directly, flexible but data-hungry.
+\end{itemize}
+This thesis uses all three as baselines and as the \emph{per-group} encoders inside the hybrid.
+
+\textbf{Loss functions for imbalance and ordinality.} We compare:
+\begin{itemize}
+  \item \textbf{Cross-entropy (CE)} --- the standard baseline.
+  \item \textbf{Weighted CE} --- inverse-frequency class weights to counter imbalance.
+  \item \textbf{Focal loss} \cite{focal} --- down-weights easy majority examples.
+  \item \textbf{Ordinal (EMD-style) loss} --- penalizes predictions by squared CDF distance so that far-apart ordinal errors cost more, matching the label structure.
+\end{itemize}
+Class imbalance is also classically addressed by resampling such as SMOTE \cite{smote}; we instead study loss-level remedies. Optimization uses Adam \cite{adam}.
+
+\textbf{Evaluation metrics.} Because the labels are ordinal and imbalanced, we report six metrics but treat two as primary:
+\begin{itemize}
+  \item \textbf{Quadratic-Weighted Kappa (QWK)} --- agreement corrected for chance, weighting errors by squared class distance; the natural ordinal metric.
+  \item \textbf{Macro-accuracy} --- mean per-class recall, exposing minority collapse.
+\end{itemize}
+Secondary: \textbf{accuracy}, \textbf{Cohen's kappa} \cite{cohenkappa}, \textbf{MAE}, and \textbf{macro-MAE}.
+
+\section{Others}
+
+% --- note from draft (Markdown blockquote) ---
+% TODO: optionally add a short subsection on auxiliary-loss / multi-task learning (the hybrid
+% uses per-stream auxiliary heads), and on multimodal fusion strategies, to round out the
+% foundations referenced in Chapter 3.

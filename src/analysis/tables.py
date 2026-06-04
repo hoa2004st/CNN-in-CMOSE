@@ -7,6 +7,7 @@ from pathlib import Path
 import pandas as pd
 
 from src.analysis import aggregate as ag
+from src.analysis import latexfmt
 from src.visualization.figbase import TABLE_DIR
 from src.visualization.style import display_model_name
 
@@ -37,7 +38,7 @@ def _write(frame: pd.DataFrame, name: str, caption: str, directory: Path) -> Pat
     md_path = directory / f"{name}.md"
     md_path.write_text(f"**{caption}**\n\n{_to_markdown(frame)}\n", encoding="utf-8")
     (directory / f"{name}.tex").write_text(
-        frame.to_latex(index=False, float_format="%.3f", caption=caption, label=f"tab:{name}"),
+        latexfmt.dataframe_to_latex(frame, caption=caption, label=f"tab:{name}"),
         encoding="utf-8",
     )
     return md_path
@@ -76,7 +77,7 @@ def table_base_indomain(directory: Path) -> Path:
                  **{k: ag.METRIC_DISPLAY[k] for k in _PRIMARY}}
     )
     return _write(frame, "T2_base_indomain",
-                  "T2. Base models x losses, in-domain (CMOSE -> CMOSE), sorted by QWK.", directory)
+                  "T2. Base models × losses, in-domain (CMOSE→CMOSE), sorted by QWK.", directory)
 
 
 def table_crossdomain(directory: Path) -> Path:
