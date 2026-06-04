@@ -1,13 +1,13 @@
 # openface_mlp [Ordinal]
 
-- Run folder: `daisee/openface_mlp/ordinal`
+- Run folder: `openface_mlp/ordinal`
 - Metrics file: `outputs\training_log\daisee\openface_mlp\ordinal\metrics.json`
 - Accuracy: 0.4725
 - Macro Accuracy: 0.2551
-- Macro F1: 0.1793
-- Weighted F1: 0.3271
+- Macro F1: nan
+- Weighted F1: nan
 - MAE: 0.5645
-- MSE: 0.6396
+- MSE: nan
 - Best epoch: 7
 
 ## Classification Report

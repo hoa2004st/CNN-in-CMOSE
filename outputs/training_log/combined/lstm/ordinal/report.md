@@ -1,13 +1,13 @@
 # openface_lstm [Ordinal]
 
-- Run folder: `combined/lstm/ordinal`
+- Run folder: `lstm/ordinal`
 - Metrics file: `outputs\training_log\combined\lstm\ordinal\metrics.json`
 - Accuracy: 0.4789
 - Macro Accuracy: 0.5338
-- Macro F1: 0.3891
-- Weighted F1: 0.4504
+- Macro F1: nan
+- Weighted F1: nan
 - MAE: 0.5993
-- MSE: 0.7757
+- MSE: nan
 - Best epoch: 10
 
 ## Classification Report

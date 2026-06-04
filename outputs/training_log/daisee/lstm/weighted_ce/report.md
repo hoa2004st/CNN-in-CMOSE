@@ -1,13 +1,13 @@
 # openface_lstm [Weighted CE]
 
-- Run folder: `daisee/lstm/weighted_ce`
+- Run folder: `lstm/weighted_ce`
 - Metrics file: `outputs\training_log\daisee\lstm\weighted_ce\metrics.json`
 - Accuracy: 0.3677
 - Macro Accuracy: 0.2522
-- Macro F1: 0.2381
-- Weighted F1: 0.4059
+- Macro F1: nan
+- Weighted F1: nan
 - MAE: 0.8548
-- MSE: 1.3683
+- MSE: nan
 - Best epoch: 4
 
 ## Classification Report

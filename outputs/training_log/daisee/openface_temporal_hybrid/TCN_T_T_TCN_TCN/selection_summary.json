@@ -50,7 +50,7 @@
       "evaluation": "unlabel",
       "test": "test"
     },
-    "model": "semantic_group_fusion",
+    "model": "openface_temporal_hybrid",
     "loss": "cross_entropy",
     "openface_frames": 300,
     "fusion_frames": null

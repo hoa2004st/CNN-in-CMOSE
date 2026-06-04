@@ -1,23 +1,23 @@
 {
   "dataset": "private",
-  "total_clips": 368,
+  "total_clips": 366,
   "usage": "test_only",
   "class_distribution": {
     "Highly Disengage": {
-      "count": 11,
-      "proportion": 0.029891
+      "count": 10,
+      "proportion": 0.027322
     },
     "Disengage": {
-      "count": 52,
-      "proportion": 0.141304
+      "count": 31,
+      "proportion": 0.084699
     },
     "Engage": {
-      "count": 261,
-      "proportion": 0.709239
+      "count": 213,
+      "proportion": 0.581967
     },
     "Highly Engage": {
-      "count": 44,
-      "proportion": 0.119565
+      "count": 112,
+      "proportion": 0.306011
     }
   },
   "label_source": "C:\\HOA\\1.HUST\\Thesis\\CNN-in-CMOSE\\data\\private\\private_manual_labels.csv"

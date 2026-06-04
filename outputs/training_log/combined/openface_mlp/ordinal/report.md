@@ -1,13 +1,13 @@
 # openface_mlp [Ordinal]
 
-- Run folder: `combined/openface_mlp/ordinal`
+- Run folder: `openface_mlp/ordinal`
 - Metrics file: `outputs\training_log\combined\openface_mlp\ordinal\metrics.json`
 - Accuracy: 0.2962
 - Macro Accuracy: 0.3511
-- Macro F1: 0.2203
-- Weighted F1: 0.2617
+- Macro F1: nan
+- Weighted F1: nan
 - MAE: 0.8483
-- MSE: 1.1391
+- MSE: nan
 - Best epoch: 4
 
 ## Classification Report

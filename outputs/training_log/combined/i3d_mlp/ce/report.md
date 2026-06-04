@@ -1,13 +1,13 @@
 # i3d_mlp [CE]
 
-- Run folder: `combined/i3d_mlp/ce`
+- Run folder: `i3d_mlp/ce`
 - Metrics file: `outputs\training_log\combined\i3d_mlp\ce\metrics.json`
 - Accuracy: 0.6326
 - Macro Accuracy: 0.4500
-- Macro F1: 0.4929
-- Weighted F1: 0.6116
+- Macro F1: nan
+- Weighted F1: nan
 - MAE: 0.3867
-- MSE: 0.4266
+- MSE: nan
 - Best epoch: 6
 
 ## Classification Report

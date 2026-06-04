@@ -1,13 +1,13 @@
 # openface_mlp [Weighted CE]
 
-- Run folder: `combined/openface_mlp/weighted_ce`
+- Run folder: `openface_mlp/weighted_ce`
 - Metrics file: `outputs\training_log\combined\openface_mlp\weighted_ce\metrics.json`
 - Accuracy: 0.4972
 - Macro Accuracy: 0.5386
-- Macro F1: 0.4377
-- Weighted F1: 0.4729
+- Macro F1: nan
+- Weighted F1: nan
 - MAE: 0.5544
-- MSE: 0.6636
+- MSE: nan
 - Best epoch: 32
 
 ## Classification Report

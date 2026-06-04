@@ -1,13 +1,13 @@
 # i3d_mlp [Ordinal]
 
-- Run folder: `daisee/i3d_mlp/ordinal`
+- Run folder: `i3d_mlp/ordinal`
 - Metrics file: `outputs\training_log\daisee\i3d_mlp\ordinal\metrics.json`
 - Accuracy: 0.3049
 - Macro Accuracy: 0.2808
-- Macro F1: 0.2198
-- Weighted F1: 0.3638
+- Macro F1: nan
+- Weighted F1: nan
 - MAE: 0.9899
-- MSE: 1.6816
+- MSE: nan
 - Best epoch: 13
 
 ## Classification Report

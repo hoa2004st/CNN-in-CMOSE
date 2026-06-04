@@ -93,6 +93,15 @@ def _read_csv(path: Path) -> pd.DataFrame:
     return pd.read_csv(path) if path.exists() else pd.DataFrame()
 
 
+def _filter_to_model_order(frame: pd.DataFrame) -> pd.DataFrame:
+    """Drop rows whose run's base model is not in MODEL_ORDER (the assessment
+    allowlist). Keeps the fusion model out of every chart/metric."""
+    if frame.empty or "run" not in frame.columns:
+        return frame
+    keep = frame["run"].map(lambda run_key: _split_run_key(run_key)[0] in MODEL_ORDER)
+    return frame[keep].reset_index(drop=True)
+
+
 def _model_labels(frame: pd.DataFrame) -> list[str]:
     present = set(frame["base_model"].astype(str)) if "base_model" in frame else set()
     return [MODEL_DISPLAY_NAMES.get(model, model) for model in MODEL_ORDER if model in present]
@@ -174,7 +183,7 @@ def plot_metric_summaries(metrics: pd.DataFrame, out_dir: Path, title_prefix: st
     metrics = _add_run_columns(metrics)
     if metrics.empty:
         return
-    _metric_panel(metrics, out_dir / "main_metrics_all_models_losses.png", f"{title_prefix}: 6 Models x 3 Losses")
+    _metric_panel(metrics, out_dir / "main_metrics_all_models_losses.png", f"{title_prefix}: Models x Losses")
     for loss_name, slug, loss_label in _present_losses(metrics):
         heatmap(_loss_frame(metrics, loss_name), out_dir / f"metric_heatmap_{slug}_models.png", f"{title_prefix}: {loss_label} Metric Heatmap")
 
@@ -577,8 +586,10 @@ def run(args: argparse.Namespace) -> None:
     if cmose_metrics.empty:
         cmose_metrics = _read_csv(cmose_dir / "supervised_metrics.csv")
     private_metrics = _read_csv(private_dir / "supervised_metrics.csv")
-    cmose_predictions = _read_csv(cmose_dir / "predictions.csv")
-    private_predictions = _read_csv(private_dir / "predictions.csv")
+    cmose_predictions = _filter_to_model_order(_read_csv(cmose_dir / "predictions.csv"))
+    private_predictions = _filter_to_model_order(_read_csv(private_dir / "predictions.csv"))
+    cmose_metrics = _filter_to_model_order(cmose_metrics)
+    private_metrics = _filter_to_model_order(private_metrics)
 
     if cmose_metrics.empty and not cmose_predictions.empty:
         cmose_metrics = _prediction_metrics(cmose_predictions)

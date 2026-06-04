@@ -1,13 +1,13 @@
 # i3d_mlp [Ordinal]
 
-- Run folder: `combined/i3d_mlp/ordinal`
+- Run folder: `i3d_mlp/ordinal`
 - Metrics file: `outputs\training_log\combined\i3d_mlp\ordinal\metrics.json`
 - Accuracy: 0.5221
 - Macro Accuracy: 0.5299
-- Macro F1: 0.4339
-- Weighted F1: 0.5354
+- Macro F1: nan
+- Weighted F1: nan
 - MAE: 0.5268
-- MSE: 0.6313
+- MSE: nan
 - Best epoch: 3
 
 ## Classification Report

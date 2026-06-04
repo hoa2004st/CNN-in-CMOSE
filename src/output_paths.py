@@ -19,9 +19,11 @@ NAIVE_ASSESSMENT_DIR = MODEL_ASSESSMENT_DIR / "naive"
 HYBRID_ASSESSMENT_DIR = MODEL_ASSESSMENT_DIR / "hybrid"
 MODEL_COMPARISON_ASSESSMENT_DIR = MODEL_ASSESSMENT_DIR / "comparison"
 
-# Legacy aliases
+# CMOSE test-set assessment shares the naive directory; the accepted-private
+# assessment gets its own directory so per-dataset prediction/metric outputs do
+# not overwrite each other.
 CMOSE_TESTSET_ASSESSMENT_DIR = NAIVE_ASSESSMENT_DIR
-PRIVATE_ASSESSMENT_DIR = NAIVE_ASSESSMENT_DIR
+PRIVATE_ASSESSMENT_DIR = MODEL_ASSESSMENT_DIR / "private"
 RAW_PREDICTION_DIR = MODEL_COMPARISON_ASSESSMENT_DIR / "raw_predictions"
 
 MANUAL_LABELS_DIR = Path("data/private")

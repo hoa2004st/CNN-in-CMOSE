@@ -266,12 +266,6 @@ def train_model(
     history = {
         "train_losses": [],
         "eval_losses": [],
-        "eval_accuracies": [],
-        "eval_macro_accuracies": [],
-        "eval_maes": [],
-        "eval_macro_maes": [],
-        "eval_cohen_kappas": [],
-        "eval_qwks": [],
         "best_epoch": 0,
         "patience": patience,
         "stopped_early": False,
@@ -312,7 +306,7 @@ def train_model(
             train_loss += loss.item() * len(y_batch)
             train_total += len(y_batch)
 
-        eval_loss, eval_metrics = _evaluate_loss_and_metrics(
+        eval_loss = _evaluate_loss(
             model,
             eval_loader,
             criterion,
@@ -324,36 +318,15 @@ def train_model(
 
         history["train_losses"].append(train_loss)
         history["eval_losses"].append(eval_loss)
-        history["eval_accuracies"].append(eval_metrics["accuracy"])
-        history["eval_macro_accuracies"].append(eval_metrics["macro_accuracy"])
-        history["eval_maes"].append(eval_metrics["mae"])
-        history["eval_macro_maes"].append(eval_metrics["macro_mae"])
-        history["eval_cohen_kappas"].append(eval_metrics["cohen_kappa"])
-        history["eval_qwks"].append(eval_metrics["quadratic_weighted_kappa"])
 
-        if math.isfinite(eval_loss):
-            selection_score = eval_loss
-            selection_metric = "eval_loss"
-        else:
-            selection_score = 1.0 - eval_metrics["macro_accuracy"]
-            selection_metric = "1_minus_macro_accuracy"
-
-        if best_score - selection_score > min_delta:
-            best_score = selection_score
+        if math.isfinite(eval_loss) and best_score - eval_loss > min_delta:
+            best_score = eval_loss
             history["best_epoch"] = epoch
-            history["selection_metric"] = selection_metric
             stale_epochs = 0
             torch.save(model.state_dict(), checkpoint_path)
             if progress_callback is not None:
                 progress_callback(
-                    "Checkpoint updated: "
-                    f"epoch={epoch}, eval_loss={eval_loss:.6f}, "
-                    f"selection_metric={selection_metric}, "
-                    f"selection_score={selection_score:.6f}, "
-                    f"eval_acc={eval_metrics['accuracy']:.4f}, "
-                    f"eval_macro_acc={eval_metrics['macro_accuracy']:.4f}, "
-                    f"eval_mae={eval_metrics['mae']:.4f}, "
-                    f"eval_qwk={eval_metrics['quadratic_weighted_kappa']:.4f}"
+                    f"Checkpoint updated: epoch={epoch}, eval_loss={eval_loss:.6f}"
                 )
         else:
             stale_epochs += 1
@@ -374,10 +347,7 @@ def train_model(
             progress_callback(
                 "Epoch complete: "
                 f"{epoch}/{epochs}, train_loss={train_loss:.6f}, "
-                f"eval_loss={eval_loss:.6f}, eval_acc={eval_metrics['accuracy']:.4f}, "
-                f"eval_macro_acc={eval_metrics['macro_accuracy']:.4f}, "
-                f"eval_mae={eval_metrics['mae']:.4f}, "
-                f"eval_qwk={eval_metrics['quadratic_weighted_kappa']:.4f}, "
+                f"eval_loss={eval_loss:.6f}, "
                 f"stale_epochs={stale_epochs}, epoch_time_s={epoch_seconds:.2f}"
             )
 
@@ -458,7 +428,7 @@ def save_json(data: dict, path: str | Path) -> None:
     path.write_text(json.dumps(data, indent=2), encoding="utf-8")
 
 
-def _evaluate_loss_and_metrics(
+def _evaluate_loss(
     model: nn.Module,
     loader: DataLoader,
     criterion: nn.Module,
@@ -466,12 +436,15 @@ def _evaluate_loss_and_metrics(
     *,
     use_amp: bool = False,
     pin_memory: bool = False,
-) -> tuple[float, dict[str, float]]:
+) -> float:
+    """Return the mean evaluation loss (the early-stopping selection metric).
+
+    Only the loss is computed here; per-epoch classification metrics are
+    intentionally not recorded during training.
+    """
     model.eval()
     total_loss = 0.0
     total_samples = 0
-    y_true_batches: list[np.ndarray] = []
-    y_pred_batches: list[np.ndarray] = []
     with torch.no_grad():
         for *feature_batches, y_batch in loader:
             feature_batches = [
@@ -483,11 +456,7 @@ def _evaluate_loss_and_metrics(
                 loss = criterion(logits, y_batch) + aux_loss
             total_loss += loss.item() * len(y_batch)
             total_samples += len(y_batch)
-            y_true_batches.append(y_batch.cpu().numpy())
-            y_pred_batches.append(logits.argmax(dim=1).cpu().numpy())
-    y_true = np.concatenate(y_true_batches) if y_true_batches else np.zeros(0, dtype=np.int64)
-    y_pred = np.concatenate(y_pred_batches) if y_pred_batches else np.zeros(0, dtype=np.int64)
-    return total_loss / max(total_samples, 1), _compute_prediction_metrics(y_true, y_pred)
+    return total_loss / max(total_samples, 1)
 
 
 def _compute_prediction_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict[str, float]:

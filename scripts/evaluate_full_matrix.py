@@ -50,7 +50,8 @@ from src.output_paths import MODEL_ASSESSMENT_DIR, NAIVE_ASSESSMENT_DIR, MANUAL_
 # Configuration
 # ---------------------------------------------------------------------------
 
-MODELS = ["openface_mlp", "temporal_cnn", "lstm", "transformer", "i3d_mlp", "openface_tcn_i3d_fusion"]
+# Fusion (openface_tcn_i3d_fusion) is intentionally excluded from training and assessment.
+MODELS = ["openface_mlp", "temporal_cnn", "lstm", "transformer", "i3d_mlp"]
 LOSSES = ["cross_entropy", "weighted_cross_entropy", "ordinal"]
 OPENFACE_MODELS = {"openface_mlp", "temporal_cnn", "lstm", "transformer"}
 I3D_MODELS = {"i3d_mlp"}
@@ -363,6 +364,31 @@ def _predict_probs(
     return np.concatenate(out, axis=0)
 
 
+def per_clip_prediction_rows(
+    probs: np.ndarray,
+    sample_ids: list[str],
+    true_labels: list[int | None],
+    *,
+    base: dict[str, Any],
+) -> list[dict[str, Any]]:
+    """Build one raw prediction row per clip for a single train x test x model cell."""
+    pred_ids = probs.argmax(axis=1)
+    confidences = probs.max(axis=1)
+    rows: list[dict[str, Any]] = []
+    for i, clip_id in enumerate(sample_ids):
+        true = true_labels[i]
+        row: dict[str, Any] = dict(base)
+        row["clip_id"] = clip_id
+        row["true_id"] = int(true) if true is not None else ""
+        row["predicted_id"] = int(pred_ids[i])
+        row["is_correct"] = bool(pred_ids[i] == true) if true is not None else ""
+        row["confidence"] = float(confidences[i])
+        for class_id in CLASS_IDS:
+            row[f"prob_{class_id}"] = float(probs[i, class_id])
+        rows.append(row)
+    return rows
+
+
 def _compute_metrics(probs: np.ndarray, true_labels: list[int | None]) -> dict[str, float] | None:
     """Compute 6 metrics on the labeled subset. Returns None if no labels available."""
     labeled_mask = [i for i, lbl in enumerate(true_labels) if lbl is not None]
@@ -416,6 +442,7 @@ def main(argv: list[str] | None = None) -> None:
     print(f"Device: {device}")
 
     all_rows: list[dict[str, Any]] = []
+    per_clip_rows: list[dict[str, Any]] = []
     active_test_configs = (
         [tc for tc in TEST_CONFIGS if tc.name == args.only_test_set]
         if args.only_test_set else TEST_CONFIGS
@@ -507,11 +534,20 @@ def main(argv: list[str] | None = None) -> None:
                 if device.type == "cuda":
                     torch.cuda.empty_cache()
 
+                cell_base = {
+                    "train_group": train_cfg.name,
+                    "test_set":    test_cfg.name,
+                    "model":       model_output_name(model_name),
+                    "loss":        loss_slug(loss_name),
+                }
+                per_clip_rows.extend(
+                    per_clip_prediction_rows(
+                        probs, test_feats.sample_ids, test_feats.true_labels, base=cell_base
+                    )
+                )
+
                 row: dict[str, Any] = {
-                    "train_group":   train_cfg.name,
-                    "test_set":      test_cfg.name,
-                    "model":         model_output_name(model_name),
-                    "loss":          loss_slug(loss_name),
+                    **cell_base,
                     "target_frames": target_frames,
                     "n_labeled":     metrics["n_labeled"] if metrics else 0,
                 }
@@ -540,9 +576,20 @@ def main(argv: list[str] | None = None) -> None:
         results = pd.concat([existing, results], ignore_index=True)
 
     results.to_csv(out_csv, index=False)
+
+    # Raw per-clip predictions (one row per train x test x model x clip).
+    per_clip_df = pd.DataFrame(per_clip_rows)
+    per_clip_csv = out / "full_matrix_predictions.csv"
+    if args.only_test_set and per_clip_csv.exists():
+        existing_pc = pd.read_csv(per_clip_csv)
+        existing_pc = existing_pc[existing_pc["test_set"] != args.only_test_set]
+        per_clip_df = pd.concat([existing_pc, per_clip_df], ignore_index=True)
+    per_clip_df.to_csv(per_clip_csv, index=False)
+
     print(f"\n{'='*60}")
     print(f"Full matrix saved -> {out_csv}")
     print(f"Shape: {results.shape}")
+    print(f"Per-clip predictions saved -> {per_clip_csv}  ({len(per_clip_df)} rows)")
 
     display_cols = ["train_group", "test_set", "model", "loss"] + METRIC_COLS
     display_cols = [c for c in display_cols if c in results.columns]

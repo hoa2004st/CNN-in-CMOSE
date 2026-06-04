@@ -1,13 +1,13 @@
 # i3d_mlp [Weighted CE]
 
-- Run folder: `daisee/i3d_mlp/weighted_ce`
+- Run folder: `i3d_mlp/weighted_ce`
 - Metrics file: `outputs\training_log\daisee\i3d_mlp\weighted_ce\metrics.json`
 - Accuracy: 0.3845
 - Macro Accuracy: 0.2861
-- Macro F1: 0.2564
-- Weighted F1: 0.4331
+- Macro F1: nan
+- Weighted F1: nan
 - MAE: 0.8380
-- MSE: 1.3772
+- MSE: nan
 - Best epoch: 2
 
 ## Classification Report

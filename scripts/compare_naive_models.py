@@ -21,7 +21,6 @@ MODELS = [
     "lstm",
     "transformer",
     "i3d_mlp",
-    "openface_tcn_i3d_fusion",
 ]
 
 LOSSES = [

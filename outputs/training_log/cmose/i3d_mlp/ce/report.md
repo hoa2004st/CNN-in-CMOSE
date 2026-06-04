@@ -1,26 +1,26 @@
 # i3d_mlp [CE]
 
-- Run folder: `cmose/i3d_mlp/ce`
+- Run folder: `i3d_mlp/ce`
 - Metrics file: `outputs\training_log\cmose\i3d_mlp\ce\metrics.json`
-- Accuracy: 0.7723
-- Macro Accuracy: 0.5392
-- Macro F1: 0.5960
-- Weighted F1: 0.7549
-- MAE: 0.2473
-- MSE: 0.2883
-- Best epoch: 11
+- Accuracy: 0.7641
+- Macro Accuracy: 0.5078
+- Macro F1: nan
+- Weighted F1: nan
+- MAE: 0.2563
+- MSE: nan
+- Best epoch: 5
 
 ## Classification Report
 
 ```text
                   precision    recall  f1-score   support
 
-Highly Disengage       0.63      0.34      0.44        35
-       Disengage       0.61      0.43      0.51       221
-          Engage       0.80      0.92      0.86       847
-   Highly Engage       0.77      0.46      0.57       118
+Highly Disengage       0.67      0.29      0.40        35
+       Disengage       0.65      0.39      0.49       221
+          Engage       0.78      0.93      0.85       847
+   Highly Engage       0.71      0.42      0.53       118
 
-        accuracy                           0.77      1221
-       macro avg       0.70      0.54      0.60      1221
-    weighted avg       0.76      0.77      0.75      1221
+        accuracy                           0.76      1221
+       macro avg       0.70      0.51      0.57      1221
+    weighted avg       0.75      0.76      0.74      1221
 ```

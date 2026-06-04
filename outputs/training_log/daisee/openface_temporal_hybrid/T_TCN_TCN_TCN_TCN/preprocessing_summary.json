@@ -1,5 +1,5 @@
 {
-  "model": "semantic_group_fusion",
+  "model": "openface_temporal_hybrid",
   "sample_count": 8539,
   "train_sample_count": 5326,
   "evaluation_sample_count": 1429,

@@ -41,6 +41,7 @@ from scripts.evaluate_full_matrix import (
     _load_private_test,
     _load_test_from_json,
     _resolve_device,
+    per_clip_prediction_rows,
 )
 from src.feature_extraction.extract_openface import (
     build_group_column_indices,
@@ -117,6 +118,7 @@ def main(argv=None):
 
     train_cfg_map = {cfg.name: cfg for cfg in TRAIN_CONFIGS}
     all_rows: list[dict[str, Any]] = []
+    per_clip_rows: list[dict[str, Any]] = []
 
     for group_name in args.train_groups:
         train_cfg = train_cfg_map.get(group_name)
@@ -226,14 +228,22 @@ def main(argv=None):
                                             batch_size=args.batch_size, device=device)
 
                     metrics = _compute_metrics(probs, tf.true_labels)
+                    cell_base = {
+                        "train_group": group_name,
+                        "test_set":    test_cfg.name,
+                        "model":       model_type,
+                        "model_type":  model_type,
+                        "loss":        "ce",
+                        "arch_key":    arch_key,
+                    }
+                    per_clip_rows.extend(
+                        per_clip_prediction_rows(
+                            probs, tf.sample_ids, tf.true_labels, base=cell_base
+                        )
+                    )
                     row: dict[str, Any] = {
-                        "train_group":   group_name,
-                        "test_set":      test_cfg.name,
-                        "model_type":    model_type,
-                        "model":         model_type,
-                        "loss":          "ce",
+                        **cell_base,
                         "target_frames": train_cfg.target_frames,
-                        "arch_key":      arch_key,
                         "n_labeled":     metrics["n_labeled"] if metrics else 0,
                     }
                     for col in METRIC_COLS:
@@ -270,8 +280,24 @@ def main(argv=None):
         df = new_df
 
     df.to_csv(out_csv, index=False)
+
+    # Raw per-clip predictions (one row per train x test x arch x clip).
+    per_clip_df = pd.DataFrame(per_clip_rows)
+    per_clip_csv = out / "hybrid_matrix_predictions.csv"
+    if per_clip_csv.exists() and not per_clip_df.empty:
+        existing_pc = pd.read_csv(per_clip_csv)
+        evaluated_pc = set(zip(per_clip_df["train_group"], per_clip_df["model_type"]))
+        if "model_type" in existing_pc.columns:
+            mask_pc = existing_pc.apply(
+                lambda r: (r["train_group"], r["model_type"]) in evaluated_pc, axis=1
+            )
+            existing_pc = existing_pc[~mask_pc]
+        per_clip_df = pd.concat([existing_pc, per_clip_df], ignore_index=True)
+    per_clip_df.to_csv(per_clip_csv, index=False)
+
     print(f"\n{'='*60}")
     print(f"Hybrid matrix saved -> {out_csv}  ({len(df)} rows)")
+    print(f"Per-clip predictions saved -> {per_clip_csv}  ({len(per_clip_df)} rows)")
 
     print("\nBest per (train_group, test_set, model_type) by QWK:")
     best = (

@@ -20,13 +20,17 @@ CLASS_COLORS = {
     "Highly Engage": "#CC79A7",
 }
 
+# Models shown in model-assessment charts/tables. The fusion model
+# (openface_tcn_i3d_fusion) is intentionally excluded from assessment; the
+# assessment viz scripts treat this list as the model allowlist. Display names
+# and colors for the fusion key are kept below for backward compatibility with
+# historical per-run training artifacts.
 MODEL_ORDER = [
     "openface_mlp",
     "temporal_cnn",
     "lstm",
     "transformer",
     "i3d_mlp",
-    "openface_tcn_i3d_fusion",
 ]
 MODEL_DISPLAY_NAMES = {
     "openface_mlp": "openface_mlp",

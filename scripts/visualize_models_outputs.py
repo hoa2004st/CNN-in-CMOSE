@@ -150,6 +150,10 @@ def filter_comparison_runs(runs: list[RunResult]) -> list[RunResult]:
         parts = run.run_name.split("/")
         if any(part.startswith("smoke_") or part == "_smoke" for part in parts):
             continue
+        # MODEL_ORDER is the model allowlist for assessment charts/tables; runs
+        # for models excluded from it (e.g. the fusion model) are skipped.
+        if run.base_model not in MODEL_ORDER:
+            continue
         filtered.append(run)
     return filtered
 
@@ -304,7 +308,7 @@ def plot_metric_bars(summary_df: pd.DataFrame, best_df: pd.DataFrame, assessment
     _plot_metric_panel(
         summary_df,
         assessment_dir / "main_metrics_all_models_losses.png",
-        "CMOSE Test Metrics: 6 Models x 3 Losses",
+        "CMOSE Test Metrics: Models x Losses",
     )
 
 

@@ -1,44 +1,44 @@
 clip_id,manual_label_id,manual_label,notes,source_majority_label,source_agreement_rate,source_mean_confidence
 first_quarter_0004_10s,2,Engage,,Engage,0.16666666666666666,0.7976507842540741
-first_quarter_0006_10s,2,Engage,,Engage,0.5,0.7718906253576279
-first_quarter_0009_10s,1,Disengage,,Highly Engage,0.5,0.7840512543916702
-first_quarter_0010_10s,1,Disengage,,,None,None
-first_quarter_0011_10s,1,Disengage,,Disengage,0.13333333333333333,0.537458578745524
-first_quarter_0013_10s,2,Engage,,,None,None
-first_quarter_0014_10s,1,Disengage,,Disengage,0.3333333333333333,0.7597333043813705
+first_quarter_0006_10s,3,Highly Engage,,,None,None
+first_quarter_0009_10s,2,Engage,,,None,None
+first_quarter_0010_10s,2,Engage,,,None,None
+first_quarter_0011_10s,2,Engage,,,None,None
+first_quarter_0013_10s,1,Disengage,,,None,None
+first_quarter_0014_10s,2,Engage,,,None,None
 first_quarter_0015_10s,2,Engage,,Disengage,0.3333333333333333,0.7370302379131317
 first_quarter_0016_10s,2,Engage,,Engage,0.16666666666666666,0.554111510515213
 first_quarter_0018_10s,2,Engage,,Engage,0.16666666666666666,0.8022456169128418
 first_quarter_0019_10s,3,Highly Engage,,Engage,0.16666666666666666,0.6325582191348076
 first_quarter_0020_10s,2,Engage,,Highly Engage,0.16666666666666666,0.5955741032958031
-first_quarter_0025_10s,2,Engage,,,None,None
-first_quarter_0027_10s,1,Disengage,,,None,None
+first_quarter_0025_10s,3,Highly Engage,,,None,None
+first_quarter_0027_10s,2,Engage,,,None,None
 first_quarter_0031_10s,2,Engage,,,None,None
 first_quarter_0032_10s,2,Engage,,Disengage,0.16666666666666666,0.6535686925053596
 first_quarter_0038_10s,2,Engage,,,None,None
-first_quarter_0039_10s,2,Engage,,Engage,0.5,0.7830700874328613
-first_quarter_0041_10s,1,Disengage,,Disengage,0.3333333333333333,0.836029514670372
+first_quarter_0039_10s,3,Highly Engage,,,None,None
+first_quarter_0041_10s,2,Engage,,,None,None
 first_quarter_0042_10s,0,Highly Disengage,Delete,Disengage,0.16666666666666666,0.6339227557182312
 first_quarter_0044_10s,0,Highly Disengage,Delete,Disengage,0.16666666666666666,0.6361595243215561
 first_quarter_0048_10s,2,Engage,,Highly Disengage,0.13333333333333333,0.6149136225382487
-first_quarter_0049_10s,1,Disengage,,,None,None
+first_quarter_0049_10s,2,Engage,,,None,None
 first_quarter_0058_10s,2,Engage,,,None,None
 first_quarter_0059_10s,1,Disengage,,,None,None
-first_quarter_0061_10s,1,Disengage,,Engage,0.16666666666666666,0.7703157961368561
+first_quarter_0061_10s,2,Engage,,,None,None
 first_quarter_0062_10s,2,Engage,,Disengage,0.16666666666666666,0.70932936668396
 first_quarter_0072_10s,2,Engage,,Disengage,0.3333333333333333,0.665345162153244
-first_quarter_0134_10s,2,Engage,,Engage,0.16666666666666666,0.8354142904281616
+first_quarter_0134_10s,3,Highly Engage,,,None,None
 first_quarter_0135_10s,1,Disengage,,Disengage,0.13333333333333333,0.7363776564598083
-first_quarter_0139_10s,2,Engage,,Engage,0.16666666666666666,0.6570675447583199
+first_quarter_0139_10s,3,Highly Engage,,,None,None
 first_quarter_0143_10s,1,Disengage,,Highly Disengage,0.5,0.6648702248930931
-first_quarter_0148_10s,2,Engage,,Engage,0.5,0.8715236932039261
+first_quarter_0148_10s,3,Highly Engage,,,None,None
 first_quarter_0151_10s,0,Highly Disengage,Delete,,None,None
-first_quarter_0152_10s,1,Disengage,,Engage,0.16666666666666666,0.7256073579192162
+first_quarter_0152_10s,2,Engage,,,None,None
 first_quarter_0156_10s,2,Engage,,Engage,0.5,0.7647584825754166
 first_quarter_0157_10s,0,Highly Disengage,Delete,Engage,0.16666666666666666,0.6084859818220139
 first_quarter_0163_10s,2,Engage,,,None,None
 first_quarter_0164_10s,3,Highly Engage,,Engage,0.3333333333333333,0.8355861008167267
-first_quarter_0169_10s,2,Engage,,Engage,0.5,0.6445809528231621
+first_quarter_0169_10s,1,Disengage,,,None,None
 first_quarter_0173_10s,2,Engage,,,None,None
 first_quarter_0179_10s,2,Engage,,,None,None
 first_quarter_0182_10s,2,Engage,,Engage,0.16666666666666666,0.6485747247934341
@@ -46,7 +46,7 @@ first_quarter_0185_10s,2,Engage,,Engage,0.5,0.6937669292092323
 first_quarter_0186_10s,2,Engage,,Engage,1,0.6815987825393677
 first_quarter_0187_10s,2,Engage,,Engage,0.16666666666666666,0.7464354485273361
 first_quarter_0193_10s,2,Engage,,Engage,0.16666666666666666,0.7305614128708839
-first_quarter_0194_10s,1,Disengage,,Engage,1,0.794896587729454
+first_quarter_0194_10s,2,Engage,,,None,None
 first_quarter_0208_10s,1,Disengage,,Disengage,0.5,0.6735285148024559
 first_quarter_0211_10s,0,Highly Disengage,,Highly Engage,0.16666666666666666,0.6332102864980698
 first_quarter_0213_10s,1,Disengage,,Engage,0.5,0.6722720712423325
@@ -58,10 +58,10 @@ first_quarter_0222_10s,2,Engage,,Engage,0.16666666666666666,0.7891160249710083
 first_quarter_0228_10s,0,Highly Disengage,Delete,Disengage,0.16666666666666666,0.7250554636120796
 first_quarter_0229_10s,2,Engage,,Disengage,0.3333333333333333,0.7817500084638596
 first_quarter_0230_10s,2,Engage,,Highly Disengage,0.16666666666666666,0.7382084354758263
-first_quarter_0231_10s,2,Engage,,Engage,0.5,0.7532186359167099
+first_quarter_0231_10s,3,Highly Engage,,,None,None
 first_quarter_0235_10s,0,Highly Disengage,Delete,Engage,0.16666666666666666,0.6452586948871613
 first_quarter_0237_10s,0,Highly Disengage,,Engage,0.5,0.6471341475844383
-first_quarter_0238_10s,1,Disengage,,Highly Disengage,0,0.6275314912199974
+first_quarter_0238_10s,2,Engage,,,None,None
 first_quarter_0244_10s,0,Highly Disengage,Delete,Engage,0.16666666666666666,0.6829678565263748
 first_quarter_0246_10s,0,Highly Disengage,Delete,Engage,0.16666666666666666,0.6712683364748955
 first_quarter_0247_10s,0,Highly Disengage,Delete,Highly Disengage,0.3333333333333333,0.6820147484540939
@@ -70,68 +70,68 @@ first_quarter_0252_10s,0,Highly Disengage,Delete,Disengage,0.13333333333333333,0
 first_quarter_0255_10s,0,Highly Disengage,Delete,Engage,0.16666666666666666,0.7168733030557632
 first_quarter_0259_10s,0,Highly Disengage,Delete,Engage,0.5,0.7718040347099304
 first_quarter_0260_10s,0,Highly Disengage,Delete,Engage,0.16666666666666666,0.7674333602190018
-first_quarter_0261_10s,2,Engage,,Disengage,0.3333333333333333,0.7376235872507095
-first_quarter_0263_10s,2,Engage,,Engage,0.3333333333333333,0.7374475598335266
-fourth_quarter_0001_10s,2,Engage,,Engage,0.16666666666666666,0.6847882270812988
+first_quarter_0261_10s,3,Highly Engage,,,None,None
+first_quarter_0263_10s,3,Highly Engage,,,None,None
+fourth_quarter_0001_10s,3,Highly Engage,,,None,None
 fourth_quarter_0003_10s,2,Engage,,Engage,0.16666666666666666,0.6078346818685532
 fourth_quarter_0004_10s,2,Engage,,Engage,0.16666666666666666,0.7393343299627304
-fourth_quarter_0005_10s,2,Engage,,Engage,0.16666666666666666,0.7545245140790939
+fourth_quarter_0005_10s,3,Highly Engage,,,None,None
 fourth_quarter_0006_10s,2,Engage,,Engage,0.5,0.7694931179285049
-fourth_quarter_0007_10s,2,Engage,,Engage,0.16666666666666666,0.7107556089758873
+fourth_quarter_0007_10s,3,Highly Engage,,,None,None
 fourth_quarter_0009_10s,2,Engage,,Engage,0.5,0.5805222019553185
 fourth_quarter_0010_10s,0,Highly Disengage,,Highly Disengage,0.16666666666666666,0.7565262317657471
-fourth_quarter_0011_10s,2,Engage,,Engage,0.5,0.80968376994133
+fourth_quarter_0011_10s,3,Highly Engage,,,None,None
 fourth_quarter_0013_10s,2,Engage,,Disengage,0.13333333333333333,0.5963088770707449
 fourth_quarter_0016_10s,2,Engage,,Engage,0.13333333333333333,0.5720059474309286
 fourth_quarter_0019_10s,2,Engage,,Engage,0.5,0.6884696930646896
 fourth_quarter_0020_10s,2,Engage,,Engage,0.5,0.7164313346147537
-fourth_quarter_0021_10s,1,Disengage,,Engage,0.13333333333333333,0.6003923068443934
-fourth_quarter_0022_10s,2,Engage,,Engage,0.16666666666666666,0.6261613667011261
+fourth_quarter_0021_10s,3,Highly Engage,,,None,None
+fourth_quarter_0022_10s,3,Highly Engage,,,None,None
 fourth_quarter_0023_10s,2,Engage,,Engage,0.5,0.718590684235096
 fourth_quarter_0024_10s,0,Highly Disengage,Delete,Engage,0.5,0.6081744804978371
-fourth_quarter_0026_10s,2,Engage,,Engage,0.5,0.6841118782758713
+fourth_quarter_0026_10s,3,Highly Engage,,,None,None
 fourth_quarter_0028_10s,3,Highly Engage,,Highly Engage,0.16666666666666666,0.667698360979557
 fourth_quarter_0030_10s,2,Engage,,Disengage,0.16666666666666666,0.6764561533927917
 fourth_quarter_0031_10s,2,Engage,,Engage,0.16666666666666666,0.6919102370738983
-fourth_quarter_0032_10s,1,Disengage,,Disengage,0.13333333333333333,0.6656235307455063
+fourth_quarter_0032_10s,2,Engage,,,None,None
 fourth_quarter_0033_10s,1,Disengage,,Disengage,0.5,0.6104574650526047
-fourth_quarter_0034_10s,1,Disengage,,Engage,0.13333333333333333,0.7053695271412531
-fourth_quarter_0035_10s,2,Engage,,Engage,0.5,0.6736583486199379
+fourth_quarter_0034_10s,3,Highly Engage,,,None,None
+fourth_quarter_0035_10s,3,Highly Engage,,,None,None
 fourth_quarter_0036_10s,0,Highly Disengage,Delete,Highly Engage,0.16666666666666666,0.7071596533060074
 fourth_quarter_0038_10s,2,Engage,,Engage,0.16666666666666666,0.7304936051368713
 fourth_quarter_0047_10s,2,Engage,,Engage,0.16666666666666666,0.6383273378014565
 fourth_quarter_0048_10s,2,Engage,,Disengage,0.3333333333333333,0.5590434074401855
 fourth_quarter_0050_10s,2,Engage,,Engage,0.5,0.7239101007580757
-fourth_quarter_0051_10s,2,Engage,,Engage,0.5,0.6836776584386826
+fourth_quarter_0051_10s,3,Highly Engage,,,None,None
 fourth_quarter_0052_10s,2,Engage,,Engage,0.5,0.8402840048074722
 fourth_quarter_0053_10s,1,Disengage,,Engage,0.16666666666666666,0.6664369702339172
-fourth_quarter_0065_10s,1,Disengage,,Engage,0.16666666666666666,0.5760276764631271
+fourth_quarter_0065_10s,2,Engage,,,None,None
 fourth_quarter_0066_10s,0,Highly Disengage,Delete,Engage,0.5,0.8741706311702728
 fourth_quarter_0067_10s,1,Disengage,,Engage,0.5,0.7690746337175369
 fourth_quarter_0068_10s,1,Disengage,,,None,None
-fourth_quarter_0069_10s,1,Disengage,,,None,None
-fourth_quarter_0070_10s,1,Disengage,,Disengage,0.13333333333333333,0.7042435904343923
+fourth_quarter_0069_10s,2,Engage,,,None,None
+fourth_quarter_0070_10s,3,Highly Engage,,,None,None
 fourth_quarter_0071_10s,2,Engage,,Engage,0.5,0.7595343291759491
 fourth_quarter_0072_10s,0,Highly Disengage,Delete,,None,None
 fourth_quarter_0073_10s,2,Engage,,Engage,0.16666666666666666,0.5625055432319641
 fourth_quarter_0074_10s,2,Engage,,Engage,0.16666666666666666,0.6621948480606079
-fourth_quarter_0075_10s,2,Engage,,Engage,0.3333333333333333,0.7111511826515198
-fourth_quarter_0076_10s,2,Engage,,Engage,0.3333333333333333,0.5876412317156792
-fourth_quarter_0077_10s,2,Engage,,Engage,0.16666666666666666,0.7416488975286484
-fourth_quarter_0078_10s,2,Engage,,Engage,0.5,0.6830226927995682
-fourth_quarter_0080_10s,2,Engage,,Engage,0.16666666666666666,0.6422085389494896
-fourth_quarter_0081_10s,2,Engage,,Engage,0.13333333333333333,0.6560713400443395
-fourth_quarter_0082_10s,2,Engage,,Engage,0.5,0.597756952047348
-fourth_quarter_0083_10s,2,Engage,,Engage,0.5,0.5659911930561066
-fourth_quarter_0084_10s,2,Engage,,Engage,0.16666666666666666,0.6392396166920662
-fourth_quarter_0085_10s,2,Engage,,Engage,0.3333333333333333,0.6344467774033546
-fourth_quarter_0086_10s,2,Engage,,Engage,0.16666666666666666,0.6700789332389832
-fourth_quarter_0087_10s,2,Engage,,Engage,0.16666666666666666,0.584123007953167
-fourth_quarter_0088_10s,2,Engage,,Engage,0.5,0.6107732430100441
-fourth_quarter_0089_10s,2,Engage,,Engage,0.16666666666666666,0.6062403097748756
+fourth_quarter_0075_10s,3,Highly Engage,,,None,None
+fourth_quarter_0076_10s,3,Highly Engage,,,None,None
+fourth_quarter_0077_10s,3,Highly Engage,,,None,None
+fourth_quarter_0078_10s,3,Highly Engage,,,None,None
+fourth_quarter_0080_10s,3,Highly Engage,,,None,None
+fourth_quarter_0081_10s,3,Highly Engage,,,None,None
+fourth_quarter_0082_10s,3,Highly Engage,,,None,None
+fourth_quarter_0083_10s,3,Highly Engage,,,None,None
+fourth_quarter_0084_10s,3,Highly Engage,,,None,None
+fourth_quarter_0085_10s,3,Highly Engage,,,None,None
+fourth_quarter_0086_10s,3,Highly Engage,,,None,None
+fourth_quarter_0087_10s,3,Highly Engage,,,None,None
+fourth_quarter_0088_10s,3,Highly Engage,,,None,None
+fourth_quarter_0089_10s,3,Highly Engage,,,None,None
 fourth_quarter_0090_10s,2,Engage,,Engage,0.5,0.6482085883617401
 fourth_quarter_0091_10s,2,Engage,,Disengage,0.3333333333333333,0.7439753413200378
-fourth_quarter_0092_10s,2,Engage,,Engage,0.16666666666666666,0.6415462344884872
+fourth_quarter_0092_10s,3,Highly Engage,,,None,None
 fourth_quarter_0093_10s,2,Engage,,Engage,0.16666666666666666,0.6878646463155746
 fourth_quarter_0094_10s,2,Engage,,Disengage,0.3333333333333333,0.7463797703385353
 fourth_quarter_0095_10s,2,Engage,,Disengage,0.3333333333333333,0.7456576228141785
@@ -141,47 +141,47 @@ fourth_quarter_0098_10s,1,Disengage,,Disengage,0.3333333333333333,0.589170262217
 fourth_quarter_0101_10s,2,Engage,,Engage,0.5,0.7097817957401276
 fourth_quarter_0103_10s,1,Disengage,,Disengage,0.3333333333333333,0.6418525278568268
 fourth_quarter_0104_10s,2,Engage,,Engage,0.5,0.6623948067426682
-fourth_quarter_0105_10s,2,Engage,,Engage,0.16666666666666666,0.668789803981781
-fourth_quarter_0106_10s,2,Engage,,Engage,0.13333333333333333,0.573900893330574
-fourth_quarter_0107_10s,2,Engage,,Highly Engage,0.5,0.5629721358418465
-fourth_quarter_0109_10s,2,Engage,,Engage,0.16666666666666666,0.6125261336565018
-fourth_quarter_0110_10s,2,Engage,,Disengage,0.13333333333333333,0.6770755797624588
+fourth_quarter_0105_10s,3,Highly Engage,,,None,None
+fourth_quarter_0106_10s,3,Highly Engage,,,None,None
+fourth_quarter_0107_10s,3,Highly Engage,,,None,None
+fourth_quarter_0109_10s,3,Highly Engage,,,None,None
+fourth_quarter_0110_10s,3,Highly Engage,,,None,None
 fourth_quarter_0111_10s,2,Engage,,Engage,0.16666666666666666,0.6508924812078476
 fourth_quarter_0112_10s,2,Engage,,Engage,0.5,0.6111700162291527
 fourth_quarter_0113_10s,2,Engage,,Disengage,0.3333333333333333,0.707301415503025
-fourth_quarter_0114_10s,2,Engage,,,None,None
-fourth_quarter_0115_10s,2,Engage,,Engage,0.5,0.5580596327781677
-fourth_quarter_0119_10s,2,Engage,,Engage,0.16666666666666666,0.6262452974915504
-fourth_quarter_0120_10s,2,Engage,,Engage,0.5,0.6022595688700676
-fourth_quarter_0121_10s,2,Engage,,Engage,0.16666666666666666,0.64017453789711
-fourth_quarter_0122_10s,2,Engage,,Engage,0.5,0.7023929432034492
-fourth_quarter_0123_10s,2,Engage,,Engage,0.16666666666666666,0.6033308655023575
+fourth_quarter_0114_10s,3,Highly Engage,,,None,None
+fourth_quarter_0115_10s,3,Highly Engage,,,None,None
+fourth_quarter_0119_10s,3,Highly Engage,,,None,None
+fourth_quarter_0120_10s,3,Highly Engage,,,None,None
+fourth_quarter_0121_10s,3,Highly Engage,,,None,None
+fourth_quarter_0122_10s,3,Highly Engage,,,None,None
+fourth_quarter_0123_10s,3,Highly Engage,,,None,None
 fourth_quarter_0124_10s,2,Engage,,Engage,0.5,0.5806337520480156
 fourth_quarter_0125_10s,2,Engage,,Engage,0.13333333333333333,0.6632174452145895
-fourth_quarter_0126_10s,2,Engage,,Engage,0.5,0.6145731434226036
-fourth_quarter_0127_10s,2,Engage,,Engage,0.5,0.7199891358613968
-fourth_quarter_0128_10s,2,Engage,,Engage,0.16666666666666666,0.6041334718465805
-fourth_quarter_0129_10s,2,Engage,,Engage,0.5,0.62284304946661
-fourth_quarter_0130_10s,2,Engage,,Engage,0.5,0.6437858492136002
-fourth_quarter_0133_10s,2,Engage,,Disengage,0.3333333333333333,0.6443133801221848
+fourth_quarter_0126_10s,3,Highly Engage,,,None,None
+fourth_quarter_0127_10s,3,Highly Engage,,,None,None
+fourth_quarter_0128_10s,3,Highly Engage,,,None,None
+fourth_quarter_0129_10s,3,Highly Engage,,,None,None
+fourth_quarter_0130_10s,3,Highly Engage,,,None,None
+fourth_quarter_0133_10s,3,Highly Engage,,,None,None
 fourth_quarter_0136_10s,0,Highly Disengage,Delete,Engage,0.16666666666666666,0.73776975274086
-fourth_quarter_0137_10s,2,Engage,,Engage,0.5,0.8057886958122253
+fourth_quarter_0137_10s,3,Highly Engage,,,None,None
 fourth_quarter_0138_10s,0,Highly Disengage,,Disengage,0.16666666666666666,0.690626248717308
 fourth_quarter_0139_10s,0,Highly Disengage,,Engage,0.16666666666666666,0.7083861827850342
 fourth_quarter_0152_10s,2,Engage,,Engage,0.5,0.6647836565971375
-fourth_quarter_0153_10s,1,Disengage,,Disengage,0.5,0.7244967669248581
+fourth_quarter_0153_10s,2,Engage,,,None,None
 fourth_quarter_0154_10s,2,Engage,,Engage,0.5,0.5705644190311432
 fourth_quarter_0158_10s,2,Engage,,Engage,0.5,0.6434332355856895
-fourth_quarter_0160_10s,1,Disengage,,Engage,0.5,0.7726633101701736
+fourth_quarter_0160_10s,2,Engage,,,None,None
 fourth_quarter_0163_10s,2,Engage,,Engage,0.16666666666666666,0.6265322864055634
-fourth_quarter_0165_10s,2,Engage,,Engage,0.16666666666666666,0.7625064253807068
+fourth_quarter_0165_10s,3,Highly Engage,,,None,None
 fourth_quarter_0166_10s,0,Highly Disengage,Delete,Engage,0.13333333333333333,0.6453832189242045
-fourth_quarter_0167_10s,2,Engage,,Disengage,0.3333333333333333,0.5638669207692146
+fourth_quarter_0167_10s,3,Highly Engage,,,None,None
 fourth_quarter_0168_10s,2,Engage,,Highly Engage,0.16666666666666666,0.5787462219595909
 fourth_quarter_0169_10s,0,Highly Disengage,,Highly Disengage,0,0.7060829401016235
-fourth_quarter_0182_10s,2,Engage,,Highly Engage,0.5,0.7339262962341309
+fourth_quarter_0182_10s,3,Highly Engage,,,None,None
 fourth_quarter_0183_10s,2,Engage,,Engage,0.5,0.7101464569568634
-fourth_quarter_0184_10s,2,Engage,,Disengage,0.3333333333333333,0.542702704668045
+fourth_quarter_0184_10s,3,Highly Engage,,,None,None
 fourth_quarter_0185_10s,1,Disengage,,Disengage,0.3333333333333333,0.7360872030258179
 fourth_quarter_0186_10s,2,Engage,,Engage,0.5,0.8319206237792969
 fourth_quarter_0188_10s,2,Engage,,Engage,0.5,0.6275752112269402
@@ -213,7 +213,7 @@ second_quarter_0030_10s,2,Engage,,Engage,0.5,0.8012742251157761
 second_quarter_0033_10s,2,Engage,,Engage,0.16666666666666666,0.7748831510543823
 second_quarter_0038_10s,2,Engage,,Engage,0.5,0.7685924619436264
 second_quarter_0039_10s,1,Disengage,,Disengage,0.5,0.5645979270339012
-second_quarter_0040_10s,2,Engage,,Highly Disengage,0.13333333333333333,0.7002393553654352
+second_quarter_0040_10s,3,Highly Engage,,,None,None
 second_quarter_0042_10s,3,Highly Engage,,Highly Engage,0.16666666666666666,0.7590757310390472
 second_quarter_0044_10s,0,Highly Disengage,Delete,Highly Disengage,0.13333333333333333,0.5820466130971909
 second_quarter_0045_10s,2,Engage,,Engage,0.16666666666666666,0.7720485329627991
@@ -244,19 +244,19 @@ second_quarter_0202_10s,2,Engage,,Engage,0.5,0.8850492686033249
 second_quarter_0204_10s,0,Highly Disengage,Delete,Highly Disengage,0.13333333333333333,0.6410759190718333
 second_quarter_0209_10s,2,Engage,,Engage,0.16666666666666666,0.7108318656682968
 second_quarter_0210_10s,2,Engage,,Disengage,0.16666666666666666,0.6182820871472359
-second_quarter_0211_10s,1,Disengage,,Disengage,0.3333333333333333,0.8340902328491211
+second_quarter_0211_10s,2,Engage,,,None,None
 second_quarter_0212_10s,2,Engage,,Highly Disengage,0,0.7261958718299866
 second_quarter_0213_10s,3,Highly Engage,,Highly Disengage,0.13333333333333333,0.6728604038556417
 second_quarter_0215_10s,3,Highly Engage,,Engage,0.13333333333333333,0.5930793434381485
 second_quarter_0217_10s,2,Engage,,Engage,0.5,0.6606517881155014
-second_quarter_0224_10s,2,Engage,,Engage,0.5,0.7557955235242844
+second_quarter_0224_10s,3,Highly Engage,,,None,None
 second_quarter_0231_10s,1,Disengage,,Engage,0.16666666666666666,0.6767056882381439
 second_quarter_0233_10s,0,Highly Disengage,,Engage,0.16666666666666666,0.5547512546181679
 second_quarter_0234_10s,2,Engage,,Engage,0.5,0.8602972626686096
-second_quarter_0235_10s,2,Engage,,Engage,0.16666666666666666,0.7761849761009216
+second_quarter_0235_10s,3,Highly Engage,,,None,None
 second_quarter_0236_10s,3,Highly Engage,,Engage,0.16666666666666666,0.7032167166471481
-second_quarter_0238_10s,2,Engage,,Engage,0.5,0.7892147600650787
-second_quarter_0239_10s,1,Disengage,,Disengage,0.13333333333333333,0.7042871961990992
+second_quarter_0238_10s,3,Highly Engage,,,None,None
+second_quarter_0239_10s,2,Engage,,,None,None
 second_quarter_0240_10s,2,Engage,,Engage,0.16666666666666666,0.7926022112369537
 second_quarter_0242_10s,0,Highly Disengage,Delete,Highly Disengage,0.16666666666666666,0.8560435026884079
 second_quarter_0243_10s,0,Highly Disengage,Delete,Disengage,0.5,0.5911379083991051
@@ -268,16 +268,16 @@ second_quarter_0250_10s,0,Highly Disengage,Delete,Engage,0.16666666666666666,0.6
 second_quarter_0257_10s,0,Highly Disengage,Delete,Engage,0.5,0.7365379929542542
 second_quarter_0263_10s,2,Engage,,Engage,0.5,0.7399918287992477
 second_quarter_0265_10s,2,Engage,,Engage,0.16666666666666666,0.6561246067285538
-second_quarter_0266_10s,2,Engage,,Engage,0.5,0.8467977195978165
-third_quarter_0001_10s,1,Disengage,,Disengage,0.3333333333333333,0.7915882021188736
+second_quarter_0266_10s,3,Highly Engage,,,None,None
+third_quarter_0001_10s,2,Engage,,,None,None
 third_quarter_0002_10s,1,Disengage,,Disengage,0.3333333333333333,0.6542460918426514
-third_quarter_0003_10s,2,Engage,,Engage,0.16666666666666666,0.7492229416966438
-third_quarter_0005_10s,2,Engage,,Engage,0.5,0.6923694089055061
+third_quarter_0003_10s,3,Highly Engage,,,None,None
+third_quarter_0005_10s,3,Highly Engage,,,None,None
 third_quarter_0007_10s,3,Highly Engage,,Engage,0.13333333333333333,0.5905621846516927
 third_quarter_0008_10s,2,Engage,,Engage,0.16666666666666666,0.7638622969388962
 third_quarter_0009_10s,2,Engage,,Engage,0.16666666666666666,0.6926213204860687
 third_quarter_0011_10s,3,Highly Engage,,Engage,0.13333333333333333,0.5770716667175293
-third_quarter_0012_10s,1,Disengage,,Engage,0.5,0.7724886909127235
+third_quarter_0012_10s,2,Engage,,,None,None
 third_quarter_0013_10s,1,Disengage,,Disengage,0.3333333333333333,0.7471451610326767
 third_quarter_0016_10s,0,Highly Disengage,Delete,Disengage,0.5,0.6152616888284683
 third_quarter_0021_10s,2,Engage,,Engage,0.16666666666666666,0.617069661617279
@@ -326,19 +326,19 @@ third_quarter_0085_10s,2,Engage,,Highly Engage,0.5,0.6860284060239792
 third_quarter_0086_10s,2,Engage,,Engage,0.16666666666666666,0.7091526538133621
 third_quarter_0087_10s,1,Disengage,,Disengage,0.13333333333333333,0.5797794610261917
 third_quarter_0088_10s,3,Highly Engage,,Engage,0.5,0.7581742703914642
-third_quarter_0089_10s,2,Engage,,Engage,0.16666666666666666,0.6506701931357384
-third_quarter_0090_10s,2,Engage,,Highly Disengage,0.3333333333333333,0.6571917980909348
+third_quarter_0089_10s,3,Highly Engage,,,None,None
+third_quarter_0090_10s,3,Highly Engage,,,None,None
 third_quarter_0092_10s,3,Highly Engage,,Engage,0.16666666666666666,0.7052749544382095
 third_quarter_0093_10s,3,Highly Engage,,Engage,0.5,0.6844330579042435
 third_quarter_0094_10s,3,Highly Engage,,Engage,0.5,0.7013954818248749
 third_quarter_0095_10s,3,Highly Engage,,Engage,0.5,0.6751659065485001
 third_quarter_0097_10s,3,Highly Engage,,Engage,0.16666666666666666,0.7170993089675903
 third_quarter_0098_10s,3,Highly Engage,,Engage,0.16666666666666666,0.6813563257455826
-third_quarter_0100_10s,2,Engage,,Highly Disengage,0.3333333333333333,0.7584162652492523
+third_quarter_0100_10s,3,Highly Engage,,,None,None
 third_quarter_0101_10s,3,Highly Engage,,Engage,0.16666666666666666,0.699568398296833
 third_quarter_0102_10s,3,Highly Engage,,Highly Disengage,0.13333333333333333,0.625404879450798
 third_quarter_0103_10s,2,Engage,,Highly Engage,0.5,0.709411233663559
-third_quarter_0104_10s,0,Highly Disengage,,Highly Disengage,0.13333333333333333,0.6190493702888489
+third_quarter_0104_10s,2,Engage,,,None,None
 third_quarter_0105_10s,2,Engage,,Highly Disengage,0.13333333333333333,0.6225617180267969
 third_quarter_0106_10s,3,Highly Engage,,Engage,0.5,0.6786391213536263
 third_quarter_0107_10s,2,Engage,,Engage,0.16666666666666666,0.7267677038908005
@@ -368,7 +368,7 @@ third_quarter_0137_10s,2,Engage,,Engage,0.16666666666666666,0.6875051930546761
 third_quarter_0138_10s,2,Engage,,Engage,0.5,0.7767443209886551
 third_quarter_0139_10s,2,Engage,,Engage,0.16666666666666666,0.7167948856949806
 third_quarter_0140_10s,2,Engage,,Engage,0.16666666666666666,0.7568614333868027
-third_quarter_0141_10s,1,Disengage,,Disengage,0.3333333333333333,0.8436291813850403
+third_quarter_0141_10s,2,Engage,,,None,None
 third_quarter_0143_10s,2,Engage,,Disengage,0.13333333333333333,0.6385830193758011
 third_quarter_0147_10s,2,Engage,,Disengage,0.3333333333333333,0.8188566863536835
 third_quarter_0149_10s,0,Highly Disengage,Delete,Engage,0.16666666666666666,0.6203677877783775
@@ -377,7 +377,7 @@ third_quarter_0151_10s,2,Engage,,Engage,0.16666666666666666,0.7074877768754959
 third_quarter_0152_10s,3,Highly Engage,,Highly Disengage,0.13333333333333333,0.6816915919383367
 third_quarter_0153_10s,0,Highly Disengage,Delete,Highly Disengage,0.3333333333333333,0.6580604165792465
 third_quarter_0154_10s,2,Engage,,Engage,1,0.7946492284536362
-third_quarter_0156_10s,2,Engage,,Engage,0.16666666666666666,0.7361017018556595
+third_quarter_0156_10s,3,Highly Engage,,,None,None
 third_quarter_0157_10s,0,Highly Disengage,Delete,Engage,0.16666666666666666,0.6156488582491875
 third_quarter_0158_10s,2,Engage,,Engage,0.5,0.9114392548799515
 third_quarter_0160_10s,1,Disengage,,Disengage,0.3333333333333333,0.707466147840023
@@ -387,7 +387,7 @@ third_quarter_0166_10s,0,Highly Disengage,Delete,Engage,0.3333333333333333,0.728
 third_quarter_0167_10s,0,Highly Disengage,Delete,Engage,0.5,0.7776988595724106
 third_quarter_0168_10s,2,Engage,,Engage,0.5,0.7160637080669403
 third_quarter_0169_10s,2,Engage,,Engage,0.16666666666666666,0.6271601468324661
-third_quarter_0170_10s,1,Disengage,,Engage,0.16666666666666666,0.730053186416626
+third_quarter_0170_10s,2,Engage,,,None,None
 third_quarter_0171_10s,2,Engage,,Engage,0.16666666666666666,0.6462037265300751
 third_quarter_0172_10s,0,Highly Disengage,Delete,Disengage,0.16666666666666666,0.5668407678604126
 third_quarter_0174_10s,2,Engage,,Engage,0.16666666666666666,0.6845564171671867
@@ -407,11 +407,11 @@ third_quarter_0208_10s,2,Engage,,Engage,0.5,0.6250915229320526
 third_quarter_0212_10s,2,Engage,,Engage,0.5,0.5527105629444122
 third_quarter_0213_10s,2,Engage,,Engage,0.5,0.8253302574157715
 third_quarter_0214_10s,2,Engage,,Disengage,0.3333333333333333,0.8128090500831604
-third_quarter_0215_10s,2,Engage,,Engage,0.13333333333333333,0.6672107974688212
-third_quarter_0216_10s,2,Engage,,Engage,0.5,0.7482393682003021
+third_quarter_0215_10s,3,Highly Engage,,,None,None
+third_quarter_0216_10s,3,Highly Engage,,,None,None
 third_quarter_0220_10s,2,Engage,,Engage,0.5,0.8798639923334122
 third_quarter_0221_10s,0,Highly Disengage,Delete,Highly Disengage,0.3333333333333333,0.668776124715805
-third_quarter_0228_10s,1,Disengage,,Disengage,0.3333333333333333,0.7710236310958862
+third_quarter_0228_10s,1,Disengage,,,None,None
 third_quarter_0232_10s,2,Engage,,Engage,0.5,0.7841168940067291
 third_quarter_0234_10s,2,Engage,,Disengage,0.16666666666666666,0.697932168841362
 third_quarter_0235_10s,2,Engage,,Engage,0.16666666666666666,0.742138184607029
@@ -425,5 +425,5 @@ third_quarter_0253_10s,0,Highly Disengage,Delete,Engage,0.5,0.7399012297391891
 third_quarter_0257_10s,0,Highly Disengage,Delete,Engage,0.16666666666666666,0.6771722659468651
 third_quarter_0260_10s,1,Disengage,,Disengage,0.5,0.8764820545911789
 third_quarter_0264_10s,2,Engage,,Engage,0.5,0.7885583490133286
-third_quarter_0265_10s,2,Engage,,Disengage,0.3333333333333333,0.6578875258564949
+third_quarter_0265_10s,3,Highly Engage,,,None,None
 third_quarter_0266_10s,2,Engage,,Engage,0.5,0.8566712290048599

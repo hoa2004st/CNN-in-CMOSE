@@ -1,13 +1,13 @@
 # openface_mlp [CE]
 
-- Run folder: `combined/openface_mlp/ce`
+- Run folder: `openface_mlp/ce`
 - Metrics file: `outputs\training_log\combined\openface_mlp\ce\metrics.json`
 - Accuracy: 0.6190
 - Macro Accuracy: 0.3986
-- Macro F1: 0.4391
-- Weighted F1: 0.5585
+- Macro F1: nan
+- Weighted F1: nan
 - MAE: 0.3933
-- MSE: 0.4180
+- MSE: nan
 - Best epoch: 38
 
 ## Classification Report

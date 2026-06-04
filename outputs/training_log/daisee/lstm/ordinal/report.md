@@ -1,13 +1,13 @@
 # openface_lstm [Ordinal]
 
-- Run folder: `daisee/lstm/ordinal`
+- Run folder: `lstm/ordinal`
 - Metrics file: `outputs\training_log\daisee\lstm\ordinal\metrics.json`
 - Accuracy: 0.3212
 - Macro Accuracy: 0.3108
-- Macro F1: 0.1609
-- Weighted F1: 0.2660
+- Macro F1: nan
+- Weighted F1: nan
 - MAE: 1.1155
-- MSE: 2.2522
+- MSE: nan
 - Best epoch: 4
 
 ## Classification Report
