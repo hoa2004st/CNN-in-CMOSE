@@ -1,5 +1,3 @@
-class,label_id,count,proportion
-Highly Disengage,0,10,0.027322
-Disengage,1,31,0.084699
-Engage,2,213,0.581967
-Highly Engage,3,112,0.306011
+version https://git-lfs.github.com/spec/v1
+oid sha256:399b0f4b57e047a178c35baf645a31f0db018b873214cfbda21921026122d706
+size 143

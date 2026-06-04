@@ -1,6 +1,3 @@
-run_name,dataset,model_label,comparison_label,base_model,variant_label,loss,loss_label,best_epoch,accuracy,macro_accuracy,f1_macro,f1_weighted,mae,mse,macro_mae,cohen_kappa,quadratic_weighted_kappa,epochs_requested,batch_size,lr,device,amp,base_model_display
-openface_mlp/weighted_ce,cmose,openface_mlp,openface_mlp [Weighted CE],openface_mlp,Weighted CE,weighted_cross_entropy,Weighted CE,50,0.556920556920557,0.5452498512092457,,,0.4987714987714988,,0.5827449288679235,0.2524833818806482,0.3989602071240286,400,64,0.0001,cuda,False,openface_mlp
-tcn/ordinal,cmose,openface_tcn,openface_tcn [Ordinal],temporal_cnn,Ordinal,ordinal,Ordinal,21,0.5511875511875511,0.6001886833369658,,,0.5118755118755118,,0.5222375897464269,0.2913170161318509,0.43643183371135574,400,64,0.0001,cuda,False,openface_tcn
-lstm/weighted_ce,cmose,openface_lstm,openface_lstm [Weighted CE],lstm,Weighted CE,weighted_cross_entropy,Weighted CE,11,0.5266175266175266,0.5338598703028142,,,0.5626535626535627,,0.6729306789467218,0.2380202766171089,0.3286469519540628,400,64,0.0001,cuda,False,openface_lstm
-transformer/ordinal,cmose,openface_transformer,openface_transformer [Ordinal],transformer,Ordinal,ordinal,Ordinal,34,0.552006552006552,0.5880221699808394,,,0.5028665028665029,,0.5047464205331512,0.2800195333133545,0.4428284318960748,400,64,0.0001,cuda,False,openface_transformer
-i3d_mlp/ordinal,cmose,i3d_mlp,i3d_mlp [Ordinal],i3d_mlp,Ordinal,ordinal,Ordinal,27,0.6855036855036855,0.6133839150969578,,,0.35544635544635544,,0.4883729204720776,0.41932175933379734,0.4999100750684261,400,64,0.0001,cuda,False,i3d_mlp
+version https://git-lfs.github.com/spec/v1
+oid sha256:b897b025a81fc4cbcc2058aa31286e042ce8e0e2b332c25deffcdc52fdde63ab
+size 1587
