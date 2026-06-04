@@ -20,21 +20,21 @@ run() {
 log "===== RERUN FIX START ====="
 
 # ---- cmose naive (num_workers=0) ----
-run "$PY" scripts/compare_naive_models.py --dataset cmose \
+run "$PY" src/training/full_training_process.py --dataset cmose \
     --feature_dir data/CMOSE/features/openface --labels_json data/CMOSE/final_data_1.json \
     --i3d_feature_dir data/CMOSE/features/i3d --target_frames 300 --num_workers 0 --amp
 
 # ---- cmose hybrid, both types (num_workers=0) ----
-run "$PY" scripts/run_all_hybrid_ablations.py --datasets cmose --num_workers 0 --amp
+run "$PY" src/training/run_all_hybrid_ablations.py --datasets cmose --num_workers 0 --amp
 
 # ---- combined i3d_hybrid only; skip-guard keeps the 4 already done (num_workers=0) ----
-run "$PY" scripts/run_all_hybrid_ablations.py --datasets combined \
+run "$PY" src/training/run_all_hybrid_ablations.py --datasets combined \
     --model_types openface_temporal_i3d_hybrid --num_workers 0 --amp
 
 # ---- regenerate full 3x3 prediction matrices (clean) ----
 rm -f outputs/model_assessment/naive/full_matrix.csv outputs/model_assessment/naive/full_matrix_predictions.csv
 rm -f outputs/model_assessment/hybrid/hybrid_matrix.csv outputs/model_assessment/hybrid/hybrid_matrix_predictions.csv
-run "$PY" scripts/evaluate_full_matrix.py --device cuda
-run "$PY" scripts/evaluate_hybrid_full_matrix.py --device cuda
+run "$PY" src/evaluation/evaluate_full_matrix.py --device cuda
+run "$PY" src/evaluation/evaluate_hybrid_full_matrix.py --device cuda
 
 log "===== RERUN FIX COMPLETE ====="

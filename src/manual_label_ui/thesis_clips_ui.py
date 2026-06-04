@@ -33,7 +33,7 @@ from src.output_paths import (
 )
 
 # Combined per-clip CSV (naive + hybrid runs) written by
-# scripts/generate_hybrid_clip_predictions.py. Falls back to the naive-only CSV
+# src/evaluation/generate_hybrid_clip_predictions.py. Falls back to the naive-only CSV
 # when the combined file has not been generated yet.
 COMBINED_PREDICTIONS_CSV = MODEL_COMPARISON_ASSESSMENT_DIR / "predictions_by_clip_all_groups.csv"
 NAIVE_PREDICTIONS_CSV = NAIVE_ASSESSMENT_DIR / "predictions_by_clip.csv"
@@ -891,19 +891,19 @@ def _generate_predictions(config: Config) -> None:
     print(f"Predictions file not found: {config.predictions_csv}")
     print("Generating predictions — this may take several minutes...")
     result = subprocess.run(
-        [sys.executable, "-m", "src.feature_analysis.run_domain_shift_analysis"],
+        [sys.executable, "-m", "src.analysis.prediction_generator"],
         cwd=str(config.repo_root),
     )
     if result.returncode != 0:
         print(
             f"Generation failed (exit {result.returncode}).\n"
-            f"Run manually: python -m src.feature_analysis.run_domain_shift_analysis"
+            f"Run manually: python -m src.analysis.prediction_generator"
         )
         sys.exit(1)
     if not config.predictions_csv.exists():
         print(
             f"Generation succeeded but {config.predictions_csv} was not created.\n"
-            f"Check --predictions_csv path or re-run: python -m src.feature_analysis.run_domain_shift_analysis"
+            f"Check --predictions_csv path or re-run: python -m src.analysis.prediction_generator"
         )
         sys.exit(1)
     print(f"Predictions ready: {config.predictions_csv}")

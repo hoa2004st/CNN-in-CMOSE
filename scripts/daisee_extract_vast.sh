@@ -137,7 +137,7 @@ stage_labels() {
   resolve_venv_py
   cd "$WORKDIR"
   log "Building CMOSE-compatible engagement labels"
-  "$VENV_PY" scripts/build_daisee_labels.py \
+  "$VENV_PY" src/data_prep/build_daisee_labels.py \
     --dataset-root "$RAW_DIR" \
     --out-json "$DAISEE_ROOT/final_data_1.json" \
     --out-csv  "$DAISEE_ROOT/labels.csv"
@@ -269,7 +269,7 @@ PY
       test_dataloader.dataset.data_prefix.video=''
 
   log "Converting I3D .pkl -> CMOSE .npy"
-  "$WORKDIR/.venv/bin/python" scripts/daisee_convert_i3d.py \
+  "$WORKDIR/.venv/bin/python" src/data_prep/daisee_convert_i3d.py \
     --raw-root artifacts/i3d/raw_features \
     --out-dir "$I3D_DIR"
   local n; n="$(find "$I3D_DIR" -name '*.npy' | wc -l)"
@@ -288,7 +288,7 @@ stage_push() {
     local host_path="${REPO_URL#https://}"
     git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@${host_path}"
   fi
-  git add scripts/build_daisee_labels.py scripts/daisee_convert_i3d.py scripts/daisee_extract_vast.sh .gitignore \
+  git add src/data_prep/build_daisee_labels.py src/data_prep/daisee_convert_i3d.py scripts/daisee_extract_vast.sh .gitignore \
           "$DAISEE_ROOT/final_data_1.json" "$DAISEE_ROOT/labels.csv" 2>/dev/null || true
   if ! git diff --cached --quiet; then
     git commit -m "Add DAiSEE engagement labels and extraction pipeline"

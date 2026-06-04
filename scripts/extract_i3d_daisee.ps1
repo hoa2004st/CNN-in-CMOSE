@@ -118,5 +118,5 @@ Get-ChildItem -Path $ClipsDir -Filter "*.pkl" -ErrorAction SilentlyContinue | Re
 $count = (Get-ChildItem -Path $I3DDir -Filter "*.npy" -ErrorAction SilentlyContinue).Count
 Log "I3D .npy files written: $count -> $I3DDir"
 Log "Done. Next steps:"
-Log "  python scripts\build_daisee_labels.py --dataset-root data\DaiSEE\raw"
-Log "  python scripts\compare_naive_models.py --feature_dir data/DaiSEE/features/openface --labels_json data/DaiSEE/final_data_1.json --i3d_feature_dir data/DaiSEE/features/i3d --run_root outputs/training_log/daisee --amp"
+Log "  python src/data_prep/build_daisee_labels.py --dataset-root data\DaiSEE\raw"
+Log "  python src/training/full_training_process.py --feature_dir data/DaiSEE/features/openface --labels_json data/DaiSEE/final_data_1.json --i3d_feature_dir data/DaiSEE/features/i3d --run_root outputs/training_log/daisee --amp"

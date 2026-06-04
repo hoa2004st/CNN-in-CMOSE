@@ -21,23 +21,23 @@ run() {
 log "===== RERUN START ====="
 
 # ---- Phase 1: naive suite (5 models x 3 losses) per dataset --------------
-run "$PY" scripts/compare_naive_models.py --dataset cmose \
+run "$PY" src/training/full_training_process.py --dataset cmose \
     --feature_dir data/CMOSE/features/openface --labels_json data/CMOSE/final_data_1.json \
     --i3d_feature_dir data/CMOSE/features/i3d --target_frames 300 --amp
-run "$PY" scripts/compare_naive_models.py --dataset daisee \
+run "$PY" src/training/full_training_process.py --dataset daisee \
     --feature_dir data/DaiSEE/features/openface --labels_json data/DaiSEE/final_data_1.json \
     --i3d_feature_dir data/DaiSEE/features/i3d --target_frames 300 --amp
-run "$PY" scripts/compare_naive_models.py --dataset combined \
+run "$PY" src/training/full_training_process.py --dataset combined \
     --feature_dir data/combined/features/openface --labels_json data/combined/final_data_1.json \
     --i3d_feature_dir data/combined/features/i3d --target_frames 150 --amp
 
 # ---- Phase 2: hybrid ablations (both types, 2^5 sweep) per dataset --------
-run "$PY" scripts/run_all_hybrid_ablations.py --datasets cmose   --amp
-run "$PY" scripts/run_all_hybrid_ablations.py --datasets daisee  --amp
-run "$PY" scripts/run_all_hybrid_ablations.py --datasets combined --amp
+run "$PY" src/training/run_all_hybrid_ablations.py --datasets cmose   --amp
+run "$PY" src/training/run_all_hybrid_ablations.py --datasets daisee  --amp
+run "$PY" src/training/run_all_hybrid_ablations.py --datasets combined --amp
 
 # ---- Phase 3: 3x3 predictions (metrics + per-clip CSVs) -------------------
-run "$PY" scripts/evaluate_full_matrix.py --device cuda
-run "$PY" scripts/evaluate_hybrid_full_matrix.py --device cuda
+run "$PY" src/evaluation/evaluate_full_matrix.py --device cuda
+run "$PY" src/evaluation/evaluate_hybrid_full_matrix.py --device cuda
 
 log "===== RERUN COMPLETE ====="
