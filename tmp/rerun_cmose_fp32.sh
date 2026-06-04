@@ -13,15 +13,15 @@ run() { log "START: $*"; "$@" >>"$RUN_LOG" 2>&1; local rc=$?;
 
 log "===== CMOSE FP32 REDO START ====="
 
-run "$PY" scripts/compare_naive_models.py --dataset cmose \
+run "$PY" src/training/full_training_process.py --dataset cmose \
     --feature_dir data/CMOSE/features/openface --labels_json data/CMOSE/final_data_1.json \
     --i3d_feature_dir data/CMOSE/features/i3d --target_frames 300 --num_workers 0
 
-run "$PY" scripts/run_all_hybrid_ablations.py --datasets cmose --num_workers 0
+run "$PY" src/training/run_all_hybrid_ablations.py --datasets cmose --num_workers 0
 
 rm -f outputs/model_assessment/naive/full_matrix.csv outputs/model_assessment/naive/full_matrix_predictions.csv
 rm -f outputs/model_assessment/hybrid/hybrid_matrix.csv outputs/model_assessment/hybrid/hybrid_matrix_predictions.csv
-run "$PY" scripts/evaluate_full_matrix.py --device cuda
-run "$PY" scripts/evaluate_hybrid_full_matrix.py --device cuda
+run "$PY" src/evaluation/evaluate_full_matrix.py --device cuda
+run "$PY" src/evaluation/evaluate_hybrid_full_matrix.py --device cuda
 
 log "===== CMOSE FP32 REDO COMPLETE ====="

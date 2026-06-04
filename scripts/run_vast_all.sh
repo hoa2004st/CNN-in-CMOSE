@@ -21,7 +21,7 @@ echo "Epochs: $EPOCHS"
 echo "Batch size: $BATCH_SIZE"
 echo "Learning rate: $LR"
 
-python scripts/compare_naive_models.py \
+python src/training/full_training_process.py \
   --run_root "$RUN_ROOT" \
   --epochs "$EPOCHS" \
   --batch_size "$BATCH_SIZE" \
@@ -30,23 +30,11 @@ python scripts/compare_naive_models.py \
   --device "$DEVICE" \
   --num_workers "$NUM_WORKERS" \
   --naive_losses cross_entropy weighted_cross_entropy ordinal \
-  2>&1 | tee -a "$RUN_ROOT/logs/compare_naive_models.log"
+  2>&1 | tee -a "$RUN_ROOT/logs/full_training_process.log"
 
-python -m src.feature_analysis.run_domain_shift_analysis \
+python -m src.analysis.prediction_generator \
   --device "$DEVICE" \
   --batch_size "$BATCH_SIZE" \
-  2>&1 | tee -a "$RUN_ROOT/logs/run_domain_shift_analysis.log"
+  2>&1 | tee -a "$RUN_ROOT/logs/prediction_generator.log"
 
-python scripts/visualize_model_assessment.py \
-  2>&1 | tee -a "$RUN_ROOT/logs/visualize_model_assessment.log"
-
-python scripts/visualize_dataset_analysis.py \
-  2>&1 | tee -a "$RUN_ROOT/logs/visualize_dataset_analysis.log"
-
-python scripts/feature_space_dataset_comparison.py \
-  2>&1 | tee -a "$RUN_ROOT/logs/feature_space_dataset_comparison.log"
-
-python scripts/visualize_feature_space_domains.py \
-  2>&1 | tee -a "$RUN_ROOT/logs/visualize_feature_space_domains.log"
-
-echo "Vast.ai training, evaluation, and visualization pipeline completed."
+echo "Vast.ai training and prediction pipeline completed."
