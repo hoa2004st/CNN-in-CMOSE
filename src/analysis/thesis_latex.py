@@ -21,9 +21,12 @@ lives in :mod:`src.analysis.latexfmt`.
 
 from __future__ import annotations
 
+import io
 import re
 import shutil
 from pathlib import Path
+
+from PIL import Image
 
 from src.analysis import latexfmt
 from src.visualization.figbase import FIGURE_DIR, TABLE_DIR
@@ -33,6 +36,17 @@ PROJECT_DIR = CHAPTERS_DIR                          # LaTeX project root
 CHAPTER_TEX_DIR = PROJECT_DIR / "Chapter"
 PROJECT_FIGURE_DIR = PROJECT_DIR / "Figure"
 PROJECT_TABLE_DIR = PROJECT_DIR / "Table"
+
+# Print target for the Figure/ copies. Figures are \includegraphics'd at INCLUDE_LINEWIDTH_FRAC
+# of the text width (see latexfmt.figure_block). On A4 the text width is
+# 21cm - 3.5cm(left) - 2.5cm(right) = 15cm, so the on-page width is ~13.5cm. At the 300 dpi print
+# standard that needs only ~1594 px, yet the generated PNGs are 500-630 dpi (2400-3330 px wide) —
+# oversampled, slower to ship/compile, no sharper in print. So the Figure/ copies are downsized to
+# exactly 300 dpi on the page; the full-resolution originals stay in outputs/thesis/figures.
+A4_TEXT_WIDTH_IN = 15.0 / 2.54
+INCLUDE_LINEWIDTH_FRAC = 0.9
+PRINT_DPI = 300
+PRINT_TARGET_WIDTH_PX = round(A4_TEXT_WIDTH_IN * INCLUDE_LINEWIDTH_FRAC * PRINT_DPI)
 
 # Markdown stem -> subfile path under Chapter/ (template numbering; Theoretical Analysis skipped
 # so Numerical Results is Chapter 4 and Conclusions Chapter 5). Front matter is handled apart.
@@ -293,12 +307,40 @@ def convert_chapters() -> list[Path]:
     return written
 
 
+def _encode_png(im: Image.Image) -> bytes:
+    buf = io.BytesIO()
+    im.save(buf, format="PNG", optimize=True, dpi=(PRINT_DPI, PRINT_DPI))
+    return buf.getvalue()
+
+
+def _copy_figure_for_print(src: Path, dest: Path) -> None:
+    """Write ``src`` to ``dest``, downsized to PRINT_TARGET_WIDTH_PX (300 dpi on A4) if wider.
+
+    Figures already at/below the print width are copied verbatim — their original bytes are the
+    best encoding we have. Wider ones are LANCZOS-downscaled, then encoded both as true-colour and
+    as a 256-colour palette; the smaller is kept. matplotlib plots use few distinct colours, so the
+    palette copy is normally far smaller and visually identical at 300 dpi — and keeping the smaller
+    of the two means re-encoding can never inflate a figure past its true-colour size.
+    """
+    with Image.open(src) as im:
+        if im.width <= PRINT_TARGET_WIDTH_PX:
+            shutil.copyfile(src, dest)
+            return
+        if im.mode not in ("RGB", "RGBA", "L"):  # e.g. palette ('P') — LANCZOS needs true-colour
+            im = im.convert("RGBA")
+        new_height = round(im.height * PRINT_TARGET_WIDTH_PX / im.width)
+        small = im.resize((PRINT_TARGET_WIDTH_PX, new_height), Image.LANCZOS)
+        truecolour = _encode_png(small)
+        palette = _encode_png(small.convert("RGB").quantize(colors=256, dither=Image.Dither.NONE))
+        dest.write_bytes(min(truecolour, palette, key=len))
+
+
 def copy_figures() -> list[Path]:
     PROJECT_FIGURE_DIR.mkdir(parents=True, exist_ok=True)
     copied = []
     for png in sorted(FIGURE_DIR.glob("*.png")):
         dest = PROJECT_FIGURE_DIR / png.name
-        shutil.copyfile(png, dest)
+        _copy_figure_for_print(png, dest)
         copied.append(dest)
     return copied
 
