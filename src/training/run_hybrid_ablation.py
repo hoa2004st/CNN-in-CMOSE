@@ -62,7 +62,7 @@ def build_runner_parser() -> argparse.ArgumentParser:
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--aux_weight", type=float, default=0.2)
     parser.add_argument("--loss", default="cross_entropy",
-                        choices=["cross_entropy", "weighted_cross_entropy", "focal", "ordinal"])
+                        choices=["cross_entropy", "weighted_cross_entropy", "ordinal"])
     parser.add_argument("--feature_dir", default="data/CMOSE/features/openface")
     parser.add_argument("--labels_json", default="data/CMOSE/final_data_1.json")
     parser.add_argument("--i3d_feature_dir", default="data/CMOSE/features/i3d")

@@ -56,7 +56,6 @@ LOSS_NAME_TO_SLUG = {
     "cross_entropy": "ce",
     "weighted_cross_entropy": "weighted_ce",
     "ordinal": "ordinal",
-    "focal": "focal",
     "ce": "ce",
     "weighted_ce": "weighted_ce",
 }
@@ -65,7 +64,6 @@ LOSS_SLUG_TO_NAME = {
     "ce": "cross_entropy",
     "weighted_ce": "weighted_cross_entropy",
     "ordinal": "ordinal",
-    "focal": "focal",
 }
 
 

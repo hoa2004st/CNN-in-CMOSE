@@ -36,7 +36,6 @@ This thesis uses all three as baselines and as the \emph{per-group} encoders ins
 \begin{itemize}
   \item \textbf{Cross-entropy (CE)} --- the standard baseline.
   \item \textbf{Weighted CE} --- inverse-frequency class weights to counter imbalance.
-  \item \textbf{Focal loss} \cite{focal} --- down-weights easy majority examples.
   \item \textbf{Ordinal (EMD-style) loss} --- penalizes predictions by squared CDF distance so that far-apart ordinal errors cost more, matching the label structure.
 \end{itemize}
 Class imbalance is also classically addressed by resampling such as SMOTE \cite{smote}; we instead study loss-level remedies. Optimization uses Adam \cite{adam}.

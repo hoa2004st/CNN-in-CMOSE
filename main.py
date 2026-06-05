@@ -122,7 +122,6 @@ def resolve_output_dir(
     *,
     model_name: str,
     loss_name: str,
-    focal_gamma: float,
     dataset: str | None = None,
 ) -> Path:
     if output_dir_arg:
@@ -350,10 +349,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--patience", type=int, default=10)
     parser.add_argument(
         "--loss",
-        choices=["cross_entropy", "weighted_cross_entropy", "focal", "ordinal"],
+        choices=["cross_entropy", "weighted_cross_entropy", "ordinal"],
         default="cross_entropy",
     )
-    parser.add_argument("--focal_gamma", type=float, default=2.0)
     parser.add_argument("--device", choices=["auto", "cpu", "cuda"], default="auto")
     parser.add_argument("--num_workers", type=int, default=4)
     parser.add_argument("--amp", action="store_true", help="Use automatic mixed precision on CUDA.")
@@ -416,7 +414,6 @@ def run_experiment(args: argparse.Namespace) -> None:
         args.output_dir,
         model_name=args.model,
         loss_name=args.loss,
-        focal_gamma=args.focal_gamma,
         dataset=getattr(args, "dataset", None),
     )
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -781,7 +778,6 @@ def run_experiment(args: argparse.Namespace) -> None:
         lr=args.lr,
         patience=args.patience,
         loss_name=args.loss,
-        focal_gamma=args.focal_gamma,
         checkpoint_path=output_dir / "best_model.pth",
         device=device,
         num_workers=args.num_workers,
@@ -819,7 +815,6 @@ def run_experiment(args: argparse.Namespace) -> None:
                 "lr": args.lr,
                 "patience": args.patience,
                 "loss": args.loss,
-                "focal_gamma": args.focal_gamma if args.loss == "focal" else None,
                 "device": device.type,
                 "num_workers": args.num_workers,
                 "amp": args.amp,

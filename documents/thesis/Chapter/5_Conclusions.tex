@@ -22,7 +22,7 @@ Practically, the thesis argues for two changes in how engagement models are buil
 \section{Suggestion for Future Works}
 
 \begin{itemize}
-  \item \textbf{Targeting the rarest class.} Combine the architecture with imbalance-specific remedies (focal/ordinal losses tuned for HD, minority oversampling such as SMOTE \cite{smote}, or cost-sensitive thresholds) to recover Highly-Disengage recall without trading away HE.
+  \item \textbf{Targeting the rarest class.} Combine the architecture with imbalance-specific remedies (ordinal losses tuned for HD, minority oversampling such as SMOTE \cite{smote}, or cost-sensitive thresholds) to recover Highly-Disengage recall without trading away HE.
   \item \textbf{Domain adaptation.} The cross-dataset gap invites explicit unsupervised domain adaptation or domain-invariant representation learning, rather than naive corpus pooling.
   \item \textbf{Learned, not enumerated, group encoders.} Replace the discrete 32-config search with a differentiable architecture search or a gating mechanism that selects per-group temporal operators end-to-end.
   \item \textbf{Frequency-domain analysis of engagement (exploratory).} A natural complementary direction is to analyze the \emph{temporal frequency} of facial signals --- the hypothesis that engaged behavior is low-frequency/stable while disengaged behavior is high-frequency/fidgety --- via spectral (e.g. STFT-based) features or convolutions over the frequency axis. This was not implemented here and is left as future work.

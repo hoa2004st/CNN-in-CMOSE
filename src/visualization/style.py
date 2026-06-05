@@ -56,13 +56,11 @@ LOSS_NAME_TO_SLUG = {
     "cross_entropy": "ce",
     "weighted_cross_entropy": "weighted_ce",
     "ordinal": "ordinal",
-    "focal": "focal",
 }
 LOSS_SLUG_TO_NAME = {
     "ce": "cross_entropy",
     "weighted_ce": "weighted_cross_entropy",
     "ordinal": "ordinal",
-    "focal": "focal",
 }
 LOSS_DISPLAY_NAMES = {
     "cross_entropy": "CE",
@@ -70,13 +68,11 @@ LOSS_DISPLAY_NAMES = {
     "weighted_cross_entropy": "Weighted CE",
     "weighted_ce": "Weighted CE",
     "ordinal": "Ordinal",
-    "focal": "Focal",
 }
 LOSS_TINT = {
     "ce": 0.00,
     "weighted_ce": 0.25,
     "ordinal": 0.45,
-    "focal": 0.60,
 }
 
 DOMAIN_COLORS = {
