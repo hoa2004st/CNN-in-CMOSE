@@ -49,13 +49,13 @@ def main() -> None:
         print(f"          - {path}")
 
     latex_paths = thesis_latex.make_all()
-    print(f"[latex] {len(latex_paths)} Overleaf snippet/chapter file(s)")
+    print(f"[latex] {len(latex_paths)} thesis-project file(s) (chapters + Figure/ + Table/)")
     for path in latex_paths:
         print(f"          - {path}")
 
     print(f"\nDone. {len(figure_paths)} figures -> {figbase.FIGURE_DIR}")
     print(f"      {len(table_paths)} tables  -> {figbase.TABLE_DIR}")
-    print(f"      {len(latex_paths)} LaTeX files (figure snippets + {thesis_latex.CHAPTERS_LATEX_DIR})")
+    print(f"      {len(latex_paths)} LaTeX project files -> {thesis_latex.PROJECT_DIR}")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,247 @@
+\documentclass[a4paper,13pt,3p,twoside]{report}
+\usepackage{scrextend}
+\changefontsizes{13pt}
+\usepackage[utf8]{vietnam}
+\usepackage[top=2cm, bottom=2cm, left=3.5cm, right=2.5cm]{geometry}
+\usepackage{xurl}
+\usepackage{appendix}
+\usepackage{babel}
+\usepackage{xcolor}
+\usepackage{outlines}
+\usepackage{graphicx} % Insert images
+\usepackage{fancybox} % Boxes
+\usepackage{indentfirst} % Indent the first line of every paragraph
+\usepackage{amsthm}
+\usepackage{latexsym}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsbsy}
+\usepackage{times} % Times New Roman
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{subfiles} % Split chapters into separate files
+\usepackage{titlesec}
+\usepackage{titletoc}
+\usepackage{chngcntr}
+\usepackage{pdflscape}
+\usepackage{afterpage}
+\usepackage[ruled,vlined]{algorithm2e}
+\usepackage{capt-of}
+\usepackage{multirow}
+\usepackage{booktabs} % Result tables in Table/ use \toprule \midrule \bottomrule
+\usepackage{fancyhdr}
+
+\usepackage[font=small,labelfont=bf]{caption}
+
+\usepackage{listings}
+\usepackage{float}
+\usepackage{subcaption}
+
+\usepackage[nonumberlist, nopostdot, nogroupskip, acronym]{glossaries}
+\usepackage{glossary-superragged}
+\setglossarystyle{superraggedheaderborder}
+\usepackage{setspace}
+\usepackage{parskip}
+
+\usepackage{tocbasic}
+\usepackage{blindtext}
+
+% ===================================================
+
+\usepackage[backend=bibtex,style=ieee]{biblatex}
+\addbibresource{reference.bib} % bibliography database
+
+\input{lstlisting} % code listing styles (C, C++, Python)
+\input{glossary}
+
+% ===================================================
+
+\fancypagestyle{plain}{%
+\fancyhf{} % clear all header and footer fields
+\fancyfoot[RO,RE]{\thepage} %RO=right odd, RE=right even
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}}
+
+\setlength{\headheight}{10pt}
+
+\def \TITLE{GRADUATION THESIS}
+\def \AUTHOR{Author Name}
+
+% ===================================================
+\titleformat{\chapter}[hang]{\centering\bfseries}{CHAPTER \thechapter.\ }{0pt}{}[]
+
+\titleformat
+    {\chapter} % command
+    [hang] % shape
+    {\centering\bfseries} % format
+    {CHAPTER \thechapter.\ } % label
+    {0pt} %sep
+    {} % before
+    [] % after
+\titlespacing*{\chapter}{0pt}{-20pt}{20pt}
+
+\titleformat
+    {\section} % command
+    [hang] % shape
+    {\bfseries} % format
+    {\thechapter.\arabic{section}\ \ \ \ } % label
+    {0pt} %sep
+    {} % before
+    [] % after
+\titlespacing{\section}{0pt}{\parskip}{0.5\parskip}
+
+\titleformat
+    {\subsection} % command
+    [hang] % shape
+    {\bfseries} % format
+    {\thechapter.\arabic{section}.\arabic{subsection}\ \ \ \ } % label
+    {0pt} %sep
+    {} % before
+    [] % after
+\titlespacing{\subsection}{30pt}{\parskip}{0.5\parskip}
+
+\renewcommand\thesubsubsection{\alph{subsubsection}}
+\titleformat
+    {\subsubsection} % command
+    [hang] % shape
+    {\bfseries} % format
+    {\alph{subsubsection}, \ } % label
+    {0pt} %sep
+    {} % before
+    [] % after
+\titlespacing{\subsubsection}{50pt}{\parskip}{0.5\parskip}
+
+% ===================================================
+\usepackage{hyperref}
+\hypersetup{pdfborder = {0 0 0}}
+\hypersetup{pdftitle={\TITLE},
+	pdfauthor={\AUTHOR}}
+
+\usepackage[all]{hypcap}
+
+\graphicspath{{Figure/}{../Figure/}} % figures live in Figure/
+
+\counterwithin{figure}{chapter} % number figures per chapter (e.g. Figure 4.1)
+
+\title{\bf \TITLE}
+\author{\AUTHOR}
+
+\setcounter{secnumdepth}{3} % allow subsubsection numbering in report
+
+\theoremstyle{definition}
+\newtheorem{example}{Example}[chapter]
+
+\onehalfspacing
+\setlength{\parskip}{6pt}
+\setlength{\parindent}{15pt}
+
+% =========================== BODY ===============
+\begin{document}
+\subfile{Cover}  % cover page
+\subfile{Cover2} % inner cover page
+
+% ===================================================
+\pagestyle{empty}
+
+\newpage
+\pagenumbering{gobble}
+\subfile{Chapter/0_2_Acknowledgment.tex}
+
+\newpage
+\pagenumbering{gobble}
+\subfile{Chapter/0_3_Abstract.tex}
+
+% ===================================================
+\newpage
+\pagenumbering{gobble}
+\renewcommand*\contentsname{TABLE OF CONTENTS}
+\titlecontents{chapter}
+    [0.0cm]
+    {\bfseries\vspace{0.3cm}}
+    {{\bfseries{\scshape} CHAPTER \thecontentslabel.\ }}
+    {}
+    {\titlerule*[0.3pc]{.}\contentspage}
+
+\titlecontents{section}
+    [0.0cm]
+    {\vspace{0.3cm}}
+    {\thecontentslabel \ }
+    {}
+    {\titlerule*[0.3pc]{.}\contentspage}
+
+\titlecontents{subsection}
+    [1.0cm]
+    {\vspace{0.3cm}}
+    {\thecontentslabel \ }
+    {}
+    {\titlerule*[0.3pc]{.}\contentspage}
+
+\addtocontents{toc}{\protect\thispagestyle{empty}}
+\tableofcontents
+\thispagestyle{empty}
+\cleardoublepage
+
+\pagenumbering{roman}
+% List of figures
+\renewcommand{\listfigurename}{LIST OF FIGURES}
+{\let\oldnumberline\numberline
+\renewcommand{\numberline}{Figure~\oldnumberline}
+\listoffigures}
+\newpage
+
+% List of tables
+\renewcommand{\listtablename}{LIST OF TABLES}
+{\let\oldnumberline\numberline
+\renewcommand{\numberline}{Table~\oldnumberline}
+\listoftables}
+
+\glsaddall
+\renewcommand*{\acronymname}{LIST OF ABBREVIATIONS}
+\renewcommand*{\entryname}{Abbreviation}
+\renewcommand*{\descriptionname}{Definition}
+\printnoidxglossaries
+
+\renewcommand\appendixname{APPENDIX}
+\renewcommand\appendixpagename{APPENDIX}
+\renewcommand\appendixtocname{APPENDIX}
+
+\renewcommand{\figurename}{Figure}
+\renewcommand{\tablename}{Table}
+\renewcommand{\chaptername}{CHAPTER}
+
+% ===================================================
+
+\newpage
+\pagenumbering{arabic}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[RE, LO]{\leftmark}
+\fancyfoot[RE, LO]{\thepage}
+
+\chapter{INTRODUCTION}
+\subfile{Chapter/1_Introduction}
+
+\newpage
+\chapter{LITERATURE REVIEW}
+\subfile{Chapter/2_Literature_review}
+
+\newpage
+\chapter{METHODOLOGY}
+\subfile{Chapter/3_Methodology}
+
+\newpage
+\chapter{NUMERICAL RESULTS}
+\subfile{Chapter/4_Numerical_results}
+
+\newpage
+\chapter{CONCLUSIONS}
+\subfile{Chapter/5_Conclusions}
+
+% ===================================================
+\newpage
+\renewcommand\bibname{REFERENCE}
+\printbibliography
+\phantomsection\addcontentsline{toc}{chapter}{REFERENCE}
+
+\end{document}

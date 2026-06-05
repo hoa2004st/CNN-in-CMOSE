@@ -1,7 +1,6 @@
-% Auto-generated from documents/thesis/03_methodology.md by src.analysis.thesis_latex.
-% Needs \usepackage{graphicx,booktabs} and your bibliography for \cite.
-
-\chapter{Methodology}
+\documentclass[../main.tex]{subfiles}
+% Auto-generated from documents/thesis/03_methodology.md by src.analysis.thesis_latex — do not edit by hand.
+\begin{document}
 
 \section{Overview}
 
@@ -78,7 +77,11 @@ Each model is trained under \textbf{cross-entropy}, \textbf{weighted cross-entro
 
 \section{Training Protocol}
 
-Adam \cite{adam} with learning rate 1e-4; mini-batch training with early stopping on \textbf{validation loss} (the \texttt{unlabel} split), patience 10, restoring the best-epoch checkpoint. Per the project convention, only train and validation \textbf{loss} are logged per epoch (no per-epoch classification metrics); final metrics are computed once on the held-out test split. Fixed seed 42. Figure \texttt{loss\_curves\_cmose\_ce} shows representative curves and confirms stable convergence and early stopping.
+Adam \cite{adam} with learning rate 1e-4; mini-batch training with early stopping on \textbf{validation loss} (the \texttt{unlabel} split), patience 10, restoring the best-epoch checkpoint. Per the project convention, only train and validation \textbf{loss} are logged per epoch (no per-epoch classification metrics); final metrics are computed once on the held-out test split. Fixed seed
+\begin{enumerate}
+  \item Figure \texttt{loss\_curves\_cmose\_ce} shows representative curves and confirms stable convergence
+\end{enumerate}
+and early stopping.
 
 \section{Evaluation Protocol}
 
@@ -87,3 +90,5 @@ Adam \cite{adam} with learning rate 1e-4; mini-batch training with early stoppin
 \textbf{Metrics.} Six metrics (Section 2.4): accuracy, macro-accuracy, MAE, macro-MAE, Cohen's kappa, and QWK; \textbf{QWK and macro-accuracy are primary}. Confusion matrices and per-class F1 are used for error analysis.
 
 \textbf{Aggregation.} All \textasciitilde{}237 runs are aggregated by \texttt{src/analysis/aggregate.py}; figures/tables are produced by \texttt{python -m src.analysis.make\_thesis\_artifacts} into \texttt{outputs/thesis/}.
+
+\end{document}

@@ -130,7 +130,7 @@ def dataframe_to_latex(
     lines = [
         f"\\begin{{table}}[{placement}]",
         "\\centering",
-        f"\\caption{{{unicode_only(caption)}}}",
+        f"\\caption{{{escape(caption)}}}",
         f"\\label{{{label}}}",
         f"\\begin{{tabular}}{{{align}}}",
         "\\toprule",

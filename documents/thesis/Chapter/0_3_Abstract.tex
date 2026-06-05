@@ -1,14 +1,9 @@
-% Auto-generated from documents/thesis/00_front_matter.md by src.analysis.thesis_latex.
-% Needs \usepackage{graphicx,booktabs} and your bibliography for \cite.
-
-\chapter{Acknowledgement}
-
-% --- note from draft (Markdown blockquote) ---
-% TODO: Personal acknowledgements — advisor, lab, family, dataset providers (HKUST/LifeHikes
-% for CMOSE [@cmose], the DAiSEE authors [@daisee]).
-
-\chapter{Abstract}
-
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+\begin{center}
+    \Large{\textbf{ABSTRACT}}\\
+\end{center}
+\vspace{1cm}
 Automatically recognizing student engagement from video is a key enabler for online and hybrid learning analytics, yet it is hard: engagement labels are \emph{ordinal} (Highly-Disengage, Disengage, Engage, Highly-Engage), severely \emph{imbalanced}, and subjective. This thesis studies engagement classification from per-frame facial-behavior descriptors (OpenFace) and video motion features (I3D), and makes two contributions.
 
 First, we propose a \textbf{semantic-group hybrid temporal architecture}: instead of feeding all 709 OpenFace features into one monolithic sequence model, we decompose them into five behaviorally meaningful groups --- gaze, eye landmarks, face landmarks, head pose, and action units --- and assign each group its own temporal encoder (a Temporal Convolutional Network or a Transformer), optionally fused with an I3D motion stream. Through a systematic ablation over all 32 per-group encoder assignments (with and without I3D), we show that the I3D-fused hybrid family is robustly stronger than the best monolithic baseline on the CMOSE test set (quadratic-weighted kappa, QWK, of 0.574 vs. 0.537), and that the only group with a clear encoder preference is \textbf{head pose, which favors a TCN}.
@@ -20,3 +15,4 @@ Second, we conduct a \textbf{3$\times$3 cross-dataset generalization study} (tra
 %
 % **Keywords:** student engagement, affective computing, OpenFace, I3D, temporal convolutional
 % networks, ordinal classification, cross-dataset generalization.
+\end{document}

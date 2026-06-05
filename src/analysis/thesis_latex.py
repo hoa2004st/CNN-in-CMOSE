@@ -1,83 +1,94 @@
-r"""Convert the Markdown thesis artifacts into Overleaf-ready (pdfLaTeX) source.
+r"""Assemble the compilable LaTeX thesis project from the Markdown chapter drafts.
 
-Two products, both pure text post-processing (no GPU / no checkpoints):
+The thesis follows the HUST ``documents/Thesis_Template`` layout: a ``main.tex`` driver
+``\subfile``s one ``Chapter/*.tex`` per chapter, pulls figures from ``Figure/`` (via
+``\graphicspath``) and result tables from ``Table/``. The static scaffolding (``main.tex``,
+``Cover.tex``, ``Cover2.tex``, ``glossary.tex``, ``lstlisting.tex``, ``reference.bib``) is
+hand-authored once; *this* module regenerates the parts that depend on the analysis results:
 
-* ``figure_snippets.tex`` — one ready-to-paste ``figure`` block per PNG in
-  ``outputs/thesis/figures/``, captions reused from the chapter drafts.
-* ``documents/thesis/latex/<chapter>.tex`` — each ``documents/thesis/*.md`` chapter
-  rendered to LaTeX (sections, emphasis, lists, tables, figures, ``[@cite]``).
+* ``documents/thesis/Chapter/*.tex`` — each ``documents/thesis/*.md`` chapter rendered as a
+  ``subfiles`` document (no top-level ``\chapter`` — the driver supplies that). The front
+  matter splits into ``0_2_Acknowledgment.tex`` + ``0_3_Abstract.tex``.
+* ``documents/thesis/Figure/`` — the analysis PNGs, copied from ``outputs/thesis/figures``.
+* ``documents/thesis/Table/`` — the result tables rendered to LaTeX from the same specs
+  :mod:`src.analysis.tables` builds, ``\input`` into the Numerical Results chapter at the point
+  each is first referenced.
 
-Assumed Overleaf preamble: ``\usepackage{graphicx,booktabs}``, a bibliography providing
-the ``\cite`` keys, and figures uploaded under ``figures/`` (the graphics path the
-snippets/chapters reference). Sectioning uses ``\chapter`` for ``#`` down to
-``\subsubsection`` for ``####``; switch to starred forms if your front matter needs it.
+Figures are emitted as ``\includegraphics{<name>}`` (resolved through the driver's
+``\graphicspath``); tables as ``\input{Table/<name>}``. Conversion of inline Markdown / escaping
+lives in :mod:`src.analysis.latexfmt`.
 """
 
 from __future__ import annotations
 
 import re
+import shutil
 from pathlib import Path
 
 from src.analysis import latexfmt
-from src.visualization.figbase import FIGURE_DIR
+from src.visualization.figbase import FIGURE_DIR, TABLE_DIR
 
-CHAPTERS_DIR = Path("documents/thesis")
-CHAPTERS_LATEX_DIR = CHAPTERS_DIR / "latex"
+CHAPTERS_DIR = Path("documents/thesis")            # Markdown source (authoring)
+PROJECT_DIR = CHAPTERS_DIR                          # LaTeX project root
+CHAPTER_TEX_DIR = PROJECT_DIR / "Chapter"
+PROJECT_FIGURE_DIR = PROJECT_DIR / "Figure"
+PROJECT_TABLE_DIR = PROJECT_DIR / "Table"
+
+# Markdown stem -> subfile path under Chapter/ (template numbering; Theoretical Analysis skipped
+# so Numerical Results is Chapter 4 and Conclusions Chapter 5). Front matter is handled apart.
+_CHAPTER_TEX_NAME = {
+    "01_introduction": "1_Introduction.tex",
+    "02_literature_review": "2_Literature_review.tex",
+    "03_methodology": "3_Methodology.tex",
+    "04_results": "4_Numerical_results.tex",
+    "05_conclusion": "5_Conclusions.tex",
+}
+_FRONT_MATTER_STEM = "00_front_matter"
 
 _FIGURE_EMBED_RE = re.compile(r"!\[(?P<cap>.*?)\]\((?P<path>[^)]+)\)")
 _HEADING_RE = re.compile(r"^(#{1,6})\s+(.*)$")
 _LIST_RE = re.compile(r"^(\s*)[-*+]\s+(.*)$")
+_OLIST_RE = re.compile(r"^(\s*)\d+\.\s+(.*)$")
 _TABLE_SEP_RE = re.compile(r"^\s*\|?[\s:\-|]+\|?\s*$")
-_HEADING_CMDS = {1: "chapter", 2: "section", 3: "subsection", 4: "subsubsection"}
-
-
-def _graphics_path(md_path: str) -> str:
-    """Map a chapter's relative ``../../outputs/thesis/figures/foo.png`` to ``figures/foo.png``."""
-    return f"figures/{Path(md_path).name}"
+# Markdown heading level -> LaTeX command. Level 1 (the chapter title) is dropped: the driver's
+# \chapter provides it. Everything shifts up one rung relative to a standalone document.
+_HEADING_CMDS = {2: "section", 3: "subsection", 4: "subsubsection", 5: "paragraph"}
+_TABLE_REF_RE = re.compile(r"\bT([1-9])\b")
 
 
 def _label_from_path(path: str) -> str:
     return "fig:" + Path(path).stem
 
 
-# --- figure snippets ----------------------------------------------------------
-
-def _caption_map() -> dict[str, str]:
-    """stem -> caption, harvested from every chapter Markdown figure embed."""
-    captions: dict[str, str] = {}
-    for md in sorted(CHAPTERS_DIR.glob("*.md")):
-        for m in _FIGURE_EMBED_RE.finditer(md.read_text(encoding="utf-8")):
-            stem = Path(m.group("path")).stem
-            captions.setdefault(stem, m.group("cap").strip())
-    return captions
+def _normalize(md_text: str) -> str:
+    """Drop Markdown HTML entities pdfLaTeX never sees as text."""
+    return md_text.replace(" ", " ").replace("&nbsp;", " ")
 
 
-def _prettify(stem: str) -> str:
-    return stem.replace("_", " ").replace("-", " ").strip().capitalize()
+# --- table embedding ----------------------------------------------------------
+
+def _table_file_map() -> dict[str, str]:
+    """``"1" -> "T1_dataset_stats"`` from the ``outputs/thesis/tables/T<n>_*.md`` previews.
+
+    Keyed off the Markdown previews (always present) so chapter embedding does not depend on the
+    ``.tex`` having been rendered yet; the ``.tex`` shares the stem.
+    """
+    mapping: dict[str, str] = {}
+    for md in sorted(TABLE_DIR.glob("T[1-9]_*.md")):
+        mapping[md.stem[1]] = md.stem
+    return mapping
 
 
-def make_figure_snippets() -> Path:
-    captions = _caption_map()
-    blocks = [
-        "% Auto-generated figure blocks for outputs/thesis/figures/*.png .",
-        "% Requires \\usepackage{graphicx}; upload the PNGs under figures/ in Overleaf.",
-        "",
-    ]
-    for png in sorted(FIGURE_DIR.glob("*.png")):
-        caption = captions.get(png.stem) or _prettify(png.stem)
-        blocks.append(
-            latexfmt.figure_block(
-                caption=caption,
-                graphics_path=f"figures/{png.name}",
-                label=_label_from_path(png.name),
-            )
-        )
-    out = FIGURE_DIR / "figure_snippets.tex"
-    out.write_text("\n".join(blocks), encoding="utf-8")
-    return out
+def _emit_tables(text: str, table_map: dict[str, str], seen: set[str], out: list[str]) -> None:
+    """Append an ``\\input`` for every table first referenced (``T<n>``) in ``text``."""
+    for num in _TABLE_REF_RE.findall(text):
+        name = table_map.get(num)
+        if name and name not in seen:
+            seen.add(name)
+            out.append(f"\\input{{Table/{name}}}")
 
 
-# --- chapter markdown -> latex ------------------------------------------------
+# --- markdown body -> latex ---------------------------------------------------
 
 def _strip_heading_number(text: str) -> str:
     text = re.sub(r"^Chapter\s+\d+\.?\s*", "", text)
@@ -85,12 +96,14 @@ def _strip_heading_number(text: str) -> str:
     return text
 
 
-def _heading(level: int, text: str) -> str:
+def _heading(level: int, text: str) -> str | None:
+    if level <= 1:  # the chapter title — supplied by \chapter in main.tex
+        return None
     cmd = _HEADING_CMDS.get(level, "paragraph")
     return f"\\{cmd}{{{latexfmt.inline_md_to_latex(_strip_heading_number(text))}}}"
 
 
-def _table(rows: list[str]) -> str:
+def _md_table(rows: list[str]) -> str:
     parsed = [[c.strip() for c in r.strip().strip("|").split("|")] for r in rows]
     header, body = parsed[0], parsed[2:]  # row 1 is the |---| separator
     align = "l" * len(header)
@@ -103,15 +116,12 @@ def _table(rows: list[str]) -> str:
     return "\n".join(out)
 
 
-def convert_markdown(md_text: str, source_name: str = "") -> str:
-    lines = md_text.splitlines()
+def _convert_body(md_text: str, *, embed_tables: bool = False) -> str:
+    """Render a chapter's Markdown body to LaTeX (no subfile wrapper, no chapter title)."""
+    table_map = _table_file_map() if embed_tables else {}
+    seen_tables: set[str] = set()
+    lines = _normalize(md_text).splitlines()
     out: list[str] = []
-    if source_name:
-        out += [
-            f"% Auto-generated from {source_name} by src.analysis.thesis_latex.",
-            "% Needs \\usepackage{graphicx,booktabs} and your bibliography for \\cite.",
-            "",
-        ]
     i, n = 0, len(lines)
     while i < n:
         line = lines[i]
@@ -123,11 +133,13 @@ def convert_markdown(md_text: str, source_name: str = "") -> str:
 
         m = _HEADING_RE.match(line)
         if m:
-            out.append(_heading(len(m.group(1)), m.group(2)))
+            rendered = _heading(len(m.group(1)), m.group(2))
+            if rendered is not None:
+                out.append(rendered)
             i += 1
             continue
 
-        # blockquote -> LaTeX comments (these are TODO / note blocks)
+        # blockquote -> LaTeX comments (TODO / note blocks)
         if line.lstrip().startswith(">"):
             out.append("% --- note from draft (Markdown blockquote) ---")
             while i < n and lines[i].lstrip().startswith(">"):
@@ -142,38 +154,42 @@ def convert_markdown(md_text: str, source_name: str = "") -> str:
             out.append(
                 latexfmt.figure_block(
                     caption=fm.group("cap").strip(),
-                    graphics_path=_graphics_path(fm.group("path")),
+                    graphics_path=Path(fm.group("path")).name,  # resolved via \graphicspath
                     label=_label_from_path(fm.group("path")),
                 )
             )
             i += 1
             continue
 
-        # table
+        # pipe table
         if line.lstrip().startswith("|") and i + 1 < n and _TABLE_SEP_RE.match(lines[i + 1]):
             block = []
             while i < n and lines[i].lstrip().startswith("|"):
                 block.append(lines[i])
                 i += 1
-            out.append(_table(block))
+            out.append(_md_table(block))
             continue
 
-        # bullet list (with wrapped continuation lines)
-        if _LIST_RE.match(line):
+        # bullet (-/*/+) or ordered (1.) list, with wrapped continuation lines
+        list_re = _LIST_RE if _LIST_RE.match(line) else (_OLIST_RE if _OLIST_RE.match(line) else None)
+        if list_re is not None:
+            env = "itemize" if list_re is _LIST_RE else "enumerate"
             items: list[str] = []
             while i < n:
-                lm = _LIST_RE.match(lines[i])
+                lm = list_re.match(lines[i])
                 if lm:
                     items.append(lm.group(2).strip())
                     i += 1
-                elif lines[i].strip() and lines[i].startswith(" "):
+                elif lines[i].strip() and lines[i].startswith(" ") and not _HEADING_RE.match(lines[i]):
                     items[-1] += " " + lines[i].strip()  # continuation
                     i += 1
                 else:
                     break
-            out.append("\\begin{itemize}")
+            out.append(f"\\begin{{{env}}}")
             out += [f"  \\item {latexfmt.inline_md_to_latex(it)}" for it in items]
-            out.append("\\end{itemize}")
+            out.append(f"\\end{{{env}}}")
+            if embed_tables:
+                _emit_tables(" ".join(items), table_map, seen_tables, out)
             continue
 
         # paragraph: gather until blank / next block
@@ -182,28 +198,126 @@ def convert_markdown(md_text: str, source_name: str = "") -> str:
                 and not lines[i].lstrip().startswith(">") \
                 and not lines[i].lstrip().startswith("|") \
                 and not _LIST_RE.match(lines[i]) \
+                and not _OLIST_RE.match(lines[i]) \
                 and not _FIGURE_EMBED_RE.match(lines[i].strip()):
             para.append(lines[i].strip())
             i += 1
-        out.append(latexfmt.inline_md_to_latex(" ".join(para)))
+        joined = " ".join(para)
+        out.append(latexfmt.inline_md_to_latex(joined))
+        if embed_tables:
+            _emit_tables(joined, table_map, seen_tables, out)
 
-    # collapse 3+ blank lines to one
     text = "\n".join(out)
     return re.sub(r"\n{3,}", "\n\n", text).strip() + "\n"
 
 
+# --- subfile wrappers ---------------------------------------------------------
+
+def _wrap_subfile(body: str, source_name: str) -> str:
+    return "\n".join([
+        "\\documentclass[../main.tex]{subfiles}",
+        f"% Auto-generated from {source_name} by src.analysis.thesis_latex — do not edit by hand.",
+        "\\begin{document}",
+        "",
+        body.strip(),
+        "",
+        "\\end{document}",
+        "",
+    ])
+
+
+def _wrap_frontmatter(title: str, body: str, *, pagenumbering: str | None = None) -> str:
+    parts = ["\\documentclass[../main.tex]{subfiles}"]
+    if pagenumbering:
+        parts.append(f"\\pagenumbering{{{pagenumbering}}}")
+    parts += [
+        "\\begin{document}",
+        "\\begin{center}",
+        f"    \\Large{{\\textbf{{{title}}}}}\\\\",
+        "\\end{center}",
+        "\\vspace{1cm}",
+        body.strip(),
+        "\\end{document}",
+        "",
+    ]
+    return "\n".join(parts)
+
+
+def _split_frontmatter(md_text: str) -> dict[str, str]:
+    """Split ``00_front_matter.md`` into ``{lower_title: body_md}`` by its ``#`` headings."""
+    sections: dict[str, str] = {}
+    title, buf = None, []
+    for line in _normalize(md_text).splitlines():
+        m = re.match(r"^#\s+(.*)$", line)
+        if m:
+            if title is not None:
+                sections[title.lower()] = "\n".join(buf).strip()
+            title, buf = m.group(1).strip(), []
+        else:
+            buf.append(line)
+    if title is not None:
+        sections[title.lower()] = "\n".join(buf).strip()
+    return sections
+
+
+# --- public API ---------------------------------------------------------------
+
 def convert_chapters() -> list[Path]:
-    CHAPTERS_LATEX_DIR.mkdir(parents=True, exist_ok=True)
-    written = []
-    for md in sorted(CHAPTERS_DIR.glob("*.md")):
-        if md.name.lower() == "readme.md":
-            continue
-        tex = convert_markdown(md.read_text(encoding="utf-8"), source_name=f"documents/thesis/{md.name}")
-        out = CHAPTERS_LATEX_DIR / f"{md.stem}.tex"
-        out.write_text(tex, encoding="utf-8")
+    CHAPTER_TEX_DIR.mkdir(parents=True, exist_ok=True)
+    written: list[Path] = []
+
+    # front matter -> two subfiles
+    fm_src = CHAPTERS_DIR / f"{_FRONT_MATTER_STEM}.md"
+    if fm_src.exists():
+        sections = _split_frontmatter(fm_src.read_text(encoding="utf-8"))
+        ack = _convert_body(sections.get("acknowledgement", sections.get("acknowledgment", "")))
+        out = CHAPTER_TEX_DIR / "0_2_Acknowledgment.tex"
+        out.write_text(_wrap_frontmatter("ACKNOWLEDGMENT", ack, pagenumbering="roman"), encoding="utf-8")
         written.append(out)
+
+        abstract = _convert_body(sections.get("abstract", ""))
+        out = CHAPTER_TEX_DIR / "0_3_Abstract.tex"
+        out.write_text(_wrap_frontmatter("ABSTRACT", abstract), encoding="utf-8")
+        written.append(out)
+
+    # numbered chapters
+    for stem, tex_name in _CHAPTER_TEX_NAME.items():
+        src = CHAPTERS_DIR / f"{stem}.md"
+        if not src.exists():
+            continue
+        body = _convert_body(src.read_text(encoding="utf-8"), embed_tables=(stem == "04_results"))
+        out = CHAPTER_TEX_DIR / tex_name
+        out.write_text(_wrap_subfile(body, f"documents/thesis/{src.name}"), encoding="utf-8")
+        written.append(out)
+
+    return written
+
+
+def copy_figures() -> list[Path]:
+    PROJECT_FIGURE_DIR.mkdir(parents=True, exist_ok=True)
+    copied = []
+    for png in sorted(FIGURE_DIR.glob("*.png")):
+        dest = PROJECT_FIGURE_DIR / png.name
+        shutil.copyfile(png, dest)
+        copied.append(dest)
+    return copied
+
+
+def generate_tables() -> list[Path]:
+    """Render every result table to ``Table/<name>.tex`` from :func:`tables.build_all` specs."""
+    from src.analysis import tables  # local import: pulls in pandas/aggregate only when needed
+
+    PROJECT_TABLE_DIR.mkdir(parents=True, exist_ok=True)
+    written = []
+    for name, frame, caption in tables.build_all():
+        dest = PROJECT_TABLE_DIR / f"{name}.tex"
+        dest.write_text(
+            latexfmt.dataframe_to_latex(frame, caption=caption, label=f"tab:{name}"),
+            encoding="utf-8",
+        )
+        written.append(dest)
     return written
 
 
 def make_all() -> list[Path]:
-    return [make_figure_snippets(), *convert_chapters()]
+    return [*convert_chapters(), *copy_figures(), *generate_tables()]

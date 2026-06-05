@@ -1,7 +1,6 @@
-% Auto-generated from documents/thesis/01_introduction.md by src.analysis.thesis_latex.
-% Needs \usepackage{graphicx,booktabs} and your bibliography for \cite.
-
-\chapter{Introduction}
+\documentclass[../main.tex]{subfiles}
+% Auto-generated from documents/thesis/01_introduction.md by src.analysis.thesis_latex — do not edit by hand.
+\begin{document}
 
 \section{Problem Statement}
 
@@ -9,7 +8,11 @@ The rapid growth of online and hybrid education has made \emph{automatic engagem
 
 This is harder than a typical image classification problem for three reasons that recur throughout this thesis:
 
-1. \textbf{The labels are ordinal, not nominal.} Confusing HD with HE is far worse than confusing EG with HE, so accuracy --- which treats all errors equally --- is the wrong objective and the wrong metric. 2. \textbf{The labels are severely imbalanced.} In CMOSE, \textasciitilde{}69\% of clips are "Engage" and under 3\% are "Highly-Disengage" (Table\&nbsp;T1). A model can reach high accuracy by ignoring exactly the rare, decision-relevant disengaged classes. 3. \textbf{Engagement is subjective and corpus-specific.} Different datasets are annotated under different protocols and recording conditions, so a model trained on one may not transfer to another.
+\begin{enumerate}
+  \item \textbf{The labels are ordinal, not nominal.} Confusing HD with HE is far worse than confusing EG with HE, so accuracy --- which treats all errors equally --- is the wrong objective and the wrong metric.
+  \item \textbf{The labels are severely imbalanced.} In CMOSE, \textasciitilde{}69\% of clips are "Engage" and under 3\% are "Highly-Disengage" (Table T1). A model can reach high accuracy by ignoring exactly the rare, decision-relevant disengaged classes.
+  \item \textbf{Engagement is subjective and corpus-specific.} Different datasets are annotated under different protocols and recording conditions, so a model trained on one may not transfer to another.
+\end{enumerate}
 
 \section{Background and Problems of Research}
 
@@ -36,8 +39,16 @@ This thesis pursues two objectives, framed as four research questions:
 
 \section{Contributions}
 
-1. \textbf{A semantic-group hybrid temporal architecture} for engagement classification that decomposes OpenFace features into five behavioral groups with per-group TCN/Transformer encoders and optional I3D fusion (Section 3.4). 2. \textbf{A systematic 32-config ablation} of per-group encoder choice, $\pm$ I3D, showing the I3D-fused hybrid is robustly above the best baseline (QWK 0.574 vs 0.537) and isolating head-pose as the one group that benefits from a TCN (Section 4.4). 3. \textbf{A new, self-collected private evaluation set} of 366 clips, manually labeled by the author and processed through the same OpenFace/I3D pipeline, used strictly as a held-out, test-only probe of real-world generalization (Section 3.2). On this set the two contributions above \emph{compound}: the combined-trained semantic-group hybrid is the best model (QWK 0.365 vs 0.285 for the best baseline --- a larger margin than in-domain), establishing the practical value of both the architecture and combined-corpus training (Section 4.6). 4. \textbf{A 3$\times$3 cross-dataset generalization study} (CMOSE / DAiSEE / Combined $\times$ CMOSE-test / DAiSEE-test / Private) demonstrating that engagement models do not transfer off-the-shelf, that accuracy masks this while QWK exposes it, and that combined-corpus training best mitigates it (Section 4.5). 5. \textbf{A reproducible analysis pipeline} turning \textasciitilde{}237 trained runs into the thesis figures and tables (\texttt{src/analysis}, \texttt{src/visualization}).
+\begin{enumerate}
+  \item \textbf{A semantic-group hybrid temporal architecture} for engagement classification that decomposes OpenFace features into five behavioral groups with per-group TCN/Transformer encoders and optional I3D fusion (Section 3.4).
+  \item \textbf{A systematic 32-config ablation} of per-group encoder choice, $\pm$ I3D, showing the I3D-fused hybrid is robustly above the best baseline (QWK 0.574 vs 0.537) and isolating head-pose as the one group that benefits from a TCN (Section 4.4).
+  \item \textbf{A new, self-collected private evaluation set} of 366 clips, manually labeled by the author and processed through the same OpenFace/I3D pipeline, used strictly as a held-out, test-only probe of real-world generalization (Section 3.2). On this set the two contributions above \emph{compound}: the combined-trained semantic-group hybrid is the best model (QWK 0.365 vs 0.285 for the best baseline --- a larger margin than in-domain), establishing the practical value of both the architecture and combined-corpus training (Section 4.6).
+  \item \textbf{A 3$\times$3 cross-dataset generalization study} (CMOSE / DAiSEE / Combined $\times$ CMOSE-test / DAiSEE-test / Private) demonstrating that engagement models do not transfer off-the-shelf, that accuracy masks this while QWK exposes it, and that combined-corpus training best mitigates it (Section 4.5).
+  \item \textbf{A reproducible analysis pipeline} turning \textasciitilde{}237 trained runs into the thesis figures and tables (\texttt{src/analysis}, \texttt{src/visualization}).
+\end{enumerate}
 
 \section{Organization of Thesis}
 
 Chapter 2 reviews engagement-detection literature and the foundational building blocks (feature extractors, temporal architectures, losses, ordinal metrics). Chapter 3 details the data, the semantic-group hybrid architecture, the baselines, and the training/evaluation protocol. Chapter 4 presents the numerical results: dataset analysis, baseline and loss comparison, the hybrid ablation, the cross-domain study, and error analysis. Chapter 5 summarizes findings and outlines future work.
+
+\end{document}
