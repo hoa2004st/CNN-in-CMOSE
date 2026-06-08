@@ -2,6 +2,7 @@
 \centering
 \caption{T4. Top-10 hybrid configs in-domain (CMOSE), sorted by QWK.}
 \label{tab:T4_hybrid_topk}
+\fittable{%
 \begin{tabular}{llrrrr}
 \toprule
 Variant & Arch (gaze\_eye\_face\_head\_au) & Accuracy & Macro-Acc & QWK & Cohen $\kappa$ \\
@@ -17,5 +18,6 @@ Hybrid + I3D & T\_T\_LSTM\_T\_TCN & 0.770 & 0.583 & 0.576 & 0.490 \\
 Hybrid (OpenFace only) & LSTM\_T\_TCN\_TCN\_TCN & 0.781 & 0.568 & 0.576 & 0.497 \\
 Hybrid (OpenFace only) & TCN\_TCN\_T\_TCN\_LSTM & 0.767 & 0.570 & 0.575 & 0.485 \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table}

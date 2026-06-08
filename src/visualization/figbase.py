@@ -54,10 +54,20 @@ def new_fig(*args, **kwargs):
 
 
 def save(fig, name: str, *, directory: Path | None = None) -> Path:
-    """Save ``fig`` as ``<name>.png`` (300 dpi); return the path."""
+    """Save ``fig`` as ``<name>.png`` (300 dpi); return the path.
+
+    Saving to the canonical FIGURE_DIR also refreshes the thesis's downsized print copy in
+    ``documents/thesis/Figure`` so regenerating a single figure can't leave the compiled thesis
+    showing a stale version. A custom ``directory`` (e.g. a scratch dir) skips the publish step.
+    """
     directory = directory or FIGURE_DIR
     directory.mkdir(parents=True, exist_ok=True)
     png_path = directory / f"{name}.png"
     fig.savefig(png_path)
     plt.close(fig)
+    if directory == FIGURE_DIR:
+        # Lazy import: thesis_latex imports this module, so importing it at top level would cycle.
+        from src.analysis.thesis_latex import publish_figure
+
+        publish_figure(png_path)
     return png_path

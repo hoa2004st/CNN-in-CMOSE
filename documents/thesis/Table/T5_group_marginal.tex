@@ -2,6 +2,7 @@
 \centering
 \caption{T5. Per-group marginal effect of encoder choice on in-domain QWK.}
 \label{tab:T5_group_marginal}
+\fittable{%
 \begin{tabular}{lrrrrl}
 \toprule
 Group & Mean QWK (TCN) & Mean QWK (Transformer) & Mean QWK (LSTM) & Spread & Prefers \\
@@ -12,5 +13,6 @@ Face landmarks & 0.534 & 0.529 & 0.534 & 0.005 & LSTM \\
 Head pose & 0.541 & 0.521 & 0.535 & 0.020 & TCN \\
 Action units & 0.534 & 0.532 & 0.532 & 0.002 & TCN \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table}

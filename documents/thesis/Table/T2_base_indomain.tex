@@ -2,6 +2,7 @@
 \centering
 \caption{T2. Base models $\times$ losses, in-domain (CMOSE$\rightarrow$CMOSE), sorted by QWK.}
 \label{tab:T2_base_indomain}
+\fittable{%
 \begin{tabular}{llrrrrrr}
 \toprule
 Model & Loss & Accuracy & Macro-Accuracy & QWK & Cohen $\kappa$ & MAE & Macro-MAE \\
@@ -22,5 +23,6 @@ openface\_lstm & Weighted CE & 0.527 & 0.534 & 0.329 & 0.238 & 0.563 & 0.673 \\
 openface\_lstm & Ordinal & 0.415 & 0.491 & 0.318 & 0.154 & 0.673 & 0.694 \\
 openface\_mlp & Ordinal & 0.493 & 0.348 & 0.253 & 0.118 & 0.542 & 0.798 \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table}

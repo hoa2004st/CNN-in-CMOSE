@@ -2,6 +2,7 @@
 \centering
 \caption{T6. Private set (test-only): best base vs best hybrid by training source.}
 \label{tab:T6_private_by_source}
+\fittable{%
 \begin{tabular}{llrlrrr}
 \toprule
 Train source & Best base (model/loss) & Base QWK & Best hybrid (arch) & Hybrid QWK & Hybrid acc & Hybrid macro-acc \\
@@ -10,5 +11,6 @@ CMOSE & openface\_transformer/ce & 0.190 & Hybrid (OpenFace only) TCN\_T\_LSTM\_
 DaiSEE & openface\_lstm/ce & 0.110 & Hybrid + I3D T\_T\_LSTM\_LSTM\_TCN & 0.337 & 0.672 & 0.346 \\
 Combined & openface\_transformer/ce & 0.285 & Hybrid + I3D T\_TCN\_LSTM\_TCN\_TCN & 0.403 & 0.634 & 0.390 \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table}

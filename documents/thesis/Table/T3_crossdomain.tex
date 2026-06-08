@@ -2,6 +2,7 @@
 \centering
 \caption{T3. Best base model per cross-domain cell (QWK and Accuracy).}
 \label{tab:T3_crossdomain}
+\fittable{%
 \begin{tabular}{lllllr}
 \toprule
 Metric & Train & Test & Best model & Loss & Score \\
@@ -25,5 +26,6 @@ Accuracy & DaiSEE & CMOSE & openface\_mlp & Ordinal & 0.691 \\
 Accuracy & DaiSEE & DaiSEE & i3d\_mlp & CE & 0.534 \\
 Accuracy & DaiSEE & Private & openface\_lstm & CE & 0.590 \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table}

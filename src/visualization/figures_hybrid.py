@@ -58,29 +58,40 @@ def fig_ablation_distribution(directory: Path | None = None) -> Path:
 
 
 def fig_group_marginal(directory: Path | None = None) -> Path:
-    """For each semantic group, mean QWK when its encoder is TCN, Transformer, or LSTM."""
+    """For each semantic group, the QWK distribution when its encoder is TCN, Transformer, or LSTM.
+
+    A box plot (not a bar chart) because the configurations form a distribution: the marginal
+    spread per encoder is the point, and a box plot reads honestly without a zero baseline.
+    """
     frame = _indomain_hybrid()
     groups = ag.OPENFACE_GROUP_ORDER
     tokens = ag.ARCH_TOKENS
     width = 0.8 / len(tokens)
     fig, ax = new_fig(figsize=(8.4, 4.6))
     for j, token in enumerate(tokens):
-        means, errs = [], []
-        for g in groups:
-            vals = frame[frame[f"arch_{g}"] == token][_METRIC]
-            means.append(float(vals.mean()))
-            errs.append(float(vals.std()))
+        data = [frame[frame[f"arch_{g}"] == token][_METRIC].to_numpy() for g in groups]
         offsets = np.arange(len(groups)) + (j - (len(tokens) - 1) / 2) * width
-        bars = ax.bar(offsets, means, width=width, yerr=errs, capsize=3,
-                      color=_ARCH_COLOR[token], alpha=0.85, edgecolor="white",
-                      label=ag.ARCH_TOKEN_DISPLAY[token])
-        ax.bar_label(bars, fmt="%.3f", fontsize=6.0, padding=1)
+        bp = ax.boxplot(data, positions=offsets, widths=width * 0.9, patch_artist=True,
+                        showmeans=True, manage_ticks=False,
+                        medianprops=dict(color="black", linewidth=1.0),
+                        meanprops=dict(marker="D", markersize=3.5,
+                                       markerfacecolor="white", markeredgecolor="black"),
+                        flierprops=dict(marker="o", markersize=2.5, alpha=0.5,
+                                        markerfacecolor=_ARCH_COLOR[token],
+                                        markeredgecolor="none"))
+        for patch in bp["boxes"]:
+            patch.set_facecolor(_ARCH_COLOR[token])
+            patch.set_alpha(0.55)
+        for whisker in bp["whiskers"] + bp["caps"]:
+            whisker.set_color(_ARCH_COLOR[token])
+        bp["boxes"][0].set_label(ag.ARCH_TOKEN_DISPLAY[token])
+    base = _best_base_indomain()
+    ax.axhline(base, ls="--", color="gray", lw=1.2, label=f"Best base model (QWK={base:.3f})")
     ax.set_xticks(np.arange(len(groups)))
     ax.set_xticklabels([ag.GROUP_DISPLAY[g] for g in groups], rotation=15, ha="right")
-    ax.set_ylabel("Mean QWK (in-domain CMOSE)")
-    ax.set_ylim(bottom=max(0.0, frame[_METRIC].min() - 0.05))
+    ax.set_ylabel("QWK (in-domain CMOSE)")
     ax.set_title("Per-group marginal effect of encoder choice (TCN vs Transformer vs LSTM)")
-    ax.legend(title="Encoder for this group")
+    ax.legend(title="Encoder for this group", loc="lower right", ncol=2)
     return save(fig, "hybrid_group_marginal", directory=directory)
 
 

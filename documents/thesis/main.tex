@@ -29,6 +29,8 @@
 \usepackage{capt-of}
 \usepackage{multirow}
 \usepackage{booktabs} % Result tables in Table/ use \toprule \midrule \bottomrule
+% Shrink a wide table to the text width, but never enlarge a table that already fits.
+\newcommand{\fittable}[1]{\resizebox{\ifdim\width>\linewidth \linewidth\else \width\fi}{!}{#1}}
 \usepackage{fancyhdr}
 
 \usepackage[font=small,labelfont=bf]{caption}

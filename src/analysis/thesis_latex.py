@@ -335,14 +335,21 @@ def _copy_figure_for_print(src: Path, dest: Path) -> None:
         dest.write_bytes(min(truecolour, palette, key=len))
 
 
-def copy_figures() -> list[Path]:
+def publish_figure(src: Path) -> Path:
+    """Copy one rendered figure into ``Figure/``, downsized to 300 dpi on A4 (see _copy_figure_for_print).
+
+    The single point where a PNG in ``outputs/thesis/figures`` becomes the copy the thesis
+    compiles. ``figbase.save`` calls this on every save so a freshly regenerated figure can never
+    leave a stale print copy behind; ``copy_figures`` / the full pipeline re-run it in bulk.
+    """
     PROJECT_FIGURE_DIR.mkdir(parents=True, exist_ok=True)
-    copied = []
-    for png in sorted(FIGURE_DIR.glob("*.png")):
-        dest = PROJECT_FIGURE_DIR / png.name
-        _copy_figure_for_print(png, dest)
-        copied.append(dest)
-    return copied
+    dest = PROJECT_FIGURE_DIR / src.name
+    _copy_figure_for_print(src, dest)
+    return dest
+
+
+def copy_figures() -> list[Path]:
+    return [publish_figure(png) for png in sorted(FIGURE_DIR.glob("*.png"))]
 
 
 def generate_tables() -> list[Path]:
