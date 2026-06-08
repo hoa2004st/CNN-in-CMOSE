@@ -315,8 +315,8 @@ def build_parser() -> argparse.ArgumentParser:
         "--group_architectures",
         default=None,
         help=(
-            'JSON dict mapping each OpenFace feature group to "transformer" or "tcn". '
-            'E.g. \'{"gaze":"transformer","eye":"tcn","face":"tcn","head":"transformer","au":"tcn"}\'. '
+            'JSON dict mapping each OpenFace feature group to "transformer", "tcn", or "lstm". '
+            'E.g. \'{"gaze":"transformer","eye":"tcn","face":"lstm","head":"transformer","au":"tcn"}\'. '
             "Required when --model=semantic_group_fusion."
         ),
     )

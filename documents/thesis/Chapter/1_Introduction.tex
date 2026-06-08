@@ -40,11 +40,11 @@ This thesis pursues two objectives, framed as four research questions:
 \section{Contributions}
 
 \begin{enumerate}
-  \item \textbf{A semantic-group hybrid temporal architecture} for engagement classification that decomposes OpenFace features into five behavioral groups with per-group TCN/Transformer encoders and optional I3D fusion (Section 3.4).
-  \item \textbf{A systematic 32-config ablation} of per-group encoder choice, $\pm$ I3D, showing the I3D-fused hybrid is robustly above the best baseline (QWK 0.574 vs 0.537) and isolating head-pose as the one group that benefits from a TCN (Section 4.4).
-  \item \textbf{A new, self-collected private evaluation set} of 366 clips, manually labeled by the author and processed through the same OpenFace/I3D pipeline, used strictly as a held-out, test-only probe of real-world generalization (Section 3.2). On this set the two contributions above \emph{compound}: the combined-trained semantic-group hybrid is the best model (QWK 0.365 vs 0.285 for the best baseline --- a larger margin than in-domain), establishing the practical value of both the architecture and combined-corpus training (Section 4.6).
+  \item \textbf{A semantic-group hybrid temporal architecture} for engagement classification that decomposes OpenFace features into five behavioral groups with per-group TCN/Transformer/LSTM encoders and optional I3D fusion (Section 3.4).
+  \item \textbf{A systematic 243-config ablation} of per-group encoder choice, $\pm$ I3D, showing the I3D-fused hybrid is centered above the best baseline (median QWK 0.546, best 0.590 vs 0.537) and isolating head-pose as the one group that benefits from a TCN (Section 4.4).
+  \item \textbf{A new, self-collected private evaluation set} of 366 clips, manually labeled by the author and processed through the same OpenFace/I3D pipeline, used strictly as a held-out, test-only probe of real-world generalization (Section 3.2). On this set the two contributions above \emph{compound}: the combined-trained semantic-group hybrid is the best model (QWK 0.403 vs 0.285 for the best baseline --- a larger margin than in-domain), establishing the practical value of both the architecture and combined-corpus training (Section 4.6).
   \item \textbf{A 3$\times$3 cross-dataset generalization study} (CMOSE / DAiSEE / Combined $\times$ CMOSE-test / DAiSEE-test / Private) demonstrating that engagement models do not transfer off-the-shelf, that accuracy masks this while QWK exposes it, and that combined-corpus training best mitigates it (Section 4.5).
-  \item \textbf{A reproducible analysis pipeline} turning \textasciitilde{}237 trained runs into the thesis figures and tables (\texttt{src/analysis}, \texttt{src/visualization}).
+  \item \textbf{A reproducible analysis pipeline} turning \textasciitilde{}1500 trained runs into the thesis figures and tables (\texttt{src/analysis}, \texttt{src/visualization}).
 \end{enumerate}
 
 \section{Organization of Thesis}

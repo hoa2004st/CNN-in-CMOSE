@@ -8,9 +8,9 @@ scripts stay declarative. Sources:
 * ``outputs/training_log/<dataset>/<model>/<loss>/metrics.json`` — loss curves, confusion, report.
 * ``outputs/dataset_analysis/*.csv`` — class distributions.
 
-The hybrid ``arch_key`` (e.g. ``T_TCN_TCN_T_TCN``) is decoded into one column per OpenFace
+The hybrid ``arch_key`` (e.g. ``T_TCN_LSTM_T_TCN``) is decoded into one column per OpenFace
 semantic group, in ``OPENFACE_GROUP_ORDER`` (gaze, eye, face, head, au), with values
-``T`` (Transformer) or ``TCN``. See ``src/training/run_hybrid_ablation.py``.
+``T`` (Transformer), ``TCN``, or ``LSTM``. See ``src/training/run_hybrid_ablation.py``.
 """
 
 from __future__ import annotations
@@ -43,7 +43,10 @@ GROUP_DISPLAY = {
     "head": "Head pose",
     "au": "Action units",
 }
-ARCH_TOKEN_DISPLAY = {"T": "Transformer", "TCN": "TCN"}
+# Architecture tokens that appear in arch_key, in display order. "T" = Transformer,
+# "TCN" = Temporal Convolutional Network, "LSTM" = LSTM.
+ARCH_TOKENS = ["TCN", "T", "LSTM"]
+ARCH_TOKEN_DISPLAY = {"T": "Transformer", "TCN": "TCN", "LSTM": "LSTM"}
 
 # The six metrics every run reports. QWK + macro_accuracy are the thesis-primary pair.
 METRIC_COLUMNS = [
@@ -103,7 +106,10 @@ def load_hybrid_matrix(path: str | Path | None = None) -> pd.DataFrame:
     for position, group in enumerate(OPENFACE_GROUP_ORDER):
         frame[f"arch_{group}"] = tokens[position]
 
-    frame["n_tcn"] = sum((frame[f"arch_{g}"] == "TCN").astype(int) for g in OPENFACE_GROUP_ORDER)
+    for token in ARCH_TOKENS:
+        frame[f"n_{token.lower()}"] = sum(
+            (frame[f"arch_{g}"] == token).astype(int) for g in OPENFACE_GROUP_ORDER
+        )
     frame["has_i3d"] = frame["model_type"] == "openface_temporal_i3d_hybrid"
     frame["variant"] = frame["has_i3d"].map({True: "Hybrid + I3D", False: "Hybrid (OpenFace only)"})
     frame["loss_display"] = frame["loss"].map(loss_display_name)

@@ -116,15 +116,18 @@ def table_group_marginal() -> tuple[str, pd.DataFrame, str]:
     cell = h[(h["train_group"] == "cmose") & (h["test_set"] == "cmose_test")]
     rows = []
     for g in ag.OPENFACE_GROUP_ORDER:
-        tcn = float(cell[cell[f"arch_{g}"] == "TCN"]["quadratic_weighted_kappa"].mean())
-        trf = float(cell[cell[f"arch_{g}"] == "T"]["quadratic_weighted_kappa"].mean())
-        rows.append({
-            "Group": ag.GROUP_DISPLAY[g],
-            "Mean QWK (TCN)": round(tcn, 3),
-            "Mean QWK (Transformer)": round(trf, 3),
-            "Δ (TCN − T)": round(tcn - trf, 3),
-            "Prefers": "TCN" if tcn >= trf else "Transformer",
-        })
+        means = {
+            token: float(cell[cell[f"arch_{g}"] == token]["quadratic_weighted_kappa"].mean())
+            for token in ag.ARCH_TOKENS
+        }
+        best_token = max(means, key=means.get)
+        spread = max(means.values()) - min(means.values())
+        row = {"Group": ag.GROUP_DISPLAY[g]}
+        for token in ag.ARCH_TOKENS:
+            row[f"Mean QWK ({ag.ARCH_TOKEN_DISPLAY[token]})"] = round(means[token], 3)
+        row["Spread"] = round(spread, 3)
+        row["Prefers"] = ag.ARCH_TOKEN_DISPLAY[best_token]
+        rows.append(row)
     frame = pd.DataFrame(rows)
     return _spec(frame, "T5_group_marginal",
                  "T5. Per-group marginal effect of encoder choice on in-domain QWK.")

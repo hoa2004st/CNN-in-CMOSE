@@ -55,19 +55,19 @@ Figure \texttt{loss\_curves\_cmose\_ce} confirms all baselines train stably and 
 
 \section{Semantic-Group Hybrid Ablation (Core Result)}
 
-\textbf{Does the hybrid beat the baseline, and how robustly?} Figure \texttt{hybrid\_ablation\_distribution} plots the QWK of all 32 per-group encoder configurations, split by whether the I3D stream is added, against the best-baseline line (0.537):
+\textbf{Does the hybrid beat the baseline, and how robustly?} Figure \texttt{hybrid\_ablation\_distribution} plots the QWK of all 243 per-group encoder configurations, split by whether the I3D stream is added, against the best-baseline line (0.537):
 
 \begin{figure}[ht]
 \centering
 \includegraphics[width=0.9\linewidth]{hybrid_ablation_distribution.png}
-\caption{Hybrid ablation: QWK across 32 configs}
+\caption{Hybrid ablation: QWK across 243 configs}
 \label{fig:hybrid_ablation_distribution}
 \end{figure}
 
-The \textbf{I3D-fused hybrid family sits almost entirely above the baseline} (median $\approx$ 0.547; best 0.574), whereas the \textbf{OpenFace-only hybrid straddles it} (median $\approx$ 0.518; best 0.561). The key message is robustness: the I3D-fused advantage holds across \emph{all} per-group assignments, so the gain comes from the architecture family rather than from a single lucky configuration (\textbf{RQ1, RQ3}). \emph{Table T4} lists the top-10 configurations; the best overall is the all-TCN I3D hybrid \texttt{TCN\_TCN\_TCN\_TCN\_TCN} (QWK 0.574, accuracy 0.776).
+The \textbf{I3D-fused hybrid family is centered above the baseline} (median $\approx$ 0.546; best 0.590), whereas the \textbf{OpenFace-only hybrid straddles it} (median $\approx$ 0.522; best 0.584). The key message is robustness of the \emph{family}, not of any single cell: \textbf{69\% of the 243 I3D-fused configurations clear the baseline} (vs.\ 26\% of OpenFace-only ones), so the gain comes from the architecture family rather than from a single lucky configuration (\textbf{RQ1, RQ3}). \emph{Table T4} lists the top-10 configurations; the best overall is the I3D hybrid \texttt{TCN\_T\_LSTM\_TCN\_T} (QWK 0.590, accuracy 0.762), and every one of the top configurations mixes at least two encoder types --- adding the LSTM option lifts the best OpenFace-only config from 0.561 to 0.584 and the best I3D config from 0.574 to 0.590.
 \input{Table/T4_hybrid_topk}
 
-\textbf{Which group's encoder actually matters?} Figure \texttt{hybrid\_group\_marginal} and \emph{Table T5} show the mean QWK when each group uses a TCN versus a Transformer, marginalizing over all other groups:
+\textbf{Which group's encoder actually matters?} Figure \texttt{hybrid\_group\_marginal} and \emph{Table T5} show the mean QWK when each group uses a TCN, a Transformer, or an LSTM, marginalizing over all other groups:
 \input{Table/T5_group_marginal}
 
 \begin{figure}[ht]
@@ -77,9 +77,9 @@ The \textbf{I3D-fused hybrid family sits almost entirely above the baseline} (me
 \label{fig:hybrid_group_marginal}
 \end{figure}
 
-Only \textbf{head pose shows a clear preference --- TCN over Transformer (0.544 vs 0.519, $\Delta$ = +0.025)}. The other four groups are essentially encoder-agnostic (|$\Delta$| $\leq$ 0.003). This is an interpretable design rule: head dynamics (nodding, turning away) are temporally local and convolution- friendly, while gaze/landmark/AU streams are insensitive to the encoder choice (\textbf{RQ2}). It also honestly bounds the contribution --- most of the 32-config grid is flat.
+Only \textbf{head pose shows a clear preference --- TCN (0.541), ahead of LSTM (0.535) and Transformer (0.521), a spread of 0.020}. The other four groups are essentially encoder-agnostic (spread $\leq$ 0.005). This is an interpretable design rule: head dynamics (nodding, turning away) are temporally local and convolution-friendly, while gaze/landmark/AU streams are insensitive to the encoder choice (\textbf{RQ2}). It also honestly bounds the contribution --- most of the 243-config grid is flat.
 
-\textbf{Best hybrid vs best baseline.} Figure \texttt{hybrid\_best\_comparison} summarizes the headline comparison: the best hybrid+I3D improves on the best baseline by \textbf{+0.037 QWK} (0.574 vs 0.537) and +1.5 points accuracy. The gain is real but \textbf{incremental}; the contribution of this thesis is the decomposition framework and its systematic evaluation, not a large jump in SOTA.
+\textbf{Best hybrid vs best baseline.} Figure \texttt{hybrid\_best\_comparison} summarizes the headline comparison: the best hybrid+I3D improves on the best baseline by \textbf{+0.053 QWK} (0.590 vs 0.537) at essentially unchanged accuracy (0.762 vs 0.761). The gain is real but \textbf{incremental}; the contribution of this thesis is the decomposition framework and its systematic evaluation, not a large jump in SOTA.
 
 \begin{figure}[ht]
 \centering
@@ -127,12 +127,12 @@ Two effects compound, and both favor this thesis's contributions:
 
 \begin{enumerate}
   \item \textbf{Training source matters, and the combined corpus wins.} For both model families, training on \textbf{Combined} generalizes best to the private set; a single source is markedly worse (best base QWK: Combined 0.285 vs CMOSE 0.190 vs DAiSEE 0.110). Pooling heterogeneous source corpora is the most effective simple route to an unseen target.
-  \item \textbf{The hybrid helps more here than in-domain.} The semantic-group hybrid beats the best base model for \emph{every} training source, and the gap is \textbf{largest exactly where it matters} --- on the private set under combined training the hybrid reaches \textbf{QWK 0.365 vs 0.285} for the best base, a \textbf{+0.080} improvement, more than double the +0.037 in-domain CMOSE gain (Section 4.4). The overall best private-set model is the combined-trained I3D-fused hybrid \texttt{T\_T\_T\_T\_TCN} (QWK 0.365, accuracy 0.596).
+  \item \textbf{The hybrid helps more here than in-domain.} The semantic-group hybrid beats the best base model for \emph{every} training source, and the gap is \textbf{largest exactly where it matters} --- on the private set under combined training the hybrid reaches \textbf{QWK 0.403 vs 0.285} for the best base, a \textbf{+0.118} improvement, more than double the +0.053 in-domain CMOSE gain (Section 4.4). The overall best private-set model is the combined-trained I3D-fused hybrid \texttt{T\_TCN\_LSTM\_TCN\_TCN} (QWK 0.403, accuracy 0.634).
 \end{enumerate}
 
 In other words, the architecture contribution and the combined-training insight are not independent curiosities: they \textbf{stack}, and they stack most strongly on the hardest, most realistic, self-collected target. This is the practical headline of the thesis.
 
-Figure \texttt{private\_confusion\_combined} shows the row-normalized confusion of the \textbf{headline model --- the combined-trained I3D hybrid \texttt{T\_T\_T\_T\_TCN} (QWK 0.365)} --- on the private set. The ordinal structure is captured (mass concentrates on the diagonal and its neighbors): Engage recall is 0.69 and Highly-Engage 0.55, with errors mostly to adjacent classes. As in-domain, the rare disengaged classes are the failure mode under shift --- Disengage recall is only 0.26 and \textbf{Highly-Disengage collapses to 0.00} (all 10 private HD clips are misread as DE/EG). This confirms that the gains reported above are concentrated in the well-populated upper-engagement region, and that recognizing rare disengagement on an unseen distribution is the central open problem (Section 5.2).
+Figure \texttt{private\_confusion\_combined} shows the row-normalized confusion of the \textbf{headline model --- the combined-trained I3D hybrid \texttt{T\_TCN\_LSTM\_TCN\_TCN} (QWK 0.403)} --- on the private set. The ordinal structure is captured (mass concentrates on the diagonal and its neighbors): Engage recall is 0.75 and Highly-Engage 0.59, with errors mostly to adjacent classes. As in-domain, the rare disengaged classes are the failure mode under shift --- Disengage recall is only 0.23 and \textbf{Highly-Disengage collapses to 0.00} (all 10 private HD clips are misread as DE/EG). This confirms that the gains reported above are concentrated in the well-populated upper-engagement region, and that recognizing rare disengagement on an unseen distribution is the central open problem (Section 5.2).
 
 \begin{figure}[ht]
 \centering

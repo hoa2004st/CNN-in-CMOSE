@@ -43,6 +43,8 @@ htmlcov/
 .coverage
 .coverage.*
 .cache
+# Per-sample OpenFace feature cache (rebuilt on demand; can be tens of GB)
+outputs/.feature_cache/
 nosetests.xml
 coverage.xml
 *.cover

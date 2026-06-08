@@ -1,0 +1,10 @@
+{
+  "model": "openface_temporal_hybrid",
+  "sample_count": 8539,
+  "train_sample_count": 5326,
+  "evaluation_sample_count": 1429,
+  "test_sample_count": 1784,
+  "raw_feature_count": 709,
+  "target_frames": 300,
+  "normalization": "per-feature z-score using train-set statistics on OpenFace features"
+}

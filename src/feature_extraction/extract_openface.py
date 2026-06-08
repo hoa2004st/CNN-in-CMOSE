@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
+import os
 import re
 from collections import Counter
 from dataclasses import dataclass
@@ -155,6 +157,27 @@ def get_openface_feature_columns(csv_path: str | Path) -> list[str]:
     return feature_cols
 
 
+# Per-sample resampled-matrix cache. Parsing the raw OpenFace CSVs (best-row dedup,
+# numeric coercion, resample) costs ~100 ms/sample, which dominates every training run
+# and is re-paid on each of the hundreds of hybrid-ablation configs. The resampled matrix
+# is a pure function of (csv bytes, target_frames), so we memoize it to a small .npy keyed
+# on the resolved path + frames + mtime + size. Set OPENFACE_FEATURE_CACHE="" to disable.
+_OPENFACE_CACHE_ENV = os.environ.get("OPENFACE_FEATURE_CACHE", "outputs/.feature_cache/openface")
+_OPENFACE_CACHE_DIR = Path(_OPENFACE_CACHE_ENV) if _OPENFACE_CACHE_ENV else None
+
+
+def _openface_cache_path(csv_path: Path, target_frames: int) -> Path | None:
+    if _OPENFACE_CACHE_DIR is None:
+        return None
+    try:
+        st = csv_path.stat()
+    except OSError:
+        return None
+    key = f"{csv_path.resolve()}|{target_frames}|{int(st.st_mtime)}|{st.st_size}"
+    digest = hashlib.sha1(key.encode("utf-8")).hexdigest()
+    return _OPENFACE_CACHE_DIR / f"{digest}.npy"
+
+
 def load_openface_matrix(
     csv_path: str | Path,
     *,
@@ -163,9 +186,18 @@ def load_openface_matrix(
     """Load one CMOSE/OpenFace CSV as a fixed-size frame-feature matrix.
 
     The first five columns are treated as metadata, leaving the 709 OpenFace
-    features described in the paper summary.
+    features described in the paper summary. Results are memoized to a per-sample
+    ``.npy`` cache (see ``_OPENFACE_CACHE_DIR``) so repeated runs skip CSV parsing.
     """
     csv_path = Path(csv_path)
+
+    cache_path = _openface_cache_path(csv_path, target_frames)
+    if cache_path is not None and cache_path.exists():
+        try:
+            return np.load(cache_path)
+        except (OSError, ValueError):
+            pass  # corrupt/partial cache entry — fall through and recompute
+
     df = pd.read_csv(csv_path)
     df.columns = df.columns.str.strip()
 
@@ -194,7 +226,17 @@ def load_openface_matrix(
         .fillna(0.0)
         .to_numpy(dtype=np.float32, copy=True)
     )
-    return resample_frames(matrix, target_frames=target_frames)
+    resampled = resample_frames(matrix, target_frames=target_frames)
+
+    if cache_path is not None:
+        try:
+            cache_path.parent.mkdir(parents=True, exist_ok=True)
+            tmp = cache_path.with_suffix(f".{os.getpid()}.tmp")
+            np.save(tmp, resampled)
+            os.replace(tmp, cache_path)
+        except OSError:
+            pass  # cache is best-effort (e.g. disk full) — never fail the load
+    return resampled
 
 
 def resample_frames(matrix: np.ndarray, *, target_frames: int = 300) -> np.ndarray:

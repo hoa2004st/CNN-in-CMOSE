@@ -17,7 +17,7 @@ from src.visualization.style import display_model_name
 
 _METRIC = "quadratic_weighted_kappa"
 _VARIANT_COLOR = {"Hybrid (OpenFace only)": "#56B4E9", "Hybrid + I3D": "#D55E00"}
-_ARCH_COLOR = {"TCN": "#0072B2", "T": "#CC79A7"}
+_ARCH_COLOR = {"TCN": "#0072B2", "T": "#CC79A7", "LSTM": "#E69F00"}
 
 
 def _indomain_hybrid():
@@ -32,10 +32,11 @@ def _best_base_indomain() -> float:
 
 
 def fig_ablation_distribution(directory: Path | None = None) -> Path:
-    """QWK spread across the 32 group-architecture configs, split by +/- I3D."""
+    """QWK spread across all group-architecture configs, split by +/- I3D."""
     frame = _indomain_hybrid()
     variants = ["Hybrid (OpenFace only)", "Hybrid + I3D"]
     data = [frame[frame["variant"] == v][_METRIC].to_numpy() for v in variants]
+    n_configs = max((len(d) for d in data), default=0)
     fig, ax = new_fig(figsize=(6.4, 4.6))
     bp = ax.boxplot(data, widths=0.5, patch_artist=True, showmeans=True,
                     medianprops=dict(color="black"))
@@ -51,33 +52,34 @@ def fig_ablation_distribution(directory: Path | None = None) -> Path:
     ax.set_xticks([1, 2])
     ax.set_xticklabels(variants)
     ax.set_ylabel("QWK (in-domain CMOSE)")
-    ax.set_title("Hybrid ablation: QWK across 32 group-architecture configs")
+    ax.set_title(f"Hybrid ablation: QWK across {n_configs} group-architecture configs")
     ax.legend(loc="lower right")
     return save(fig, "hybrid_ablation_distribution", directory=directory)
 
 
 def fig_group_marginal(directory: Path | None = None) -> Path:
-    """For each semantic group, mean QWK when its encoder is TCN vs Transformer."""
+    """For each semantic group, mean QWK when its encoder is TCN, Transformer, or LSTM."""
     frame = _indomain_hybrid()
     groups = ag.OPENFACE_GROUP_ORDER
-    width = 0.38
-    fig, ax = new_fig(figsize=(7.2, 4.6))
-    for j, token in enumerate(["TCN", "T"]):
+    tokens = ag.ARCH_TOKENS
+    width = 0.8 / len(tokens)
+    fig, ax = new_fig(figsize=(8.4, 4.6))
+    for j, token in enumerate(tokens):
         means, errs = [], []
         for g in groups:
             vals = frame[frame[f"arch_{g}"] == token][_METRIC]
             means.append(float(vals.mean()))
             errs.append(float(vals.std()))
-        offsets = np.arange(len(groups)) + (j - 0.5) * width
+        offsets = np.arange(len(groups)) + (j - (len(tokens) - 1) / 2) * width
         bars = ax.bar(offsets, means, width=width, yerr=errs, capsize=3,
                       color=_ARCH_COLOR[token], alpha=0.85, edgecolor="white",
                       label=ag.ARCH_TOKEN_DISPLAY[token])
-        ax.bar_label(bars, fmt="%.3f", fontsize=6.5, padding=1)
+        ax.bar_label(bars, fmt="%.3f", fontsize=6.0, padding=1)
     ax.set_xticks(np.arange(len(groups)))
     ax.set_xticklabels([ag.GROUP_DISPLAY[g] for g in groups], rotation=15, ha="right")
     ax.set_ylabel("Mean QWK (in-domain CMOSE)")
     ax.set_ylim(bottom=max(0.0, frame[_METRIC].min() - 0.05))
-    ax.set_title("Per-group marginal effect of encoder choice (TCN vs Transformer)")
+    ax.set_title("Per-group marginal effect of encoder choice (TCN vs Transformer vs LSTM)")
     ax.legend(title="Encoder for this group")
     return save(fig, "hybrid_group_marginal", directory=directory)
 

@@ -1,7 +1,7 @@
 """Run hybrid ablations on CMOSE, DaiSEE and Combined sequentially (single GPU).
 
 For every selected dataset and every selected hybrid model type, runs the full
-2^5 per-group architecture sweep (see run_hybrid_ablation.py).
+3^5 per-group architecture sweep (see run_hybrid_ablation.py).
 
 Usage:
     python src/training/run_all_hybrid_ablations.py --amp

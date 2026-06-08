@@ -1,0 +1,168 @@
+{
+  "config": {
+    "model": "openface_temporal_hybrid",
+    "protocol": "cmose_train_eval_test_split",
+    "epochs": 400,
+    "batch_size": 64,
+    "lr": 0.0001,
+    "patience": 10,
+    "loss": "cross_entropy",
+    "device": "cuda",
+    "num_workers": 0,
+    "amp": false,
+    "seed": 42,
+    "i3d_feature_dir": null,
+    "fusion_frames": null,
+    "group_architectures": "{\"gaze\": \"transformer\", \"eye\": \"lstm\", \"face\": \"lstm\", \"head\": \"transformer\", \"au\": \"tcn\"}",
+    "aux_weight": 0.2,
+    "selection_split": {
+      "train_key": "train",
+      "evaluation_key": "unlabel",
+      "test_key": "test",
+      "checkpoint_and_early_stopping": "evaluation",
+      "final_reporting": "test"
+    }
+  },
+  "history": {
+    "train_losses": [
+      1.1975238859496795,
+      1.0240938194792744,
+      0.999282725919157,
+      0.9865945119227496,
+      0.9692381747539806,
+      0.9595351971006018,
+      0.9533650750420929,
+      0.9469875323338209,
+      0.9391231831866819,
+      0.9336923089772295,
+      0.9245471726044022,
+      0.9179044839049298,
+      0.917731172399238,
+      0.9076719159610819
+    ],
+    "eval_losses": [
+      1.2597452032557728,
+      1.2146765285642769,
+      1.2385770625547565,
+      1.2044727520312022,
+      1.213344782695143,
+      1.2200720591341556,
+      1.2242957694785757,
+      1.2118230335690743,
+      1.2392933309036507,
+      1.2302598642502072,
+      1.2402400551683173,
+      1.2305927549399556,
+      1.226493505558991,
+      1.2575427992849437
+    ],
+    "best_epoch": 4,
+    "patience": 10,
+    "stopped_early": true,
+    "loss_name": "cross_entropy",
+    "class_weights": null,
+    "selection_metric": "eval_loss",
+    "selection_split_name": "evaluation",
+    "selection_split_source_key": "unlabel"
+  },
+  "metrics": {
+    "accuracy": 0.4943946188340807,
+    "macro_accuracy": 0.2553276838991125,
+    "mae": 0.5128923766816144,
+    "macro_mae": 1.0214580303866019,
+    "cohen_kappa": 0.019027298552774297,
+    "quadratic_weighted_kappa": 0.06038834994929032,
+    "confusion_matrix": [
+      [
+        0,
+        0,
+        4,
+        0
+      ],
+      [
+        0,
+        0,
+        75,
+        9
+      ],
+      [
+        0,
+        0,
+        657,
+        225
+      ],
+      [
+        0,
+        0,
+        589,
+        225
+      ]
+    ],
+    "confusion_matrix_normalized": [
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.8928571428571429,
+        0.10714285714285714
+      ],
+      [
+        0.0,
+        0.0,
+        0.7448979591836735,
+        0.25510204081632654
+      ],
+      [
+        0.0,
+        0.0,
+        0.7235872235872236,
+        0.2764127764127764
+      ]
+    ],
+    "classification_report_dict": {
+      "Highly Disengage": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 4.0
+      },
+      "Disengage": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 84.0
+      },
+      "Engage": {
+        "precision": 0.4958490566037736,
+        "recall": 0.7448979591836735,
+        "f1-score": 0.5953783416402356,
+        "support": 882.0
+      },
+      "Highly Engage": {
+        "precision": 0.49019607843137253,
+        "recall": 0.2764127764127764,
+        "f1-score": 0.3534956794972506,
+        "support": 814.0
+      },
+      "accuracy": 0.4943946188340807,
+      "macro avg": {
+        "precision": 0.24651128375878653,
+        "recall": 0.2553276838991125,
+        "f1-score": 0.23721850528437155,
+        "support": 1784.0
+      },
+      "weighted avg": {
+        "precision": 0.46881080480250314,
+        "recall": 0.4943946188340807,
+        "f1-score": 0.4556441594380324,
+        "support": 1784.0
+      }
+    },
+    "classification_report": "                  precision    recall  f1-score   support\n\nHighly Disengage       0.00      0.00      0.00         4\n       Disengage       0.00      0.00      0.00        84\n          Engage       0.50      0.74      0.60       882\n   Highly Engage       0.49      0.28      0.35       814\n\n        accuracy                           0.49      1784\n       macro avg       0.25      0.26      0.24      1784\n    weighted avg       0.47      0.49      0.46      1784\n"
+  }
+}

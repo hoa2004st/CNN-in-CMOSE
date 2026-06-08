@@ -1,0 +1,168 @@
+{
+  "config": {
+    "model": "openface_temporal_i3d_hybrid",
+    "protocol": "cmose_train_eval_test_split",
+    "epochs": 400,
+    "batch_size": 64,
+    "lr": 0.0001,
+    "patience": 10,
+    "loss": "cross_entropy",
+    "device": "cuda",
+    "num_workers": 0,
+    "amp": false,
+    "seed": 42,
+    "i3d_feature_dir": "data/combined/features/i3d",
+    "fusion_frames": 75,
+    "group_architectures": "{\"gaze\": \"lstm\", \"eye\": \"tcn\", \"face\": \"lstm\", \"head\": \"transformer\", \"au\": \"tcn\"}",
+    "aux_weight": 0.2,
+    "selection_split": {
+      "train_key": "train",
+      "evaluation_key": "unlabel",
+      "test_key": "test",
+      "checkpoint_and_early_stopping": "evaluation",
+      "final_reporting": "test"
+    }
+  },
+  "history": {
+    "train_losses": [
+      1.0467371232488152,
+      0.9067836055445362,
+      0.8460285210116849,
+      0.8041842776580455,
+      0.7620082158151479,
+      0.7221614268138868,
+      0.6830039208291381,
+      0.6466773808640384,
+      0.6214057891722379,
+      0.5829680474760581,
+      0.5576916104576676,
+      0.5355812940635386,
+      0.5163872494097004,
+      0.5044829355292321
+    ],
+    "eval_losses": [
+      1.0040479883971232,
+      0.9528345869826322,
+      0.9482612266914414,
+      0.9156684797814642,
+      0.9443799580150648,
+      0.9348795286270217,
+      0.9610178878069056,
+      1.0005654665003292,
+      1.0242992747823947,
+      1.0940580865021636,
+      1.0909574281307033,
+      1.1147521234295896,
+      1.1351922369674712,
+      1.1902052412896706
+    ],
+    "best_epoch": 4,
+    "patience": 10,
+    "stopped_early": true,
+    "loss_name": "cross_entropy",
+    "class_weights": null,
+    "selection_metric": "eval_loss",
+    "selection_split_name": "evaluation",
+    "selection_split_source_key": "unlabel"
+  },
+  "metrics": {
+    "accuracy": 0.6246256239600666,
+    "macro_accuracy": 0.46607816817289616,
+    "mae": 0.3930116472545757,
+    "macro_mae": 0.696981909511858,
+    "cohen_kappa": 0.2945128499712779,
+    "quadratic_weighted_kappa": 0.4292832964529466,
+    "confusion_matrix": [
+      [
+        11,
+        9,
+        16,
+        3
+      ],
+      [
+        3,
+        98,
+        178,
+        26
+      ],
+      [
+        5,
+        47,
+        1286,
+        391
+      ],
+      [
+        0,
+        0,
+        450,
+        482
+      ]
+    ],
+    "confusion_matrix_normalized": [
+      [
+        0.28205128205128205,
+        0.23076923076923078,
+        0.41025641025641024,
+        0.07692307692307693
+      ],
+      [
+        0.009836065573770493,
+        0.32131147540983607,
+        0.5836065573770491,
+        0.08524590163934426
+      ],
+      [
+        0.002891844997108155,
+        0.027183342972816656,
+        0.7437825332562175,
+        0.22614227877385773
+      ],
+      [
+        0.0,
+        0.0,
+        0.48283261802575106,
+        0.5171673819742489
+      ]
+    ],
+    "classification_report_dict": {
+      "Highly Disengage": {
+        "precision": 0.5789473684210527,
+        "recall": 0.28205128205128205,
+        "f1-score": 0.3793103448275862,
+        "support": 39.0
+      },
+      "Disengage": {
+        "precision": 0.6363636363636364,
+        "recall": 0.32131147540983607,
+        "f1-score": 0.42701525054466233,
+        "support": 305.0
+      },
+      "Engage": {
+        "precision": 0.666321243523316,
+        "recall": 0.7437825332562175,
+        "f1-score": 0.7029242962558075,
+        "support": 1729.0
+      },
+      "Highly Engage": {
+        "precision": 0.5343680709534369,
+        "recall": 0.5171673819742489,
+        "f1-score": 0.5256270447110142,
+        "support": 932.0
+      },
+      "accuracy": 0.6246256239600666,
+      "macro avg": {
+        "precision": 0.6040000798153604,
+        "recall": 0.46607816817289616,
+        "f1-score": 0.5087192340847676,
+        "support": 3005.0
+      },
+      "weighted avg": {
+        "precision": 0.6212214072012469,
+        "recall": 0.6246256239600666,
+        "f1-score": 0.6157315370254092,
+        "support": 3005.0
+      }
+    },
+    "classification_report": "                  precision    recall  f1-score   support\n\nHighly Disengage       0.58      0.28      0.38        39\n       Disengage       0.64      0.32      0.43       305\n          Engage       0.67      0.74      0.70      1729\n   Highly Engage       0.53      0.52      0.53       932\n\n        accuracy                           0.62      3005\n       macro avg       0.60      0.47      0.51      3005\n    weighted avg       0.62      0.62      0.62      3005\n"
+  }
+}

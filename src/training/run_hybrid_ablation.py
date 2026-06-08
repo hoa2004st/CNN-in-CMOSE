@@ -1,7 +1,7 @@
-"""Exhaustive 2^N ablation over per-group architecture assignments for hybrid models.
+"""Exhaustive 3^N ablation over per-group architecture assignments for hybrid models.
 
 Each of the N OpenFace semantic groups (gaze, eye, face, head, au) is independently
-assigned either "transformer" or "tcn".  With N=5 this produces 2^5 = 32 runs.
+assigned "transformer", "tcn", or "lstm".  With N=5 this produces 3^5 = 243 runs.
 
 Supports both model types:
   --model openface_temporal_hybrid       (OpenFace-only, default)
@@ -31,8 +31,8 @@ from src.feature_extraction.extract_openface import OPENFACE_GROUP_ORDER
 from src.output_paths import model_output_name
 
 
-ARCHS = ("transformer", "tcn")
-ARCH_SHORT = {"transformer": "T", "tcn": "TCN"}
+ARCHS = ("transformer", "tcn", "lstm")
+ARCH_SHORT = {"transformer": "T", "tcn": "TCN", "lstm": "LSTM"}
 
 
 def arch_key(assignment: dict[str, str]) -> str:
@@ -90,7 +90,7 @@ def main() -> None:
     print(f"Dataset  : {args.dataset}")
     print(f"Run root : {run_root}")
     print(f"Groups   : {OPENFACE_GROUP_ORDER}")
-    print(f"Variants : {total} (2^{len(OPENFACE_GROUP_ORDER)})")
+    print(f"Variants : {total} ({len(ARCHS)}^{len(OPENFACE_GROUP_ORDER)})")
     print(f"Loss     : {args.loss}  Frames : {args.target_frames}")
     print()
 

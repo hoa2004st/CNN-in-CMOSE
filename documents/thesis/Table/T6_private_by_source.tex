@@ -6,9 +6,9 @@
 \toprule
 Train source & Best base (model/loss) & Base QWK & Best hybrid (arch) & Hybrid QWK & Hybrid acc & Hybrid macro-acc \\
 \midrule
-CMOSE & openface\_transformer/ce & 0.190 & Hybrid (OpenFace only) T\_T\_TCN\_TCN\_T & 0.236 & 0.399 & 0.358 \\
-DaiSEE & openface\_lstm/ce & 0.110 & Hybrid + I3D T\_T\_TCN\_TCN\_T & 0.256 & 0.615 & 0.382 \\
-Combined & openface\_transformer/ce & 0.285 & Hybrid + I3D T\_T\_T\_T\_TCN & 0.365 & 0.596 & 0.377 \\
+CMOSE & openface\_transformer/ce & 0.190 & Hybrid (OpenFace only) TCN\_T\_LSTM\_TCN\_T & 0.309 & 0.555 & 0.385 \\
+DaiSEE & openface\_lstm/ce & 0.110 & Hybrid + I3D T\_T\_LSTM\_LSTM\_TCN & 0.337 & 0.672 & 0.346 \\
+Combined & openface\_transformer/ce & 0.285 & Hybrid + I3D T\_TCN\_LSTM\_TCN\_TCN & 0.403 & 0.634 & 0.390 \\
 \bottomrule
 \end{tabular}
 \end{table}

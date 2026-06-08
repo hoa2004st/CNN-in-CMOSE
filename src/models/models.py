@@ -351,11 +351,14 @@ class OpenFaceTCNI3DFusionModel(nn.Module):
         return logits
 
 
+GROUP_ENCODER_ARCHS = ("transformer", "tcn", "lstm")
+
+
 class GroupEncoder(nn.Module):
     """Temporal encoder for one semantic feature group.
 
-    Wraps either a small Transformer or a TCN and always produces a fixed
-    (batch, embed_dim) representation via mean-pool + LayerNorm.
+    Wraps a small Transformer, a TCN, or an LSTM and always produces a fixed
+    (batch, embed_dim) representation via mean-pool over time + LayerNorm.
     """
 
     def __init__(
@@ -367,8 +370,10 @@ class GroupEncoder(nn.Module):
         dropout: float = 0.2,
     ) -> None:
         super().__init__()
-        if arch not in ("transformer", "tcn"):
-            raise ValueError(f"GroupEncoder arch must be 'transformer' or 'tcn', got '{arch}'")
+        if arch not in GROUP_ENCODER_ARCHS:
+            raise ValueError(
+                f"GroupEncoder arch must be one of {GROUP_ENCODER_ARCHS}, got '{arch}'"
+            )
         self.arch = arch
         self.embed_dim = embed_dim
         if arch == "transformer":
@@ -383,6 +388,17 @@ class GroupEncoder(nn.Module):
                 activation="gelu",
             )
             self.encoder: nn.Module = nn.TransformerEncoder(encoder_layer, num_layers=2)
+        elif arch == "lstm":
+            # Two-layer LSTM whose per-timestep hidden state has width embed_dim,
+            # so mean-pooling over time yields a fixed embed_dim vector — parallel
+            # to the TCN/Transformer branches.
+            self.encoder = nn.LSTM(
+                input_size=in_dim,
+                hidden_size=embed_dim,
+                num_layers=2,
+                dropout=dropout,
+                batch_first=True,
+            )
         else:
             self.encoder = TCNEncoder(
                 input_channels=in_dim,
@@ -399,6 +415,9 @@ class GroupEncoder(nn.Module):
             x = self.pos(x)
             x = self.encoder(x)
             x = x.mean(dim=1)
+        elif self.arch == "lstm":
+            x, _ = self.encoder(x)               # → (B, T, embed_dim)
+            x = x.mean(dim=1)                    # → (B, embed_dim)
         else:
             x = self.encoder(x.transpose(1, 2))  # → (B, embed_dim, T)
             x = x.mean(dim=2)                    # → (B, embed_dim)
@@ -415,7 +434,7 @@ class OpenFaceTemporalHybrid(nn.Module):
     Args:
         group_indices: maps group name → int64 index array into the 709-dim feature
                        axis (built by build_group_column_indices).
-        group_architectures: maps group name → "transformer" | "tcn".
+        group_architectures: maps group name → "transformer" | "tcn" | "lstm".
         embed_dim: output dimension of each GroupEncoder (default 64).
         aux_weight: weight applied to the mean of auxiliary group losses (default 0.2).
         num_classes: number of engagement classes (default 4).
@@ -500,7 +519,7 @@ class OpenFaceTemporalI3DHybrid(nn.Module):
 
     Args:
         group_indices: maps group name → int64 index array (from build_group_column_indices).
-        group_architectures: maps group name → "transformer" | "tcn".
+        group_architectures: maps group name → "transformer" | "tcn" | "lstm".
         i3d_input_dim: I3D feature dimension (typically 1024).
         embed_dim: embedding size for every encoder (default 64).
         aux_weight: auxiliary loss weight (default 0.2).

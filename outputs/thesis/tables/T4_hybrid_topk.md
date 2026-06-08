@@ -2,13 +2,13 @@
 
 | Variant | Arch (gaze_eye_face_head_au) | Accuracy | Macro-Acc | QWK | Cohen κ |
 | --- | --- | --- | --- | --- | --- |
-| Hybrid + I3D | TCN_TCN_TCN_TCN_TCN | 0.776 | 0.541 | 0.574 | 0.478 |
-| Hybrid + I3D | T_T_T_TCN_TCN | 0.77 | 0.573 | 0.574 | 0.492 |
-| Hybrid + I3D | T_T_TCN_T_TCN | 0.765 | 0.586 | 0.573 | 0.489 |
-| Hybrid + I3D | TCN_T_TCN_T_T | 0.781 | 0.56 | 0.571 | 0.492 |
-| Hybrid + I3D | T_TCN_T_T_T | 0.768 | 0.587 | 0.569 | 0.49 |
-| Hybrid + I3D | TCN_TCN_T_TCN_T | 0.77 | 0.588 | 0.565 | 0.487 |
-| Hybrid + I3D | TCN_T_TCN_TCN_T | 0.772 | 0.573 | 0.565 | 0.489 |
-| Hybrid + I3D | T_T_T_TCN_T | 0.756 | 0.599 | 0.565 | 0.482 |
-| Hybrid (OpenFace only) | T_T_TCN_TCN_TCN | 0.774 | 0.563 | 0.561 | 0.482 |
-| Hybrid + I3D | T_TCN_TCN_TCN_T | 0.776 | 0.559 | 0.56 | 0.473 |
+| Hybrid + I3D | TCN_T_LSTM_TCN_T | 0.762 | 0.591 | 0.59 | 0.479 |
+| Hybrid + I3D | LSTM_LSTM_LSTM_T_TCN | 0.778 | 0.579 | 0.586 | 0.507 |
+| Hybrid + I3D | LSTM_LSTM_LSTM_TCN_TCN | 0.789 | 0.562 | 0.584 | 0.507 |
+| Hybrid (OpenFace only) | TCN_LSTM_TCN_TCN_LSTM | 0.781 | 0.578 | 0.584 | 0.504 |
+| Hybrid (OpenFace only) | LSTM_TCN_TCN_TCN_T | 0.77 | 0.564 | 0.58 | 0.495 |
+| Hybrid + I3D | T_LSTM_TCN_LSTM_T | 0.78 | 0.599 | 0.579 | 0.519 |
+| Hybrid + I3D | TCN_TCN_TCN_LSTM_T | 0.776 | 0.567 | 0.578 | 0.478 |
+| Hybrid + I3D | T_T_LSTM_T_TCN | 0.77 | 0.583 | 0.576 | 0.49 |
+| Hybrid (OpenFace only) | LSTM_T_TCN_TCN_TCN | 0.781 | 0.568 | 0.576 | 0.497 |
+| Hybrid (OpenFace only) | TCN_TCN_T_TCN_LSTM | 0.767 | 0.57 | 0.575 | 0.485 |

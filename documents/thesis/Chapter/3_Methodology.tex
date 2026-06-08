@@ -59,13 +59,13 @@ This decomposition is the inductive prior of the method: the five subsystems hav
 
 \section{Hybrid Architecture (Proposed)}
 
-\textbf{Per-group encoder.} Each group is encoded by a \texttt{GroupEncoder} that is either a \textbf{TCN} (a stack of dilated 1-D convolutions \cite{tcn}) or a \textbf{Transformer} encoder \cite{transformer}, followed by temporal pooling and a LayerNorm, producing a fixed \textbf{64-dim} embedding.
+\textbf{Per-group encoder.} Each group is encoded by a \texttt{GroupEncoder} that is one of a \textbf{TCN} (a stack of dilated 1-D convolutions \cite{tcn}), a \textbf{Transformer} encoder \cite{transformer}, or an \textbf{LSTM} \cite{lstm}, followed by temporal mean-pooling and a LayerNorm, producing a fixed \textbf{64-dim} embedding.
 
 \textbf{Fusion and heads.} The five group embeddings are concatenated (320-dim) and passed through a 2-layer MLP classifier (320$\rightarrow$128$\rightarrow$4) with dropout. Each group additionally has an \textbf{auxiliary classification head}; the total loss is the main-head loss plus \texttt{aux\_weight = 0.2} times the mean of the per-group auxiliary losses. The auxiliary supervision encourages every stream to be individually discriminative (\texttt{OpenFaceTemporalHybrid}, \texttt{src/models/models.py}).
 
 \textbf{Multimodal variant.} \texttt{OpenFaceTemporalI3DHybrid} adds a sixth stream: an I3D TCN encoder (also 64-dim) with its own auxiliary head; the fusion MLP then takes 384-dim input. The I3D encoder is always a TCN.
 
-\textbf{Configuration / arch\_key.} A hybrid configuration is specified by the encoder chosen for each of the five groups, written as an \texttt{arch\_key} of five tokens in group order, e.g. \texttt{T\_TCN\_TCN\_T\_TCN} (\texttt{T} = Transformer, \texttt{TCN} = TCN). With two choices per group there are \textbf{2$^5$ = 32} configurations, evaluated both without and with I3D (Section 4.4).
+\textbf{Configuration / arch\_key.} A hybrid configuration is specified by the encoder chosen for each of the five groups, written as an \texttt{arch\_key} of five tokens in group order, e.g. \texttt{T\_TCN\_LSTM\_T\_TCN} (\texttt{T} = Transformer, \texttt{TCN} = TCN, \texttt{LSTM} = LSTM). With three choices per group there are \textbf{3$^5$ = 243} configurations, evaluated both without and with I3D (Section 4.4).
 
 \section{Baseline Models}
 
@@ -89,6 +89,6 @@ and early stopping.
 
 \textbf{Metrics.} Six metrics (Section 2.4): accuracy, macro-accuracy, MAE, macro-MAE, Cohen's kappa, and QWK; \textbf{QWK and macro-accuracy are primary}. Confusion matrices and per-class F1 are used for error analysis.
 
-\textbf{Aggregation.} All \textasciitilde{}237 runs are aggregated by \texttt{src/analysis/aggregate.py}; figures/tables are produced by \texttt{python -m src.analysis.make\_thesis\_artifacts} into \texttt{outputs/thesis/}.
+\textbf{Aggregation.} All \textasciitilde{}1500 runs are aggregated by \texttt{src/analysis/aggregate.py}; figures/tables are produced by \texttt{python -m src.analysis.make\_thesis\_artifacts} into \texttt{outputs/thesis/}.
 
 \end{document}
