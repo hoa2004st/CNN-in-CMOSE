@@ -41,10 +41,10 @@
 \contentsline {chapter}{\numberline {4}BASELINE MODELS}{24}{chapter.4}%
 \contentsline {section}{\numberline {4.1}Overview}{24}{section.4.1}%
 \contentsline {section}{\numberline {4.2}Base Models, Losses, and Metrics (In-Domain)}{24}{section.4.2}%
-\contentsline {section}{\numberline {4.3}The Loss--Metric Trade-off}{25}{section.4.3}%
-\contentsline {section}{\numberline {4.4}OpenFace versus I3D Features}{29}{section.4.4}%
-\contentsline {section}{\numberline {4.5}Anchoring Development on CMOSE}{30}{section.4.5}%
-\contentsline {section}{\numberline {4.6}Cross-Dataset Generalization of the Baselines}{31}{section.4.6}%
+\contentsline {section}{\numberline {4.3}The Loss--Metric Trade-off}{26}{section.4.3}%
+\contentsline {section}{\numberline {4.4}OpenFace versus I3D Features}{28}{section.4.4}%
+\contentsline {section}{\numberline {4.5}Anchoring Development on CMOSE}{29}{section.4.5}%
+\contentsline {section}{\numberline {4.6}Cross-Dataset Generalization of the Baselines}{30}{section.4.6}%
 \contentsline {section}{\numberline {4.7}Chapter Summary}{33}{section.4.7}%
 \contentsline {chapter}{\numberline {5}SEMANTIC-GROUP HYBRID}{34}{chapter.5}%
 \contentsline {section}{\numberline {5.1}Overview}{34}{section.5.1}%

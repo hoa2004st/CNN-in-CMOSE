@@ -249,12 +249,12 @@
 \newlabel{sec:baseline-overview}{{4.1}{24}{Overview}{section.4.1}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {4.2}Base Models, Losses, and Metrics (In-Domain)}{24}{section.4.2}\protected@file@percent }
 \newlabel{sec:baseline-results}{{4.2}{24}{Base Models, Losses, and Metrics (In-Domain)}{section.4.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4.1}{\ignorespaces Base models $\times $ losses, in-domain on CMOSE.}}{25}{figure.caption.21}\protected@file@percent }
-\newlabel{fig:base_models_indomain}{{4.1}{25}{Base models $\times $ losses, in-domain on CMOSE}{figure.caption.21}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.1}{\ignorespaces Accuracy versus QWK for the five base models under the three losses, in-domain on CMOSE: accuracy ranks the I3D MLP first while QWK ranks the OpenFace TCN first.}}{25}{figure.caption.21}\protected@file@percent }
+\newlabel{fig:base_models_indomain}{{4.1}{25}{Accuracy versus QWK for the five base models under the three losses, in-domain on CMOSE: accuracy ranks the I3D MLP first while QWK ranks the OpenFace TCN first}{figure.caption.21}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {4.1}{\ignorespaces T2. Base models $\times $ losses, in-domain (CMOSE$\rightarrow $CMOSE), sorted by QWK.}}{25}{table.caption.22}\protected@file@percent }
 \newlabel{tab:T2_base_indomain}{{4.1}{25}{T2. Base models $\times $ losses, in-domain (CMOSE$\rightarrow $CMOSE), sorted by QWK}{table.caption.22}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.3}The Loss--Metric Trade-off}{25}{section.4.3}\protected@file@percent }
-\newlabel{sec:loss-tradeoff}{{4.3}{25}{The Loss--Metric Trade-off}{section.4.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.3}The Loss--Metric Trade-off}{26}{section.4.3}\protected@file@percent }
+\newlabel{sec:loss-tradeoff}{{4.3}{26}{The Loss--Metric Trade-off}{section.4.3}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {4.2}{\ignorespaces What each loss trades: the four primary metrics for every baseline across the three losses, in-domain on CMOSE. Accuracy falls while macro-accuracy and macro-MAE improve as the loss is rebalanced.}}{26}{figure.caption.23}\protected@file@percent }
 \newlabel{fig:loss_metric_tradeoff}{{4.2}{26}{What each loss trades: the four primary metrics for every baseline across the three losses, in-domain on CMOSE. Accuracy falls while macro-accuracy and macro-MAE improve as the loss is rebalanced}{figure.caption.23}{}}
 \newlabel{fig:loss_accuracy_tradeoff}{{4.3a}{27}{Accuracy vs macro-accuracy}{figure.caption.24}{}}
@@ -265,20 +265,20 @@
 \newlabel{fig:loss_pareto_pair}{{4.3}{27}{Two faces of the loss trade-off, in-domain on CMOSE: the balanced losses move each model toward better balance on both the recall axis (macro-accuracy) and the ordinal-distance axis (macro-MAE), at the cost of accuracy}{figure.caption.24}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {4.4}{\ignorespaces Representative training/validation loss curves (CMOSE, cross-entropy).}}{28}{figure.caption.25}\protected@file@percent }
 \newlabel{fig:loss_curves_cmose_ce}{{4.4}{28}{Representative training/validation loss curves (CMOSE, cross-entropy)}{figure.caption.25}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.4}OpenFace versus I3D Features}{29}{section.4.4}\protected@file@percent }
-\newlabel{sec:openface-vs-i3d}{{4.4}{29}{OpenFace versus I3D Features}{section.4.4}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4.5}{\ignorespaces Best OpenFace encoder (the TCN) versus the I3D MLP, in-domain on CMOSE under cross-entropy. I3D wins raw accuracy; OpenFace wins the order-aware QWK and the balanced macro-MAE.}}{29}{figure.caption.26}\protected@file@percent }
-\newlabel{fig:openface_vs_i3d}{{4.5}{29}{Best OpenFace encoder (the TCN) versus the I3D MLP, in-domain on CMOSE under cross-entropy. I3D wins raw accuracy; OpenFace wins the order-aware QWK and the balanced macro-MAE}{figure.caption.26}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.5}Anchoring Development on CMOSE}{30}{section.4.5}\protected@file@percent }
-\newlabel{sec:cmose-anchor}{{4.5}{30}{Anchoring Development on CMOSE}{section.4.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.4}OpenFace versus I3D Features}{28}{section.4.4}\protected@file@percent }
+\newlabel{sec:openface-vs-i3d}{{4.4}{28}{OpenFace versus I3D Features}{section.4.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.5}{\ignorespaces Best OpenFace encoder (the TCN) versus the I3D MLP on the three primary metrics, in-domain on CMOSE under cross-entropy: OpenFace wins all three.}}{29}{figure.caption.26}\protected@file@percent }
+\newlabel{fig:openface_vs_i3d}{{4.5}{29}{Best OpenFace encoder (the TCN) versus the I3D MLP on the three primary metrics, in-domain on CMOSE under cross-entropy: OpenFace wins all three}{figure.caption.26}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.5}Anchoring Development on CMOSE}{29}{section.4.5}\protected@file@percent }
+\newlabel{sec:cmose-anchor}{{4.5}{29}{Anchoring Development on CMOSE}{section.4.5}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {4.2}{\ignorespaces T7. Best in-domain result per dataset (CMOSE vs DaiSEE; macro-MAE lower is better).}}{30}{table.caption.27}\protected@file@percent }
 \newlabel{tab:T7_indomain_datasets}{{4.2}{30}{T7. Best in-domain result per dataset (CMOSE vs DaiSEE; macro-MAE lower is better)}{table.caption.27}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {4.6}{\ignorespaces In-domain ordinal signal: CMOSE versus DAiSEE.}}{30}{figure.caption.28}\protected@file@percent }
 \newlabel{fig:indomain_cmose_vs_daisee}{{4.6}{30}{In-domain ordinal signal: CMOSE versus DAiSEE}{figure.caption.28}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.6}Cross-Dataset Generalization of the Baselines}{31}{section.4.6}\protected@file@percent }
-\newlabel{sec:crossdomain}{{4.6}{31}{Cross-Dataset Generalization of the Baselines}{section.4.6}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4.7}{\ignorespaces Cross-domain generalisation, best base model per cell, on accuracy (the deceptive foil), QWK, and macro-MAE (lower is better).}}{31}{figure.caption.29}\protected@file@percent }
-\newlabel{fig:crossdomain_base}{{4.7}{31}{Cross-domain generalisation, best base model per cell, on accuracy (the deceptive foil), QWK, and macro-MAE (lower is better)}{figure.caption.29}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.6}Cross-Dataset Generalization of the Baselines}{30}{section.4.6}\protected@file@percent }
+\newlabel{sec:crossdomain}{{4.6}{30}{Cross-Dataset Generalization of the Baselines}{section.4.6}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.7}{\ignorespaces Cross-domain generalisation, best base model per cell, on the three primary metrics: QWK, macro-accuracy, and macro-MAE (lower is better).}}{31}{figure.caption.29}\protected@file@percent }
+\newlabel{fig:crossdomain_base}{{4.7}{31}{Cross-domain generalisation, best base model per cell, on the three primary metrics: QWK, macro-accuracy, and macro-MAE (lower is better)}{figure.caption.29}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {4.3}{\ignorespaces T3. Best base model per cross-domain cell (QWK, macro-MAE, and Accuracy; macro-MAE lower is better).}}{32}{table.caption.30}\protected@file@percent }
 \newlabel{tab:T3_crossdomain}{{4.3}{32}{T3. Best base model per cross-domain cell (QWK, macro-MAE, and Accuracy; macro-MAE lower is better)}{table.caption.30}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {4.7}Chapter Summary}{33}{section.4.7}\protected@file@percent }
@@ -291,8 +291,8 @@
 \newlabel{sec:hybrid-overview}{{5.1}{34}{Overview}{section.5.1}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {5.2}Semantic-Group Hybrid Ablation (Core Result)}{34}{section.5.2}\protected@file@percent }
 \newlabel{sec:ablation}{{5.2}{34}{Semantic-Group Hybrid Ablation (Core Result)}{section.5.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.1}{\ignorespaces Hybrid ablation across all 243 per-group encoder configurations, with and without I3D, on QWK (higher is better) and macro-MAE (lower is better), against the best baseline.}}{35}{figure.caption.31}\protected@file@percent }
-\newlabel{fig:hybrid_ablation_distribution}{{5.1}{35}{Hybrid ablation across all 243 per-group encoder configurations, with and without I3D, on QWK (higher is better) and macro-MAE (lower is better), against the best baseline}{figure.caption.31}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.1}{\ignorespaces Hybrid ablation across all 243 per-group encoder configurations, with and without I3D, on QWK (higher is better) and accuracy, against the best baseline.}}{35}{figure.caption.31}\protected@file@percent }
+\newlabel{fig:hybrid_ablation_distribution}{{5.1}{35}{Hybrid ablation across all 243 per-group encoder configurations, with and without I3D, on QWK (higher is better) and accuracy, against the best baseline}{figure.caption.31}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {5.1}{\ignorespaces T4. Top-10 hybrid configs in-domain (CMOSE), sorted by QWK (macro-MAE lower is better).}}{35}{table.caption.32}\protected@file@percent }
 \newlabel{tab:T4_hybrid_topk}{{5.1}{35}{T4. Top-10 hybrid configs in-domain (CMOSE), sorted by QWK (macro-MAE lower is better)}{table.caption.32}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {5.3}Which Group's Encoder Matters}{36}{section.5.3}\protected@file@percent }
@@ -311,12 +311,12 @@
 \newlabel{fig:per_class_f1}{{5.5}{38}{Per-class F1: best base versus best hybrid}{figure.caption.37}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {5.5}Hybrid Generalization and the Private Set}{38}{section.5.5}\protected@file@percent }
 \newlabel{sec:private}{{5.5}{38}{Hybrid Generalization and the Private Set}{section.5.5}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.6}{\ignorespaces Cross-domain generalisation, best hybrid per cell, on accuracy, QWK, and macro-MAE (lower is better).}}{39}{figure.caption.38}\protected@file@percent }
-\newlabel{fig:crossdomain_hybrid}{{5.6}{39}{Cross-domain generalisation, best hybrid per cell, on accuracy, QWK, and macro-MAE (lower is better)}{figure.caption.38}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.6}{\ignorespaces Cross-domain generalisation, best hybrid per cell, on the three primary metrics: QWK, macro-accuracy, and macro-MAE (lower is better).}}{39}{figure.caption.38}\protected@file@percent }
+\newlabel{fig:crossdomain_hybrid}{{5.6}{39}{Cross-domain generalisation, best hybrid per cell, on the three primary metrics: QWK, macro-accuracy, and macro-MAE (lower is better)}{figure.caption.38}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {5.3}{\ignorespaces T6. Private set (test-only): best base vs best hybrid by training source (macro-MAE lower is better).}}{39}{table.caption.39}\protected@file@percent }
 \newlabel{tab:T6_private_by_source}{{5.3}{39}{T6. Private set (test-only): best base vs best hybrid by training source (macro-MAE lower is better)}{table.caption.39}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.7}{\ignorespaces Private-set generalisation by training source: best base versus best hybrid, on QWK (higher is better) and macro-MAE (lower is better).}}{40}{figure.caption.40}\protected@file@percent }
-\newlabel{fig:private_by_source}{{5.7}{40}{Private-set generalisation by training source: best base versus best hybrid, on QWK (higher is better) and macro-MAE (lower is better)}{figure.caption.40}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.7}{\ignorespaces Private-set generalisation by training source: best base versus best hybrid, on QWK (higher is better) --- the headline generalisation metric. Macro-accuracy and macro-MAE for the same models are in Table~\ref {tab:T6_private_by_source}.}}{40}{figure.caption.40}\protected@file@percent }
+\newlabel{fig:private_by_source}{{5.7}{40}{Private-set generalisation by training source: best base versus best hybrid, on QWK (higher is better) --- the headline generalisation metric. Macro-accuracy and macro-MAE for the same models are in Table~\ref {tab:T6_private_by_source}}{figure.caption.40}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {5.8}{\ignorespaces Private-set confusion, combined-trained I3D hybrid \texttt  {T\_T\_T\_LSTM\_T} (QWK 0.379, macro-MAE 0.877), row-normalised.}}{41}{figure.caption.41}\protected@file@percent }
 \newlabel{fig:private_confusion_combined}{{5.8}{41}{Private-set confusion, combined-trained I3D hybrid \texttt {T\_T\_T\_LSTM\_T} (QWK 0.379, macro-MAE 0.877), row-normalised}{figure.caption.41}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {5.6}Discussion}{41}{section.5.6}\protected@file@percent }
