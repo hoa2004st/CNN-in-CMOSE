@@ -1,0 +1,205 @@
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+
+\FloatBarrier
+\section{Overview}
+\label{sec:baseline-overview}
+
+This chapter studies the \emph{monolithic baseline} models --- the standard practice of pushing a feature sequence through a single temporal encoder --- and in doing so fixes the methodological frame that the rest of the thesis depends on.
+It has two jobs.
+First, before anything is built, it settles \emph{what to optimise}, \emph{how to measure it}, and \emph{what bar a new architecture must clear}: these three decisions --- the training loss, the primary metrics, and the baseline QWK --- are read off the comparison of the five baselines under the three losses and govern every later experiment.
+Second, it characterises how these off-the-shelf models behave, both \emph{in-domain} (trained and tested on the same corpus) and \emph{across datasets}, so that the proposed hybrid of Chapter~5 has a complete and honest reference point to improve on.
+Section~\ref{sec:baseline-results} compares the five baselines under the three losses and identifies the strongest one.
+Section~\ref{sec:loss-tradeoff} shows that the loss choice is a Pareto trade-off between headline accuracy and balanced ordinal performance, and from it selects the primary metrics and the development loss.
+Section~\ref{sec:openface-vs-i3d} contrasts the two feature families the baselines are built on --- per-frame OpenFace descriptors and the clip-level I3D motion vector.
+Section~\ref{sec:cmose-anchor} explains why the architecture study to follow is anchored on CMOSE.
+Section~\ref{sec:crossdomain} then takes the baselines out of domain with a 3$\times$3 cross-dataset matrix, establishing that engagement models do not transfer off-the-shelf and isolating the single most effective design lever for an unknown target.
+Throughout, the class imbalance characterised in Section~\ref{sec:data} is the backdrop: it is the reason accuracy is reported but never trusted, and the reason the rare disengaged classes recur as the failure mode.
+
+\FloatBarrier
+\section{Base Models, Losses, and Metrics (In-Domain)}
+\label{sec:baseline-results}
+
+This section settles the strongest baseline, the bar a new architecture must clear, and --- by contrasting just two metrics --- the first concrete reason accuracy cannot be that bar.
+Five monolithic baselines --- four built on the OpenFace descriptor (an MLP, a TCN, an LSTM, and a Transformer) and one on the I3D clip vector (the I3D MLP) --- are trained and tested in-domain on CMOSE under each of the three losses.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.98\linewidth]{base_models_indomain.png}
+\caption{Accuracy versus QWK for the five base models under the three losses, in-domain on
+CMOSE: accuracy ranks the I3D MLP first while QWK ranks the OpenFace TCN first.}
+\label{fig:base_models_indomain}
+\end{figure}
+
+\textbf{Accuracy and QWK disagree --- and accuracy is the one that misleads.}
+Figure~\ref{fig:base_models_indomain} contrasts raw accuracy with QWK across the five baselines and three losses, and the two metrics do not even agree on which model wins.
+Under cross-entropy the \textbf{I3D MLP} posts the highest \emph{accuracy} (0.773), whereas the \textbf{OpenFace TCN} posts the highest \emph{QWK} (0.537, against the I3D MLP's 0.519).
+The reason is the class imbalance of Section~\ref{sec:data}: the I3D MLP buys accuracy by leaning on the majority \emph{Engage} class, a strategy that scores well on accuracy but is penalised by the chance-corrected, order-aware QWK.
+Accuracy therefore rewards exactly the majority-collapse a useful monitor must avoid, which is the first concrete reason this thesis treats QWK --- not accuracy --- as the headline metric (the full metric choice is fixed in Section~\ref{sec:loss-tradeoff}).
+The OpenFace TCN's local temporal bias gives it the best QWK of the grid, edging out the LSTM, the Transformer, and the flat MLP; this \textbf{QWK of 0.537 is the bar the hybrid must clear} in Chapter~5.
+\input{Table/T2_base_indomain}
+
+\textbf{Conclusion.}
+Accuracy and QWK rank the baselines differently, and accuracy is the metric inflated by the majority class --- the first reason to abandon it.
+The strongest baseline on the order-aware QWK is the OpenFace TCN under cross-entropy at \textbf{QWK 0.537}, the reference the hybrid is measured against.
+The next section shows how this ranking depends on the loss and from it fixes the three primary metrics and the development loss.
+
+\FloatBarrier
+\section{The Loss--Metric Trade-off}
+\label{sec:loss-tradeoff}
+
+The ranking above was read under cross-entropy, but the loss is itself a design choice.
+This section shows that the choice is a genuine Pareto trade-off --- no loss is best on every metric --- and uses that fact to fix the two remaining frame decisions: the primary metrics and the loss on which the architecture is developed.
+
+\textbf{Each loss trades the metrics against each other.}
+Figure~\ref{fig:loss_metric_tradeoff} plots, for every baseline, how each primary metric moves as the loss is rebalanced from cross-entropy through weighted cross-entropy to the ordinal loss.
+The pattern is consistent across models and is the central observation of the section: as the loss is rebalanced, \textbf{raw accuracy falls} while \textbf{macro-accuracy rises and macro-MAE drops (improves)} --- the balanced losses buy minority-class recall and a smaller balanced ordinal error at the cost of headline accuracy.
+QWK, the chance-corrected agreement coefficient, is the most stable of the four and is generally highest under cross-entropy, because reweighting trades the agreement QWK measures for the per-class recall that macro-accuracy measures.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.98\linewidth]{loss_metric_tradeoff.png}
+\caption{What each loss trades: the four primary metrics for every baseline across the
+three losses, in-domain on CMOSE. Accuracy falls while macro-accuracy and macro-MAE
+improve as the loss is rebalanced.}
+\label{fig:loss_metric_tradeoff}
+\end{figure}
+
+The same trade-off can be read as a Pareto frontier in the two complementary balance metrics.
+Figure~\ref{fig:loss_accuracy_tradeoff} plots accuracy against macro-accuracy and Figure~\ref{fig:loss_pareto_mae} plots accuracy against macro-MAE; in both, the cross-entropy points sit toward high accuracy, and the weighted-CE and ordinal points move toward better balance.
+For the I3D MLP, for instance, switching from cross-entropy to the ordinal loss moves the operating point from (accuracy 0.773, macro-accuracy 0.526) to (0.640, 0.635) and improves its macro-MAE from 0.585 to 0.458 --- the best balanced ordinal error of any baseline.
+There is no universally best loss: the choice is a genuine Pareto trade-off, and for engagement monitoring --- where missing disengagement is costly --- the balanced losses are defensible despite their lower headline accuracy.
+
+\begin{figure}[ht]
+\centering
+\begin{subfigure}{0.49\linewidth}
+\centering
+\includegraphics[width=\linewidth]{loss_accuracy_tradeoff.png}
+\caption{Accuracy vs macro-accuracy.}
+\label{fig:loss_accuracy_tradeoff}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.49\linewidth}
+\centering
+\includegraphics[width=\linewidth]{loss_pareto_mae.png}
+\caption{Accuracy vs macro-MAE (better is up).}
+\label{fig:loss_pareto_mae}
+\end{subfigure}
+\caption{Two faces of the loss trade-off, in-domain on CMOSE: the balanced losses move
+each model toward better balance on both the recall axis (macro-accuracy) and the
+ordinal-distance axis (macro-MAE), at the cost of accuracy.}
+\label{fig:loss_pareto_pair}
+\end{figure}
+
+\textbf{Decision 1 --- the primary metrics.}
+The trade-off above shows directly why accuracy cannot be the yardstick: a model can buy accuracy by collapsing onto \emph{Engage}, and on these imbalanced labels (Section~\ref{sec:data}) that collapse is rewarded rather than penalised.
+The remainder of the thesis therefore reports \textbf{QWK, macro-accuracy, and macro-MAE as the three primary metrics} --- QWK because it is corrected for chance, respects the class order, and cannot be inflated by majority prediction; macro-accuracy because it exposes minority-class recall directly; and \textbf{macro-MAE} (lower is better) because it measures \emph{how far} a prediction misses on the ordinal scale rather than only \emph{whether} it misses, averaged per class so that errors on the rare disengaged classes are not drowned out by the majority.
+The three are complementary: QWK is a chance-corrected agreement coefficient, macro-accuracy a balanced recall, and macro-MAE a balanced ordinal distance, so a model is only judged strong when all three agree.
+Raw accuracy and micro-averaged MAE are still reported in the tables for comparability with the literature, but they are not used to select models.
+
+\textbf{Decision 2 --- the development loss.}
+The strongest ordinal agreement of the whole baseline grid is obtained under \textbf{cross-entropy} (the bar-setting OpenFace TCN at QWK 0.537); the balanced losses trade QWK and accuracy for minority recall rather than improving the primary metric.
+Cross-entropy is therefore the natural loss on which to develop the architecture: it maximises the primary metric and isolates the effect of the \emph{architecture} from the confound of the loss.
+The semantic-group hybrid of Chapter~5 is consequently trained with cross-entropy, and the balanced losses are revisited where they matter most --- recovering rare-class recall and surviving distribution shift.
+Figure~\ref{fig:loss_curves_cmose_ce} shows representative training and validation loss curves; all baselines converge stably and early-stop well before the epoch cap, so the differences above are architectural rather than optimisation artefacts.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.8\linewidth]{loss_curves_cmose_ce.png}
+\caption{Representative training/validation loss curves (CMOSE, cross-entropy).}
+\label{fig:loss_curves_cmose_ce}
+\end{figure}
+
+\textbf{Conclusion.}
+Loss choice is a Pareto trade-off in which cross-entropy gives the best ordinal agreement while the balanced losses buy minority recall at the cost of accuracy.
+The thesis therefore judges every model by \textbf{QWK, macro-accuracy, and macro-MAE} --- never accuracy alone --- and develops the architecture under \textbf{cross-entropy}, the loss that maximises the primary metric and isolates the effect of the architecture.
+
+\FloatBarrier
+\section{OpenFace versus I3D Features}
+\label{sec:openface-vs-i3d}
+
+The baselines are built on two feature families of very different natures, and the contrast between them shapes the hybrid design that follows.
+The \textbf{OpenFace} descriptor is a per-frame, structured account of facial behaviour --- gaze, eye and face landmarks, head pose, and action units --- so an OpenFace baseline sees the \emph{temporal dynamics} of the face and is encoded by a sequence model (here the TCN, LSTM, or Transformer).
+The \textbf{I3D} feature is a single clip-level vector summarising global appearance and motion; the I3D baseline is therefore an MLP over one pooled vector, with no per-frame temporal structure to exploit.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.85\linewidth]{openface_vs_i3d.png}
+\caption{Best OpenFace encoder (the TCN) versus the I3D MLP on the three primary metrics,
+in-domain on CMOSE under cross-entropy: OpenFace wins all three.}
+\label{fig:openface_vs_i3d}
+\end{figure}
+
+Figure~\ref{fig:openface_vs_i3d} contrasts the strongest OpenFace baseline (the TCN) with the I3D MLP on the three primary metrics under cross-entropy.
+The OpenFace TCN wins on \emph{all three}: QWK (0.537 versus 0.519), macro-accuracy (0.535 versus 0.526), and macro-MAE (0.547 versus 0.585, lower is better).
+The fine-grained, per-frame facial dynamics it encodes carry the cues --- a head turning away, gaze drifting off-screen --- that separate the rarer disengaged levels, which the single pooled I3D vector blurs.
+Yet the two families are \textbf{complementary rather than redundant}.
+The I3D MLP's strength lies elsewhere: it tops \emph{raw accuracy} through its alignment with the majority \emph{Engage} class (Section~\ref{sec:baseline-results}), and it is the most \emph{reweightable} baseline, recovering the best balanced ordinal error of any model under the ordinal loss (macro-MAE 0.458, Section~\ref{sec:loss-tradeoff}), whereas the OpenFace encoders gain less from reweighting.
+Global appearance/motion and fine ordinal facial structure are thus captured best by different families --- the direct motivation for \emph{fusing} the two streams in the hybrid of Chapter~5 rather than choosing between them.
+
+\FloatBarrier
+\section{Anchoring Development on CMOSE}
+\label{sec:cmose-anchor}
+
+The comparisons above, and the architecture study of Chapter~5, are conducted on CMOSE rather than DAiSEE for a principled reason: DAiSEE carries far weaker in-domain ordinal signal.
+Table~\ref{tab:T7_indomain_datasets} and Figure~\ref{fig:indomain_cmose_vs_daisee} show that the best in-domain model reaches \textbf{QWK 0.537 on CMOSE but only 0.166 on DAiSEE} (macro-accuracy 0.535 versus 0.289, and macro-MAE 0.547 versus 1.226 --- more than twice the ordinal error).
+On DAiSEE the best models barely exceed chance-level ordinal agreement, so architecture differences there would be dominated by label noise rather than model quality.
+CMOSE is the only corpus on which architecture choices can be compared meaningfully; DAiSEE re-enters the study as a \emph{transfer} source and target in the cross-dataset matrix below and in Chapter~5, not as a development corpus.
+\input{Table/T7_indomain_datasets}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.92\linewidth]{indomain_cmose_vs_daisee.png}
+\caption{In-domain ordinal signal: CMOSE versus DAiSEE.}
+\label{fig:indomain_cmose_vs_daisee}
+\end{figure}
+
+\FloatBarrier
+\section{Cross-Dataset Generalization of the Baselines}
+\label{sec:crossdomain}
+
+In-domain numbers are not the deployment question.
+This section takes the baselines out of domain --- training on one corpus and testing on another --- to ask whether any of the in-domain ordinal signal survives a change of corpus, using the chance-corrected metrics fixed in Section~\ref{sec:loss-tradeoff} rather than accuracy.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.95\linewidth]{crossdomain_base.png}
+\caption{Cross-domain generalisation, best base model per cell, on the three primary
+metrics: QWK, macro-accuracy, and macro-MAE (lower is better).}
+\label{fig:crossdomain_base}
+\end{figure}
+
+The 3$\times$3 heatmaps (Figure~\ref{fig:crossdomain_base} and Table~\ref{tab:T3_crossdomain}) are the central baseline generalisation result.
+\textbf{On the diagonal} (train and test on the same corpus) QWK is healthy (CMOSE 0.54), macro-accuracy is well above chance (CMOSE 0.64), and ordinal error is low (CMOSE macro-MAE 0.46).
+\textbf{Off the diagonal all three collapse together}: CMOSE$\rightarrow$DAiSEE QWK $=0.02$ and DAiSEE$\rightarrow$CMOSE $=0.05$ (essentially chance-level agreement); macro-accuracy falls toward the 0.25 chance floor (DAiSEE$\rightarrow$CMOSE 0.29); and macro-MAE inflates toward a full class (CMOSE$\rightarrow$DAiSEE 0.77, DAiSEE$\rightarrow$CMOSE 0.99) even for the best models, against $\approx0.46$ on the diagonal.
+Crucially, \textbf{raw accuracy hides this collapse}: in Table~\ref{tab:T3_crossdomain} the CMOSE$\rightarrow$DAiSEE accuracy is a deceptively reasonable 0.49 and DAiSEE$\rightarrow$CMOSE 0.69, purely because predicting the majority class scores well on imbalanced targets --- which is exactly why accuracy is omitted from the heatmaps and the three order- and balance-aware primaries are shown instead.
+This is direct, quantitative vindication of the metric choice made in Section~\ref{sec:loss-tradeoff}, and shows engagement models are \textbf{not portable off-the-shelf}.
+\input{Table/T3_crossdomain}
+
+\textbf{Reading the matrix.}
+The gap between accuracy and QWK is itself the diagnostic.
+On the CMOSE$\rightarrow$DAiSEE cell accuracy stays near 0.49 while QWK falls to 0.02: the model has not learned a transferable ordinal scale, it has merely inherited a class prior that happens to overlap the target's majority.
+A single accuracy number would have reported a partial success; the chance-corrected, order-aware QWK reports the failure that is actually there.
+The collapse is, moreover, roughly symmetric --- neither public corpus transfers to the other (0.02 and 0.05) --- which rules out the simpler reading that one corpus is a superset of the other and points instead to a genuine shift in both label priors and recording conditions.
+
+\textbf{The lever: pool the source corpora.}
+The most actionable cell is the unseen \textbf{Private} column: training on the \textbf{Combined} corpus gives the best private-set QWK (0.285), beating DAiSEE-only (0.256) and CMOSE-only (0.190).
+Pooling source datasets is a simple, effective mitigation for an unknown target distribution: the union of CMOSE and DAiSEE spans a wider range of label priors than either alone, so an unseen target sits closer to the pooled distribution.
+This is the single most effective design lever for an unknown target, and it is carried into Chapter~5, where it is combined with the architecture contribution on the decisive private set (\textbf{RQ4}).
+
+\textbf{Conclusion.}
+Engagement classifiers built on the standard monolithic recipe do not generalise across datasets: off-diagonal QWK falls to near zero even when accuracy looks acceptable, so ordinal agreement --- not accuracy --- must be reported on imbalanced engagement data.
+Among the available levers, \emph{pooling source corpora} is the most effective simple remedy for an unknown target.
+
+\FloatBarrier
+\section{Chapter Summary}
+\label{sec:baseline-summary}
+
+This chapter fixed the experimental frame and characterised the monolithic baselines.
+The in-domain comparison (Section~\ref{sec:baseline-results}) established that the strongest baseline is the OpenFace TCN at \textbf{QWK 0.537}, the bar the hybrid must beat.
+The loss study (Section~\ref{sec:loss-tradeoff}) showed that loss choice is a Pareto trade-off in which cross-entropy gives the best ordinal agreement; from it the thesis selected \textbf{QWK, macro-accuracy, and macro-MAE} --- not accuracy --- as the primary metrics and \textbf{cross-entropy} as the development loss.
+The feature comparison (Section~\ref{sec:openface-vs-i3d}) showed that OpenFace and I3D are complementary --- I3D wins raw accuracy, OpenFace wins the order-aware metrics --- motivating their fusion in the hybrid.
+CMOSE was identified as the only corpus with enough in-domain signal to separate architectures (Section~\ref{sec:cmose-anchor}), and the cross-dataset study (Section~\ref{sec:crossdomain}) showed that baselines do not transfer off-the-shelf --- off-diagonal QWK collapses while accuracy hides it --- with corpus pooling the most effective simple mitigation.
+Chapter~5 now introduces the semantic-group hybrid and, under exactly this frame, asks whether decomposing the OpenFace descriptor beats these baselines in-domain and whether the gain compounds with pooling on unseen, real-world data.
+
+\end{document}

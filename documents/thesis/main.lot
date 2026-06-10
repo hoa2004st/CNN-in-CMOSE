@@ -6,12 +6,12 @@
 \contentsline {table}{\numberline {3.2}{\ignorespaces Semantic decomposition of the 709-dimensional OpenFace descriptor.}}{18}{table.caption.13}%
 \addvspace {10\p@ }
 \contentsline {table}{\numberline {4.1}{\ignorespaces T2. Base models $\times $ losses, in-domain (CMOSE$\rightarrow $CMOSE), sorted by QWK.}}{25}{table.caption.22}%
-\contentsline {table}{\numberline {4.2}{\ignorespaces T7. Best in-domain result per dataset (CMOSE vs DaiSEE).}}{27}{table.caption.25}%
-\contentsline {table}{\numberline {4.3}{\ignorespaces T4. Top-10 hybrid configs in-domain (CMOSE), sorted by QWK.}}{29}{table.caption.28}%
-\contentsline {table}{\numberline {4.4}{\ignorespaces T5. Per-group marginal effect of encoder choice on in-domain QWK.}}{29}{table.caption.29}%
+\contentsline {table}{\numberline {4.2}{\ignorespaces T7. Best in-domain result per dataset (CMOSE vs DaiSEE; macro-MAE lower is better).}}{30}{table.caption.27}%
+\contentsline {table}{\numberline {4.3}{\ignorespaces T3. Best base model per cross-domain cell (QWK, macro-MAE, and Accuracy; macro-MAE lower is better).}}{32}{table.caption.30}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {5.1}{\ignorespaces T3. Best base model per cross-domain cell (QWK and Accuracy).}}{34}{table.caption.35}%
-\contentsline {table}{\numberline {5.2}{\ignorespaces T6. Private set (test-only): best base vs best hybrid by training source.}}{35}{table.caption.37}%
+\contentsline {table}{\numberline {5.1}{\ignorespaces T4. Top-10 hybrid configs in-domain (CMOSE), sorted by QWK (macro-MAE lower is better).}}{35}{table.caption.32}%
+\contentsline {table}{\numberline {5.2}{\ignorespaces T5. Per-group marginal effect of encoder choice on in-domain QWK.}}{36}{table.caption.33}%
+\contentsline {table}{\numberline {5.3}{\ignorespaces T6. Private set (test-only): best base vs best hybrid by training source (macro-MAE lower is better).}}{39}{table.caption.39}%
 \addvspace {10\p@ }
 \contentsfinish 
 \contentsfinish 

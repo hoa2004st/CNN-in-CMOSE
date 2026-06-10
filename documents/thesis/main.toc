@@ -38,25 +38,29 @@
 \contentsline {section}{\numberline {3.7}Training Protocol}{22}{section.3.7}%
 \contentsline {section}{\numberline {3.8}Evaluation Protocol}{23}{section.3.8}%
 \contentsline {section}{\numberline {3.9}Chapter Summary}{23}{section.3.9}%
-\contentsline {chapter}{\numberline {4}IN-DOMAIN MODEL DEVELOPMENT}{24}{chapter.4}%
+\contentsline {chapter}{\numberline {4}BASELINE MODELS}{24}{chapter.4}%
 \contentsline {section}{\numberline {4.1}Overview}{24}{section.4.1}%
 \contentsline {section}{\numberline {4.2}Base Models, Losses, and Metrics (In-Domain)}{24}{section.4.2}%
-\contentsline {section}{\numberline {4.3}Semantic-Group Hybrid Ablation (Core Result)}{28}{section.4.3}%
-\contentsline {section}{\numberline {4.4}In-Domain Error Analysis}{30}{section.4.4}%
-\contentsline {section}{\numberline {4.5}Chapter Summary}{32}{section.4.5}%
-\contentsline {chapter}{\numberline {5}GENERALIZATION}{33}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Overview}{33}{section.5.1}%
-\contentsline {section}{\numberline {5.2}Cross-Dataset Generalization}{33}{section.5.2}%
-\contentsline {section}{\numberline {5.3}Private-Set Generalization: The Real-World Test}{35}{section.5.3}%
-\contentsline {section}{\numberline {5.4}Discussion}{37}{section.5.4}%
-\contentsline {section}{\numberline {5.5}Chapter Summary}{38}{section.5.5}%
-\contentsline {chapter}{\numberline {6}CONCLUSIONS}{39}{chapter.6}%
-\contentsline {section}{\numberline {6.1}Summary}{39}{section.6.1}%
-\contentsline {section}{\numberline {6.2}Synthesis}{40}{section.6.2}%
-\contentsline {section}{\numberline {6.3}Revisiting the Research Questions}{41}{section.6.3}%
-\contentsline {section}{\numberline {6.4}Limitations}{41}{section.6.4}%
-\contentsline {section}{\numberline {6.5}Practical Recommendations}{42}{section.6.5}%
-\contentsline {section}{\numberline {6.6}Suggestion for Future Works}{43}{section.6.6}%
-\contentsline {section}{\numberline {6.7}Closing Remarks}{43}{section.6.7}%
-\contentsline {chapter}{REFERENCE}{46}{section*.41}%
+\contentsline {section}{\numberline {4.3}The Loss--Metric Trade-off}{25}{section.4.3}%
+\contentsline {section}{\numberline {4.4}OpenFace versus I3D Features}{29}{section.4.4}%
+\contentsline {section}{\numberline {4.5}Anchoring Development on CMOSE}{30}{section.4.5}%
+\contentsline {section}{\numberline {4.6}Cross-Dataset Generalization of the Baselines}{31}{section.4.6}%
+\contentsline {section}{\numberline {4.7}Chapter Summary}{33}{section.4.7}%
+\contentsline {chapter}{\numberline {5}SEMANTIC-GROUP HYBRID}{34}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Overview}{34}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Semantic-Group Hybrid Ablation (Core Result)}{34}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Which Group's Encoder Matters}{36}{section.5.3}%
+\contentsline {section}{\numberline {5.4}Best Hybrid versus Best Baseline (In-Domain)}{37}{section.5.4}%
+\contentsline {section}{\numberline {5.5}Hybrid Generalization and the Private Set}{38}{section.5.5}%
+\contentsline {section}{\numberline {5.6}Discussion}{41}{section.5.6}%
+\contentsline {section}{\numberline {5.7}Chapter Summary}{42}{section.5.7}%
+\contentsline {chapter}{\numberline {6}CONCLUSIONS}{44}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Summary}{44}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Synthesis}{45}{section.6.2}%
+\contentsline {section}{\numberline {6.3}Revisiting the Research Questions}{46}{section.6.3}%
+\contentsline {section}{\numberline {6.4}Limitations}{46}{section.6.4}%
+\contentsline {section}{\numberline {6.5}Practical Recommendations}{47}{section.6.5}%
+\contentsline {section}{\numberline {6.6}Suggestion for Future Works}{48}{section.6.6}%
+\contentsline {section}{\numberline {6.7}Closing Remarks}{48}{section.6.7}%
+\contentsline {chapter}{REFERENCE}{51}{section*.43}%
 \contentsfinish 

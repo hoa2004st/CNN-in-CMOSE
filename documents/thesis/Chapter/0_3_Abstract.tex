@@ -7,8 +7,9 @@
 
 Automatically recognising student engagement from video is a key enabler for online and hybrid learning analytics, yet it is hard: engagement labels are \emph{ordinal} (Highly-Disengage, Disengage, Engage, Highly-Engage), severely \emph{imbalanced}, and subjective, and models are rarely tested beyond the corpus they were trained on.
 This thesis studies engagement classification from per-frame facial-behaviour descriptors (OpenFace) and clip-level video-motion features (I3D), and makes two contributions.
+A study of monolithic baselines first establishes the methodological frame: loss choice is shown to be a Pareto trade-off between headline accuracy and balanced ordinal performance, fixing quadratic-weighted kappa (QWK), macro-accuracy, and macro-MAE --- not accuracy --- as the primary metrics, and the OpenFace and I3D feature families are found to be complementary (I3D wins raw accuracy, OpenFace the order-aware metrics), motivating their fusion.
 
-First, it proposes a \textbf{semantic-group hybrid temporal architecture}.
+First, the thesis proposes a \textbf{semantic-group hybrid temporal architecture}.
 Instead of feeding all 709 OpenFace features into one monolithic sequence model, the descriptor is decomposed into five behaviourally meaningful groups --- gaze, eye landmarks, face landmarks, head pose, and action units --- and each group is assigned its own temporal encoder (a Temporal Convolutional Network, a Transformer, or an LSTM), optionally fused with an I3D motion stream and supervised by per-stream auxiliary heads.
 A systematic ablation over all 243 per-group encoder assignments, with and without I3D, shows that the I3D-fused hybrid family is centred above the best monolithic baseline on the CMOSE test set (median quadratic-weighted kappa, QWK, of 0.553 against 0.537; best 0.605), that the strongest configurations mix encoder types, and that the only group with a clear encoder preference is \textbf{head pose, which favours a TCN}.
 

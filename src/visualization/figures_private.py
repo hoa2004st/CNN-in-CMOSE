@@ -32,72 +32,72 @@ def _best_private(frame, src: str, metric: str) -> "pd.Series":
 
 
 def fig_private_by_source(directory: Path | None = None) -> Path:
-    """Best base vs best hybrid on the private set, per training source: QWK and macro-MAE."""
+    """Best base vs best hybrid on the private set, per training source --- QWK only.
+
+    The private set is the deployment probe, so the figure emphasises the single headline
+    generalisation metric, QWK; macro-accuracy and macro-MAE for the same models are in the
+    accompanying table. The hybrid beats the base model for every source, and the margin is
+    widest under combined training --- the architecture and the pooling lever compounding.
+    """
     m = ag.load_matrix()
     h = ag.load_hybrid_matrix()
     sources = ["cmose", "daisee", "combined"]
-    base_rows = [_best_private(m, s, _METRIC) for s in sources]
-    hyb_rows = [_best_private(h, s, _METRIC) for s in sources]
+    base = [float(_best_private(m, s, _METRIC)[_METRIC]) for s in sources]
+    hyb = [float(_best_private(h, s, _METRIC)[_METRIC]) for s in sources]
 
     x = np.arange(len(sources))
     width = 0.38
-    fig, (axL, axR) = new_fig(1, 2, figsize=(11, 4.6))
-
-    def _panel(ax, metric, ylabel, title):
-        base = [float(r[metric]) for r in base_rows]
-        hyb = [float(r[metric]) for r in hyb_rows]
-        b1 = ax.bar(x - width / 2, base, width, color="#BBBBBB",
-                    edgecolor="black", linewidth=0.4, label="Best base model")
-        b2 = ax.bar(x + width / 2, hyb, width, color=[_SRC_COLOR[s] for s in sources],
-                    edgecolor="black", linewidth=0.4, label="Best semantic-group hybrid")
-        ax.bar_label(b1, fmt="%.3f", fontsize=7, padding=1)
-        ax.bar_label(b2, fmt="%.3f", fontsize=7, padding=1)
-        ax.set_xticks(x)
-        ax.set_xticklabels([ag.TRAIN_GROUP_DISPLAY[s] for s in sources])
-        ax.set_xlabel("Training source (private set is test-only)")
-        ax.set_ylabel(ylabel)
-        ax.set_title(title)
-
-    _panel(axL, _METRIC, "QWK on private set", "QWK (higher is better)")
-    _panel(axR, "macro_mae", "Macro-MAE on private set", "Macro-MAE (lower is better)")
-    axL.legend(loc="upper left", fontsize=8)
-    fig.suptitle("Private-set generalization by training source\n"
-                 "(self-collected, never seen in training)", y=1.04, fontweight="bold")
+    fig, ax = new_fig(figsize=(7.6, 4.8))
+    b1 = ax.bar(x - width / 2, base, width, color="#BBBBBB",
+                edgecolor="black", linewidth=0.4, label="Best base model")
+    b2 = ax.bar(x + width / 2, hyb, width, color=[_SRC_COLOR[s] for s in sources],
+                edgecolor="black", linewidth=0.4, label="Best semantic-group hybrid")
+    ax.bar_label(b1, fmt="%.3f", fontsize=8, padding=1)
+    ax.bar_label(b2, fmt="%.3f", fontsize=8, padding=1)
+    ax.set_xticks(x)
+    ax.set_xticklabels([ag.TRAIN_GROUP_DISPLAY[s] for s in sources])
+    ax.set_xlabel("Training source (private set is test-only)")
+    ax.set_ylabel("QWK on private set (higher is better)")
+    ax.legend(loc="upper left", fontsize=8)
+    fig.suptitle("Private-set generalization (QWK) by training source\n"
+                 "(self-collected, never seen in training)", y=1.05, fontweight="bold")
     return save(fig, "private_by_source", directory=directory)
 
 
 def fig_indomain_cmose_vs_daisee(directory: Path | None = None) -> Path:
-    """Justify the CMOSE-centric ablation: DaiSEE in-domain signal is much weaker."""
+    """Justify the CMOSE-centric ablation: DaiSEE in-domain signal is much weaker.
+
+    All three primary metrics in one panel (QWK first/emphasised). DaiSEE's QWK and
+    macro-accuracy are far lower and its macro-MAE far higher (worse) than CMOSE's, so
+    architecture differences on DaiSEE would be swamped by label noise.
+    """
     m = ag.load_matrix()
     pairs = [("cmose", "cmose_test", "CMOSE"), ("daisee", "daisee_test", "DaiSEE")]
     # Single best-QWK model per dataset; read all three primary metrics from that row (matches T7).
     best_rows = [m[(m["train_group"] == tr) & (m["test_set"] == te)]
                  .pipe(lambda c: c.loc[c["quadratic_weighted_kappa"].idxmax()])
                  for tr, te, _ in pairs]
+    metrics = ["quadratic_weighted_kappa", "macro_accuracy", "macro_mae"]
+    metric_color = {"quadratic_weighted_kappa": "#0072B2", "macro_accuracy": "#56B4E9",
+                    "macro_mae": "#D55E00"}
 
-    fig, (axL, axR) = new_fig(1, 2, figsize=(10.5, 4.4))
+    fig, ax = new_fig(figsize=(8.4, 4.8))
+    x = np.arange(len(pairs))
+    width = 0.26
+    for j, metric in enumerate(metrics):
+        label = ag.METRIC_DISPLAY[metric] + (" (lower is better)"
+                                             if metric in ag.LOWER_BETTER_METRICS else "")
+        bars = ax.bar(x + (j - 1) * width, [float(r[metric]) for r in best_rows], width,
+                      color=metric_color[metric], edgecolor="white", linewidth=0.4, label=label)
+        ax.bar_label(bars, fmt="%.3f", fontsize=8, padding=1)
     for i, best in enumerate(best_rows):
-        for metric, dx, color in (("quadratic_weighted_kappa", -0.18, "#0072B2"),
-                                   ("macro_accuracy", 0.18, "#56B4E9")):
-            bar = axL.bar(i + dx, float(best[metric]), 0.34, color=color,
-                          label=ag.METRIC_DISPLAY[metric] if i == 0 else None,
-                          edgecolor="white", linewidth=0.4)
-            axL.bar_label(bar, fmt="%.3f", fontsize=8, padding=1)
-        bar = axR.bar(i, float(best["macro_mae"]), 0.5, color="#D55E00",
-                      edgecolor="white", linewidth=0.4)
-        axR.bar_label(bar, fmt="%.3f", fontsize=8, padding=1)
-        axR.annotate(f"{display_model_name(best['model'])}/{best['loss']}",
-                     (i, 0.02), ha="center", va="bottom", fontsize=7, color="white")
-    for ax in (axL, axR):
-        ax.set_xticks(range(len(pairs)))
-        ax.set_xticklabels([p[2] for p in pairs])
-        ax.set_xlabel("In-domain dataset (train = test)")
-    axL.set_ylabel("Score")
-    axL.set_title("QWK and Macro-Accuracy (higher is better)")
-    axL.set_ylim(0, max(float(r["macro_accuracy"]) for r in best_rows) * 1.4)
-    axL.legend(loc="upper left", ncol=2, fontsize=8)
-    axR.set_ylabel("Macro-MAE (class-index units)")
-    axR.set_title("Macro-MAE (lower is better)")
+        ax.annotate(f"{display_model_name(best['model'])}/{best['loss']}",
+                    (i, 0.02), ha="center", va="bottom", fontsize=7, color="#444444")
+    ax.set_xticks(x)
+    ax.set_xticklabels([p[2] for p in pairs])
+    ax.set_xlabel("In-domain dataset (train = test)")
+    ax.set_ylabel("Score  /  Macro-MAE (class-index units)")
+    ax.legend(loc="upper right", fontsize=8)
     fig.suptitle("In-domain signal: CMOSE vs DaiSEE (best-QWK model per dataset)",
                  y=1.02, fontweight="bold")
     return save(fig, "indomain_cmose_vs_daisee", directory=directory)

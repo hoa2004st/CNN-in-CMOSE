@@ -14,20 +14,22 @@
 \contentsline {figure}{\numberline {3.8}{\ignorespaces Baseline \texttt {openface\_transformer}: a Transformer encoder over the full 709-d sequence with sinusoidal positional encoding, mean-pooled and classified.}}{22}{figure.caption.19}%
 \contentsline {figure}{\numberline {3.9}{\ignorespaces Baseline \texttt {i3d\_mlp}: the pooled 1024-d I3D clip vector is classified by a multilayer perceptron.}}{22}{figure.caption.20}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {4.1}{\ignorespaces Base models $\times $ losses, in-domain on CMOSE.}}{24}{figure.caption.21}%
-\contentsline {figure}{\numberline {4.2}{\ignorespaces Accuracy versus macro-accuracy trade-off by loss.}}{26}{figure.caption.23}%
-\contentsline {figure}{\numberline {4.3}{\ignorespaces Representative training/validation loss curves (CMOSE, cross-entropy).}}{26}{figure.caption.24}%
-\contentsline {figure}{\numberline {4.4}{\ignorespaces In-domain ordinal signal: CMOSE versus DAiSEE.}}{27}{figure.caption.26}%
-\contentsline {figure}{\numberline {4.5}{\ignorespaces Hybrid ablation: QWK across all 243 per-group encoder configurations, with and without I3D, against the best baseline.}}{28}{figure.caption.27}%
-\contentsline {figure}{\numberline {4.6}{\ignorespaces Per-group marginal effect of the encoder choice on in-domain QWK.}}{30}{figure.caption.30}%
-\contentsline {figure}{\numberline {4.7}{\ignorespaces Best hybrid versus best base model, in-domain on CMOSE.}}{30}{figure.caption.31}%
-\contentsline {figure}{\numberline {4.8}{\ignorespaces Confusion matrices of the best base versus the best hybrid (in-domain, row-normalised).}}{31}{figure.caption.32}%
-\contentsline {figure}{\numberline {4.9}{\ignorespaces Per-class F1: best base versus best hybrid.}}{31}{figure.caption.33}%
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Base models $\times $ losses, in-domain on CMOSE.}}{25}{figure.caption.21}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces What each loss trades: the four primary metrics for every baseline across the three losses, in-domain on CMOSE. Accuracy falls while macro-accuracy and macro-MAE improve as the loss is rebalanced.}}{26}{figure.caption.23}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Two faces of the loss trade-off, in-domain on CMOSE: the balanced losses move each model toward better balance on both the recall axis (macro-accuracy) and the ordinal-distance axis (macro-MAE), at the cost of accuracy.}}{27}{figure.caption.24}%
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Representative training/validation loss curves (CMOSE, cross-entropy).}}{28}{figure.caption.25}%
+\contentsline {figure}{\numberline {4.5}{\ignorespaces Best OpenFace encoder (the TCN) versus the I3D MLP, in-domain on CMOSE under cross-entropy. I3D wins raw accuracy; OpenFace wins the order-aware QWK and the balanced macro-MAE.}}{29}{figure.caption.26}%
+\contentsline {figure}{\numberline {4.6}{\ignorespaces In-domain ordinal signal: CMOSE versus DAiSEE.}}{30}{figure.caption.28}%
+\contentsline {figure}{\numberline {4.7}{\ignorespaces Cross-domain generalisation, best base model per cell, on accuracy (the deceptive foil), QWK, and macro-MAE (lower is better).}}{31}{figure.caption.29}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {5.1}{\ignorespaces Cross-domain generalisation, best base model per cell.}}{33}{figure.caption.34}%
-\contentsline {figure}{\numberline {5.2}{\ignorespaces Cross-domain generalisation, best hybrid per cell.}}{34}{figure.caption.36}%
-\contentsline {figure}{\numberline {5.3}{\ignorespaces Private-set generalisation by training source: best base versus best hybrid.}}{36}{figure.caption.38}%
-\contentsline {figure}{\numberline {5.4}{\ignorespaces Private-set confusion, combined-trained I3D hybrid \texttt {T\_T\_T\_LSTM\_T} (QWK 0.379), row-normalised.}}{37}{figure.caption.39}%
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Hybrid ablation across all 243 per-group encoder configurations, with and without I3D, on QWK (higher is better) and macro-MAE (lower is better), against the best baseline.}}{35}{figure.caption.31}%
+\contentsline {figure}{\numberline {5.2}{\ignorespaces Per-group marginal effect of the encoder choice on in-domain QWK.}}{36}{figure.caption.34}%
+\contentsline {figure}{\numberline {5.3}{\ignorespaces Best hybrid versus best base model, in-domain on CMOSE.}}{37}{figure.caption.35}%
+\contentsline {figure}{\numberline {5.4}{\ignorespaces Confusion matrices of the best base versus the best hybrid (in-domain, row-normalised).}}{38}{figure.caption.36}%
+\contentsline {figure}{\numberline {5.5}{\ignorespaces Per-class F1: best base versus best hybrid.}}{38}{figure.caption.37}%
+\contentsline {figure}{\numberline {5.6}{\ignorespaces Cross-domain generalisation, best hybrid per cell, on accuracy, QWK, and macro-MAE (lower is better).}}{39}{figure.caption.38}%
+\contentsline {figure}{\numberline {5.7}{\ignorespaces Private-set generalisation by training source: best base versus best hybrid, on QWK (higher is better) and macro-MAE (lower is better).}}{40}{figure.caption.40}%
+\contentsline {figure}{\numberline {5.8}{\ignorespaces Private-set confusion, combined-trained I3D hybrid \texttt {T\_T\_T\_LSTM\_T} (QWK 0.379, macro-MAE 0.877), row-normalised.}}{41}{figure.caption.41}%
 \addvspace {10\p@ }
 \contentsfinish 
 \contentsfinish 

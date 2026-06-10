@@ -34,12 +34,12 @@ def _heatmap(ax, pivot, title: str, *, vmin, vmax, cmap="RdYlGn", fmt="{:.2f}", 
 
 
 def fig_crossdomain(frame, name: str, suptitle: str, directory: Path | None = None) -> Path:
-    # Accuracy is kept as the deceptive foil; QWK and macro-MAE are the two ordinal primaries
-    # (macro-MAE on a reversed colour scale, since lower is better).
+    # The three primary metrics, QWK first/emphasised; macro-MAE on a reversed colour scale,
+    # since lower is better. (Raw accuracy, the deceptive foil, is reported in the table.)
     fig, axes = new_fig(1, 3, figsize=(15.5, 4.4), layout="constrained")
     for k, (ax, metric, vmin, vmax, cmap) in enumerate((
-        (axes[0], "accuracy", 0.0, 0.8, "RdYlGn"),
-        (axes[1], "quadratic_weighted_kappa", -0.05, 0.6, "RdYlGn"),
+        (axes[0], "quadratic_weighted_kappa", -0.05, 0.6, "RdYlGn"),
+        (axes[1], "macro_accuracy", 0.2, 0.7, "RdYlGn"),
         (axes[2], "macro_mae", 0.4, 1.3, "RdYlGn_r"),
     )):
         pivot = ag.cell_matrix(frame, metric)

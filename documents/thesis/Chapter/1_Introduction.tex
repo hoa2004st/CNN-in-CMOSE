@@ -129,11 +129,11 @@ Chapter~3 presents the methodology.
 It gives an overview of the complete pipeline as a single diagram, describes the three training corpora and their class imbalance, the private test set, and the preprocessing that makes them comparable, and then specifies the semantic-group decomposition and the proposed hybrid architecture in full.
 It also details the monolithic baselines, the loss functions and their exact formulations, the training protocol, and the 3$\times$3 cross-dataset evaluation protocol with its metrics.
 
-Chapter~4 develops the model \emph{in-domain}.
-It first compares the monolithic baselines under the three losses --- the comparison that selects the training loss (cross-entropy) and the primary metrics (QWK, macro-accuracy, and macro-MAE), fixes the baseline the hybrid must beat, and explains why the architecture study is anchored on CMOSE --- then presents the core 243-configuration hybrid ablation answering RQ1--RQ3, and closes with an in-domain error analysis.
+Chapter~4 studies the \emph{monolithic baselines} and fixes the experimental frame.
+It compares the five baselines under the three losses --- the comparison that selects the training loss (cross-entropy) and the primary metrics (QWK, macro-accuracy, and macro-MAE), and fixes the baseline the hybrid must beat --- shows that loss choice is a Pareto trade-off, contrasts the OpenFace and I3D feature families, explains why the architecture study is anchored on CMOSE, and takes the baselines out of domain in the 3$\times$3 cross-dataset matrix, establishing that engagement models do not transfer off-the-shelf and that pooling corpora is the best simple remedy.
 
-Chapter~5 measures \emph{generalisation}.
-Using the metrics and best model fixed in Chapter~4, it reports the 3$\times$3 cross-dataset study and the decisive evaluation on the self-collected private set, showing that engagement models do not transfer off-the-shelf, that pooling corpora is the best simple remedy, and that the architecture and pooling insights compound on the unseen private data (RQ4).
+Chapter~5 introduces the \emph{semantic-group hybrid} and evaluates it against that frame.
+It presents the core 243-configuration ablation answering RQ1--RQ3, isolates the only group with a clear encoder preference, compares the best hybrid with the best baseline through an in-domain error analysis, and then takes the hybrid out of domain --- on the decisive self-collected private set the architecture and the pooling insight compound to the best result, showing the value of both contributions is greatest on unseen, real-world data (RQ4).
 Every result in both chapters is accompanied by an explicit conclusion.
 
 Chapter~6 summarises the findings, restates the contributions in the light of the evidence, discusses the limitations of the study, and proposes concrete directions for future work, including targeting the rarest disengaged class, explicit domain adaptation, and learned rather than enumerated group encoders.

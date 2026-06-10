@@ -54,13 +54,18 @@ def _ablation_panel(ax, frame, metric: str, variants) -> None:
 
 
 def fig_ablation_distribution(directory: Path | None = None) -> Path:
-    """QWK and macro-MAE spread across all group-architecture configs, split by +/- I3D."""
+    """QWK and accuracy spread across all configs, split by +/- I3D (the Ch.5 disproof).
+
+    QWK cleanly separates the I3D-fused family above the baseline; accuracy is high but flat
+    and barely moves off the baseline, so it cannot tell the architectures apart --- the same
+    anti-accuracy point made for the baselines, now at the scale of the 243-config ablation.
+    """
     frame = _indomain_hybrid()
     variants = ["Hybrid (OpenFace only)", "Hybrid + I3D"]
     n_configs = max((len(frame[frame["variant"] == v]) for v in variants), default=0)
     fig, axes = new_fig(1, 2, figsize=(11, 4.6))
     _ablation_panel(axes[0], frame, _METRIC, variants)
-    _ablation_panel(axes[1], frame, "macro_mae", variants)
+    _ablation_panel(axes[1], frame, "accuracy", variants)
     fig.suptitle(f"Hybrid ablation across {n_configs} group-architecture configs "
                  f"(in-domain CMOSE)", y=1.02, fontweight="bold")
     return save(fig, "hybrid_ablation_distribution", directory=directory)
@@ -107,8 +112,8 @@ def fig_group_marginal(directory: Path | None = None) -> Path:
 def fig_best_comparison(directory: Path | None = None) -> Path:
     """Best hybrid (+/- I3D) vs the best base model, in-domain, on the three primary metrics.
 
-    The two higher-is-better metrics (QWK, macro-accuracy) share the left axis; macro-MAE
-    (lower is better) gets its own panel so the differing scale and direction read honestly.
+    All three primary metrics in a single panel (QWK first/emphasised). On this scale macro-MAE
+    sits comfortably alongside the two higher-is-better metrics, so one panel reads cleanly.
     """
     h = _indomain_hybrid()
     m = ag.load_matrix()
@@ -118,33 +123,27 @@ def fig_best_comparison(directory: Path | None = None) -> Path:
     best_i3d = h[h["has_i3d"]].loc[h[h["has_i3d"]][_METRIC].idxmax()]
 
     entries = [
-        (f"Best base\n{display_model_name(best_base['model'])}/{best_base['loss']}", best_base, "#999999"),
-        ("Best hybrid\n(OF-only)", best_of, _VARIANT_COLOR["Hybrid (OpenFace only)"]),
-        ("Best hybrid\n(+I3D)", best_i3d, _VARIANT_COLOR["Hybrid + I3D"]),
+        (f"Best base\n{display_model_name(best_base['model'])}/{best_base['loss']}", best_base),
+        ("Best hybrid\n(OF-only)", best_of),
+        ("Best hybrid\n(+I3D)", best_i3d),
     ]
-    fig, (axL, axR) = new_fig(1, 2, figsize=(11, 4.6))
-    width = 0.38
-    for j, metric in enumerate(["quadratic_weighted_kappa", "macro_accuracy"]):
-        offsets = np.arange(len(entries)) + (j - 0.5) * width
-        vals = [float(e[1][metric]) for e in entries]
-        bars = axL.bar(offsets, vals, width=width, label=ag.METRIC_DISPLAY[metric],
-                       edgecolor="white", linewidth=0.4, color=["#0072B2", "#009E73"][j])
-        axL.bar_label(bars, fmt="%.3f", fontsize=7, padding=1)
-    axL.set_xticks(np.arange(len(entries)))
-    axL.set_xticklabels([e[0] for e in entries], fontsize=8)
-    axL.set_ylabel("Score (in-domain CMOSE)")
-    axL.set_title("QWK and Macro-Accuracy (higher is better)")
-    axL.set_ylim(0, max(float(e[1]["macro_accuracy"]) for e in entries) * 1.45)
-    axL.legend(title="Metric", loc="upper left", ncol=2, fontsize=8)
-
-    vals = [float(e[1]["macro_mae"]) for e in entries]
-    bars = axR.bar(np.arange(len(entries)), vals, width=0.55,
-                   color=[e[2] for e in entries], edgecolor="black", linewidth=0.4)
-    axR.bar_label(bars, fmt="%.3f", fontsize=7, padding=1)
-    axR.set_xticks(np.arange(len(entries)))
-    axR.set_xticklabels([e[0] for e in entries], fontsize=8)
-    axR.set_ylabel("Macro-MAE (class-index units)")
-    axR.set_title("Macro-MAE (lower is better)")
+    metrics = ["quadratic_weighted_kappa", "macro_accuracy", "macro_mae"]
+    metric_color = {"quadratic_weighted_kappa": "#0072B2", "macro_accuracy": "#009E73",
+                    "macro_mae": "#D55E00"}
+    fig, ax = new_fig(figsize=(8.6, 4.8))
+    width = 0.26
+    x = np.arange(len(entries))
+    for j, metric in enumerate(metrics):
+        label = ag.METRIC_DISPLAY[metric] + (" (lower is better)"
+                                             if metric in ag.LOWER_BETTER_METRICS else "")
+        bars = ax.bar(x + (j - 1) * width, [float(e[1][metric]) for e in entries], width,
+                      color=metric_color[metric], edgecolor="white", linewidth=0.4, label=label)
+        ax.bar_label(bars, fmt="%.3f", fontsize=7, padding=1)
+    ax.set_xticks(x)
+    ax.set_xticklabels([e[0] for e in entries], fontsize=8)
+    ax.set_ylabel("Score  /  Macro-MAE (class-index units)")
+    ax.set_ylim(0, max(float(e[1][m_]) for e in entries for m_ in metrics) * 1.25)
+    ax.legend(loc="upper center", ncol=3, fontsize=8)
     fig.suptitle("Best hybrid vs best base model (in-domain CMOSE)", y=1.02, fontweight="bold")
     return save(fig, "hybrid_best_comparison", directory=directory)
 
