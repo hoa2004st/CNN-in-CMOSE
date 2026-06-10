@@ -14,7 +14,7 @@ A systematic ablation over all 243 per-group encoder assignments, with and witho
 
 Second, it conducts a \textbf{3$\times$3 cross-dataset generalisation study} (training on CMOSE, DAiSEE, or their union; testing on each public test set plus a \textbf{self-collected, hand-labelled private set}) and treats the private set as the decisive real-world probe.
 Engagement classifiers do \textbf{not} transfer across corpora --- off-diagonal QWK collapses to near zero even when raw accuracy appears acceptable --- and the two contributions \emph{compound on the unseen private set}: training on the combined corpus with the semantic-group hybrid yields the best private-set result (QWK 0.379 against 0.285 for the best baseline, a wider margin than in-domain).
-The thesis argues that ordinal agreement metrics (QWK, Cohen's kappa), not accuracy, must be the primary yardstick for imbalanced engagement data.
+The thesis argues that order-aware, class-balanced metrics --- quadratic-weighted kappa, macro-accuracy, and macro-MAE --- not raw accuracy, must be the primary yardstick for imbalanced engagement data.
 
 \vspace{0.5cm}
 \noindent\textbf{Keywords:} student engagement recognition, affective computing, OpenFace, I3D, temporal convolutional networks, ordinal classification, class imbalance, cross-dataset generalisation.

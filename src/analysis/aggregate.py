@@ -65,6 +65,9 @@ METRIC_DISPLAY = {
     "cohen_kappa": "Cohen κ",
     "quadratic_weighted_kappa": "QWK",
 }
+# Metrics where a smaller value is better (ordinal-distance errors): selection and
+# colour scales must be inverted for these relative to the agreement/recall metrics.
+LOWER_BETTER_METRICS = {"mae", "macro_mae"}
 TRAIN_GROUPS = ["cmose", "daisee", "combined"]
 TEST_SETS = ["cmose_test", "daisee_test", "private"]
 TRAIN_GROUP_DISPLAY = {"cmose": "CMOSE", "daisee": "DaiSEE", "combined": "Combined"}
@@ -119,8 +122,13 @@ def load_hybrid_matrix(path: str | Path | None = None) -> pd.DataFrame:
 
 
 def best_per_cell(frame: pd.DataFrame, metric: str = "quadratic_weighted_kappa") -> pd.DataFrame:
-    """For each (train_group, test_set) cell return the row maximizing ``metric``."""
-    idx = frame.groupby(["train_group", "test_set"])[metric].idxmax()
+    """For each (train_group, test_set) cell return the row with the best ``metric``.
+
+    "Best" maximizes the metric, except for the lower-is-better ordinal-distance metrics
+    (``mae``, ``macro_mae``), which are minimized.
+    """
+    grouped = frame.groupby(["train_group", "test_set"])[metric]
+    idx = grouped.idxmin() if metric in LOWER_BETTER_METRICS else grouped.idxmax()
     return frame.loc[idx].reset_index(drop=True)
 
 

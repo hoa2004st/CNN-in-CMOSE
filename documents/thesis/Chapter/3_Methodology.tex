@@ -57,7 +57,7 @@ The split-wise distribution (Figure~\ref{fig:dataset_class_distribution_by_split
 \end{figure}
 
 This severe and \emph{heterogeneous} imbalance shapes three choices the thesis returns to.
-It predicts difficulty in transferring between corpora, where a model fit to one label prior meets a sharply different one at test time (Chapter~5); it motivates the imbalance-aware losses of Section~\ref{sec:losses-method}; and, because predicting the majority class alone scores well on every corpus, it rules out raw accuracy in favour of quadratic-weighted kappa and macro-accuracy as the \textbf{primary} metrics (Section~\ref{sec:eval}).
+It predicts difficulty in transferring between corpora, where a model fit to one label prior meets a sharply different one at test time (Chapter~5); it motivates the imbalance-aware losses of Section~\ref{sec:losses-method}; and, because predicting the majority class alone scores well on every corpus, it rules out raw accuracy in favour of quadratic-weighted kappa, macro-accuracy, and macro-MAE as the \textbf{primary} metrics (Section~\ref{sec:eval}).
 
 \subsection{The private evaluation set}
 \label{sec:private-collection}
@@ -281,7 +281,7 @@ Generalisation is measured with a 3$\times$3 matrix: every model and loss is tra
 The diagonal cells are the in-domain results; the off-diagonal and the Private column measure transfer to unseen distributions.
 
 \textbf{Metrics.}
-Each evaluation reports the six metrics defined in Section~\ref{sec:metrics-lit} --- accuracy, macro-accuracy, MAE, macro-MAE, Cohen's kappa, and QWK --- with \textbf{QWK and macro-accuracy as primary}.
+Each evaluation reports the six metrics defined in Section~\ref{sec:metrics-lit} --- accuracy, macro-accuracy, MAE, macro-MAE, Cohen's kappa, and QWK --- with \textbf{QWK, macro-accuracy, and macro-MAE as primary}.
 Row-normalised confusion matrices and per-class F1 scores are used for error analysis.
 
 \textbf{Aggregation and reproducibility.}

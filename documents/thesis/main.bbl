@@ -1,0 +1,615 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated as
+% required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+\datalist[entry]{none/global//global/global/global}
+  \entry{cmose}{inproceedings}{}{}
+    \name{author}{9}{}{%
+      {{hash=WCH}{%
+         family={Wu},
+         familyi={W\bibinitperiod},
+         given={Chi-Hsuan},
+         giveni={C\bibinithyphendelim H\bibinitperiod},
+      }}%
+      {{hash=LSy}{%
+         family={Liu},
+         familyi={L\bibinitperiod},
+         given={Shih-yang},
+         giveni={S\bibinithyphendelim y\bibinitperiod},
+      }}%
+      {{hash=HX}{%
+         family={Huang},
+         familyi={H\bibinitperiod},
+         given={Xijie},
+         giveni={X\bibinitperiod},
+      }}%
+      {{hash=WX}{%
+         family={Wang},
+         familyi={W\bibinitperiod},
+         given={Xingbo},
+         giveni={X\bibinitperiod},
+      }}%
+      {{hash=ZR}{%
+         family={Zhang},
+         familyi={Z\bibinitperiod},
+         given={Rong},
+         giveni={R\bibinitperiod},
+      }}%
+      {{hash=ML}{%
+         family={Minciullo},
+         familyi={M\bibinitperiod},
+         given={Luca},
+         giveni={L\bibinitperiod},
+      }}%
+      {{hash=YWK}{%
+         family={Yiu},
+         familyi={Y\bibinitperiod},
+         given={Wong\bibnamedelima Kai},
+         giveni={W\bibinitperiod\bibinitdelim K\bibinitperiod},
+      }}%
+      {{hash=KK}{%
+         family={Kwan},
+         familyi={K\bibinitperiod},
+         given={Kenny},
+         giveni={K\bibinitperiod},
+      }}%
+      {{hash=CKT}{%
+         family={Cheng},
+         familyi={C\bibinitperiod},
+         given={Kwang-Ting},
+         giveni={K\bibinithyphendelim T\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{WCH+1}
+    \strng{fullhash}{WCHLSyHXWXZRMLYWKKKCKT1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{booktitle}{Proceedings of the IEEE/CVF Conference on Computer Vision
+  and Pattern Recognition (CVPR) Workshops}
+    \field{title}{{CMOSE}: Comprehensive Multi-Modality Online Student
+  Engagement Dataset with High-Quality Labels}
+    \field{year}{2024}
+  \endentry
+
+  \entry{daisee}{article}{}{}
+    \name{author}{4}{}{%
+      {{hash=GA}{%
+         family={Gupta},
+         familyi={G\bibinitperiod},
+         given={Abhay},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=DA}{%
+         family={D'Cunha},
+         familyi={D\bibinitperiod},
+         given={Arjun},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=AK}{%
+         family={Awasthi},
+         familyi={A\bibinitperiod},
+         given={Kamal},
+         giveni={K\bibinitperiod},
+      }}%
+      {{hash=BV}{%
+         family={Balasubramanian},
+         familyi={B\bibinitperiod},
+         given={Vineeth},
+         giveni={V\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{GA+1}
+    \strng{fullhash}{GADAAKBV1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{{DAiSEE}: Towards User Engagement Recognition in the Wild}
+    \field{journaltitle}{arXiv preprint arXiv:1609.01885}
+    \field{year}{2016}
+  \endentry
+
+  \entry{openface2}{inproceedings}{}{}
+    \name{author}{4}{}{%
+      {{hash=BT}{%
+         family={Baltru{\v{s}}aitis},
+         familyi={B\bibinitperiod},
+         given={Tadas},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=ZA}{%
+         family={Zadeh},
+         familyi={Z\bibinitperiod},
+         given={Amir},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=LYC}{%
+         family={Lim},
+         familyi={L\bibinitperiod},
+         given={Yao\bibnamedelima Chong},
+         giveni={Y\bibinitperiod\bibinitdelim C\bibinitperiod},
+      }}%
+      {{hash=MLP}{%
+         family={Morency},
+         familyi={M\bibinitperiod},
+         given={Louis-Philippe},
+         giveni={L\bibinithyphendelim P\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{BT+1}
+    \strng{fullhash}{BTZALYCMLP1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{booktitle}{IEEE International Conference on Automatic Face and
+  Gesture Recognition (FG)}
+    \field{title}{{OpenFace 2.0}: Facial Behavior Analysis Toolkit}
+    \field{year}{2018}
+  \endentry
+
+  \entry{openface_bilstm}{thesis}{}{}
+    \name{author}{1}{}{%
+      {{hash=CO}{%
+         family={Copur},
+         familyi={C\bibinitperiod},
+         given={Onur},
+         giveni={O\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{CO1}
+    \strng{fullhash}{CO1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{Engagement Detection in e-learning Environments}
+    \list{institution}{1}{%
+      {Sapienza University of Rome}%
+    }
+    \field{type}{Master's thesis}
+    \field{year}{2021}
+  \endentry
+
+  \entry{classical_ml_engagement}{article}{}{}
+    \name{author}{3}{}{%
+      {{hash=MS}{%
+         family={Malekshahi},
+         familyi={M\bibinitperiod},
+         given={Somayeh},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=KJM}{%
+         family={Kheyridoost},
+         familyi={K\bibinitperiod},
+         given={Javad\bibnamedelima M.},
+         giveni={J\bibinitperiod\bibinitdelim M\bibinitperiod},
+      }}%
+      {{hash=FO}{%
+         family={Fatemi},
+         familyi={F\bibinitperiod},
+         given={Omid},
+         giveni={O\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{MS+1}
+    \strng{fullhash}{MSKJMFO1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{A General Model for Detecting Learner Engagement:
+  Implementation and Evaluation}
+    \field{journaltitle}{arXiv preprint arXiv:2405.04251}
+    \field{year}{2024}
+  \endentry
+
+  \entry{efficientnet_lstm_engagement}{article}{}{}
+    \name{author}{4}{}{%
+      {{hash=SFM}{%
+         family={Shiri},
+         familyi={S\bibinitperiod},
+         given={Farhad\bibnamedelima Mortezapour},
+         giveni={F\bibinitperiod\bibinitdelim M\bibinitperiod},
+      }}%
+      {{hash=AE}{%
+         family={Ahmadi},
+         familyi={A\bibinitperiod},
+         given={Ehsan},
+         giveni={E\bibinitperiod},
+      }}%
+      {{hash=RM}{%
+         family={Rezaee},
+         familyi={R\bibinitperiod},
+         given={Mohammadreza},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=PT}{%
+         family={Perumal},
+         familyi={P\bibinitperiod},
+         given={Thinagaran},
+         giveni={T\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{SFM+1}
+    \strng{fullhash}{SFMAERMPT1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.32604/jai.2024.048911
+    \endverb
+    \field{title}{Detection of Student Engagement in E-Learning Environments
+  Using {EfficientNetV2-L} Together with {RNN}-Based Models}
+    \field{journaltitle}{Journal on Artificial Intelligence}
+    \field{year}{2024}
+  \endentry
+
+  \entry{context_aware_emotion_3d}{article}{}{}
+    \name{author}{4}{}{%
+      {{hash=ZL}{%
+         family={Zhang},
+         familyi={Z\bibinitperiod},
+         given={Lifeng},
+         giveni={L\bibinitperiod},
+      }}%
+      {{hash=ZX}{%
+         family={Zheng},
+         familyi={Z\bibinitperiod},
+         given={Xiangwei},
+         giveni={X\bibinitperiod},
+      }}%
+      {{hash=CX}{%
+         family={Chen},
+         familyi={C\bibinitperiod},
+         given={Xuanchi},
+         giveni={X\bibinitperiod},
+      }}%
+      {{hash=CL}{%
+         family={Cui},
+         familyi={C\bibinitperiod},
+         given={Lizhen},
+         giveni={L\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{ZL+1}
+    \strng{fullhash}{ZLZXCXCL1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.1109/TNNLS.2024.3476249
+    \endverb
+    \field{number}{7}
+    \field{title}{Three-Dimensional View Relationship-Based Context-Aware
+  Emotion Recognition}
+    \field{volume}{36}
+    \field{journaltitle}{IEEE Transactions on Neural Networks and Learning
+  Systems}
+    \field{year}{2025}
+  \endentry
+
+  \entry{review_engagement_cv}{article}{}{}
+    \name{author}{3}{}{%
+      {{hash=QI}{%
+         family={Qarbal},
+         familyi={Q\bibinitperiod},
+         given={Ikram},
+         giveni={I\bibinitperiod},
+      }}%
+      {{hash=SN}{%
+         family={Sael},
+         familyi={S\bibinitperiod},
+         given={Nawal},
+         giveni={N\bibinitperiod},
+      }}%
+      {{hash=OS}{%
+         family={Ouahabi},
+         familyi={O\bibinitperiod},
+         given={Sara},
+         giveni={S\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{QI+1}
+    \strng{fullhash}{QISNOS1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{Student's Engagement Detection Based on Computer Vision: A
+  Systematic Literature Review}
+    \field{volume}{13}
+    \field{journaltitle}{IEEE Access}
+    \field{year}{2025}
+  \endentry
+
+  \entry{openface_pca_smote}{article}{}{}
+    \name{author}{3}{}{%
+      {{hash=SMM}{%
+         family={Santoni},
+         familyi={S\bibinitperiod},
+         given={Mayanda\bibnamedelima Mega},
+         giveni={M\bibinitperiod\bibinitdelim M\bibinitperiod},
+      }}%
+      {{hash=BT}{%
+         family={Basaruddin},
+         familyi={B\bibinitperiod},
+         given={T.},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=JK}{%
+         family={Junus},
+         familyi={J\bibinitperiod},
+         given={Kasiyah},
+         giveni={K\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{SMM+1}
+    \strng{fullhash}{SMMBTJK1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{number}{3}
+    \field{title}{Convolutional Neural Network Model based Students' Engagement
+  Detection in Imbalanced {DAiSEE} Dataset}
+    \field{volume}{14}
+    \field{journaltitle}{International Journal of Advanced Computer Science and
+  Applications (IJACSA)}
+    \field{year}{2023}
+  \endentry
+
+  \entry{efficientnetv2}{inproceedings}{}{}
+    \name{author}{2}{}{%
+      {{hash=TM}{%
+         family={Tan},
+         familyi={T\bibinitperiod},
+         given={Mingxing},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=LQV}{%
+         family={Le},
+         familyi={L\bibinitperiod},
+         given={Quoc\bibnamedelima V.},
+         giveni={Q\bibinitperiod\bibinitdelim V\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{TMLQV1}
+    \strng{fullhash}{TMLQV1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{booktitle}{International Conference on Machine Learning (ICML)}
+    \field{title}{{EfficientNetV2}: Smaller Models and Faster Training}
+    \field{year}{2021}
+  \endentry
+
+  \entry{i3d}{inproceedings}{}{}
+    \name{author}{2}{}{%
+      {{hash=CJ}{%
+         family={Carreira},
+         familyi={C\bibinitperiod},
+         given={Jo{\~a}o},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=ZA}{%
+         family={Zisserman},
+         familyi={Z\bibinitperiod},
+         given={Andrew},
+         giveni={A\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{CJZA1}
+    \strng{fullhash}{CJZA1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{booktitle}{Proceedings of the IEEE Conference on Computer Vision and
+  Pattern Recognition (CVPR)}
+    \field{title}{Quo Vadis, Action Recognition? A New Model and the Kinetics
+  Dataset}
+    \field{year}{2017}
+  \endentry
+
+  \entry{tcn}{article}{}{}
+    \name{author}{3}{}{%
+      {{hash=BS}{%
+         family={Bai},
+         familyi={B\bibinitperiod},
+         given={Shaojie},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=KJZ}{%
+         family={Kolter},
+         familyi={K\bibinitperiod},
+         given={J.\bibnamedelima Zico},
+         giveni={J\bibinitperiod\bibinitdelim Z\bibinitperiod},
+      }}%
+      {{hash=KV}{%
+         family={Koltun},
+         familyi={K\bibinitperiod},
+         given={Vladlen},
+         giveni={V\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{BS+1}
+    \strng{fullhash}{BSKJZKV1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{An Empirical Evaluation of Generic Convolutional and
+  Recurrent Networks for Sequence Modeling}
+    \field{journaltitle}{arXiv preprint arXiv:1803.01271}
+    \field{year}{2018}
+  \endentry
+
+  \entry{lstm}{article}{}{}
+    \name{author}{2}{}{%
+      {{hash=HS}{%
+         family={Hochreiter},
+         familyi={H\bibinitperiod},
+         given={Sepp},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=SJ}{%
+         family={Schmidhuber},
+         familyi={S\bibinitperiod},
+         given={J{\"u}rgen},
+         giveni={J\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{HSSJ1}
+    \strng{fullhash}{HSSJ1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{number}{8}
+    \field{pages}{1735\bibrangedash 1780}
+    \field{title}{Long Short-Term Memory}
+    \field{volume}{9}
+    \field{journaltitle}{Neural Computation}
+    \field{year}{1997}
+  \endentry
+
+  \entry{transformer}{inproceedings}{}{}
+    \name{author}{8}{}{%
+      {{hash=VA}{%
+         family={Vaswani},
+         familyi={V\bibinitperiod},
+         given={Ashish},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=SN}{%
+         family={Shazeer},
+         familyi={S\bibinitperiod},
+         given={Noam},
+         giveni={N\bibinitperiod},
+      }}%
+      {{hash=PN}{%
+         family={Parmar},
+         familyi={P\bibinitperiod},
+         given={Niki},
+         giveni={N\bibinitperiod},
+      }}%
+      {{hash=UJ}{%
+         family={Uszkoreit},
+         familyi={U\bibinitperiod},
+         given={Jakob},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=JL}{%
+         family={Jones},
+         familyi={J\bibinitperiod},
+         given={Llion},
+         giveni={L\bibinitperiod},
+      }}%
+      {{hash=GAN}{%
+         family={Gomez},
+         familyi={G\bibinitperiod},
+         given={Aidan\bibnamedelima N.},
+         giveni={A\bibinitperiod\bibinitdelim N\bibinitperiod},
+      }}%
+      {{hash=KL}{%
+         family={Kaiser},
+         familyi={K\bibinitperiod},
+         given={Lukasz},
+         giveni={L\bibinitperiod},
+      }}%
+      {{hash=PI}{%
+         family={Polosukhin},
+         familyi={P\bibinitperiod},
+         given={Illia},
+         giveni={I\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{VA+1}
+    \strng{fullhash}{VASNPNUJJLGANKLPI1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{booktitle}{Advances in Neural Information Processing Systems
+  (NeurIPS)}
+    \field{title}{Attention Is All You Need}
+    \field{year}{2017}
+  \endentry
+
+  \entry{smote}{article}{}{}
+    \name{author}{4}{}{%
+      {{hash=CNV}{%
+         family={Chawla},
+         familyi={C\bibinitperiod},
+         given={Nitesh\bibnamedelima V.},
+         giveni={N\bibinitperiod\bibinitdelim V\bibinitperiod},
+      }}%
+      {{hash=BKW}{%
+         family={Bowyer},
+         familyi={B\bibinitperiod},
+         given={Kevin\bibnamedelima W.},
+         giveni={K\bibinitperiod\bibinitdelim W\bibinitperiod},
+      }}%
+      {{hash=HLO}{%
+         family={Hall},
+         familyi={H\bibinitperiod},
+         given={Lawrence\bibnamedelima O.},
+         giveni={L\bibinitperiod\bibinitdelim O\bibinitperiod},
+      }}%
+      {{hash=KWP}{%
+         family={Kegelmeyer},
+         familyi={K\bibinitperiod},
+         given={W.\bibnamedelima Philip},
+         giveni={W\bibinitperiod\bibinitdelim P\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{CNV+1}
+    \strng{fullhash}{CNVBKWHLOKWP1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{pages}{321\bibrangedash 357}
+    \field{title}{{SMOTE}: Synthetic Minority Over-sampling Technique}
+    \field{volume}{16}
+    \field{journaltitle}{Journal of Artificial Intelligence Research}
+    \field{year}{2002}
+  \endentry
+
+  \entry{adam}{inproceedings}{}{}
+    \name{author}{2}{}{%
+      {{hash=KDP}{%
+         family={Kingma},
+         familyi={K\bibinitperiod},
+         given={Diederik\bibnamedelima P.},
+         giveni={D\bibinitperiod\bibinitdelim P\bibinitperiod},
+      }}%
+      {{hash=BJ}{%
+         family={Ba},
+         familyi={B\bibinitperiod},
+         given={Jimmy},
+         giveni={J\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{KDPBJ1}
+    \strng{fullhash}{KDPBJ1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{booktitle}{International Conference on Learning Representations
+  (ICLR)}
+    \field{title}{Adam: A Method for Stochastic Optimization}
+    \field{year}{2015}
+  \endentry
+
+  \entry{cohenkappa}{article}{}{}
+    \name{author}{1}{}{%
+      {{hash=CJ}{%
+         family={Cohen},
+         familyi={C\bibinitperiod},
+         given={Jacob},
+         giveni={J\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{CJ1}
+    \strng{fullhash}{CJ1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{number}{1}
+    \field{pages}{37\bibrangedash 46}
+    \field{title}{A Coefficient of Agreement for Nominal Scales}
+    \field{volume}{20}
+    \field{journaltitle}{Educational and Psychological Measurement}
+    \field{year}{1960}
+  \endentry
+\enddatalist
+\endinput

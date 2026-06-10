@@ -16,7 +16,8 @@ from src.analysis import aggregate as ag
 from src.visualization.figbase import TABLE_DIR
 from src.visualization.style import display_model_name
 
-_PRIMARY = ["accuracy", "macro_accuracy", "quadratic_weighted_kappa", "cohen_kappa", "mae", "macro_mae"]
+# Primary metrics first (QWK, macro-accuracy, macro-MAE), then the secondary ones.
+_PRIMARY = ["quadratic_weighted_kappa", "macro_accuracy", "macro_mae", "accuracy", "mae", "cohen_kappa"]
 
 
 def _fmt(v) -> str:
@@ -82,7 +83,7 @@ def table_base_indomain() -> tuple[str, pd.DataFrame, str]:
 def table_crossdomain() -> tuple[str, pd.DataFrame, str]:
     m = ag.load_matrix()
     rows = []
-    for metric in ["quadratic_weighted_kappa", "accuracy"]:
+    for metric in ["quadratic_weighted_kappa", "macro_mae", "accuracy"]:
         best = ag.best_per_cell(m, metric)
         for _, r in best.iterrows():
             rows.append({
@@ -95,20 +96,22 @@ def table_crossdomain() -> tuple[str, pd.DataFrame, str]:
             })
     frame = pd.DataFrame(rows)
     return _spec(frame, "T3_crossdomain",
-                 "T3. Best base model per cross-domain cell (QWK and Accuracy).")
+                 "T3. Best base model per cross-domain cell (QWK, macro-MAE, and Accuracy; "
+                 "macro-MAE lower is better).")
 
 
 def table_hybrid_topk(k: int = 10) -> tuple[str, pd.DataFrame, str]:
     h = ag.load_hybrid_matrix()
     cell = h[(h["train_group"] == "cmose") & (h["test_set"] == "cmose_test")].copy()
     cell = cell.sort_values("quadratic_weighted_kappa", ascending=False).head(k)
-    frame = cell[["variant", "arch_key", "accuracy", "macro_accuracy",
-                  "quadratic_weighted_kappa", "cohen_kappa"]].rename(
+    frame = cell[["variant", "arch_key", "quadratic_weighted_kappa", "macro_accuracy",
+                  "macro_mae", "accuracy"]].rename(
         columns={"variant": "Variant", "arch_key": "Arch (gaze_eye_face_head_au)",
-                 "accuracy": "Accuracy", "macro_accuracy": "Macro-Acc",
-                 "quadratic_weighted_kappa": "QWK", "cohen_kappa": "Cohen κ"})
+                 "quadratic_weighted_kappa": "QWK", "macro_accuracy": "Macro-Acc",
+                 "macro_mae": "Macro-MAE", "accuracy": "Accuracy"})
     return _spec(frame, "T4_hybrid_topk",
-                 f"T4. Top-{k} hybrid configs in-domain (CMOSE), sorted by QWK.")
+                 f"T4. Top-{k} hybrid configs in-domain (CMOSE), sorted by QWK "
+                 f"(macro-MAE lower is better).")
 
 
 def table_group_marginal() -> tuple[str, pd.DataFrame, str]:
@@ -147,14 +150,16 @@ def table_private_by_source() -> tuple[str, pd.DataFrame, str]:
             "Train source": ag.TRAIN_GROUP_DISPLAY[src],
             "Best base (model/loss)": f"{display_model_name(bb['model'])}/{bb['loss']}",
             "Base QWK": round(float(bb["quadratic_weighted_kappa"]), 3),
+            "Base macro-MAE": round(float(bb["macro_mae"]), 3),
             "Best hybrid (arch)": f"{bh['variant']} {bh['arch_key']}",
             "Hybrid QWK": round(float(bh["quadratic_weighted_kappa"]), 3),
-            "Hybrid acc": round(float(bh["accuracy"]), 3),
             "Hybrid macro-acc": round(float(bh["macro_accuracy"]), 3),
+            "Hybrid macro-MAE": round(float(bh["macro_mae"]), 3),
         })
     frame = pd.DataFrame(rows)
     return _spec(frame, "T6_private_by_source",
-                 "T6. Private set (test-only): best base vs best hybrid by training source.")
+                 "T6. Private set (test-only): best base vs best hybrid by training source "
+                 "(macro-MAE lower is better).")
 
 
 def table_indomain_cmose_vs_daisee() -> tuple[str, pd.DataFrame, str]:
@@ -169,12 +174,13 @@ def table_indomain_cmose_vs_daisee() -> tuple[str, pd.DataFrame, str]:
             "Best model": display_model_name(best["model"]),
             "Loss": best["loss_display"],
             "QWK": round(float(best["quadratic_weighted_kappa"]), 3),
-            "Accuracy": round(float(best["accuracy"]), 3),
             "Macro-Acc": round(float(best["macro_accuracy"]), 3),
+            "Macro-MAE": round(float(best["macro_mae"]), 3),
+            "Accuracy": round(float(best["accuracy"]), 3),
         })
     frame = pd.DataFrame(rows)
     return _spec(frame, "T7_indomain_datasets",
-                 "T7. Best in-domain result per dataset (CMOSE vs DaiSEE).")
+                 "T7. Best in-domain result per dataset (CMOSE vs DaiSEE; macro-MAE lower is better).")
 
 
 def build_all() -> list[tuple[str, pd.DataFrame, str]]:

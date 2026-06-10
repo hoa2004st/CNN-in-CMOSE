@@ -159,7 +159,7 @@ All models are optimised with Adam~\cite{adam}, an adaptive first-order optimise
 \label{sec:metrics-lit}
 
 Because the labels are ordinal and imbalanced, the choice of metric is itself a research question (RQ4).
-This thesis reports six metrics, computed from the $K\times K$ confusion matrix $C$ where $C_{ij}$ counts samples of true class $i$ predicted as $j$, and treats two of them as primary.
+This thesis reports six metrics, computed from the $K\times K$ confusion matrix $C$ where $C_{ij}$ counts samples of true class $i$ predicted as $j$, and treats three of them as primary.
 Let $N=\sum_{ij}C_{ij}$.
 
 \textbf{Accuracy} is the fraction of correct predictions, $\mathrm{Acc}=\frac{1}{N}\sum_i C_{ii}$.
@@ -173,7 +173,8 @@ giving every class equal weight regardless of frequency.
 It exposes the minority-class collapse that accuracy hides and is a \textbf{primary} metric.
 
 \textbf{Mean absolute error (MAE)} treats the class indices as an ordinal scale and averages the distance between truth and prediction, $\mathrm{MAE}=\frac{1}{N}\sum_{ij}C_{ij}\,|i-j|$, while \textbf{macro-MAE} averages the per-class MAE so that errors on rare classes are not drowned out.
-Both reward predictions that are at least \emph{close} on the scale even when not exactly right.
+Both reward predictions that are at least \emph{close} on the scale even when not exactly right; both are smaller-is-better.
+\textbf{Macro-MAE is a primary metric}: it is the natural ordinal-distance companion to QWK and macro-accuracy, reporting \emph{how far} a prediction misses rather than only \emph{whether} it misses, with each class weighted equally so the rare disengaged classes are not masked by the majority.
 
 \textbf{Cohen's kappa}~\cite{cohenkappa} measures agreement corrected for the agreement expected by chance.
 With observed agreement $p_o$ and expected agreement $p_e$ (computed from the marginals), $\kappa=(p_o-p_e)/(1-p_e)$.
@@ -187,14 +188,14 @@ W_{ij} = \frac{(i-j)^2}{(K-1)^2},
 \end{equation}
 so that disagreements are penalised in proportion to the \emph{square} of the ordinal distance between the true and predicted classes.
 QWK is therefore the natural single number for this problem: it is corrected for chance, it respects the class order, and it cannot be inflated by majority prediction.
-It is the \textbf{primary} metric of the thesis, with macro-accuracy as the primary balanced-recall companion.
+It is the \textbf{primary} metric of the thesis, with macro-accuracy as the primary balanced-recall companion and macro-MAE as the primary ordinal-distance companion.
 
 \FloatBarrier
 \section{Chapter Summary}
 \label{sec:lit-summary}
 
 This chapter scoped the thesis to webcam-based ordinal engagement recognition and analysed the two dominant approaches in the literature, identifying their shared limitations: heterogeneous facial descriptors are encoded monolithically, and cross-dataset generalisation is seldom measured with metrics that resist majority-class inflation.
-It then laid the technical foundations the rest of the thesis depends on --- the OpenFace 709-dimensional descriptor and its five behavioural groups, the clip-level I3D embedding, the three temporal architecture families (TCN, LSTM, Transformer) and their differing temporal biases, the three loss families for imbalance and ordinality, and the six evaluation metrics with QWK and macro-accuracy as primary.
+It then laid the technical foundations the rest of the thesis depends on --- the OpenFace 709-dimensional descriptor and its five behavioural groups, the clip-level I3D embedding, the three temporal architecture families (TCN, LSTM, Transformer) and their differing temporal biases, the three loss families for imbalance and ordinality, and the six evaluation metrics with QWK, macro-accuracy, and macro-MAE as primary.
 Chapter~3 combines these foundations into a concrete methodology: it turns the five-group decomposition into the proposed semantic-group hybrid architecture, specifies the baselines and the exact loss formulations, and defines the training and 3$\times$3 cross-dataset evaluation protocols.
 
 \end{document}

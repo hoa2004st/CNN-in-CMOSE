@@ -93,7 +93,7 @@ The OpenFace descriptor is split into five behaviourally meaningful groups --- g
 A global I3D clip embedding can be added as a sixth stream.
 The embeddings are concatenated and classified, and every stream is additionally supervised by its own auxiliary head so that each behavioural channel is forced to be discriminative on its own.
 We call this ``divide the face, then fuse'' design the \emph{semantic-group hybrid}, and it is the central object evaluated in this thesis against standard monolithic baselines, across datasets, and across loss functions.
-The discipline behind RQ4 is to report ordinal agreement (quadratic-weighted kappa) and balanced accuracy as the primary metrics, never raw accuracy alone, and to test every model not only in-domain but on two unseen distributions, one of which we collected ourselves.
+The discipline behind RQ4 is to report ordinal agreement (quadratic-weighted kappa), balanced accuracy, and balanced ordinal error (macro-MAE) as the primary metrics, never raw accuracy alone, and to test every model not only in-domain but on two unseen distributions, one of which we collected ourselves.
 
 \FloatBarrier
 \section{Contributions}
@@ -130,7 +130,7 @@ It gives an overview of the complete pipeline as a single diagram, describes the
 It also details the monolithic baselines, the loss functions and their exact formulations, the training protocol, and the 3$\times$3 cross-dataset evaluation protocol with its metrics.
 
 Chapter~4 develops the model \emph{in-domain}.
-It first compares the monolithic baselines under the three losses --- the comparison that selects the training loss (cross-entropy) and the primary metrics (QWK and macro-accuracy), fixes the baseline the hybrid must beat, and explains why the architecture study is anchored on CMOSE --- then presents the core 243-configuration hybrid ablation answering RQ1--RQ3, and closes with an in-domain error analysis.
+It first compares the monolithic baselines under the three losses --- the comparison that selects the training loss (cross-entropy) and the primary metrics (QWK, macro-accuracy, and macro-MAE), fixes the baseline the hybrid must beat, and explains why the architecture study is anchored on CMOSE --- then presents the core 243-configuration hybrid ablation answering RQ1--RQ3, and closes with an in-domain error analysis.
 
 Chapter~5 measures \emph{generalisation}.
 Using the metrics and best model fixed in Chapter~4, it reports the 3$\times$3 cross-dataset study and the decisive evaluation on the self-collected private set, showing that engagement models do not transfer off-the-shelf, that pooling corpora is the best simple remedy, and that the architecture and pooling insights compound on the unseen private data (RQ4).

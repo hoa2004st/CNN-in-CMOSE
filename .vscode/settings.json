@@ -1,3 +1,55 @@
 {
-    "git.ignoreLimitWarning": true
+    "git.ignoreLimitWarning": true,
+
+    "latex-workshop.latex.recipe.default": "latexmk (thesis)",
+    "latex-workshop.latex.tools": [
+        {
+            "name": "latexmk",
+            "command": "latexmk",
+            "args": [
+                "-synctex=1",
+                "-interaction=nonstopmode",
+                "-file-line-error",
+                "-pdf",
+                "%DOC%"
+            ],
+            "env": {}
+        },
+        {
+            "name": "pdflatex",
+            "command": "pdflatex",
+            "args": [
+                "-synctex=1",
+                "-interaction=nonstopmode",
+                "-file-line-error",
+                "%DOC%"
+            ]
+        },
+        {
+            "name": "bibtex",
+            "command": "bibtex",
+            "args": ["%DOCFILE%"]
+        },
+        {
+            "name": "makeglossaries",
+            "command": "makeglossaries",
+            "args": ["%DOCFILE%"]
+        }
+    ],
+    "latex-workshop.latex.recipes": [
+        {
+            "name": "latexmk (thesis)",
+            "tools": ["latexmk"]
+        },
+        {
+            "name": "pdflatex > bibtex > makeglossaries > pdflatex x2",
+            "tools": ["pdflatex", "bibtex", "makeglossaries", "pdflatex", "pdflatex"]
+        }
+    ],
+
+    "latex-workshop.latex.autoBuild.run": "onSave",
+    "latex-workshop.latex.clean.subfolder.enabled": false,
+    "latex-workshop.view.pdf.viewer": "tab",
+    "latex-workshop.message.error.show": true,
+    "latex-workshop.message.warning.show": false
 }

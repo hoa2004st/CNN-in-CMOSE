@@ -11,7 +11,7 @@ The motivation is set up in Section~\ref{sec:data}: the three corpora are imbala
 Two probes are used, in increasing order of realism.
 Section~\ref{sec:crossdomain} measures transfer \emph{between public corpora} with a 3$\times$3 cross-dataset matrix and isolates the single most effective design lever for an unknown target.
 Section~\ref{sec:private} then applies that lever on the decisive probe --- the self-collected, test-only \textbf{private set} --- where the in-domain architecture contribution of Chapter~4 and the cross-dataset insight of Section~\ref{sec:crossdomain} are shown to compound (RQ4).
-As in-domain, QWK and macro-accuracy are primary throughout, and the rare disengaged classes remain the stress test.
+As in-domain, QWK, macro-accuracy, and macro-MAE are primary throughout, and the rare disengaged classes remain the stress test.
 
 \FloatBarrier
 \section{Cross-Dataset Generalization}
@@ -19,16 +19,18 @@ As in-domain, QWK and macro-accuracy are primary throughout, and the rare diseng
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.85\linewidth]{crossdomain_base.png}
-\caption{Cross-domain generalisation, best base model per cell.}
+\includegraphics[width=0.95\linewidth]{crossdomain_base.png}
+\caption{Cross-domain generalisation, best base model per cell, on accuracy (the
+deceptive foil), QWK, and macro-MAE (lower is better).}
 \label{fig:crossdomain_base}
 \end{figure}
 
 The 3$\times$3 heatmaps (Figure~\ref{fig:crossdomain_base} and Table~\ref{tab:T3_crossdomain}) are the first generalisation result.
-\textbf{On the diagonal} (train and test on the same corpus) QWK is healthy (CMOSE 0.54).
+\textbf{On the diagonal} (train and test on the same corpus) QWK is healthy (CMOSE 0.54) and ordinal error is low (CMOSE macro-MAE 0.46).
 \textbf{Off the diagonal it collapses}: CMOSE$\rightarrow$DAiSEE QWK $=0.02$ and DAiSEE$\rightarrow$CMOSE $=0.05$ --- essentially chance-level ordinal agreement.
+The two ordinal primaries agree: off-diagonal macro-MAE inflates toward a full class (CMOSE$\rightarrow$DAiSEE 0.77, DAiSEE$\rightarrow$CMOSE 0.99) even for the best models, against $\approx0.46$ on the diagonal.
 Crucially, \textbf{raw accuracy hides this}: CMOSE$\rightarrow$DAiSEE accuracy is a deceptively reasonable 0.49 and DAiSEE$\rightarrow$CMOSE 0.69, purely because predicting the majority class scores well on imbalanced targets.
-This is direct, quantitative vindication of the metric choice made in Section~\ref{sec:baseline-results}: \textbf{accuracy is the wrong metric} for this problem, and engagement models are \textbf{not portable off-the-shelf}.
+This is direct, quantitative vindication of the metric choice made in Section~\ref{sec:baseline-results}: \textbf{accuracy is the wrong metric} for this problem --- the order-aware QWK and macro-MAE both expose the collapse --- and engagement models are \textbf{not portable off-the-shelf}.
 \input{Table/T3_crossdomain}
 
 The most actionable cell is the unseen \textbf{Private} column: training on the \textbf{Combined} corpus gives the best private-set QWK (0.285), beating DAiSEE-only (0.256) and CMOSE-only (0.190).
@@ -37,8 +39,9 @@ The hybrid heatmap (Figure~\ref{fig:crossdomain_hybrid}) shows the same pattern,
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.85\linewidth]{crossdomain_hybrid.png}
-\caption{Cross-domain generalisation, best hybrid per cell.}
+\includegraphics[width=0.95\linewidth]{crossdomain_hybrid.png}
+\caption{Cross-domain generalisation, best hybrid per cell, on accuracy, QWK, and
+macro-MAE (lower is better).}
 \label{fig:crossdomain_hybrid}
 \end{figure}
 
@@ -66,9 +69,9 @@ Figure~\ref{fig:private_by_source} and Table~\ref{tab:T6_private_by_source} repo
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.85\linewidth]{private_by_source.png}
+\includegraphics[width=0.95\linewidth]{private_by_source.png}
 \caption{Private-set generalisation by training source: best base versus best
-hybrid.}
+hybrid, on QWK (higher is better) and macro-MAE (lower is better).}
 \label{fig:private_by_source}
 \end{figure}
 
@@ -78,8 +81,9 @@ Two effects compound, and both favour this thesis's contributions.
   For both model families, training on \textbf{Combined} generalises best to the private set; a single source is markedly worse (best base QWK: Combined 0.285 versus DAiSEE 0.256 versus CMOSE 0.190).
   Pooling heterogeneous source corpora is the most effective simple route to an unseen target, exactly as the cross-dataset matrix predicted.
   \item \textbf{The hybrid helps more here than in-domain.}
-  The semantic-group hybrid beats the best base model for \emph{every} training source, and the gap is \textbf{largest exactly where it matters}: under combined training the hybrid reaches \textbf{QWK 0.379 versus 0.285} for the best base, a \textbf{$+0.094$} improvement --- wider than the $+0.068$ in-domain CMOSE gain (Section~\ref{sec:ablation}).
-  The overall best private-set model is the combined-trained I3D-fused hybrid \texttt{T\_T\_T\_LSTM\_T} (QWK 0.379, accuracy 0.607).
+  The semantic-group hybrid beats the best base model on QWK for \emph{every} training source, and the gap is \textbf{largest exactly where it matters}: under combined training the hybrid reaches \textbf{QWK 0.379 versus 0.285} for the best base, a \textbf{$+0.094$} improvement --- wider than the $+0.068$ in-domain CMOSE gain (Section~\ref{sec:ablation}).
+  The overall best private-set model is the combined-trained I3D-fused hybrid \texttt{T\_T\_T\_LSTM\_T}, and it is best on both ordinal primaries: \textbf{QWK 0.379} and the lowest \textbf{macro-MAE 0.877} of any source (accuracy 0.607), against the best base's 0.997.
+  Macro-MAE corroborates the QWK ranking with one honest caveat: the CMOSE-only base model attains a deceptively low macro-MAE (0.75) despite the weakest QWK (0.19), because it predicts conservatively around the majority classes --- precisely the kind of false comfort that reporting all three primaries together is designed to catch.
 \end{enumerate}
 
 In other words, the architecture contribution and the combined-training insight are not independent curiosities: they \textbf{stack}, and they stack most strongly on the hardest, most realistic, self-collected target.
@@ -92,12 +96,12 @@ As in-domain, the rare disengaged classes are the failure mode under shift --- \
 \centering
 \includegraphics[width=0.6\linewidth]{private_confusion_combined.png}
 \caption{Private-set confusion, combined-trained I3D hybrid
-\texttt{T\_T\_T\_LSTM\_T} (QWK 0.379), row-normalised.}
+\texttt{T\_T\_T\_LSTM\_T} (QWK 0.379, macro-MAE 0.877), row-normalised.}
 \label{fig:private_confusion_combined}
 \end{figure}
 
 \textbf{Conclusion.}
-On the decisive, test-only private set the two contributions \emph{compound}: combined-corpus training with the semantic-group hybrid is the best model (QWK 0.379), beating the best baseline by a wider margin than in-domain ($+0.094$ versus $+0.068$).
+On the decisive, test-only private set the two contributions \emph{compound}: combined-corpus training with the semantic-group hybrid is the best model (QWK 0.379, macro-MAE 0.877), beating the best baseline by a wider margin than in-domain ($+0.094$ QWK versus $+0.068$).
 The practical payoff of the thesis is therefore concentrated exactly where it matters most --- on unseen, real-world data --- while recognising rare disengagement under distribution shift remains the central open problem.
 
 \FloatBarrier
@@ -113,7 +117,7 @@ Pooling is thus not a tuning trick but a direct consequence of prior coverage, w
 \textbf{What the headline number does and does not mean.}
 The best private-set result, QWK 0.379, should be read honestly.
 It is a clear improvement over chance, over every single-source model, and over the best baseline ($+0.094$), and it shows the architecture and pooling contributions stacking on unseen data.
-It is also, in absolute terms, \emph{moderate}: a QWK below 0.4 means the model captures the broad ordinal trend --- engaged versus disengaged --- but is unreliable at fine distinctions and, as the confusion matrix shows, blind to the rarest disengaged class.
+It is also, in absolute terms, \emph{moderate}: a QWK below 0.4, together with a macro-MAE of 0.877 --- almost a full ordinal step of average per-class error --- means the model captures the broad ordinal trend --- engaged versus disengaged --- but is unreliable at fine distinctions and, as the confusion matrix shows, blind to the rarest disengaged class.
 For deployment this implies a system usable as an aggregate, classroom-level engagement signal, but one that should not be trusted to flag an individual highly-disengaged learner without human confirmation.
 
 \textbf{The persistent failure mode.}
@@ -127,7 +131,7 @@ This is the clearest sign that the open problem is not architectural but one of 
 
 This chapter took the best in-domain model of Chapter~4 out of domain.
 The 3$\times$3 cross-dataset study (Section~\ref{sec:crossdomain}) showed that engagement models do not transfer across corpora --- off-diagonal QWK collapses to near zero while accuracy hides the failure --- which both confirms that ordinal agreement must be the reported metric and identifies corpus pooling as the most effective simple mitigation.
-On the decisive self-collected private set (Section~\ref{sec:private}) the architecture and the combined-training insight compound to the best result (QWK 0.379, $+0.094$ over the baseline, a wider margin than in-domain), demonstrating that the value of both contributions is greatest precisely on unseen, real-world data.
+On the decisive self-collected private set (Section~\ref{sec:private}) the architecture and the combined-training insight compound to the best result (QWK 0.379 and the lowest macro-MAE 0.877 of any source, $+0.094$ QWK over the baseline, a wider margin than in-domain), demonstrating that the value of both contributions is greatest precisely on unseen, real-world data.
 The discussion (Section~\ref{sec:gen-discussion}) traced why pooling works --- it widens label-prior coverage toward the unknown target --- and read the moderate 0.379 honestly as a usable coarse signal rather than a solved problem.
 In both probes the rare Highly\nobreakdash-Disengage class remains the principal failure mode, collapsing entirely under distribution shift.
 Chapter~6 draws the in-domain and generalisation findings together, revisits the research questions, and outlines future work.

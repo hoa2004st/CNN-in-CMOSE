@@ -48,7 +48,7 @@ This is a more transferable design rule than a single tuned configuration, and i
 
 \textbf{The negative results are contributions, not caveats.}
 The near-total collapse of cross-corpus transfer, the way raw accuracy disguises it, and the persistent failure on the rarest disengaged class are not incidental limitations of these particular models; they are properties of the problem that the field's in-domain, accuracy-led habit leaves unmeasured.
-Establishing them quantitatively --- and showing that QWK and macro-accuracy make them visible --- reframes engagement recognition from ``beat the benchmark'' to ``report ordinal agreement and instrument rare-class failure,'' which is the discipline the rest of this chapter recommends.
+Establishing them quantitatively --- and showing that QWK, macro-accuracy, and macro-MAE make them visible --- reframes engagement recognition from ``beat the benchmark'' to ``report ordinal agreement and instrument rare-class failure,'' which is the discipline the rest of this chapter recommends.
 
 \FloatBarrier
 \section{Revisiting the Research Questions}
@@ -72,7 +72,7 @@ Adding the clip-level I3D embedding shifts the whole family of configurations up
 \textbf{RQ4 (generalisation and losses).}
 \emph{Generalisation is poor and metric choice is decisive.}
 Models do not transfer off-the-shelf across corpora; off-diagonal ordinal agreement collapses while accuracy stays deceptively high.
-Among losses there is no universal winner --- cross-entropy maximises accuracy while weighted and ordinal losses recover minority recall --- so the loss is a Pareto choice, and QWK together with macro-accuracy must be the primary yardstick.
+Among losses there is no universal winner --- cross-entropy maximises accuracy while weighted and ordinal losses recover minority recall --- so the loss is a Pareto choice, and QWK together with macro-accuracy and macro-MAE must be the primary yardstick.
 Pooling source corpora is the single most effective lever for an unknown target.
 
 \FloatBarrier
@@ -100,7 +100,7 @@ The findings should be read against several limitations, each of which also moti
 \label{sec:recommendations}
 
 For practitioners building engagement-monitoring systems, the study yields three concrete recommendations that are independent of the specific architecture.
-First, \textbf{report and optimise ordinal agreement}: use QWK and macro-accuracy as the headline metrics and treat raw accuracy as secondary, because on these imbalanced ordinal labels accuracy can look healthy while the model has learned nothing useful about disengagement.
+First, \textbf{report and optimise ordinal agreement}: use QWK, macro-accuracy, and macro-MAE as the headline metrics and treat raw accuracy as secondary, because on these imbalanced ordinal labels accuracy can look healthy while the model has learned nothing useful about disengagement.
 Second, \textbf{pool heterogeneous source corpora} when the deployment distribution is unknown; pooling was the most effective simple lever for the unseen private set and requires no change to the model.
 Third, \textbf{expect and instrument rare-class failure}: the most decision-relevant class, Highly\nobreakdash-Disengage, is also the rarest and the least reliably detected, so a deployed system should treat low-confidence disengagement predictions cautiously and, where possible, defer to a human.
 
