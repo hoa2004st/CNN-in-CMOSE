@@ -1,0 +1,182 @@
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+
+\FloatBarrier
+\section{Overview}
+\label{sec:results-overview}
+
+This chapter develops the proposed model \emph{in-domain} --- trained and tested on the same corpus --- and in doing so fixes the two methodological choices that the rest of the thesis depends on.
+It proceeds as a single argument rather than a list of independent experiments.
+Section~\ref{sec:baseline-results} first compares the five monolithic baselines under the three losses; this comparison is what \textbf{selects the training loss (cross-entropy) and the primary metrics (QWK and macro-accuracy)} used everywhere afterwards, establishes the baseline QWK that the hybrid must beat, and explains why the architecture study is anchored on CMOSE.
+Section~\ref{sec:ablation} then runs the core semantic-group hybrid ablation under exactly those choices, answering RQ1--RQ3.
+Section~\ref{sec:error} localises, class by class, where the in-domain gain comes from and where the problem remains open.
+Chapter~5 takes the resulting best model out of domain.
+Throughout, the class imbalance characterised in Section~\ref{sec:data} is the backdrop: it is the reason accuracy is reported but never trusted, and the reason the rare disengaged classes recur as the failure mode.
+Each section ends with an explicit conclusion that sets up the next.
+
+\FloatBarrier
+\section{Base Models, Losses, and Metrics (In-Domain)}
+\label{sec:baseline-results}
+
+This section has a single purpose: before building anything, settle \emph{what to optimise}, \emph{how to measure it}, and \emph{what bar a new architecture must clear}.
+Those three decisions --- the training loss, the primary metrics, and the baseline QWK --- are read off the comparison of the five monolithic baselines under the three losses, and they govern every later experiment.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.85\linewidth]{base_models_indomain.png}
+\caption{Base models $\times$ losses, in-domain on CMOSE.}
+\label{fig:base_models_indomain}
+\end{figure}
+
+\textbf{The strongest baseline, and the bar.}
+Among the five monolithic baselines (Table~\ref{tab:T2_base_indomain}), the \textbf{OpenFace TCN with cross-entropy} is the strongest on ordinal agreement: \textbf{QWK 0.537}, accuracy 0.761.
+The I3D MLP attains the highest \emph{raw accuracy} (0.773) but a lower QWK (0.519) and macro-accuracy (0.526) under cross-entropy --- it wins accuracy by leaning on the majority class, exactly the failure mode the imbalance of Section~\ref{sec:data} predicts.
+The TCN's local temporal bias edges out the LSTM, the Transformer, and the flat MLP.
+This QWK of \textbf{0.537 is the bar the hybrid must clear} in Section~\ref{sec:ablation}.
+\input{Table/T2_base_indomain}
+
+\textbf{The loss is a Pareto trade-off.}
+Figure~\ref{fig:loss_accuracy_tradeoff} makes the accuracy-versus-balance tension explicit.
+Cross-entropy points sit in the lower-right (high accuracy, low macro-accuracy); weighted-CE and ordinal points move up and to the left (more balanced, less accurate).
+For the I3D MLP, for instance, switching from cross-entropy to the ordinal loss moves the operating point from (accuracy 0.773, macro-accuracy 0.526) to (0.640, 0.635).
+There is no universally best loss: the choice is a genuine Pareto trade-off, and for engagement monitoring --- where missing disengagement is costly --- the balanced losses are defensible despite their lower headline accuracy.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.85\linewidth]{loss_accuracy_tradeoff.png}
+\caption{Accuracy versus macro-accuracy trade-off by loss.}
+\label{fig:loss_accuracy_tradeoff}
+\end{figure}
+
+\textbf{Decision 1 --- the primary metrics.}
+The trade-off above shows directly why accuracy cannot be the yardstick: a model can buy accuracy by collapsing onto \emph{Engage}, and on these imbalanced labels (Section~\ref{sec:data}) that collapse is rewarded rather than penalised.
+The remainder of the thesis therefore reports \textbf{QWK and macro-accuracy as the two primary metrics} --- QWK because it is corrected for chance, respects the class order, and cannot be inflated by majority prediction, and macro-accuracy because it exposes minority-class recall directly --- with the ordinal \textbf{MAE} retained as a secondary distance measure and raw accuracy reported only for comparability with the literature.
+
+\textbf{Decision 2 --- the training loss for the architecture study.}
+The strongest ordinal agreement of the whole baseline grid is obtained under \textbf{cross-entropy} (the bar-setting OpenFace TCN at QWK 0.537); the balanced losses trade QWK and accuracy for minority recall rather than improving the primary metric.
+Cross-entropy is therefore the natural loss on which to develop the architecture: it maximises the primary metric and isolates the effect of the \emph{architecture} from the confound of the loss.
+The semantic-group hybrid ablation of Section~\ref{sec:ablation} is consequently trained with cross-entropy, and the balanced losses are revisited where they matter most --- recovering rare-class recall (Section~\ref{sec:error}) and surviving distribution shift (Chapter~5).
+Figure~\ref{fig:loss_curves_cmose_ce} shows representative training and validation loss curves; all baselines converge stably and early-stop well before the epoch cap, so the differences above are architectural rather than optimisation artefacts.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.8\linewidth]{loss_curves_cmose_ce.png}
+\caption{Representative training/validation loss curves (CMOSE, cross-entropy).}
+\label{fig:loss_curves_cmose_ce}
+\end{figure}
+
+\textbf{Decision 3 --- why CMOSE for the architecture study.}
+The comparison above and the ablation of Section~\ref{sec:ablation} are conducted on CMOSE rather than DAiSEE for a principled reason: DAiSEE carries far weaker in-domain ordinal signal.
+Table~\ref{tab:T7_indomain_datasets} and Figure~\ref{fig:indomain_cmose_vs_daisee} show that the best in-domain model reaches \textbf{QWK 0.537 on CMOSE but only 0.166 on DAiSEE} (macro-accuracy 0.535 versus 0.289).
+On DAiSEE the best models barely exceed chance-level ordinal agreement, so architecture differences there would be dominated by label noise rather than model quality.
+CMOSE is the only corpus on which architecture choices can be compared meaningfully; DAiSEE re-enters the study in Chapter~5, where it is a \emph{transfer} source and target rather than a development corpus.
+\input{Table/T7_indomain_datasets}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.85\linewidth]{indomain_cmose_vs_daisee.png}
+\caption{In-domain ordinal signal: CMOSE versus DAiSEE.}
+\label{fig:indomain_cmose_vs_daisee}
+\end{figure}
+
+\textbf{Conclusion.}
+This section fixed the experimental frame for the rest of the thesis.
+The strongest baseline is the OpenFace TCN under cross-entropy at \textbf{QWK 0.537}, which is the bar to beat.
+Because loss choice is a Pareto trade-off in which cross-entropy gives the best ordinal agreement, the architecture study is trained with \textbf{cross-entropy} and judged by \textbf{QWK and macro-accuracy} (with MAE secondary), on \textbf{CMOSE}, the only corpus with enough in-domain signal to separate architectures.
+Section~\ref{sec:ablation} now applies exactly this frame.
+
+\FloatBarrier
+\section{Semantic-Group Hybrid Ablation (Core Result)}
+\label{sec:ablation}
+
+Trained with cross-entropy and judged by QWK and macro-accuracy --- the choices fixed in Section~\ref{sec:baseline-results} --- the semantic-group hybrid is now compared against the baseline bar of 0.537.
+
+\textbf{Does the hybrid beat the baseline, and how robustly?}
+Figure~\ref{fig:hybrid_ablation_distribution} plots the QWK of all 243 per-group encoder configurations, split by whether the I3D stream is added, against the best-baseline line (0.537).
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.85\linewidth]{hybrid_ablation_distribution.png}
+\caption{Hybrid ablation: QWK across all 243 per-group encoder configurations,
+with and without I3D, against the best baseline.}
+\label{fig:hybrid_ablation_distribution}
+\end{figure}
+
+The \textbf{I3D-fused hybrid family is centred above the baseline} (median $\approx0.553$; best 0.605), whereas the \textbf{OpenFace-only hybrid straddles it} (median $\approx0.522$; best 0.584).
+The important message is the robustness of the \emph{family}, not of any single cell: \textbf{83\% of the 243 I3D-fused configurations clear the baseline}, against 27\% of the OpenFace-only ones, so the gain comes from the architecture family rather than from one lucky configuration (\textbf{RQ1, RQ3}).
+Table~\ref{tab:T4_hybrid_topk} lists the top-10 configurations; the best overall is the I3D hybrid \texttt{TCN\_T\_TCN\_LSTM\_T} (QWK 0.605, accuracy 0.784), and every top configuration mixes at least two encoder types.
+\input{Table/T4_hybrid_topk}
+
+\textbf{Which group's encoder actually matters?}
+Table~\ref{tab:T5_group_marginal} and Figure~\ref{fig:hybrid_group_marginal} show the mean QWK when each group uses a TCN, a Transformer, or an LSTM, marginalising over all other groups.
+\input{Table/T5_group_marginal}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.85\linewidth]{hybrid_group_marginal.png}
+\caption{Per-group marginal effect of the encoder choice on in-domain QWK.}
+\label{fig:hybrid_group_marginal}
+\end{figure}
+
+Only \textbf{head pose} shows a clear preference --- TCN (0.545), ahead of LSTM (0.541) and Transformer (0.523), a spread of 0.022.
+The other four groups are essentially encoder-agnostic (spread $\le0.006$).
+This is an interpretable design rule: head dynamics such as nodding and turning away are temporally local and convolution-friendly, while the gaze, landmark, and action-unit streams are insensitive to the encoder choice (\textbf{RQ2}).
+It also honestly bounds the contribution: most of the 243-configuration grid is flat.
+
+\textbf{Best hybrid versus best baseline.}
+Figure~\ref{fig:hybrid_best_comparison} summarises the headline comparison: the best I3D-fused hybrid improves on the best baseline by \textbf{+0.068 QWK} (0.605 versus 0.537), and also improves accuracy (0.784 versus 0.761).
+The gain is real but \textbf{modest}.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.8\linewidth]{hybrid_best_comparison.png}
+\caption{Best hybrid versus best base model, in-domain on CMOSE.}
+\label{fig:hybrid_best_comparison}
+\end{figure}
+
+\textbf{Conclusion.}
+Decomposing the OpenFace descriptor and encoding each group separately helps (RQ1): as a \emph{family}, the I3D-fused hybrid is centred above the best monolithic baseline, with the majority of its configurations clearing the bar and the best reaching QWK 0.605.
+Adding the I3D stream is beneficial and makes the gain robust (RQ3).
+Only head pose has a clear encoder preference --- a TCN (RQ2) --- so the contribution is a sound, interpretable framework with an incremental headline gain, not a large jump in state of the art.
+The next section asks \emph{which classes} this gain comes from; Chapter~5 asks whether it survives outside the training corpus.
+
+\FloatBarrier
+\section{In-Domain Error Analysis}
+\label{sec:error}
+
+The headline QWK gain of Section~\ref{sec:ablation} is an average; this section opens it up class by class to see where the hybrid actually helps in-domain.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.9\linewidth]{confusion_best_models.png}
+\caption{Confusion matrices of the best base versus the best hybrid (in-domain,
+row-normalised).}
+\label{fig:confusion_best_models}
+\end{figure}
+
+The row-normalised confusion matrices (Figure~\ref{fig:confusion_best_models}) and the per-class F1 scores (Figure~\ref{fig:per_class_f1}) localise where the hybrid helps and where the problem remains open.
+Relative to the best baseline, the hybrid improves recall on the ordinal extreme \textbf{Highly\nobreakdash-Engage} ($0.38\to0.51$) and on \textbf{Disengage} ($0.45\to0.55$), while keeping \emph{Engage} near 0.90 ($0.91\to0.90$).
+However, the rarest class \textbf{Highly\nobreakdash-Disengage} stays unsolved and is slightly traded away (base recall $0.40\to$ hybrid 0.37): the model reallocates capacity toward the more frequent extreme.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.85\linewidth]{per_class_f1.png}
+\caption{Per-class F1: best base versus best hybrid.}
+\label{fig:per_class_f1}
+\end{figure}
+
+\textbf{Conclusion.}
+The hybrid's in-domain improvement is real but \textbf{uneven}: it strengthens the well-populated upper-engagement region and the middle disengaged class, but the $\sim$2--3\%-frequency \emph{Highly\nobreakdash-Disengage} class remains the principal open challenge.
+This is the in-domain picture; Chapter~5 shows it becomes more severe still once the model leaves its training corpus.
+
+\FloatBarrier
+\section{Chapter Summary}
+\label{sec:results-summary}
+
+This chapter developed the model in-domain and fixed the experimental frame for the thesis.
+The baseline comparison (Section~\ref{sec:baseline-results}) established that the strongest monolithic baseline is the OpenFace TCN at QWK 0.537, that loss choice is a Pareto trade-off in which cross-entropy gives the best ordinal agreement, and that QWK and macro-accuracy --- not accuracy --- must be the primary metrics; from this it selected cross-entropy as the training loss, those two metrics as the yardstick, and CMOSE as the development corpus.
+Under that frame, the semantic-group hybrid as a family exceeds the baseline and is best when fused with I3D (QWK 0.605), with head pose the only group preferring a specific encoder, a TCN (Section~\ref{sec:ablation}, RQ1--RQ3).
+The error analysis (Section~\ref{sec:error}) showed the gain is concentrated in the upper-engagement region, with Highly\nobreakdash-Disengage the remaining open problem.
+Chapter~5 takes this best in-domain model out of domain and asks whether any of it transfers to unseen corpora and to real, self-collected data (RQ4).
+
+\end{document}

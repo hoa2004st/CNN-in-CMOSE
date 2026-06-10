@@ -11,25 +11,29 @@ Title (fixed): **Student's engagement detection in online classes**.
 | Path | Role | Authored by |
 |---|---|---|
 | `main.tex` | Driver: preamble, front-matter wiring, `\chapter` + `\subfile` per chapter, bibliography | hand |
-| `Cover.tex`, `Cover2.tex` | Title / inner title pages — **fill in author, supervisor, program** (placeholders `<AUTHOR NAME>` / `<SUPERVISOR NAME>`) | hand |
+| `Cover.tex`, `Cover2.tex` | Title / inner title pages (layout mirrors `Thesis_Template`; author/supervisor/program filled in) | hand |
 | `glossary.tex` | List of abbreviations (QWK, TCN, I3D, …) | hand |
 | `lstlisting.tex` | Code-listing styles | hand |
 | `reference.bib` | Bibliography (entries marked `TODO` still need verifying from `documents/references/`) | hand |
 | `Chapter/0_2_Acknowledgment.tex`, `0_3_Abstract.tex` | Front matter | **hand-authored** |
-| `Chapter/1_Introduction.tex` … `5_Conclusions.tex` | Body chapters | **hand-authored** |
+| `Chapter/1_Introduction.tex` … `6_Conclusions.tex` | Body chapters | **hand-authored** |
 | `Figure/*.png` | Analysis figures (copied from `outputs/thesis/figures`) | **generated** (copied) |
 | `Table/T*.tex` | Result tables (rendered from the analysis) | **generated** |
 
 Chapter mapping (the template's optional *Theoretical Analysis* chapter is omitted):
-1 Introduction · 2 Literature Review · 3 Methodology · **4 Numerical Results** · 5 Conclusions.
+1 Introduction · 2 Literature Review · 3 Methodology · **4 In-Domain Model Development** · **5 Generalization** · 6 Conclusions.
 
 > **Note.** Earlier versions generated the chapter prose from Markdown drafts
 > (`00_front_matter.md` … `05_conclusion.md`). Those drafts have been **removed**; the
-> `Chapter/*.tex` files are now the source of truth and are **edited by hand**. The
-> architecture figures in Chapter 3 (`fig:baseline`, `fig:hybrid`) are **placeholders** (a framed
-> box) meant to be drawn by hand; the Mermaid source for them lives in `diagrams_mermaid.md`. Once
-> drawn, export to `Figure/baseline_architecture.png` and `Figure/hybrid_architecture.png` and
-> replace each placeholder box with `\includegraphics`.
+> `Chapter/*.tex` files are now the source of truth and are **edited by hand**. The architecture
+> diagrams are now **real `\includegraphics`** (no longer placeholders): the per-family building
+> blocks (`openface_tcn_block.png`, `openface_lstm_cell.png`) sit in the matching Chapter 2
+> subsection; the five baseline diagrams (`openface_mlp/tcn/lstm/transformer.png`, `i3d_mlp.png`)
+> in the Chapter 3 Baseline Models section; and the hybrid overview (`hybrid.png`) plus the three
+> per-group encoder options (`hybrid_tcn/transformer/lstm_encoder.png`) in the Chapter 3 Hybrid
+> section. They were drawn by hand from the Mermaid source in `diagrams_mermaid.md` and exported to
+> `Figure/`; keep their filenames parenthesis/space-free. See `AGENTS.md` for the full thesis
+> `.tex` formatting rules.
 
 ## Regenerating figures and tables
 

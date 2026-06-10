@@ -38,6 +38,7 @@
 \usepackage{listings}
 \usepackage{float}
 \usepackage{subcaption}
+\usepackage{placeins} % \FloatBarrier keeps figures/tables inside their section
 
 \usepackage[nonumberlist, nopostdot, nogroupskip, acronym]{glossaries}
 \usepackage{glossary-superragged}
@@ -67,7 +68,7 @@
 \setlength{\headheight}{10pt}
 
 \def \TITLE{Student's engagement detection in online classes}
-\def \AUTHOR{[AUTHOR NAME]}
+\def \AUTHOR{Phan Minh Hòa}
 
 % ===================================================
 \titleformat{\chapter}[hang]{\centering\bfseries}{CHAPTER \thechapter.\ }{0pt}{}[]
@@ -233,12 +234,16 @@
 \subfile{Chapter/3_Methodology}
 
 \newpage
-\chapter{NUMERICAL RESULTS}
-\subfile{Chapter/4_Numerical_results}
+\chapter{IN-DOMAIN MODEL DEVELOPMENT}
+\subfile{Chapter/4_In_domain_results}
+
+\newpage
+\chapter{GENERALIZATION}
+\subfile{Chapter/5_Generalization}
 
 \newpage
 \chapter{CONCLUSIONS}
-\subfile{Chapter/5_Conclusions}
+\subfile{Chapter/6_Conclusions}
 
 % ===================================================
 \newpage

@@ -107,15 +107,18 @@ flowchart LR
 
 `openface_transformer`
 ```mermaid
+---
+config:
+  layout: elk
+---
 flowchart LR
     A["Input\nT x 709"] --> B["Input projection\nLinear 128"]
-    PE["Positional encoding\nsinusoidal, 128-d"] --> ADD(("+"))
+    PE["Positional encoding\nsinusoidal 128"] --> ADD(("+"))
     B --> ADD
     ADD --> D1["EncoderLayer 1\nd 128, heads 4, FF 256"]
     D1 --> D2["EncoderLayer 2\nd 128, heads 4, FF 256"]
     D2 --> E["Mean-pool over T\n 128"]
-    E --> F["LayerNorm\n128"]
-    F --> G["Dropout 0.3"]
+    E --> G["LayerNorm 128 \n Dropout 0.3"]
     G --> H["Linear\n 128"]
     H --> I["ReLU\nDropout 0.3"]
     I --> J["Linear\n 4"]

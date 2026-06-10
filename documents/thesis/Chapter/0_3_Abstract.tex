@@ -5,43 +5,19 @@
 \end{center}
 \vspace{1cm}
 
-Automatically recognising student engagement from video is a key enabler for
-online and hybrid learning analytics, yet it is hard: engagement labels are
-\emph{ordinal} (Highly-Disengage, Disengage, Engage, Highly-Engage), severely
-\emph{imbalanced}, and subjective, and models are rarely tested beyond the corpus
-they were trained on. This thesis studies engagement classification from
-per-frame facial-behaviour descriptors (OpenFace) and clip-level video-motion
-features (I3D), and makes two contributions.
+Automatically recognising student engagement from video is a key enabler for online and hybrid learning analytics, yet it is hard: engagement labels are \emph{ordinal} (Highly-Disengage, Disengage, Engage, Highly-Engage), severely \emph{imbalanced}, and subjective, and models are rarely tested beyond the corpus they were trained on.
+This thesis studies engagement classification from per-frame facial-behaviour descriptors (OpenFace) and clip-level video-motion features (I3D), and makes two contributions.
 
 First, it proposes a \textbf{semantic-group hybrid temporal architecture}.
-Instead of feeding all 709 OpenFace features into one monolithic sequence model,
-the descriptor is decomposed into five behaviourally meaningful groups --- gaze,
-eye landmarks, face landmarks, head pose, and action units --- and each group is
-assigned its own temporal encoder (a Temporal Convolutional Network, a
-Transformer, or an LSTM), optionally fused with an I3D motion stream and
-supervised by per-stream auxiliary heads. A systematic ablation over all 243
-per-group encoder assignments, with and without I3D, shows that the I3D-fused
-hybrid family is centred above the best monolithic baseline on the CMOSE test set
-(median quadratic-weighted kappa, QWK, of 0.553 against 0.537; best 0.605), that
-the strongest configurations mix encoder types, and that the only group with a
-clear encoder preference is \textbf{head pose, which favours a TCN}.
+Instead of feeding all 709 OpenFace features into one monolithic sequence model, the descriptor is decomposed into five behaviourally meaningful groups --- gaze, eye landmarks, face landmarks, head pose, and action units --- and each group is assigned its own temporal encoder (a Temporal Convolutional Network, a Transformer, or an LSTM), optionally fused with an I3D motion stream and supervised by per-stream auxiliary heads.
+A systematic ablation over all 243 per-group encoder assignments, with and without I3D, shows that the I3D-fused hybrid family is centred above the best monolithic baseline on the CMOSE test set (median quadratic-weighted kappa, QWK, of 0.553 against 0.537; best 0.605), that the strongest configurations mix encoder types, and that the only group with a clear encoder preference is \textbf{head pose, which favours a TCN}.
 
-Second, it conducts a \textbf{3$\times$3 cross-dataset generalisation study}
-(training on CMOSE, DAiSEE, or their union; testing on each public test set plus a
-\textbf{self-collected, hand-labelled private set}) and treats the private set as
-the decisive real-world probe. Engagement classifiers do \textbf{not} transfer
-across corpora --- off-diagonal QWK collapses to near zero even when raw accuracy
-appears acceptable --- and the two contributions \emph{compound on the unseen
-private set}: training on the combined corpus with the semantic-group hybrid yields
-the best private-set result (QWK 0.379 against 0.285 for the best baseline, a wider
-margin than in-domain). The thesis argues that ordinal agreement metrics (QWK,
-Cohen's kappa), not accuracy, must be the primary yardstick for imbalanced
-engagement data.
+Second, it conducts a \textbf{3$\times$3 cross-dataset generalisation study} (training on CMOSE, DAiSEE, or their union; testing on each public test set plus a \textbf{self-collected, hand-labelled private set}) and treats the private set as the decisive real-world probe.
+Engagement classifiers do \textbf{not} transfer across corpora --- off-diagonal QWK collapses to near zero even when raw accuracy appears acceptable --- and the two contributions \emph{compound on the unseen private set}: training on the combined corpus with the semantic-group hybrid yields the best private-set result (QWK 0.379 against 0.285 for the best baseline, a wider margin than in-domain).
+The thesis argues that ordinal agreement metrics (QWK, Cohen's kappa), not accuracy, must be the primary yardstick for imbalanced engagement data.
 
 \vspace{0.5cm}
-\noindent\textbf{Keywords:} student engagement recognition, affective computing,
-OpenFace, I3D, temporal convolutional networks, ordinal classification,
-class imbalance, cross-dataset generalisation.
+\noindent\textbf{Keywords:} student engagement recognition, affective computing, OpenFace, I3D, temporal convolutional networks, ordinal classification, class imbalance, cross-dataset generalisation.
 
 \begin{flushright}
 \begin{tabular}{@{}c@{}}
