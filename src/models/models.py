@@ -266,6 +266,39 @@ class FlattenMLP(nn.Module):
         return self.network(x)
 
 
+class I3DVectorMLP(nn.Module):
+    """MLP classifier over the pooled clip-level I3D vector.
+
+    CMOSE/DAiSEE ship a single 1024-d I3D embedding per clip (the loader tiles it over time to a
+    fixed length). Mean-pooling over time recovers that vector, which a small MLP
+    (1024 -> 256 -> 128 -> num_classes) then classifies. This matches the head shape used by the
+    other baselines (the FlattenMLP 256 -> 128 -> num_classes), with a 128-wide hidden layer.
+    """
+
+    def __init__(
+        self,
+        *,
+        input_features: int = 1024,
+        hidden_dim: int = 256,
+        num_classes: int = 4,
+    ) -> None:
+        super().__init__()
+        self.network = nn.Sequential(
+            nn.Linear(input_features, hidden_dim),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.3),
+            nn.Linear(hidden_dim, 128),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.3),
+            nn.Linear(128, num_classes),
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        if x.dim() == 3:
+            x = x.mean(dim=1)   # (B, T, 1024) → (B, 1024)
+        return self.network(x)
+
+
 class OpenFaceTCNI3DFusionModel(nn.Module):
     """Shared-fusion model with canonical TCN branches for temporal encoding."""
 
@@ -554,18 +587,23 @@ class OpenFaceTemporalI3DHybrid(nn.Module):
                 persistent=True,
             )
 
-        # I3D encoder (always TCN) + aux head
-        self.i3d_encoder = TCNEncoder(
-            input_channels=i3d_input_dim,
-            channels=[embed_dim, embed_dim],
-            kernel_size=3,
-            dropout=0.2,
+        # I3D encoder: an MLP on the pooled 1024-d clip vector (1024 -> 256 -> 128) + aux head.
+        # CMOSE/DAiSEE provide one clip-level I3D vector per clip (the loader tiles it over time);
+        # _encode_i3d mean-pools that tiled sequence back to the single vector before projecting.
+        # The I3D stream gets a wider 128-d embedding (vs the 64-d group embeddings) because the
+        # 1024-d I3D descriptor is richer; this 128-d embedding is concatenated with the group ones.
+        i3d_embed_dim = 128
+        self.i3d_projection = nn.Sequential(
+            nn.Linear(i3d_input_dim, 256),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.3),
+            nn.Linear(256, i3d_embed_dim),
+            nn.ReLU(inplace=True),
         )
-        self.i3d_pool = nn.AdaptiveAvgPool1d(1)
-        self.i3d_norm = nn.LayerNorm(embed_dim)
-        self.aux_heads["i3d"] = nn.Sequential(nn.Dropout(p=0.3), nn.Linear(embed_dim, num_classes))
+        self.i3d_norm = nn.LayerNorm(i3d_embed_dim)
+        self.aux_heads["i3d"] = nn.Sequential(nn.Dropout(p=0.3), nn.Linear(i3d_embed_dim, num_classes))
 
-        fusion_dim = embed_dim * (len(self.group_names) + 1)  # +1 for I3D
+        fusion_dim = embed_dim * len(self.group_names) + i3d_embed_dim  # 5*64 + 128 = 448
         self.fusion = nn.Sequential(
             nn.Linear(fusion_dim, 128),
             nn.ReLU(inplace=True),
@@ -581,9 +619,10 @@ class OpenFaceTemporalI3DHybrid(nn.Module):
         return embeddings
 
     def _encode_i3d(self, x_i3d: torch.Tensor) -> torch.Tensor:
-        # x_i3d: (B, T, 1024)
-        h = self.i3d_encoder(x_i3d.transpose(1, 2))   # → (B, embed_dim, T)
-        h = self.i3d_pool(h).squeeze(-1)               # → (B, embed_dim)
+        # x_i3d: (B, T, 1024) — the clip-level I3D vector tiled over time. Mean-pooling over
+        # time recovers the single 1024-d vector, which the MLP then projects to the embedding.
+        h = x_i3d.mean(dim=1)                          # → (B, 1024)
+        h = self.i3d_projection(h)                     # → (B, embed_dim)
         return self.i3d_norm(h)
 
     def forward_with_aux(
@@ -635,7 +674,10 @@ def build_model(
         )
     if model_name == "i3d_mlp":
         return (
-            FlattenMLP(num_classes=num_classes),
+            I3DVectorMLP(
+                input_features=i3d_input_features if i3d_input_features else 1024,
+                num_classes=num_classes,
+            ),
             ModelSpec(name=model_name, input_kind="i3d_flat_mlp"),
         )
     if model_name == "openface_tcn_i3d_fusion":

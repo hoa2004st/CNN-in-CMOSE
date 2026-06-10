@@ -117,6 +117,9 @@ def dataframe_to_latex(
 
     Numeric columns are right-aligned (``r``), text columns left-aligned (``l``).
     All headers and cells are escaped; the caption only needs Unicode mapping.
+    The tabular is wrapped in ``\\fittable{...}`` (defined in the thesis preamble)
+    so a table wider than the text block is shrunk to ``\\linewidth`` instead of
+    overflowing the page; narrower tables are left at their natural size.
     """
     cols = list(frame.columns)
     align = "".join(
@@ -132,13 +135,15 @@ def dataframe_to_latex(
         "\\centering",
         f"\\caption{{{escape(caption)}}}",
         f"\\label{{{label}}}",
+        "\\fittable{%",
         f"\\begin{{tabular}}{{{align}}}",
         "\\toprule",
         header,
         "\\midrule",
         *body,
         "\\bottomrule",
-        "\\end{tabular}",
+        "\\end{tabular}%",
+        "}",
         "\\end{table}",
     ]
     return "\n".join(lines) + "\n"

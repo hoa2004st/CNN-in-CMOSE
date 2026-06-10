@@ -4,41 +4,50 @@ This folder is a **compilable LaTeX thesis project** following `documents/Thesis
 `main.tex` is the driver; each chapter is a `subfiles` document under `Chapter/`, figures live
 in `Figure/`, and the result tables in `Table/`.
 
+Title (fixed): **Student's engagement detection in online classes**.
+
 ## Layout
 
 | Path | Role | Authored by |
 |---|---|---|
-| `main.tex` | Driver: preamble, front matter wiring, `\chapter` + `\subfile` per chapter, bibliography | hand (static) |
-| `Cover.tex`, `Cover2.tex` | Title / inner title pages — **fill in author, supervisor, program** | hand (static) |
-| `glossary.tex` | List of abbreviations (QWK, TCN, I3D, …) | hand (static) |
-| `lstlisting.tex` | Code-listing styles | hand (static) |
-| `reference.bib` | Bibliography (copied from `documents/references.bib`) | copied |
-| `Chapter/0_2_Acknowledgment.tex`, `0_3_Abstract.tex` | Front matter | **generated** |
-| `Chapter/1_Introduction.tex` … `5_Conclusions.tex` | Body chapters | **generated** |
-| `Figure/*.png` | Analysis figures | **generated** (copied) |
-| `Table/T*.tex` | Result tables | **generated** (copied) |
-| `00_front_matter.md` … `05_conclusion.md` | Markdown **source** for the chapters | hand |
+| `main.tex` | Driver: preamble, front-matter wiring, `\chapter` + `\subfile` per chapter, bibliography | hand |
+| `Cover.tex`, `Cover2.tex` | Title / inner title pages — **fill in author, supervisor, program** (placeholders `<AUTHOR NAME>` / `<SUPERVISOR NAME>`) | hand |
+| `glossary.tex` | List of abbreviations (QWK, TCN, I3D, …) | hand |
+| `lstlisting.tex` | Code-listing styles | hand |
+| `reference.bib` | Bibliography (entries marked `TODO` still need verifying from `documents/references/`) | hand |
+| `Chapter/0_2_Acknowledgment.tex`, `0_3_Abstract.tex` | Front matter | **hand-authored** |
+| `Chapter/1_Introduction.tex` … `5_Conclusions.tex` | Body chapters | **hand-authored** |
+| `Figure/*.png` | Analysis figures (copied from `outputs/thesis/figures`) | **generated** (copied) |
+| `Table/T*.tex` | Result tables (rendered from the analysis) | **generated** |
 
 Chapter mapping (the template's optional *Theoretical Analysis* chapter is omitted):
 1 Introduction · 2 Literature Review · 3 Methodology · **4 Numerical Results** · 5 Conclusions.
 
-## Regenerating
+> **Note.** Earlier versions generated the chapter prose from Markdown drafts
+> (`00_front_matter.md` … `05_conclusion.md`). Those drafts have been **removed**; the
+> `Chapter/*.tex` files are now the source of truth and are **edited by hand**. The
+> architecture figures in Chapter 3 (`fig:baseline`, `fig:hybrid`) are **placeholders** (a framed
+> box) meant to be drawn by hand; the Mermaid source for them lives in `diagrams_mermaid.md`. Once
+> drawn, export to `Figure/baseline_architecture.png` and `Figure/hybrid_architecture.png` and
+> replace each placeholder box with `\includegraphics`.
 
-The `.md` files are the source of truth for chapter prose. After editing them (or re-running the
-analysis), regenerate the LaTeX project with:
+## Regenerating figures and tables
+
+Only the analysis artifacts (`Figure/*.png`, `Table/T*.tex`) are generated; the chapter prose is
+not. After re-running the analysis, refresh them with:
 
 ```
 python -m src.analysis.make_thesis_artifacts
 ```
 
-This rebuilds the figures/tables in `outputs/thesis/`, then `src.analysis.thesis_latex`:
-- renders each `*.md` chapter to a `subfiles` document in `Chapter/` (no top-level `\chapter` —
-  the driver supplies it; `##`→`\section`, `###`→`\subsection`, …),
-- copies `outputs/thesis/figures/*.png` → `Figure/` and `outputs/thesis/tables/T*.tex` → `Table/`,
-- `\input`s each result table into Chapter 4 at the point it is first referenced (`T1`…`T7`).
+This rebuilds the figures/tables in `outputs/thesis/`, then copies
+`outputs/thesis/figures/*.png` → `Figure/` (downsized to 300 dpi for A4 print) and renders the
+result tables → `Table/T*.tex` (labels `tab:T1_dataset_stats` … used by `\input{Table/...}` in
+Chapter 4). Because the Markdown chapter drafts no longer exist, the chapter-rendering step is a
+no-op and **will not overwrite the hand-written `Chapter/*.tex`**.
 
-The static scaffolding (`main.tex`, covers, `glossary.tex`, `lstlisting.tex`, `reference.bib`) is
-**not** regenerated — edit it directly.
+The static scaffolding (`main.tex`, covers, `glossary.tex`, `lstlisting.tex`, `reference.bib`) and
+the chapter prose are **not** regenerated — edit them directly.
 
 ## Compiling
 
@@ -56,6 +65,6 @@ finds them. Tables need `booktabs` (already in the preamble). On Overleaf, uploa
 `documents/thesis/` folder and set `main.tex` as the root document.
 
 **Citations** use keys from `reference.bib` (e.g. `\cite{cmose}`, `\cite{tcn}`); entries marked
-`TODO` in the source `.bib` must still be completed from the PDFs in `documents/references/`.
-Conversion logic lives in `src/analysis/latexfmt.py` (escaping/tables/figures) and
-`src/analysis/thesis_latex.py` (chapters + project assembly).
+`TODO` in the `.bib` must still be completed from the PDFs in `documents/references/`.
+Figure/table generation logic lives in `src/analysis/latexfmt.py` (escaping/tables/figures) and
+`src/analysis/thesis_latex.py` (figure copy + table render; chapter rendering is legacy/inert).

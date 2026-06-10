@@ -7,7 +7,7 @@
   "i3d_feature_count": 1024,
   "fusion_frames": 75,
   "i3d_shape": [
-    75,
+    1,
     1024
   ],
   "normalization": "per-feature z-score using train-set statistics on I3D features",

@@ -1,11 +1,13 @@
 """Shared plotting setup for thesis figures: consistent style + PNG saving.
 
 Every ``figures_*.py`` module imports ``new_fig`` / ``save`` from here so figures share a
-uniform look and land in ``outputs/thesis/figures`` as PNG (300 dpi).
+uniform look and land in ``outputs/thesis/figures`` as PNG. The save resolution is controlled
+by ``SAVE_DPI`` (default 150; override with the ``THESIS_FIG_DPI`` environment variable).
 """
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import matplotlib
@@ -19,9 +21,14 @@ THESIS_DIR = OUTPUT_ROOT / "thesis"
 FIGURE_DIR = THESIS_DIR / "figures"
 TABLE_DIR = THESIS_DIR / "tables"
 
+# Resolution (dots-per-inch) of the saved PNGs in outputs/thesis/figures.
+# Lower = smaller files / lower resolution. Change it here, or without editing code
+# via the THESIS_FIG_DPI environment variable, e.g. `THESIS_FIG_DPI=200`.
+SAVE_DPI = int(os.environ.get("THESIS_FIG_DPI", "150"))
+
 _RC = {
     "figure.dpi": 120,
-    "savefig.dpi": 300,
+    "savefig.dpi": SAVE_DPI,
     "savefig.bbox": "tight",
     "font.size": 10,
     "axes.titlesize": 11,
@@ -54,7 +61,7 @@ def new_fig(*args, **kwargs):
 
 
 def save(fig, name: str, *, directory: Path | None = None) -> Path:
-    """Save ``fig`` as ``<name>.png`` (300 dpi); return the path.
+    """Save ``fig`` as ``<name>.png`` (at ``SAVE_DPI``); return the path.
 
     Saving to the canonical FIGURE_DIR also refreshes the thesis's downsized print copy in
     ``documents/thesis/Figure`` so regenerating a single figure can't leave the compiled thesis

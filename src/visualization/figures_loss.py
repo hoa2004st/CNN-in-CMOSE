@@ -42,7 +42,11 @@ def fig_loss_curves(directory: Path | None = None) -> Path:
         ax.set_title(display_model_name(model), fontsize=9)
         ax.set_xlabel("Epoch")
     axes[0].set_ylabel("Loss (CE)")
-    axes[0].legend(loc="upper right")
+    for ax in axes:
+        handles, labels = ax.get_legend_handles_labels()
+        if handles:
+            fig.legend(handles, labels, loc="center left", bbox_to_anchor=(1.0, 0.5))
+            break
     fig.suptitle("Training vs validation loss (CMOSE, cross-entropy); dashed = best epoch",
                  y=1.03, fontweight="bold")
     return save(fig, "loss_curves_cmose_ce", directory=directory)
@@ -67,7 +71,7 @@ def fig_loss_tradeoff(directory: Path | None = None) -> Path:
     ax.set_xlabel("Accuracy")
     ax.set_ylabel("Macro-accuracy")
     ax.set_title("Accuracy vs macro-accuracy tradeoff by loss\n(in-domain CMOSE -> CMOSE)")
-    ax.legend(loc="lower right")
+    ax.legend(loc="upper left", bbox_to_anchor=(1.02, 1))
     return save(fig, "loss_accuracy_tradeoff", directory=directory)
 
 

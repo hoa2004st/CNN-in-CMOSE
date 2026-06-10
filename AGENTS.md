@@ -10,6 +10,7 @@
 2. Read files in folder `documents/Thesis_Template` to understand expected content of each chapter, section, ...
 
 ## Rules
+- Title is strictly `Student's engagement detection in online classes`
 - Do not generate not requred files in different formats and file types.
 - General use figures are stored in outputs, while thesis use figures and tables are stored in documents/thesis.
 - When change/delete/move any files, reconcile it in other files or documents that mentioned them.
@@ -17,6 +18,7 @@
 - Number of chapter/section, name of chapter/section can be changed.
 - Architecture must be drawn as diagram (can ask user to draw them manually).
 - Losses, Metrics, Architectures, Pipeline must be clearly and fully described.
+- Each result must come to a clear conclusion.
 - Update `progress.md` after every session
 - Commit only when the project is in a clean, resumable state
 

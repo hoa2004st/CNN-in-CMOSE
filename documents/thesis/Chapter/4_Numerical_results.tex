@@ -1,166 +1,370 @@
 \documentclass[../main.tex]{subfiles}
-% Auto-generated from documents/thesis/04_results.md by src.analysis.thesis_latex — do not edit by hand.
 \begin{document}
 
 \section{Overview}
+\label{sec:results-overview}
 
-This chapter reports the experiments defined in Chapter 3. Section 4.2 characterizes the datasets; Section 4.3 establishes baseline and loss-function behavior in-domain and justifies why the in-domain analysis is anchored on CMOSE; Section 4.4 is the core semantic-group hybrid ablation; Section 4.5 is the cross-dataset generalization study; Section 4.6 --- the practically most important result --- evaluates generalization to the \textbf{self-collected private set}; Section 4.7 is error analysis. Unless stated, "in-domain" means trained and tested on the same corpus, and the primary metrics are \textbf{QWK} and \textbf{macro-accuracy}. All figures are in \texttt{outputs/thesis/figures/} and all tables in \texttt{outputs/thesis/tables/}.
+This chapter reports the experiments defined in Chapter~3 and answers the four
+research questions of Section~\ref{sec:objectives}. Section~\ref{sec:dataset-analysis}
+characterises the datasets and their imbalance. Section~\ref{sec:baseline-results}
+establishes baseline and loss-function behaviour in-domain and justifies why the
+architecture study is anchored on CMOSE. Section~\ref{sec:ablation} is the core
+semantic-group hybrid ablation (RQ1--RQ3). Section~\ref{sec:crossdomain} is the
+cross-dataset generalisation study, and Section~\ref{sec:private} --- the
+practically most important result --- evaluates generalisation to the
+self-collected private set (RQ4). Section~\ref{sec:error} is an error analysis,
+and Section~\ref{sec:results-summary} summarises. Unless stated otherwise,
+``in-domain'' means trained and tested on the same corpus, and the primary metrics
+are \textbf{QWK} and \textbf{macro-accuracy}. Each section ends with an explicit
+conclusion.
 
 \section{Dataset Analysis}
+\label{sec:dataset-analysis}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.9\linewidth]{dataset_class_distribution_overall.png}
-\caption{Engagement class distribution by dataset}
+\includegraphics[width=0.85\linewidth]{dataset_class_distribution_overall.png}
+\caption{Engagement class distribution by dataset.}
 \label{fig:dataset_class_distribution_overall}
 \end{figure}
 
-\emph{Table T1} and the figure above show that all three corpora are heavily imbalanced toward the upper-middle classes, and in \emph{different directions}: CMOSE is 69.4\% Engage with only 2.8\% Highly-Disengage, whereas DAiSEE has 50.3\% Engage \textbf{and 43.8\% Highly-Engage} with just 0.7\% Highly-Disengage. The rare disengaged classes are precisely the ones a useful system must catch. This mismatch in label priors already predicts difficulty when transferring between corpora (Section 4.5) and motivates the imbalance-aware losses.
+Table~\ref{tab:T1_dataset_stats} and
+Figure~\ref{fig:dataset_class_distribution_overall} show that all three corpora
+are heavily imbalanced toward the upper-middle classes, and in
+\emph{different directions}. CMOSE is 69.4\% \emph{Engage} with only 2.8\%
+\emph{Highly\nobreakdash-Disengage}, whereas DAiSEE is 50.3\% \emph{Engage} and
+43.8\% \emph{Highly\nobreakdash-Engage} with just 0.7\%
+\emph{Highly\nobreakdash-Disengage}. The rare disengaged classes are precisely the
+ones a useful monitoring system must catch, yet they are a fraction of a percent
+to a few percent of the data. The split-wise distribution
+(Figure~\ref{fig:dataset_class_distribution_by_split}) confirms that this
+imbalance is consistent across the train, validation, and test partitions, so it
+is a property of the problem rather than of a particular split.
 \input{Table/T1_dataset_stats}
-
-\section{Base Models and Loss Functions (In-Domain)}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.9\linewidth]{base_models_indomain.png}
-\caption{Base models $\times$ losses, in-domain}
+\includegraphics[width=0.85\linewidth]{dataset_class_distribution_by_split.png}
+\caption{Class distribution by split, per dataset.}
+\label{fig:dataset_class_distribution_by_split}
+\end{figure}
+
+\textbf{Conclusion.} The data are severely and \emph{heterogeneously} imbalanced.
+This already predicts difficulty when transferring between corpora
+(Section~\ref{sec:crossdomain}), justifies the imbalance-aware losses
+(Section~\ref{sec:baseline-results}), and confirms that accuracy alone cannot be
+trusted as a metric, since predicting the majority class would score well on
+every corpus.
+
+\section{Base Models and Loss Functions (In-Domain)}
+\label{sec:baseline-results}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.85\linewidth]{base_models_indomain.png}
+\caption{Base models $\times$ losses, in-domain on CMOSE.}
 \label{fig:base_models_indomain}
 \end{figure}
 
-Among the five monolithic baselines (\emph{Table T2}), the \textbf{OpenFace TCN with cross-entropy} is the strongest on ordinal agreement: \textbf{QWK 0.537}, accuracy 0.761. The I3D MLP attains the highest \emph{raw accuracy} (0.764) but a lower QWK (0.493) and macro-accuracy (0.508) under CE --- i.e. it wins accuracy by leaning on the majority class. The TCN's local temporal bias edges out LSTM, Transformer, and the flat MLP. \textbf{This QWK of 0.537 is the bar the hybrid must clear.}
+Among the five monolithic baselines (Table~\ref{tab:T2_base_indomain}), the
+\textbf{OpenFace TCN with cross-entropy} is the strongest on ordinal agreement:
+\textbf{QWK 0.537}, accuracy 0.761. The I3D MLP attains the highest \emph{raw
+accuracy} (0.773) but a lower QWK (0.519) and macro-accuracy (0.526) under
+cross-entropy --- it wins accuracy by leaning on the majority class. The TCN's
+local temporal bias edges out the LSTM, the Transformer, and the flat MLP. This
+QWK of \textbf{0.537 is the bar the hybrid must clear} in
+Section~\ref{sec:ablation}.
 \input{Table/T2_base_indomain}
 
-\textbf{The loss tradeoff.} Figure \texttt{loss\_accuracy\_tradeoff} makes the accuracy-vs-balance tension explicit:
+\textbf{The loss trade-off.} Figure~\ref{fig:loss_accuracy_tradeoff} makes the
+accuracy-versus-balance tension explicit. Cross-entropy points sit in the
+lower-right (high accuracy, low macro-accuracy); weighted-CE and ordinal points
+move up and to the left (more balanced, less accurate). For the I3D MLP, for
+instance, switching from cross-entropy to the ordinal loss moves the operating
+point from (accuracy 0.773, macro-accuracy 0.526) to (0.640, 0.635). There is no
+universally best loss; the choice is a Pareto trade-off, and for engagement
+monitoring --- where missing disengagement is costly --- the balanced losses are
+defensible despite their lower headline accuracy.
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.9\linewidth]{loss_accuracy_tradeoff.png}
-\caption{Accuracy vs macro-accuracy tradeoff by loss}
+\includegraphics[width=0.85\linewidth]{loss_accuracy_tradeoff.png}
+\caption{Accuracy versus macro-accuracy trade-off by loss.}
 \label{fig:loss_accuracy_tradeoff}
 \end{figure}
 
-Cross-entropy points sit in the lower-right (high accuracy, low macro-accuracy); weighted-CE and ordinal points move up-and-left (more balanced, less accurate). For the I3D MLP, switching CE$\rightarrow$Ordinal moves (acc 0.764, macro 0.508) $\rightarrow$ (0.686, 0.613). There is no universally best loss; it is a Pareto choice, and for engagement monitoring --- where missing disengagement is costly --- the balanced losses are defensible despite lower headline accuracy.
+Figure~\ref{fig:loss_curves_cmose_ce} shows representative training and validation
+loss curves; all baselines converge stably and early-stop well before the epoch
+cap, so the differences above are architectural rather than optimisation
+artefacts.
 
-Figure \texttt{loss\_curves\_cmose\_ce} confirms all baselines train stably and early-stop well before the cap, so the differences above are architectural, not optimization artifacts.
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.8\linewidth]{loss_curves_cmose_ce.png}
+\caption{Representative training/validation loss curves (CMOSE, cross-entropy).}
+\label{fig:loss_curves_cmose_ce}
+\end{figure}
 
-\textbf{Why CMOSE for the in-domain analysis?} The in-domain comparison above, and the architecture ablation in Section 4.4, are conducted on CMOSE rather than DAiSEE for a principled reason: DAiSEE carries far weaker in-domain ordinal signal. \emph{Table T7} and Figure \texttt{indomain\_cmose\_vs\_daisee} show that the best in-domain model reaches \textbf{QWK 0.537 on CMOSE but only 0.139 on DAiSEE} (macro-accuracy 0.535 vs 0.273). On DAiSEE the best models barely exceed chance-level ordinal agreement, so differences between architectures there would be dominated by label noise rather than model quality. CMOSE is the only corpus on which architecture choices can be compared meaningfully; we therefore \emph{develop} on CMOSE and \emph{validate generalization} on DAiSEE and, decisively, on the private set (Sections 4.5--4.6).
+\textbf{Why CMOSE for the in-domain analysis?} The in-domain comparison above and
+the architecture ablation of Section~\ref{sec:ablation} are conducted on CMOSE
+rather than DAiSEE for a principled reason: DAiSEE carries far weaker in-domain
+ordinal signal. Table~\ref{tab:T7_indomain_datasets} and
+Figure~\ref{fig:indomain_cmose_vs_daisee} show that the best in-domain model
+reaches \textbf{QWK 0.537 on CMOSE but only 0.166 on DAiSEE} (macro-accuracy 0.535
+versus 0.289). On DAiSEE the best models barely exceed chance-level ordinal
+agreement, so architecture differences there would be dominated by label noise
+rather than model quality. CMOSE is the only corpus on which architecture choices
+can be compared meaningfully.
 \input{Table/T7_indomain_datasets}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.9\linewidth]{indomain_cmose_vs_daisee.png}
-\caption{In-domain signal: CMOSE vs DaiSEE}
+\includegraphics[width=0.85\linewidth]{indomain_cmose_vs_daisee.png}
+\caption{In-domain ordinal signal: CMOSE versus DAiSEE.}
 \label{fig:indomain_cmose_vs_daisee}
 \end{figure}
 
-\section{Semantic-Group Hybrid Ablation (Core Result)}
+\textbf{Conclusion.} The OpenFace TCN under cross-entropy is the strongest
+baseline (QWK 0.537) and sets the bar for the hybrid; loss choice is a genuine
+Pareto trade-off between accuracy and balance with no universal winner; and CMOSE,
+not DAiSEE, is the right corpus on which to develop and compare architectures.
 
-\textbf{Does the hybrid beat the baseline, and how robustly?} Figure \texttt{hybrid\_ablation\_distribution} plots the QWK of all 243 per-group encoder configurations, split by whether the I3D stream is added, against the best-baseline line (0.537):
+\section{Semantic-Group Hybrid Ablation (Core Result)}
+\label{sec:ablation}
+
+\textbf{Does the hybrid beat the baseline, and how robustly?}
+Figure~\ref{fig:hybrid_ablation_distribution} plots the QWK of all 243 per-group
+encoder configurations, split by whether the I3D stream is added, against the
+best-baseline line (0.537).
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.9\linewidth]{hybrid_ablation_distribution.png}
-\caption{Hybrid ablation: QWK across 243 configs}
+\includegraphics[width=0.85\linewidth]{hybrid_ablation_distribution.png}
+\caption{Hybrid ablation: QWK across all 243 per-group encoder configurations,
+with and without I3D, against the best baseline.}
 \label{fig:hybrid_ablation_distribution}
 \end{figure}
 
-The \textbf{I3D-fused hybrid family is centered above the baseline} (median $\approx$ 0.546; best 0.590), whereas the \textbf{OpenFace-only hybrid straddles it} (median $\approx$ 0.522; best 0.584). The key message is robustness of the \emph{family}, not of any single cell: \textbf{69\% of the 243 I3D-fused configurations clear the baseline} (vs.\ 26\% of OpenFace-only ones), so the gain comes from the architecture family rather than from a single lucky configuration (\textbf{RQ1, RQ3}). \emph{Table T4} lists the top-10 configurations; the best overall is the I3D hybrid \texttt{TCN\_T\_LSTM\_TCN\_T} (QWK 0.590, accuracy 0.762), and every one of the top configurations mixes at least two encoder types --- adding the LSTM option lifts the best OpenFace-only config from 0.561 to 0.584 and the best I3D config from 0.574 to 0.590.
+The \textbf{I3D-fused hybrid family is centred above the baseline} (median
+$\approx0.553$; best 0.605), whereas the \textbf{OpenFace-only hybrid straddles
+it} (median $\approx0.522$; best 0.584). The important message is the robustness
+of the \emph{family}, not of any single cell: \textbf{83\% of the 243 I3D-fused
+configurations clear the baseline}, against 27\% of the OpenFace-only ones, so the
+gain comes from the architecture family rather than from one lucky configuration
+(\textbf{RQ1, RQ3}). Table~\ref{tab:T4_hybrid_topk} lists the top-10
+configurations; the best overall is the I3D hybrid \texttt{TCN\_T\_TCN\_LSTM\_T}
+(QWK 0.605, accuracy 0.784), and every top configuration mixes at least two
+encoder types.
 \input{Table/T4_hybrid_topk}
 
-\textbf{Which group's encoder actually matters?} Figure \texttt{hybrid\_group\_marginal} and \emph{Table T5} show the mean QWK when each group uses a TCN, a Transformer, or an LSTM, marginalizing over all other groups:
+\textbf{Which group's encoder actually matters?}
+Table~\ref{tab:T5_group_marginal} and Figure~\ref{fig:hybrid_group_marginal} show
+the mean QWK when each group uses a TCN, a Transformer, or an LSTM, marginalising
+over all other groups.
 \input{Table/T5_group_marginal}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.9\linewidth]{hybrid_group_marginal.png}
-\caption{Per-group marginal effect of encoder choice}
+\includegraphics[width=0.85\linewidth]{hybrid_group_marginal.png}
+\caption{Per-group marginal effect of the encoder choice on in-domain QWK.}
 \label{fig:hybrid_group_marginal}
 \end{figure}
 
-Only \textbf{head pose shows a clear preference --- TCN (0.541), ahead of LSTM (0.535) and Transformer (0.521), a spread of 0.020}. The other four groups are essentially encoder-agnostic (spread $\leq$ 0.005). This is an interpretable design rule: head dynamics (nodding, turning away) are temporally local and convolution-friendly, while gaze/landmark/AU streams are insensitive to the encoder choice (\textbf{RQ2}). It also honestly bounds the contribution --- most of the 243-config grid is flat.
+Only \textbf{head pose} shows a clear preference --- TCN (0.545), ahead of LSTM
+(0.541) and Transformer (0.523), a spread of 0.022. The other four groups are
+essentially encoder-agnostic (spread $\le0.006$). This is an interpretable design
+rule: head dynamics such as nodding and turning away are temporally local and
+convolution-friendly, while the gaze, landmark, and action-unit streams are
+insensitive to the encoder choice (\textbf{RQ2}). It also honestly bounds the
+contribution: most of the 243-configuration grid is flat.
 
-\textbf{Best hybrid vs best baseline.} Figure \texttt{hybrid\_best\_comparison} summarizes the headline comparison: the best hybrid+I3D improves on the best baseline by \textbf{+0.053 QWK} (0.590 vs 0.537) at essentially unchanged accuracy (0.762 vs 0.761). The gain is real but \textbf{incremental}; the contribution of this thesis is the decomposition framework and its systematic evaluation, not a large jump in SOTA.
+\textbf{Best hybrid versus best baseline.}
+Figure~\ref{fig:hybrid_best_comparison} summarises the headline comparison: the
+best I3D-fused hybrid improves on the best baseline by \textbf{+0.068 QWK} (0.605
+versus 0.537), and also improves accuracy (0.784 versus 0.761). The gain is
+real but \textbf{modest}.
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.9\linewidth]{hybrid_best_comparison.png}
-\caption{Best hybrid vs best base model}
+\includegraphics[width=0.8\linewidth]{hybrid_best_comparison.png}
+\caption{Best hybrid versus best base model, in-domain on CMOSE.}
 \label{fig:hybrid_best_comparison}
 \end{figure}
 
+\textbf{Conclusion.} Decomposing the OpenFace descriptor and encoding each group
+separately helps (RQ1): as a \emph{family}, the I3D-fused hybrid is centred above
+the best monolithic baseline, with the majority of its configurations clearing the
+bar and the best reaching QWK 0.605. Adding the I3D stream is beneficial and makes
+the gain robust (RQ3). Only head pose has a clear encoder preference --- a TCN
+(RQ2) --- so the contribution is a sound, interpretable framework with an
+incremental headline gain, not a large jump in state of the art.
+
 \section{Cross-Dataset Generalization}
+\label{sec:crossdomain}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.9\linewidth]{crossdomain_base.png}
-\caption{Cross-domain generalization, best base model per cell}
+\includegraphics[width=0.85\linewidth]{crossdomain_base.png}
+\caption{Cross-domain generalisation, best base model per cell.}
 \label{fig:crossdomain_base}
 \end{figure}
 
-The 3$\times$3 heatmaps (and \emph{Table T3}) are the second headline result. \textbf{On the diagonal} (train and test on the same corpus) QWK is healthy (CMOSE 0.54). \textbf{Off the diagonal it collapses}: CMOSE$\rightarrow$DAiSEE QWK = 0.02 and DAiSEE$\rightarrow$CMOSE = 0.05 --- essentially chance-level ordinal agreement. Crucially, \textbf{raw accuracy hides this}: CMOSE$\rightarrow$DAiSEE accuracy is a deceptively reasonable 0.49 and DAiSEE$\rightarrow$CMOSE 0.69, purely because predicting the majority class scores well on imbalanced targets. This is direct evidence that \textbf{accuracy is the wrong metric} for this problem and that engagement models are \textbf{not portable off-the-shelf}.
+The 3$\times$3 heatmaps (Figure~\ref{fig:crossdomain_base} and
+Table~\ref{tab:T3_crossdomain}) are the second headline result.
+\textbf{On the diagonal} (train and test on the same corpus) QWK is healthy
+(CMOSE 0.54). \textbf{Off the diagonal it collapses}:
+CMOSE$\rightarrow$DAiSEE QWK $=0.02$ and DAiSEE$\rightarrow$CMOSE $=0.05$ ---
+essentially chance-level ordinal agreement. Crucially, \textbf{raw accuracy hides
+this}: CMOSE$\rightarrow$DAiSEE accuracy is a deceptively reasonable 0.49 and
+DAiSEE$\rightarrow$CMOSE 0.69, purely because predicting the majority class scores
+well on imbalanced targets. This is direct evidence that \textbf{accuracy is the
+wrong metric} for this problem and that engagement models are \textbf{not portable
+off-the-shelf}.
 \input{Table/T3_crossdomain}
 
-The most actionable cell is the unseen \textbf{Private} column: training on the \textbf{Combined} corpus gives the best private-set QWK (0.285), beating CMOSE-only (0.19) and DAiSEE-only (0.11). Pooling source datasets is a simple, effective mitigation for an unknown target distribution (\textbf{RQ4}). The hybrid heatmap (\texttt{crossdomain\_hybrid}) shows the same pattern, confirming the gap is a property of the problem, not of a particular architecture.
+The most actionable cell is the unseen \textbf{Private} column: training on the
+\textbf{Combined} corpus gives the best private-set QWK (0.285), beating
+DAiSEE-only (0.256) and CMOSE-only (0.190). Pooling source datasets is a simple,
+effective mitigation for an unknown target distribution (\textbf{RQ4}). The hybrid
+heatmap (Figure~\ref{fig:crossdomain_hybrid}) shows the same pattern, confirming
+the gap is a property of the problem, not of a particular architecture.
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.9\linewidth]{crossdomain_hybrid.png}
-\caption{Cross-domain generalization, best hybrid per cell}
+\includegraphics[width=0.85\linewidth]{crossdomain_hybrid.png}
+\caption{Cross-domain generalisation, best hybrid per cell.}
 \label{fig:crossdomain_hybrid}
 \end{figure}
 
+\textbf{Conclusion.} Engagement classifiers do not generalise across datasets:
+off-diagonal QWK falls to near zero even when accuracy looks acceptable, so
+ordinal agreement --- not accuracy --- must be reported on imbalanced engagement
+data. Among the available levers, \emph{pooling source corpora} is the most
+effective simple remedy for an unknown target (RQ4).
+
 \section{Private-Set Generalization: The Real-World Test}
+\label{sec:private}
 
-The most consequential evaluation in this thesis is on the \textbf{private set} --- 366 clips that we \textbf{collected and hand-labeled ourselves} (Section 3.2), processed through the identical OpenFace/I3D pipeline, and used \textbf{for testing only}. Because no model is ever trained on it, the private set is a genuine "in-the-wild" probe of deployment: it has its own recording conditions and its own label prior (58\% Engage, 31\% Highly-Engage, only 2.7\% Highly-Disengage). For this set there is no in-domain option at all; the \emph{only} design lever is the choice of training source. This makes the private set the cleanest test of the two contributions of this thesis acting together.
+The most consequential evaluation in this thesis is on the \textbf{private set} ---
+the 366 clips we collected and hand-labelled ourselves
+(Section~\ref{sec:private-collection}), processed through the identical
+OpenFace/I3D pipeline and used \textbf{for testing only}. Because no model is ever
+trained on it, the private set is a genuine ``in-the-wild'' probe of deployment:
+it has its own recording conditions and its own label prior (58\% Engage, 31\%
+Highly-Engage, only 2.7\% Highly-Disengage). For this set there is no in-domain
+option at all; the \emph{only} design lever is the choice of training source,
+which makes it the cleanest test of the two contributions of this thesis acting
+together.
 
-Figure \texttt{private\_by\_source} and \emph{Table T6} report the best base model and the best semantic-group hybrid on the private set, for each training source:
+Figure~\ref{fig:private_by_source} and Table~\ref{tab:T6_private_by_source} report
+the best base model and the best semantic-group hybrid on the private set, for
+each training source.
 \input{Table/T6_private_by_source}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.9\linewidth]{private_by_source.png}
-\caption{Private-set generalization by training source}
+\includegraphics[width=0.85\linewidth]{private_by_source.png}
+\caption{Private-set generalisation by training source: best base versus best
+hybrid.}
 \label{fig:private_by_source}
 \end{figure}
 
-Two effects compound, and both favor this thesis's contributions:
-
+Two effects compound, and both favour this thesis's contributions.
 \begin{enumerate}
-  \item \textbf{Training source matters, and the combined corpus wins.} For both model families, training on \textbf{Combined} generalizes best to the private set; a single source is markedly worse (best base QWK: Combined 0.285 vs CMOSE 0.190 vs DAiSEE 0.110). Pooling heterogeneous source corpora is the most effective simple route to an unseen target.
-  \item \textbf{The hybrid helps more here than in-domain.} The semantic-group hybrid beats the best base model for \emph{every} training source, and the gap is \textbf{largest exactly where it matters} --- on the private set under combined training the hybrid reaches \textbf{QWK 0.403 vs 0.285} for the best base, a \textbf{+0.118} improvement, more than double the +0.053 in-domain CMOSE gain (Section 4.4). The overall best private-set model is the combined-trained I3D-fused hybrid \texttt{T\_TCN\_LSTM\_TCN\_TCN} (QWK 0.403, accuracy 0.634).
+  \item \textbf{Training source matters, and the combined corpus wins.} For both
+  model families, training on \textbf{Combined} generalises best to the private
+  set; a single source is markedly worse (best base QWK: Combined 0.285 versus
+  DAiSEE 0.256 versus CMOSE 0.190). Pooling heterogeneous source corpora is the
+  most effective simple route to an unseen target.
+  \item \textbf{The hybrid helps more here than in-domain.} The semantic-group
+  hybrid beats the best base model for \emph{every} training source, and the gap is
+  \textbf{largest exactly where it matters}: under combined training the hybrid
+  reaches \textbf{QWK 0.379 versus 0.285} for the best base, a \textbf{$+0.094$}
+  improvement --- wider than the $+0.068$ in-domain CMOSE gain
+  (Section~\ref{sec:ablation}). The overall best private-set model is the
+  combined-trained I3D-fused hybrid \texttt{T\_T\_T\_LSTM\_T} (QWK 0.379,
+  accuracy 0.607).
 \end{enumerate}
 
-In other words, the architecture contribution and the combined-training insight are not independent curiosities: they \textbf{stack}, and they stack most strongly on the hardest, most realistic, self-collected target. This is the practical headline of the thesis.
+In other words, the architecture contribution and the combined-training insight
+are not independent curiosities: they \textbf{stack}, and they stack most strongly
+on the hardest, most realistic, self-collected target.
 
-Figure \texttt{private\_confusion\_combined} shows the row-normalized confusion of the \textbf{headline model --- the combined-trained I3D hybrid \texttt{T\_TCN\_LSTM\_TCN\_TCN} (QWK 0.403)} --- on the private set. The ordinal structure is captured (mass concentrates on the diagonal and its neighbors): Engage recall is 0.75 and Highly-Engage 0.59, with errors mostly to adjacent classes. As in-domain, the rare disengaged classes are the failure mode under shift --- Disengage recall is only 0.23 and \textbf{Highly-Disengage collapses to 0.00} (all 10 private HD clips are misread as DE/EG). This confirms that the gains reported above are concentrated in the well-populated upper-engagement region, and that recognizing rare disengagement on an unseen distribution is the central open problem (Section 5.2).
+Figure~\ref{fig:private_confusion_combined} shows the row-normalised confusion of
+this headline model on the private set. The ordinal structure is captured (mass
+concentrates on the diagonal and its neighbours): \emph{Engage} recall is 0.72 and
+\emph{Highly\nobreakdash-Engage} 0.53, with errors mostly to adjacent classes. As
+in-domain, the rare disengaged classes are the failure mode under shift ---
+\emph{Disengage} recall is only 0.29 and \textbf{Highly\nobreakdash-Disengage
+collapses to 0.00} (all ten private HD clips are misread as DE/EG).
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.9\linewidth]{private_confusion_combined.png}
-\caption{Private-set confusion, combined-trained I3D hybrid}
+\includegraphics[width=0.6\linewidth]{private_confusion_combined.png}
+\caption{Private-set confusion, combined-trained I3D hybrid
+\texttt{T\_T\_T\_LSTM\_T} (QWK 0.379), row-normalised.}
 \label{fig:private_confusion_combined}
 \end{figure}
 
+\textbf{Conclusion.} On the decisive, test-only private set the two contributions
+\emph{compound}: combined-corpus training with the semantic-group hybrid is the
+best model (QWK 0.379), beating the best baseline by a wider margin than in-domain
+($+0.094$ versus $+0.068$). The practical payoff of the thesis is therefore
+concentrated exactly where it matters most --- on unseen, real-world data ---
+while recognising rare disengagement under distribution shift remains the central
+open problem.
+
 \section{Error Analysis}
+\label{sec:error}
 
 \begin{figure}[ht]
 \centering
 \includegraphics[width=0.9\linewidth]{confusion_best_models.png}
-\caption{Confusion matrices of best base vs best hybrid (in-domain)}
+\caption{Confusion matrices of the best base versus the best hybrid (in-domain,
+row-normalised).}
 \label{fig:confusion_best_models}
 \end{figure}
 
-The row-normalized confusion matrices and per-class F1 (Figure \texttt{per\_class\_f1}) localize where the hybrid helps and where the problem remains open. Relative to the best baseline, the hybrid improves recall on the ordinal extreme \textbf{Highly-Engage (0.38 $\rightarrow$ 0.50)} and on \textbf{Disengage (0.45 $\rightarrow$ 0.51)}, while keeping Engage at 0.91. However, the rarest class \textbf{Highly-Disengage} stays unsolved and is even traded away (base recall 0.40 $\rightarrow$ hybrid 0.26): the model reallocates capacity toward the more frequent extreme. The improvement is therefore real but \textbf{uneven}, and the \textasciitilde{}2--3\%-frequency HD class is the principal open challenge.
+The row-normalised confusion matrices (Figure~\ref{fig:confusion_best_models}) and
+the per-class F1 scores (Figure~\ref{fig:per_class_f1}) localise where the hybrid
+helps and where the problem remains open. Relative to the best baseline, the
+hybrid improves recall on the ordinal extreme \textbf{Highly\nobreakdash-Engage}
+($0.38\to0.51$) and on \textbf{Disengage} ($0.45\to0.55$), while keeping
+\emph{Engage} near 0.90 ($0.91\to0.90$). However, the rarest class
+\textbf{Highly\nobreakdash-Disengage} stays unsolved and is slightly traded away (base
+recall $0.40\to$ hybrid 0.37): the model reallocates capacity toward the more
+frequent extreme.
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.9\linewidth]{per_class_f1.png}
-\caption{Per-class F1: best base vs best hybrid}
+\includegraphics[width=0.85\linewidth]{per_class_f1.png}
+\caption{Per-class F1: best base versus best hybrid.}
 \label{fig:per_class_f1}
 \end{figure}
 
-% --- note from draft (Markdown blockquote) ---
-% TODO: paste the rendered Markdown tables (T1–T5) from `outputs/thesis/tables/` at the points
-% referenced above, or `\input` the corresponding `.tex` files when typesetting in LaTeX.
+\textbf{Conclusion.} The hybrid's improvement is real but \textbf{uneven}: it
+strengthens the well-populated upper-engagement region and the middle disengaged
+class, but the $\sim$2--3\%-frequency
+\emph{Highly\nobreakdash-Disengage} class remains the principal open challenge,
+both in-domain and --- more severely --- under distribution shift.
+
+\section{Chapter Summary}
+\label{sec:results-summary}
+
+This chapter answered the four research questions. The datasets are severely and
+heterogeneously imbalanced (Section~\ref{sec:dataset-analysis}); the best
+monolithic baseline is the OpenFace TCN at QWK 0.537, and loss choice is a Pareto
+trade-off (Section~\ref{sec:baseline-results}). The semantic-group hybrid, as a
+family, exceeds that baseline and is best when fused with I3D (QWK 0.605), with
+head pose the only group preferring a specific encoder (a TCN)
+(Section~\ref{sec:ablation}, RQ1--RQ3). Engagement models do not transfer across
+corpora --- off-diagonal QWK collapses while accuracy hides it --- and pooling
+corpora mitigates this best (Section~\ref{sec:crossdomain}, RQ4). On the decisive
+self-collected private set the architecture and the combined-training insight
+compound to the best result (QWK 0.379, $+0.094$ over the baseline)
+(Section~\ref{sec:private}). The error analysis (Section~\ref{sec:error}) shows
+the gains are concentrated in the upper-engagement region, with
+Highly\nobreakdash-Disengage the remaining open problem. Chapter~5 draws these
+findings together and outlines future work.
 
 \end{document}

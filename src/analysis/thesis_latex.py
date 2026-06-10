@@ -40,9 +40,10 @@ PROJECT_TABLE_DIR = PROJECT_DIR / "Table"
 # Print target for the Figure/ copies. Figures are \includegraphics'd at INCLUDE_LINEWIDTH_FRAC
 # of the text width (see latexfmt.figure_block). On A4 the text width is
 # 21cm - 3.5cm(left) - 2.5cm(right) = 15cm, so the on-page width is ~13.5cm. At the 300 dpi print
-# standard that needs only ~1594 px, yet the generated PNGs are 500-630 dpi (2400-3330 px wide) —
-# oversampled, slower to ship/compile, no sharper in print. So the Figure/ copies are downsized to
-# exactly 300 dpi on the page; the full-resolution originals stay in outputs/thesis/figures.
+# standard that needs only ~1594 px. The source PNGs in outputs/thesis/figures are saved at
+# figbase.SAVE_DPI (configurable; default 150): copies WIDER than the target are downsized to
+# ~300 dpi on the page, while copies already at/below it are kept verbatim (never upscaled). So
+# lowering SAVE_DPI lowers both the outputs/thesis originals and these print copies.
 A4_TEXT_WIDTH_IN = 15.0 / 2.54
 INCLUDE_LINEWIDTH_FRAC = 0.9
 PRINT_DPI = 300

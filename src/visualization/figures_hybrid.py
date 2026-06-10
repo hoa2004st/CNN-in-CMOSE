@@ -53,7 +53,7 @@ def fig_ablation_distribution(directory: Path | None = None) -> Path:
     ax.set_xticklabels(variants)
     ax.set_ylabel("QWK (in-domain CMOSE)")
     ax.set_title(f"Hybrid ablation: QWK across {n_configs} group-architecture configs")
-    ax.legend(loc="lower right")
+    ax.legend(loc="upper left", bbox_to_anchor=(1.02, 1))
     return save(fig, "hybrid_ablation_distribution", directory=directory)
 
 
@@ -91,7 +91,7 @@ def fig_group_marginal(directory: Path | None = None) -> Path:
     ax.set_xticklabels([ag.GROUP_DISPLAY[g] for g in groups], rotation=15, ha="right")
     ax.set_ylabel("QWK (in-domain CMOSE)")
     ax.set_title("Per-group marginal effect of encoder choice (TCN vs Transformer vs LSTM)")
-    ax.legend(title="Encoder for this group", loc="lower right", ncol=2)
+    ax.legend(title="Encoder for this group", loc="upper left", bbox_to_anchor=(1.02, 1))
     return save(fig, "hybrid_group_marginal", directory=directory)
 
 

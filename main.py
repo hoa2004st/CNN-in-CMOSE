@@ -487,7 +487,11 @@ def run_experiment(args: argparse.Namespace) -> None:
         i3d_splits = _load_i3d_splits_cached(
             labels_json=args.labels_json,
             i3d_feature_dir=args.i3d_feature_dir,
-            target_frames=args.fusion_frames,
+            # I3D is a single clip-level vector; load it as 1 frame (no tiling to
+            # fusion_frames). The model mean-pools over time, so this is identical to
+            # the tiled version but avoids a needless (N x fusion_frames x 1024) array
+            # (which OOMs on the combined dataset).
+            target_frames=1,
             train_sample_ids=train_sample_ids,
             eval_sample_ids=eval_sample_ids,
             test_sample_ids=test_sample_ids,

@@ -3,4 +3,4 @@
 | In-domain dataset | Best model | Loss | QWK | Accuracy | Macro-Acc |
 | --- | --- | --- | --- | --- | --- |
 | CMOSE | openface_tcn | CE | 0.537 | 0.761 | 0.535 |
-| DaiSEE | openface_tcn | CE | 0.139 | 0.521 | 0.273 |
+| DaiSEE | i3d_mlp | CE | 0.166 | 0.548 | 0.289 |

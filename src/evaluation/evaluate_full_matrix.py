@@ -258,7 +258,7 @@ def _load_test_from_json(
 
     sample_ids = [r.sample_id for r in valid_records]
     i3d_raw = load_i3d_dataset_matrices(
-        sample_ids, feature_dir=cfg.i3d_dir, target_frames=fusion_frames,
+        sample_ids, feature_dir=cfg.i3d_dir, target_frames=1,  # I3D is one clip vector; no tiling
         progress_desc=f"  Loading {cfg.name} I3D",
     )
     i3d = _norm(i3d_raw, i3d_mean, i3d_std)
@@ -324,7 +324,7 @@ def _load_private_test(
     del of_raw; gc.collect()
 
     i3d_raw = load_i3d_dataset_matrices(
-        sample_ids, feature_dir=cfg.i3d_dir, target_frames=fusion_frames,
+        sample_ids, feature_dir=cfg.i3d_dir, target_frames=1,  # I3D is one clip vector; no tiling
         progress_desc="  Loading private I3D",
     )
     i3d = _norm(i3d_raw, i3d_mean, i3d_std)
@@ -475,7 +475,7 @@ def main(argv: list[str] | None = None) -> None:
         of_mean, of_std = _fit_openface_norm(train_records, target_frames=target_frames)
         train_ids = [r.sample_id for r in train_records]
         i3d_mean, i3d_std = _fit_i3d_norm(train_ids, feature_dir=train_cfg.i3d_dir,
-                                            target_frames=args.fusion_frames)
+                                            target_frames=1)  # I3D is one clip vector; no tiling
 
         for test_cfg in active_test_configs:
             print(f"\n  Test set: {test_cfg.name}")

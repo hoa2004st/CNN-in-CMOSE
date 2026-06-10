@@ -48,7 +48,7 @@ def fig_private_by_source(directory: Path | None = None) -> Path:
     ax.set_xlabel("Training source (private set is test-only)")
     ax.set_ylabel("QWK on private set")
     ax.set_title("Private-set generalization by training source\n(self-collected, never seen in training)")
-    ax.legend(loc="upper left")
+    ax.legend(loc="upper left", bbox_to_anchor=(1.02, 1))
     return save(fig, "private_by_source", directory=directory)
 
 
@@ -74,7 +74,7 @@ def fig_indomain_cmose_vs_daisee(directory: Path | None = None) -> Path:
     ax.set_xlabel("In-domain dataset (train = test)")
     ax.set_ylabel("Score")
     ax.set_title("In-domain signal: CMOSE vs DaiSEE\n(best-QWK model per dataset)")
-    ax.legend(loc="upper right")
+    ax.legend(loc="upper left", bbox_to_anchor=(1.02, 1))
     return save(fig, "indomain_cmose_vs_daisee", directory=directory)
 
 

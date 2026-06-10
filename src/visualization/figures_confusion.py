@@ -76,7 +76,7 @@ def fig_per_class_f1(directory: Path | None = None) -> Path:
     ax.set_ylabel("Per-class F1")
     ax.set_ylim(0, 1)
     ax.set_title("Per-class F1: best base vs best hybrid (in-domain CMOSE)")
-    ax.legend(loc="upper left")
+    ax.legend(loc="upper left", bbox_to_anchor=(1.02, 1))
     return save(fig, "per_class_f1", directory=directory)
 
 

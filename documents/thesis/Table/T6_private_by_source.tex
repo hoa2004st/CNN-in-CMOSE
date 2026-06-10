@@ -8,8 +8,8 @@
 Train source & Best base (model/loss) & Base QWK & Best hybrid (arch) & Hybrid QWK & Hybrid acc & Hybrid macro-acc \\
 \midrule
 CMOSE & openface\_transformer/ce & 0.190 & Hybrid (OpenFace only) TCN\_T\_LSTM\_TCN\_T & 0.309 & 0.555 & 0.385 \\
-DaiSEE & openface\_lstm/ce & 0.110 & Hybrid + I3D T\_T\_LSTM\_LSTM\_TCN & 0.337 & 0.672 & 0.346 \\
-Combined & openface\_transformer/ce & 0.285 & Hybrid + I3D T\_TCN\_LSTM\_TCN\_TCN & 0.403 & 0.634 & 0.390 \\
+DaiSEE & i3d\_mlp/ce & 0.256 & Hybrid + I3D LSTM\_LSTM\_TCN\_LSTM\_LSTM & 0.306 & 0.658 & 0.350 \\
+Combined & openface\_transformer/ce & 0.285 & Hybrid + I3D T\_T\_T\_LSTM\_T & 0.379 & 0.607 & 0.385 \\
 \bottomrule
 \end{tabular}%
 }
