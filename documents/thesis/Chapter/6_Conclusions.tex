@@ -14,7 +14,7 @@ The central idea was validated by training and evaluating all $3^5=243$ per-grou
 The evidence supports five conclusions.
 \begin{enumerate}
   \item \textbf{The I3D-fused hybrid is the best in-domain model and, as a family, beats the strongest monolithic baseline.}
-  The I3D-fused family is centred above the baseline QWK of 0.537 (median 0.553, with 83\% of its 243 configurations clearing the baseline), and the best configuration reaches \textbf{QWK 0.605} (accuracy 0.784) with a mixed TCN/Transformer/LSTM assignment (\texttt{TCN\_T\_TCN\_LSTM\_T}).
+  The I3D-fused family is centred above the baseline QWK of 0.537 (median 0.553, with 82\% of its 243 configurations clearing the baseline), and the best configuration reaches \textbf{QWK 0.605} with a mixed TCN/Transformer/LSTM assignment (\texttt{TCN\_T\_TCN\_LSTM\_T}).
   The gain over the best baseline is genuine but \textbf{modest} ($+0.068$ QWK); the value lies in the framework and the systematic evidence, not in a leap in state of the art.
   \item \textbf{Most groups are encoder-agnostic; only head pose shows a clear preference, favouring a TCN} (a 0.022 QWK spread across the three encoders, against $\le0.006$ for the other four groups).
   This is an interpretable design rule reflecting the temporally local nature of head dynamics.
@@ -72,7 +72,7 @@ Adding the clip-level I3D embedding shifts the whole family of configurations up
 \textbf{RQ4 (generalisation and losses).}
 \emph{Generalisation is poor and metric choice is decisive.}
 Models do not transfer off-the-shelf across corpora; off-diagonal ordinal agreement collapses while accuracy stays deceptively high.
-Among losses there is no universal winner --- cross-entropy maximises accuracy while weighted and ordinal losses recover minority recall --- so the loss is a Pareto choice, and QWK together with macro-accuracy and macro-MAE must be the primary yardstick.
+Among losses there is no universal winner --- cross-entropy maximises ordinal agreement (QWK) while weighted and ordinal losses recover minority recall and balanced ordinal error --- so the loss is a Pareto choice, and QWK together with macro-accuracy and macro-MAE must be the primary yardstick.
 Pooling source corpora is the single most effective lever for an unknown target.
 
 \FloatBarrier
@@ -88,7 +88,7 @@ The findings should be read against several limitations, each of which also moti
   CMOSE and DAiSEE ship a single pooled 1024-dimensional I3D vector per clip, so the I3D ``stream'' is an MLP over that global motion/appearance summary rather than a temporal encoder; a per-window I3D sequence might contribute more and would let an I3D temporal encoder model genuine dynamics.
   \item \textbf{Incremental in-domain gain and a flat design space.}
   Most of the 243-configuration grid is encoder-agnostic, and the best in-domain improvement over the baseline is modest ($+0.068$ QWK).
-  The decomposition is a sound, interpretable framework rather than a large accuracy gain.
+  The decomposition is a sound, interpretable framework rather than a large performance leap.
   \item \textbf{Weak DAiSEE signal.}
   The very low in-domain QWK on DAiSEE prevented using it for architecture development and means the cross-dataset conclusions rest mainly on CMOSE and the private set.
   \item \textbf{Fixed training recipe.}

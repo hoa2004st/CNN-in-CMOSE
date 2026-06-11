@@ -53,33 +53,37 @@ def fig_loss_curves(directory: Path | None = None) -> Path:
 
 
 def fig_loss_tradeoff(directory: Path | None = None) -> Path:
-    """Accuracy vs macro-accuracy, in-domain, colored/marked by loss."""
+    """QWK vs macro-accuracy, in-domain, colored/marked by loss.
+
+    The recall face of the loss trade-off, in the primary metrics only: cross-entropy points
+    sit toward high QWK, the balanced losses toward high macro-accuracy --- no loss is best
+    on both axes.
+    """
     matrix = ag.load_matrix()
     frame = matrix[(matrix["train_group"] == "cmose") & (matrix["test_set"] == "cmose_test")]
     fig, ax = new_fig(figsize=(6.0, 5.2))
     for loss in _LOSS_ORDER:
         sub = frame[frame["loss"] == loss]
-        ax.scatter(sub["accuracy"], sub["macro_accuracy"],
+        ax.scatter(sub["quadratic_weighted_kappa"], sub["macro_accuracy"],
                    s=70, marker=_LOSS_MARKER[loss],
                    color=[run_color(m, loss) for m in sub["model"]],
                    edgecolor="black", linewidth=0.5, label=loss_display_name(loss), zorder=3)
         for _, r in sub.iterrows():
-            ax.annotate(display_model_name(r["model"]), (r["accuracy"], r["macro_accuracy"]),
+            ax.annotate(display_model_name(r["model"]),
+                        (r["quadratic_weighted_kappa"], r["macro_accuracy"]),
                         fontsize=6, xytext=(3, 3), textcoords="offset points", alpha=0.7)
-    lo = float(min(frame["accuracy"].min(), frame["macro_accuracy"].min())) - 0.03
-    ax.plot([lo, 0.8], [lo, 0.8], ls=":", color="gray", lw=1, label="Acc = Macro-Acc")
-    ax.set_xlabel("Accuracy")
+    ax.set_xlabel("QWK")
     ax.set_ylabel("Macro-accuracy")
-    ax.set_title("Accuracy vs macro-accuracy tradeoff by loss\n(in-domain CMOSE -> CMOSE)")
+    ax.set_title("QWK vs macro-accuracy tradeoff by loss\n(in-domain CMOSE -> CMOSE)")
     ax.legend(loc="upper left", bbox_to_anchor=(1.02, 1))
-    return save(fig, "loss_accuracy_tradeoff", directory=directory)
+    return save(fig, "loss_pareto_macroacc", directory=directory)
 
 
+# The three primary metrics, QWK first (emphasised); the loss study uses no others.
 _TRADEOFF_METRICS = [
-    "accuracy",
+    "quadratic_weighted_kappa",
     "macro_accuracy",
     "macro_mae",
-    "quadratic_weighted_kappa",
 ]
 
 
@@ -87,8 +91,9 @@ def fig_loss_metric_tradeoff(directory: Path | None = None) -> Path:
     """Per-metric lines across the three losses: shows what each loss trades.
 
     One panel per primary metric; one line per base model across CE -> Weighted CE ->
-    Ordinal. Accuracy falls, macro-accuracy rises, and macro-MAE drops (improves) as the
-    loss is rebalanced, making the Pareto nature of the loss choice explicit.
+    Ordinal. QWK is generally highest under CE, while macro-accuracy rises and macro-MAE
+    drops (improves) as the loss is rebalanced, making the Pareto nature of the loss
+    choice explicit in the primary metrics alone.
     """
     matrix = ag.load_matrix()
     frame = matrix[(matrix["train_group"] == "cmose") & (matrix["test_set"] == "cmose_test")]
@@ -122,10 +127,10 @@ def fig_loss_metric_tradeoff(directory: Path | None = None) -> Path:
 
 
 def fig_loss_pareto_mae(directory: Path | None = None) -> Path:
-    """Accuracy vs macro-MAE Pareto by loss --- the ordinal-distance face of the trade-off.
+    """QWK vs macro-MAE Pareto by loss --- the ordinal-distance face of the trade-off.
 
-    Companion to ``loss_accuracy_tradeoff`` (accuracy vs macro-accuracy): here the y-axis is
-    the balanced ordinal error, inverted so that better (lower macro-MAE) is up, so Pareto-best
+    Companion to ``loss_pareto_macroacc`` (QWK vs macro-accuracy): here the y-axis is the
+    balanced ordinal error, inverted so that better (lower macro-MAE) is up, so Pareto-best
     points sit upper-right exactly as in the macro-accuracy view.
     """
     matrix = ag.load_matrix()
@@ -133,17 +138,18 @@ def fig_loss_pareto_mae(directory: Path | None = None) -> Path:
     fig, ax = new_fig(figsize=(6.0, 5.2))
     for loss in _LOSS_ORDER:
         sub = frame[frame["loss"] == loss]
-        ax.scatter(sub["accuracy"], sub["macro_mae"],
+        ax.scatter(sub["quadratic_weighted_kappa"], sub["macro_mae"],
                    s=70, marker=_LOSS_MARKER[loss],
                    color=[run_color(m, loss) for m in sub["model"]],
                    edgecolor="black", linewidth=0.5, label=loss_display_name(loss), zorder=3)
         for _, r in sub.iterrows():
-            ax.annotate(display_model_name(r["model"]), (r["accuracy"], r["macro_mae"]),
+            ax.annotate(display_model_name(r["model"]),
+                        (r["quadratic_weighted_kappa"], r["macro_mae"]),
                         fontsize=6, xytext=(3, 3), textcoords="offset points", alpha=0.7)
     ax.invert_yaxis()  # lower macro-MAE is better -> better points sit higher
-    ax.set_xlabel("Accuracy")
+    ax.set_xlabel("QWK")
     ax.set_ylabel("Macro-MAE (lower is better)")
-    ax.set_title("Accuracy vs macro-MAE tradeoff by loss\n(in-domain CMOSE -> CMOSE)")
+    ax.set_title("QWK vs macro-MAE tradeoff by loss\n(in-domain CMOSE -> CMOSE)")
     ax.legend(loc="upper left", bbox_to_anchor=(1.02, 1))
     return save(fig, "loss_pareto_mae", directory=directory)
 

@@ -4,8 +4,9 @@
 This chapter specifies the methodology of the thesis.
 Section~\ref{sec:overview} gives an overview of the complete pipeline as a single diagram.
 Section~\ref{sec:data} describes the three training corpora, the self-collected private test set, and the preprocessing that makes them comparable.
-Section~\ref{sec:groups} formalises the semantic-group decomposition of the OpenFace descriptor, and Section~\ref{sec:hybrid} builds the proposed semantic-group hybrid architecture on top of it.
-Section~\ref{sec:baselines} defines the monolithic baselines, Section~\ref{sec:losses-method} the exact loss formulations, Section~\ref{sec:training} the training protocol, and Section~\ref{sec:eval} the 3$\times$3 cross-dataset evaluation protocol and its metrics.
+Section~\ref{sec:baselines} defines the monolithic baseline models that anchor every comparison.
+Section~\ref{sec:groups} then formalises the semantic-group decomposition of the OpenFace descriptor, and Section~\ref{sec:hybrid} builds the proposed semantic-group hybrid architecture on top of it, in explicit contrast to those baselines.
+Section~\ref{sec:losses-method} fixes the exact loss formulations, Section~\ref{sec:training} the training protocol, and Section~\ref{sec:eval} the 3$\times$3 cross-dataset evaluation protocol and its metrics.
 
 \FloatBarrier
 \section{Overview}
@@ -13,9 +14,9 @@ Section~\ref{sec:baselines} defines the monolithic baselines, Section~\ref{sec:l
 
 The task is framed as four-class ordinal classification of a fixed-length clip.
 Per-frame OpenFace descriptors and a clip-level I3D embedding are extracted, brought to a common temporal length, and normalised.
-The OpenFace descriptor is split into five semantic groups, each encoded independently into a 64-dimensional embedding by its own temporal encoder; in the multimodal variant the I3D clip vector is encoded into a 128-dimensional embedding by a small MLP.
-The embeddings are concatenated and classified by a shared multilayer perceptron, while an auxiliary head supervises every stream separately.
-The monolithic baselines (Section~\ref{sec:baselines}) replace the split-and-encode stages with a single encoder over the full 709-dimensional sequence; the hybrid is shown in Figure~\ref{fig:hybrid}.
+The monolithic baselines (Section~\ref{sec:baselines}) follow the standard recipe: a single encoder consumes the full 709-dimensional OpenFace sequence (or the pooled I3D vector) and feeds a classifier.
+The proposed model replaces that single encoder with a split-and-encode design: the OpenFace descriptor is split into five semantic groups, each encoded independently into a 64-dimensional embedding by its own temporal encoder; in the multimodal variant the I3D clip vector is encoded into a 128-dimensional embedding by a small MLP.
+The embeddings are concatenated and classified by a shared multilayer perceptron, while an auxiliary head supervises every stream separately; the hybrid is shown in Figure~\ref{fig:hybrid}.
 Every model is trained and evaluated under a 3$\times$3 cross-dataset protocol and three loss functions.
 
 \FloatBarrier
@@ -57,7 +58,7 @@ The split-wise distribution (Figure~\ref{fig:dataset_class_distribution_by_split
 \end{figure}
 
 This severe and \emph{heterogeneous} imbalance shapes three choices the thesis returns to.
-It predicts difficulty in transferring between corpora, where a model fit to one label prior meets a sharply different one at test time (Chapter~5); it motivates the imbalance-aware losses of Section~\ref{sec:losses-method}; and, because predicting the majority class alone scores well on every corpus, it rules out raw accuracy in favour of quadratic-weighted kappa, macro-accuracy, and macro-MAE as the \textbf{primary} metrics (Section~\ref{sec:eval}).
+It predicts difficulty in transferring between corpora, where a model fit to one label prior meets a sharply different one at test time (Chapters~4 and~5); it motivates the imbalance-aware losses of Section~\ref{sec:losses-method}; and, because predicting the majority class alone scores well on every corpus, it rules out raw accuracy in favour of quadratic-weighted kappa, macro-accuracy, and macro-MAE as the \textbf{primary} metrics (Section~\ref{sec:eval}).
 
 \subsection{The private evaluation set}
 \label{sec:private-collection}
@@ -96,6 +97,60 @@ Every feature is standardised by a per-feature $z$-score whose mean and standard
 OpenFace and I3D are standardised with separate statistics.
 
 \FloatBarrier
+\section{Baseline Models}
+\label{sec:baselines}
+
+Five monolithic baselines provide the comparison points; they form the allow-list \texttt{MODEL\_ORDER} used by the analysis.
+Each follows the standard recipe of the literature: a \emph{single} encoder consumes the full feature sequence and feeds a classifier.
+\begin{itemize}
+  \item \texttt{openface\_mlp}: flattens the OpenFace sequence and classifies it with a multilayer perceptron ($\to$256$\to$128$\to$4, dropout 0.3).
+  \item \texttt{openface\_tcn}: a TCN over the 709-d sequence (residual dilated blocks of widths $256,128,128$; kernel 3; dilations $1,2,4$), adaptive average-pooling, then a $128\!\to\!128\!\to\!4$ classifier.
+  \item \texttt{openface\_lstm}: a two-layer LSTM (hidden width 256) whose final hidden state feeds a $256\!\to\!128\!\to\!4$ classifier.
+  \item \texttt{openface\_transformer}: a linear projection to 128 dimensions, a sinusoidal positional encoding, and two Transformer encoder layers (4 heads, feed-forward width 256), mean-pooled and classified.
+  \item \texttt{i3d\_mlp}: mean-pools the I3D clip feature to a 1024-d vector and classifies it with an MLP ($1024\!\to\!256\!\to\!128\!\to\!4$, dropout 0.3).
+\end{itemize}
+A sixth model, \texttt{openface\_tcn\_i3d\_fusion} (a shared-fusion TCN over both modalities), exists in the codebase but is \textbf{excluded from the assessment} so that the comparison isolates the semantic-group hypothesis rather than generic modality fusion.
+
+The five baseline architectures are shown in Figures~\ref{fig:openface_mlp}--\ref{fig:i3d_mlp}.
+The four OpenFace baselines encode the full $T\times709$ sequence with a single encoder, while \texttt{i3d\_mlp} classifies the pooled 1024-d I3D clip vector.
+Forcing one encoder --- and therefore one temporal bias --- onto all 709 heterogeneous features at once is exactly the design decision the proposed model revisits in Sections~\ref{sec:groups} and~\ref{sec:hybrid}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\linewidth]{openface_mlp.png}
+\caption{Baseline \texttt{openface\_mlp}: the full $T\times709$ OpenFace sequence is flattened and classified by a multilayer perceptron.}
+\label{fig:openface_mlp}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\linewidth]{openface_tcn.png}
+\caption{Baseline \texttt{openface\_tcn}: a temporal convolutional network over the full 709-d sequence, adaptively average-pooled and classified.}
+\label{fig:openface_tcn}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\linewidth]{openface_lstm.png}
+\caption{Baseline \texttt{openface\_lstm}: a two-layer LSTM over the full 709-d sequence whose final state is classified.}
+\label{fig:openface_lstm}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\linewidth]{openface_transformer.png}
+\caption{Baseline \texttt{openface\_transformer}: a Transformer encoder over the full 709-d sequence with sinusoidal positional encoding, mean-pooled and classified.}
+\label{fig:openface_transformer}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\linewidth]{i3d_mlp.png}
+\caption{Baseline \texttt{i3d\_mlp}: the pooled 1024-d I3D clip vector is classified by a multilayer perceptron.}
+\label{fig:i3d_mlp}
+\end{figure}
+
+\FloatBarrier
 \section{Semantic-Group Decomposition}
 \label{sec:groups}
 
@@ -123,13 +178,14 @@ Action units  & facial action-unit presence and intensity     & 35  \\
 
 This decomposition is the inductive prior of the method.
 The five subsystems have different temporal dynamics --- rapid, noisy micro-saccades in the gaze and eye groups; slow, smooth drift in head pose; brief, sparse bursts in action units --- so each can in principle be matched to an encoder whose temporal bias suits it.
-Encoding all 709 features together, as the baselines do, forces a single bias on all of them at once.
+Encoding all 709 features together, as the monolithic baselines of Section~\ref{sec:baselines} do, forces a single bias on all of them at once.
 
 \FloatBarrier
 \section{Hybrid Architecture (Proposed)}
 \label{sec:hybrid}
 
 The proposed model, shown in Figure~\ref{fig:hybrid}, encodes each stream independently, fuses the resulting embeddings, and supervises every stream with its own auxiliary head.
+It is built from the same three encoder families as the OpenFace baselines of Section~\ref{sec:baselines} --- TCN, Transformer, and LSTM --- but where a baseline applies one encoder to the full $T\times709$ sequence, the hybrid assigns an independently chosen encoder to each of the five semantic groups of Section~\ref{sec:groups}, so any difference in performance can be attributed to the decomposition rather than to new encoder machinery.
 
 \begin{figure}[H]
 \centering
@@ -189,59 +245,6 @@ A hybrid configuration is fully specified by the encoder chosen for each of the 
 With three choices per group there are $3^{5}=\textbf{243}$ configurations, each evaluated with and without the I3D stream (Section~\ref{sec:ablation}).
 
 \FloatBarrier
-\section{Baseline Models}
-\label{sec:baselines}
-
-Five monolithic baselines provide the comparison points; they form the allow-list \texttt{MODEL\_ORDER} used by the analysis.
-Each consumes the full feature sequence rather than the decomposed groups.
-\begin{itemize}
-  \item \texttt{openface\_mlp}: flattens the OpenFace sequence and classifies it with a multilayer perceptron ($\to$256$\to$128$\to$4, dropout 0.3).
-  \item \texttt{openface\_tcn}: a TCN over the 709-d sequence (residual dilated blocks of widths $256,128,128$; kernel 3; dilations $1,2,4$), adaptive average-pooling, then a $128\!\to\!128\!\to\!4$ classifier.
-  \item \texttt{openface\_lstm}: a two-layer LSTM (hidden width 256) whose final hidden state feeds a $256\!\to\!128\!\to\!4$ classifier.
-  \item \texttt{openface\_transformer}: a linear projection to 128 dimensions, a sinusoidal positional encoding, and two Transformer encoder layers (4 heads, feed-forward width 256), mean-pooled and classified.
-  \item \texttt{i3d\_mlp}: mean-pools the I3D clip feature to a 1024-d vector and classifies it with an MLP ($1024\!\to\!256\!\to\!128\!\to\!4$, dropout 0.3).
-\end{itemize}
-A sixth model, \texttt{openface\_tcn\_i3d\_fusion} (a shared-fusion TCN over both modalities), exists in the codebase but is \textbf{excluded from the assessment} so that the comparison isolates the semantic-group hypothesis rather than generic modality fusion.
-
-The five baseline architectures are shown in Figures~\ref{fig:openface_mlp}--\ref{fig:i3d_mlp}.
-The four OpenFace baselines encode the full $T\times709$ sequence with a single encoder, while \texttt{i3d\_mlp} classifies the pooled 1024-d I3D clip vector.
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.95\linewidth]{openface_mlp.png}
-\caption{Baseline \texttt{openface\_mlp}: the full $T\times709$ OpenFace sequence is flattened and classified by a multilayer perceptron.}
-\label{fig:openface_mlp}
-\end{figure}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.95\linewidth]{openface_tcn.png}
-\caption{Baseline \texttt{openface\_tcn}: a temporal convolutional network over the full 709-d sequence, adaptively average-pooled and classified.}
-\label{fig:openface_tcn}
-\end{figure}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.95\linewidth]{openface_lstm.png}
-\caption{Baseline \texttt{openface\_lstm}: a two-layer LSTM over the full 709-d sequence whose final state is classified.}
-\label{fig:openface_lstm}
-\end{figure}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.95\linewidth]{openface_transformer.png}
-\caption{Baseline \texttt{openface\_transformer}: a Transformer encoder over the full 709-d sequence with sinusoidal positional encoding, mean-pooled and classified.}
-\label{fig:openface_transformer}
-\end{figure}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.95\linewidth]{i3d_mlp.png}
-\caption{Baseline \texttt{i3d\_mlp}: the pooled 1024-d I3D clip vector is classified by a multilayer perceptron.}
-\label{fig:i3d_mlp}
-\end{figure}
-
-\FloatBarrier
 \section{Loss Functions}
 \label{sec:losses-method}
 
@@ -292,7 +295,7 @@ All runs are aggregated programmatically, and the figures and tables of Chapters
 \section{Chapter Summary}
 \label{sec:method-summary}
 
-This chapter specified the methodology end to end: the pipeline and the five baseline architectures (Figures~\ref{fig:openface_mlp}--\ref{fig:i3d_mlp}); the three training corpora and their imbalance, the test-only private set and its collection, and the leakage-free preprocessing; the five-group decomposition of the OpenFace descriptor; and the semantic-group hybrid (Figure~\ref{fig:hybrid}) with its per-group encoders, fusion and auxiliary heads, I3D variant, and 243-configuration design space.
+This chapter specified the methodology end to end: the pipeline; the three training corpora and their imbalance, the test-only private set and its collection, and the leakage-free preprocessing; the five monolithic baseline architectures (Figures~\ref{fig:openface_mlp}--\ref{fig:i3d_mlp}); the five-group decomposition of the OpenFace descriptor; and the semantic-group hybrid (Figure~\ref{fig:hybrid}) that reuses the baselines' encoder families per group, with its fusion and auxiliary heads, I3D variant, and 243-configuration design space.
 It also fixed the loss formulations, the training protocol, and the 3$\times$3 evaluation protocol with its primary metrics.
 Chapters~4 and~5 apply this methodology to the in-domain and generalisation results respectively.
 

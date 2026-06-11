@@ -13,6 +13,7 @@ import numpy as np
 
 from src.analysis import aggregate as ag
 from src.visualization.figbase import new_fig, save
+from src.visualization.figures_models import ALL_METRICS_PANEL_ORDER
 from src.visualization.style import display_model_name
 
 _METRIC = "quadratic_weighted_kappa"
@@ -47,28 +48,32 @@ def _ablation_panel(ax, frame, metric: str, variants) -> None:
     ax.axhline(base, ls="--", color="gray", lw=1.2, label=f"Best base model ({label}={base:.3f})")
     ax.set_xticks([1, 2])
     ax.set_xticklabels(variants)
-    suffix = " — lower is better" if metric in ag.LOWER_BETTER_METRICS else ""
-    ax.set_ylabel(f"{label} (in-domain CMOSE){suffix}")
-    ax.set_title(label)
-    ax.legend(loc="upper left", fontsize=8)
+    suffix = " (lower is better)" if metric in ag.LOWER_BETTER_METRICS else ""
+    ax.set_title(label + suffix)
+    ax.legend(loc="best", fontsize=7)
 
 
-def fig_ablation_distribution(directory: Path | None = None) -> Path:
-    """QWK and accuracy spread across all configs, split by +/- I3D (the Ch.5 disproof).
+def fig_ablation_all_metrics(directory: Path | None = None) -> Path:
+    """All six metrics across all configs, split by +/- I3D (the Ch.5 all-metrics overview).
 
-    QWK cleanly separates the I3D-fused family above the baseline; accuracy is high but flat
-    and barely moves off the baseline, so it cannot tell the architectures apart --- the same
-    anti-accuracy point made for the baselines, now at the scale of the 243-config ablation.
+    One panel per metric in a 2x3 grid, each against the best base model on that metric.
+    QWK and the macro metrics cleanly separate the I3D-fused family above the baseline;
+    accuracy is high but flat and barely moves off the baseline, so it cannot tell the
+    architectures apart --- the same anti-accuracy point made for the baselines, now at the
+    scale of the 243-config ablation.
     """
     frame = _indomain_hybrid()
     variants = ["Hybrid (OpenFace only)", "Hybrid + I3D"]
     n_configs = max((len(frame[frame["variant"] == v]) for v in variants), default=0)
-    fig, axes = new_fig(1, 2, figsize=(11, 4.6))
-    _ablation_panel(axes[0], frame, _METRIC, variants)
-    _ablation_panel(axes[1], frame, "accuracy", variants)
+    fig, axes = new_fig(2, 3, figsize=(13.5, 8.6))
+    for ax, metric in zip(axes.ravel(), ALL_METRICS_PANEL_ORDER):
+        _ablation_panel(ax, frame, metric, variants)
+    for row in axes:
+        row[0].set_ylabel("Score (in-domain CMOSE)")
     fig.suptitle(f"Hybrid ablation across {n_configs} group-architecture configs "
-                 f"(in-domain CMOSE)", y=1.02, fontweight="bold")
-    return save(fig, "hybrid_ablation_distribution", directory=directory)
+                 f"on all six metrics (in-domain CMOSE)", y=1.01, fontweight="bold")
+    fig.tight_layout()
+    return save(fig, "hybrid_ablation_all_metrics", directory=directory)
 
 
 def fig_group_marginal(directory: Path | None = None) -> Path:
@@ -150,7 +155,7 @@ def fig_best_comparison(directory: Path | None = None) -> Path:
 
 def make_all(directory: Path | None = None) -> list[Path]:
     return [
-        fig_ablation_distribution(directory),
+        fig_ablation_all_metrics(directory),
         fig_group_marginal(directory),
         fig_best_comparison(directory),
     ]

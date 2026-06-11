@@ -6,51 +6,57 @@
 \label{sec:hybrid-overview}
 
 Chapter~4 fixed the experimental frame --- cross-entropy as the development loss; QWK, macro-accuracy, and macro-MAE as the primary metrics; the OpenFace TCN at QWK 0.537 as the bar --- and showed that OpenFace and I3D features are complementary.
-This chapter introduces the proposed \textbf{semantic-group hybrid} (specified in Section~\ref{sec:hybrid}) and evaluates it against that frame, both in-domain and out of domain.
-It proceeds as a single argument.
-Section~\ref{sec:ablation} runs the core 243-configuration ablation that asks whether decomposing the OpenFace descriptor and fusing I3D beats the baseline bar, and how robustly (RQ1, RQ3).
+This chapter introduces the proposed \textbf{semantic-group hybrid} (specified in Section~\ref{sec:hybrid}) and evaluates it against that frame, mirroring the structure of the baseline chapter.
+Section~\ref{sec:ablation} reports the core 243-configuration ablation on \emph{all six metrics}, asking whether decomposing the OpenFace descriptor and fusing I3D beats the baseline bar, and how robustly (RQ1, RQ3).
 Section~\ref{sec:group-marginal} isolates which behavioural group's encoder choice actually matters (RQ2).
 Section~\ref{sec:error} compares the best hybrid with the best baseline and localises, class by class, where the in-domain gain comes from and where the problem remains open.
-Section~\ref{sec:private} then takes the hybrid out of domain: it confirms the cross-dataset collapse of Chapter~4 is architecture-independent and shows, on the decisive self-collected private set, that the architecture contribution and the corpus-pooling lever \emph{compound} on unseen, real-world data (RQ4).
+Section~\ref{sec:private} then takes the hybrid out of domain, and carries the two claims that close the thesis's argument: it \emph{confirms} on a second architecture family the verdict of Section~\ref{sec:crossdomain} --- the cross-dataset collapse is architecture-independent, and accuracy masks it for the hybrid exactly as it did for the baselines --- and it establishes the \emph{new} result that the hybrid generalizes better than the baselines, most of all on the decisive self-collected private set, where the architecture and the corpus-pooling lever \emph{compound} (RQ4).
 Section~\ref{sec:gen-discussion} discusses why, and reads the headline number honestly.
-As in Chapter~4, the class imbalance of Section~\ref{sec:data} is the backdrop, and the rare disengaged classes remain the stress test throughout.
+As in Chapter~4, accuracy appears only in the all-metrics overview and the generalization study; every other section argues from the primary metrics alone.
+The class imbalance of Section~\ref{sec:data} remains the backdrop, and the rare disengaged classes remain the stress test throughout.
 
 \FloatBarrier
-\section{Semantic-Group Hybrid Ablation (Core Result)}
+\section{In-Domain Results on All Metrics}
 \label{sec:ablation}
 
-Trained with cross-entropy and judged by QWK, macro-accuracy, and macro-MAE --- the choices fixed in Chapter~4 --- the semantic-group hybrid is now compared against the baseline bar of 0.537.
-As in the baseline chapter, this opening section first contrasts QWK with accuracy to confirm --- now at the scale of the architecture search --- that accuracy is blind to the differences that matter; QWK is the criterion used throughout the rest of the chapter.
-
-\textbf{Does the hybrid beat the baseline, and how robustly?}
-Figure~\ref{fig:hybrid_ablation_distribution} plots the QWK and the accuracy of all 243 per-group encoder configurations, split by whether the I3D stream is added, each against the corresponding best-baseline line.
+Trained with cross-entropy --- the development loss fixed in Chapter~4 --- all $3^{5}=243$ per-group encoder configurations, each with and without the I3D stream, are evaluated in-domain on CMOSE.
+Mirroring the baseline chapter, this opening section reports the ablation on all six metrics before the rest of the chapter narrows to the three primaries.
+Figure~\ref{fig:hybrid_ablation_all_metrics} plots the distribution of the two hybrid families on every metric, each panel against the best base model on that metric; Table~\ref{tab:T4_hybrid_topk} lists the top-10 configurations.
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.95\linewidth]{hybrid_ablation_distribution.png}
+\includegraphics[width=0.98\linewidth]{hybrid_ablation_all_metrics.png}
 \caption{Hybrid ablation across all 243 per-group encoder configurations, with and
-without I3D, on QWK (higher is better) and accuracy, against the best baseline.}
-\label{fig:hybrid_ablation_distribution}
+without I3D, on all six metrics (in-domain CMOSE). Each dashed line is the best base
+model on that metric, across all three losses.}
+\label{fig:hybrid_ablation_all_metrics}
 \end{figure}
 
-The \textbf{I3D-fused hybrid family is centred above the baseline} on QWK (median $\approx0.553$; best 0.605), whereas the \textbf{OpenFace-only hybrid straddles it} (median $\approx0.522$; best 0.584).
-\textbf{Accuracy, by contrast, cannot tell the families apart}: every configuration sits in a narrow band around the baseline's 0.773 (Figure~\ref{fig:hybrid_ablation_distribution}, right), so a model chosen on accuracy would see no architecture signal at all --- the same anti-accuracy lesson as the baselines (Section~\ref{sec:baseline-results}), now at the scale of 243 configurations.
-QWK exposes the family separation that accuracy hides.
-The important message is the robustness of the \emph{family}, not of any single cell: \textbf{83\% of the 243 I3D-fused configurations clear the baseline} on QWK, against 27\% of the OpenFace-only ones, so the gain comes from the architecture family rather than from one lucky configuration (\textbf{RQ1, RQ3}).
-That the I3D-fused family dominates the OpenFace-only one is the ablation-scale confirmation of the feature complementarity measured in Section~\ref{sec:openface-vs-i3d}: adding the global motion stream to the decomposed facial descriptor helps almost everywhere, not just on average.
-Table~\ref{tab:T4_hybrid_topk} lists the top-10 configurations; the best overall is the I3D hybrid \texttt{TCN\_T\_TCN\_LSTM\_T} (QWK 0.605, macro-accuracy 0.582, macro-MAE 0.489), and every top configuration mixes at least two encoder types.
+\textbf{The primary metrics separate the families.}
+On QWK the \textbf{I3D-fused family is centred above the baseline bar} (median 0.553 against 0.537; best 0.605), whereas the OpenFace-only family straddles it (median 0.522; best 0.584).
+The important message is the robustness of the \emph{family}, not of any single cell: \textbf{82\% of the 243 I3D-fused configurations (199) clear the bar} on QWK, against 26\% of the OpenFace-only ones, so the gain comes from the architecture family rather than from one lucky configuration (\textbf{RQ1, RQ3}).
+Cohen's kappa tells the same story (I3D-fused median 0.479 against the best base 0.436), and against the like-for-like cross-entropy baselines the fused family also improves the balanced metrics (median macro-accuracy 0.557 and macro-MAE 0.543, against the best CE baseline's 0.535 and 0.547).
+The macro panels of Figure~\ref{fig:hybrid_ablation_all_metrics} carry one honest caveat: their dashed lines (macro-accuracy 0.635, macro-MAE 0.458) belong to the \emph{ordinal-loss} I3D MLP, a balanced-loss operating point that buys those figures by giving up QWK (0.487, below the bar) --- the loss trade-off of Section~\ref{sec:loss-tradeoff}, not an architecture effect; no CE-trained model, baseline or hybrid, reaches it.
+
+\textbf{Accuracy, by contrast, cannot tell the families apart.}
+Every configuration sits in a narrow band around the best baseline's 0.773 (Figure~\ref{fig:hybrid_ablation_all_metrics}, top-left), so a model chosen on accuracy would see no architecture signal at all, and micro-MAE is nearly as flat.
+This is the same blindness the all-metrics overview of Section~\ref{sec:baseline-results} exposed for the baselines, now reproduced at the scale of 243 configurations; whether the QWK signal or the accuracy non-signal is the one to trust is settled --- against accuracy --- by the generalization study of Section~\ref{sec:private}.
+
+\textbf{Fusion confirms the feature complementarity.}
+That the I3D-fused family dominates the OpenFace-only one is the ablation-scale confirmation of the complementarity measured in Section~\ref{sec:openface-vs-i3d}: adding the global motion stream to the decomposed facial descriptor helps almost everywhere, not just on average.
+The best overall configuration is the I3D hybrid \texttt{TCN\_T\_TCN\_LSTM\_T} (QWK 0.605, macro-accuracy 0.582, macro-MAE 0.489), and every top configuration in Table~\ref{tab:T4_hybrid_topk} mixes at least two encoder types.
 \input{Table/T4_hybrid_topk}
 
 \textbf{Conclusion.}
-Decomposing the OpenFace descriptor and encoding each group separately helps (RQ1): as a \emph{family}, the I3D-fused hybrid is centred above the best monolithic baseline on all three primary metrics, with the majority of its configurations clearing the bar and the best reaching QWK 0.605 (macro-MAE 0.489).
+Decomposing the OpenFace descriptor and encoding each group separately helps (RQ1): as a \emph{family}, the I3D-fused hybrid is centred above the baseline bar on the agreement metrics and above the like-for-like CE baselines on the balanced ones, with 82\% of its configurations clearing the QWK bar and the best reaching 0.605.
 Adding the I3D stream is beneficial and makes the gain robust (RQ3).
 The next section asks which group's encoder is responsible for the spread.
 
 \FloatBarrier
-\section{Which Group's Encoder Matters}
+\section{Encoder Choice per Group}
 \label{sec:group-marginal}
 
-The 243-configuration grid varies five group$\rightarrow$encoder choices at once; this section marginalises them to find which group's choice actually moves the metric (RQ2).
+The 243-configuration grid varies five group$\rightarrow$encoder choices at once; this section marginalises them to find which group's choice actually moves the primary metrics (RQ2).
 Table~\ref{tab:T5_group_marginal} and Figure~\ref{fig:hybrid_group_marginal} show the mean QWK when each group uses a TCN, a Transformer, or an LSTM, marginalising over all other groups.
 \input{Table/T5_group_marginal}
 
@@ -71,10 +77,10 @@ It also honestly bounds the contribution: most of the 243-configuration grid is 
 Of the five behavioural groups, only head pose has a clear encoder preference --- a TCN (RQ2) --- so the decomposition is a sound, interpretable framework whose tunable degrees of freedom are fewer than the 243-cell grid suggests.
 
 \FloatBarrier
-\section{Best Hybrid versus Best Baseline (In-Domain)}
+\section{Comparison with Baselines}
 \label{sec:error}
 
-This section pins down the headline in-domain comparison and then opens it up class by class to see where the gain actually lands.
+This section pins down the headline in-domain comparison on the primary metrics and then opens it up class by class to see where the gain actually lands.
 
 \textbf{Best hybrid versus best baseline.}
 Figure~\ref{fig:hybrid_best_comparison} summarises the headline comparison on the three primary metrics: the best I3D-fused hybrid improves on the best baseline by \textbf{+0.068 QWK} (0.605 versus 0.537), lifts macro-accuracy (0.582 versus 0.535), and lowers macro-MAE (0.489 versus 0.547, lower is better).
@@ -113,14 +119,17 @@ The hybrid's in-domain improvement is real but \textbf{uneven}: it clears the ba
 This is the in-domain picture; the next section shows it becomes more severe still once the model leaves its training corpus --- and, at the same time, that the architecture's advantage over the baseline \emph{widens} there.
 
 \FloatBarrier
-\section{Hybrid Generalization and the Private Set}
+\section{Cross-Dataset Generalization}
 \label{sec:private}
 
 The decisive question is whether the hybrid's in-domain advantage survives, and pays off, on data the model was never trained on.
-Chapter~4 established with the baselines that engagement models do not transfer across corpora and that pooling source corpora is the most effective simple lever; this section asks whether the hybrid changes that picture and whether the architecture and the pooling lever \emph{compound}.
+Chapter~4 established with the baselines that engagement models do not transfer across corpora, that accuracy masks the failure, and that pooling source corpora is the most effective simple lever.
+This section first \emph{confirms} those findings on the hybrid --- they are properties of the problem, not of one architecture --- and then establishes the claim that completes the thesis's contribution: \textbf{the hybrid generalizes better than the baselines}, most of all on the self-collected private set.
 
-\textbf{The collapse is architecture-independent.}
-The hybrid cross-dataset heatmap (Figure~\ref{fig:crossdomain_hybrid}) shows the same pattern as the baseline matrix of Section~\ref{sec:crossdomain}: a healthy diagonal and an off-diagonal collapse of all three primary metrics, with raw accuracy still masking it just as it did for the baselines.
+\subsection{Cross-dataset matrix}
+\label{sec:hybrid-crossdomain}
+
+The hybrid cross-dataset heatmap (Figure~\ref{fig:crossdomain_hybrid}) shows the same pattern as the baseline matrix of Section~\ref{sec:crossdomain}: a healthy diagonal and an off-diagonal collapse of all three primary metrics.
 The hybrid does not rescue cross-corpus transfer, confirming that the gap is a property of the \emph{problem} --- divergent label priors and recording conditions --- not of a particular architecture.
 
 \begin{figure}[ht]
@@ -131,7 +140,15 @@ metrics: QWK, macro-accuracy, and macro-MAE (lower is better).}
 \label{fig:crossdomain_hybrid}
 \end{figure}
 
-\textbf{The decisive probe: the private set.}
+\textbf{The accuracy deception persists --- Chapter~4's claim confirmed.}
+The disproof of accuracy in Section~\ref{sec:crossdomain} was read off the baselines; the hybrid reproduces it exactly.
+On DAiSEE$\rightarrow$CMOSE the best QWK any of the 486 hybrid runs achieves is 0.10, yet hybrids in that cell post accuracies up to 0.69; on CMOSE$\rightarrow$DAiSEE the best QWK is 0.07 against accuracies near 0.50.
+A second architecture family, developed independently of the baselines, thus lands in the same place: accuracy reports a partial success in exactly the cells where the chance-corrected metrics report chance-level agreement.
+The metric frame fixed in Section~\ref{sec:baseline-results} is therefore not an artefact of the monolithic models --- and this is the last time accuracy appears in the thesis's analysis.
+
+\subsection{The private set}
+\label{sec:private-results}
+
 The most consequential evaluation in this thesis is on the \textbf{private set} --- the 366 clips we collected and hand-labelled ourselves (Section~\ref{sec:private-collection}), processed through the identical OpenFace/I3D pipeline and used \textbf{for testing only}.
 Because no model is ever trained on it, the private set is a genuine ``in-the-wild'' probe of deployment: it has its own recording conditions and its own label prior (58\% Engage, 31\% Highly-Engage, only 2.7\% Highly-Disengage).
 For this set there is no in-domain option at all; the \emph{only} design lever is the choice of training source, which makes it the cleanest test of the two contributions of this thesis acting together --- the semantic-group architecture and the corpus-pooling insight of Section~\ref{sec:crossdomain}.
@@ -152,8 +169,9 @@ Two effects compound, and both favour this thesis's contributions.
   \item \textbf{Training source matters, and the combined corpus wins.}
   For both model families, training on \textbf{Combined} generalises best to the private set; a single source is markedly worse (best base QWK: Combined 0.285 versus DAiSEE 0.256 versus CMOSE 0.190).
   Pooling heterogeneous source corpora is the most effective simple route to an unseen target, exactly as the cross-dataset matrix of Chapter~4 predicted.
-  \item \textbf{The hybrid helps more here than in-domain.}
+  \item \textbf{The hybrid generalizes better --- and helps more here than in-domain.}
   The semantic-group hybrid beats the best base model on QWK for \emph{every} training source, and the gap is \textbf{largest exactly where it matters}: under combined training the hybrid reaches \textbf{QWK 0.379 versus 0.285} for the best base, a \textbf{$+0.094$} improvement --- wider than the $+0.068$ in-domain CMOSE gain (Section~\ref{sec:error}).
+  This is the crucial new claim of the section: the architecture's advantage is not an in-domain artefact that distribution shift erodes, it is a generalization property that distribution shift \emph{amplifies}.
   The overall best private-set model is the combined-trained I3D-fused hybrid \texttt{T\_T\_T\_LSTM\_T}, and it is best on both ordinal primaries: \textbf{QWK 0.379} and the lowest \textbf{macro-MAE 0.877} of any source (Table~\ref{tab:T6_private_by_source}), against the best base's 0.997.
   Macro-MAE corroborates the QWK ranking with one honest caveat: the CMOSE-only base model attains a deceptively low macro-MAE (0.75) despite the weakest QWK (0.19), because it predicts conservatively around the majority classes --- precisely the kind of false comfort that reporting all three primaries together is designed to catch.
 \end{enumerate}
@@ -173,6 +191,7 @@ As in-domain, the rare disengaged classes are the failure mode under shift --- \
 \end{figure}
 
 \textbf{Conclusion.}
+The cross-dataset matrix confirms Chapter~4 on a second architecture family: the collapse is architecture-independent, and accuracy masks it for the hybrid exactly as for the baselines.
 On the decisive, test-only private set the two contributions \emph{compound}: combined-corpus training with the semantic-group hybrid is the best model (QWK 0.379, macro-MAE 0.877), beating the best baseline by a wider margin than in-domain ($+0.094$ QWK versus $+0.068$).
 The practical payoff of the thesis is therefore concentrated exactly where it matters most --- on unseen, real-world data --- while recognising rare disengagement under distribution shift remains the central open problem.
 
@@ -206,10 +225,10 @@ This is the clearest sign that the open problem is not architectural but one of 
 \section{Chapter Summary}
 \label{sec:hybrid-summary}
 
-This chapter introduced the semantic-group hybrid and evaluated it under the frame fixed in Chapter~4.
-The 243-configuration ablation (Section~\ref{sec:ablation}) showed that the hybrid as a family exceeds the baseline and is best when fused with I3D (QWK 0.605), with 83\% of I3D-fused configurations clearing the bar (RQ1, RQ3); only head pose has a clear encoder preference, a TCN (Section~\ref{sec:group-marginal}, RQ2).
+This chapter introduced the semantic-group hybrid and evaluated it under the frame fixed in Chapter~4, mirroring that chapter's structure.
+The all-metrics ablation (Section~\ref{sec:ablation}) showed that the hybrid as a family exceeds the baseline and is best when fused with I3D (QWK 0.605), with 82\% of I3D-fused configurations clearing the bar on QWK while accuracy could not tell the families apart (RQ1, RQ3); only head pose has a clear encoder preference, a TCN (Section~\ref{sec:group-marginal}, RQ2).
 The in-domain comparison and error analysis (Section~\ref{sec:error}) showed the +0.068 QWK gain is concentrated in the upper-engagement region, with Highly\nobreakdash-Disengage the remaining open problem.
-Out of domain (Section~\ref{sec:private}), the hybrid did not rescue cross-corpus transfer --- the collapse is architecture-independent --- but on the decisive self-collected private set the architecture and the combined-training insight compounded to the best result (QWK 0.379, lowest macro-MAE 0.877, $+0.094$ over the baseline, a wider margin than in-domain), demonstrating that the value of both contributions is greatest precisely on unseen, real-world data (RQ4).
+The generalization study (Section~\ref{sec:private}) did the chapter's decisive work twice over: it \emph{confirmed} Chapter~4's findings on a second architecture family --- the cross-corpus collapse is architecture-independent, and accuracy masks it for hybrids exactly as for baselines --- and it established the \emph{new} result that the hybrid generalizes better than the baselines, compounding with combined-corpus training to the best private-set model (QWK 0.379, lowest macro-MAE 0.877, $+0.094$ over the baseline, a wider margin than in-domain) (RQ4).
 In both regimes the rare Highly\nobreakdash-Disengage class remains the principal failure mode, collapsing entirely under distribution shift.
 Chapter~6 draws the findings together, revisits the research questions, and outlines future work.
 
