@@ -5,13 +5,15 @@
 \contentsline {table}{\numberline {3.1}{\ignorespaces T1. Dataset statistics and class balance (\%).}}{16}{table.caption.10}%
 \contentsline {table}{\numberline {3.2}{\ignorespaces Semantic decomposition of the 709-dimensional OpenFace descriptor.}}{20}{table.caption.18}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {4.1}{\ignorespaces T2. Base models $\times $ losses, in-domain (CMOSE$\rightarrow $CMOSE), sorted by QWK.}}{27}{table.caption.22}%
-\contentsline {table}{\numberline {4.2}{\ignorespaces T7. Best in-domain result per dataset (CMOSE vs DaiSEE; macro-MAE lower is better).}}{31}{table.caption.27}%
-\contentsline {table}{\numberline {4.3}{\ignorespaces T3. Best base model per cross-domain cell (QWK, macro-MAE, and Accuracy; macro-MAE lower is better).}}{33}{table.caption.30}%
+\contentsline {table}{\numberline {4.1}{\ignorespaces T8. The winning base configuration according to each metric (in-domain CMOSE).}}{26}{table.caption.21}%
+\contentsline {table}{\numberline {4.2}{\ignorespaces T7. Best in-domain result per dataset (CMOSE vs DaiSEE; macro-MAE lower is better).}}{28}{table.caption.23}%
+\contentsline {table}{\numberline {4.3}{\ignorespaces T2. Base models $\times $ losses, in-domain (CMOSE$\rightarrow $CMOSE), sorted by QWK.}}{32}{table.caption.29}%
+\contentsline {table}{\numberline {4.4}{\ignorespaces T9. Prediction-level agreement and ensemble headroom of the base configurations (in-domain CMOSE).}}{34}{table.caption.31}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {5.1}{\ignorespaces T4. Top-10 hybrid configs in-domain (CMOSE), sorted by QWK (macro-MAE lower is better).}}{37}{table.caption.32}%
-\contentsline {table}{\numberline {5.2}{\ignorespaces T5. Per-group marginal effect of encoder choice on in-domain QWK.}}{37}{table.caption.33}%
-\contentsline {table}{\numberline {5.3}{\ignorespaces T6. Private set (test-only): best base vs best hybrid by training source (macro-MAE lower is better).}}{42}{table.caption.39}%
+\contentsline {table}{\numberline {5.1}{\ignorespaces T5. Per-group marginal effect of encoder choice on in-domain QWK.}}{44}{table.caption.40}%
+\contentsline {table}{\numberline {5.2}{\ignorespaces T10. Per-group marginal effect of encoder choice on QWK, pooled over the unseen-target cells.}}{45}{table.caption.42}%
+\contentsline {table}{\numberline {5.3}{\ignorespaces T4. Top-10 hybrid configs in-domain (CMOSE), sorted by QWK (macro-MAE lower is better).}}{47}{table.caption.45}%
+\contentsline {table}{\numberline {5.4}{\ignorespaces T6. Private set (test-only): best base vs best hybrid by training source (macro-MAE lower is better).}}{50}{table.caption.50}%
 \addvspace {10\p@ }
 \contentsfinish 
 \contentsfinish 

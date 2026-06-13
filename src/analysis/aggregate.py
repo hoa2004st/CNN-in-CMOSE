@@ -73,6 +73,26 @@ TEST_SETS = ["cmose_test", "daisee_test", "private"]
 TRAIN_GROUP_DISPLAY = {"cmose": "CMOSE", "daisee": "DaiSEE", "combined": "Combined"}
 TEST_SET_DISPLAY = {"cmose_test": "CMOSE", "daisee_test": "DaiSEE", "private": "Private"}
 
+# Cells of the 3x3 matrix whose TEST corpus contributed no training data — the genuine
+# generalization regime. "combined" pools CMOSE+DaiSEE train splits, so for it only the
+# private set is unseen; combined→cmose/daisee_test are seen-target cells.
+UNSEEN_TARGET_CELLS = [
+    ("cmose", "daisee_test"),
+    ("cmose", "private"),
+    ("daisee", "cmose_test"),
+    ("daisee", "private"),
+    ("combined", "private"),
+]
+
+
+def unseen_target_mask(frame: pd.DataFrame) -> pd.Series:
+    """Boolean mask selecting the unseen-target (generalization) cells of ``frame``."""
+    cells = set(UNSEEN_TARGET_CELLS)
+    return pd.Series(
+        [pair in cells for pair in zip(frame["train_group"], frame["test_set"])],
+        index=frame.index,
+    )
+
 
 # --------------------------------------------------------------------------------------
 # Assessment matrices

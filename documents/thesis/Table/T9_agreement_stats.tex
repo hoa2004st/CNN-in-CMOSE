@@ -1,0 +1,26 @@
+\begin{table}[ht]
+\centering
+\caption{T9. Prediction-level agreement and ensemble headroom of the base configurations (in-domain CMOSE).}
+\label{tab:T9_agreement_stats}
+\fittable{%
+\begin{tabular}{ll}
+\toprule
+Statistic & Value \\
+\midrule
+Configs compared / test clips & 15 / 1221 \\
+Best single-config accuracy & 77.3\% \\
+Majority-vote accuracy (all configs) & 73.5\% \\
+Oracle accuracy (>=1 config correct) & 97.6\% \\
+Clips every config gets wrong & 2.4\% \\
+Mean pairwise Cohen $\kappa$ --- same model, different loss & 0.391 \\
+Mean pairwise Cohen $\kappa$ --- same loss, different model & 0.374 \\
+Mean pairwise Cohen $\kappa$ --- different model and loss & 0.273 \\
+openface\_tcn/CE vs i3d\_mlp/CE --- Cohen $\kappa$ & 0.474 \\
+openface\_tcn/CE vs i3d\_mlp/CE --- only openface\_tcn correct & 7.4\% \\
+openface\_tcn/CE vs i3d\_mlp/CE --- only i3d\_mlp correct & 8.6\% \\
+openface\_tcn/CE vs i3d\_mlp/CE --- both wrong & 15.3\% \\
+openface\_tcn/CE + i3d\_mlp/CE --- pair oracle accuracy & 84.7\% \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}

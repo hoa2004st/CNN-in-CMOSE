@@ -21,6 +21,7 @@ The evidence supports five conclusions.
   \item \textbf{Engagement classifiers do not generalise across datasets.}
   Off-diagonal QWK collapses to near zero (CMOSE$\rightarrow$DAiSEE 0.02) even when accuracy looks acceptable, so ordinal agreement metrics --- not accuracy --- must be reported on imbalanced engagement data.
   \item \textbf{On the self-collected, hand-labelled private set --- the most realistic test --- the two contributions compound.}
+  The hybrid's advantage is not confined to one comparison: it beats the best baseline in \emph{all nine} train$\times$test cells of the cross-dataset matrix.
   Because the private set is test-only, the only lever is the training source; training on the \textbf{combined} corpus with the \textbf{semantic-group hybrid} gives the best result (QWK 0.379), beating the best baseline by $+0.094$ (against $+0.068$ in-domain) and topping every single-source hybrid.
   This is the practical payoff of the thesis.
   \item \textbf{The rare Highly\nobreakdash-Disengage class remains the principal open problem.}
@@ -41,6 +42,10 @@ In-domain the semantic-group decomposition is a modest, interpretable improvemen
 Taken alone, that is a small result.
 What makes it worth the construction is that the same decomposition pays off \emph{more} exactly where it is hardest to: on the unseen private set the margin over the baseline widens to $+0.094$, and it compounds with pooling rather than competing with it.
 The contribution is therefore best understood not as a new in-domain state of the art but as a representation that degrades more gracefully under distribution shift --- which, for a problem whose only real test is deployment, is the property that matters.
+
+\textbf{The fusion was measured before it was built.}
+The decision to fuse the OpenFace and I3D families did not rest on intuition: the clip-level agreement analysis of Chapter~4 showed that the best OpenFace model and the I3D baseline disagree more with each other than OpenFace models do among themselves, and that each family solves clips the other cannot --- evidence of complementary errors that the paired I3D ablation of Chapter~5 then confirmed in-domain.
+The same analysis also quantified untapped headroom: an oracle over the thirty baseline configurations would reach 97.6\% of clips against 77.3\% for the best single model, which both motivates fusion and marks ensemble selection as a direction the thesis deliberately left aside.
 
 \textbf{The flat design space is itself the message.}
 That four of five behavioural groups are indifferent to their encoder, while only head pose prefers a TCN, bounds the contribution honestly: the gain comes from \emph{decomposing and fusing} the descriptor, not from a clever per-group encoder search.
@@ -66,14 +71,17 @@ Four of the five groups are essentially indifferent to whether their encoder is 
 The practical implication is that the design space is mostly flat and that a TCN is a safe default for every group, with head pose the one place the choice is worth making deliberately.
 
 \textbf{RQ3 (motion fusion).}
-\emph{Yes, the I3D stream helps and stabilises the gain.}
-Adding the clip-level I3D embedding shifts the whole family of configurations upward and produces both the best in-domain model and the best private-set model, even though the I3D feature is only a globally pooled clip descriptor.
+\emph{Yes in-domain, with an honest caveat under shift.}
+When the model is evaluated on a distribution it has trained on, adding the clip-level I3D embedding is decisively beneficial: the paired comparison over all 243 OpenFace assignments shows a median gain of $+0.060$ QWK with 94\% of pairs improving, and the fused family produces both the best in-domain model and the best private-set model.
+Under cross-corpus shift, however, the same stream is neutral to mildly harmful on average (median $-0.021$ on cross-public cells, $+0.005$ on the private set) --- the I3D stream encodes useful but corpus-specific appearance cues.
+The fusion is therefore recommended, but its gain should be claimed only for the regime in which it holds.
 
 \textbf{RQ4 (generalisation and losses).}
 \emph{Generalisation is poor and metric choice is decisive.}
 Models do not transfer off-the-shelf across corpora; off-diagonal ordinal agreement collapses while accuracy stays deceptively high.
-Among losses there is no universal winner --- cross-entropy maximises ordinal agreement (QWK) while weighted and ordinal losses recover minority recall and balanced ordinal error --- so the loss is a Pareto choice, and QWK together with macro-accuracy and macro-MAE must be the primary yardstick.
-Pooling source corpora is the single most effective lever for an unknown target.
+In-domain merit is, moreover, a poor predictor of transfer: the correlation between in-domain and unseen-target QWK is weak for the baselines ($\rho=0.28$) and mildly negative across the hybrid grid ($\rho=-0.31$), so a model cannot be selected for deployment from its in-domain score alone.
+Among losses there is no universal winner --- cross-entropy maximises ordinal agreement (QWK) while weighted and ordinal losses recover minority recall and balanced ordinal error --- so the loss is a Pareto choice; notably, the cross-entropy-first ranking is the one in-domain preference that is preserved intact on every unseen target, which retrospectively validates fixing it before development.
+QWK together with macro-accuracy and macro-MAE must be the primary yardstick, and pooling source corpora is the single most effective lever for an unknown target.
 
 \FloatBarrier
 \section{Limitations}

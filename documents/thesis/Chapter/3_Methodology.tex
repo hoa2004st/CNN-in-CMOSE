@@ -285,6 +285,7 @@ The diagonal cells are the in-domain results; the off-diagonal and the Private c
 
 \textbf{Metrics.}
 Each evaluation reports the six metrics defined in Section~\ref{sec:metrics-lit} --- accuracy, macro-accuracy, MAE, macro-MAE, Cohen's kappa, and QWK --- with \textbf{QWK, macro-accuracy, and macro-MAE as primary}.
+The empirical justification for this choice --- the six metrics demonstrably disagree on the best model, and accuracy fails to detect cross-corpus collapse --- is laid out in the evaluation-protocol section of Chapter~4 (Section~\ref{sec:protocol}).
 Row-normalised confusion matrices and per-class F1 scores are used for error analysis.
 
 \textbf{Aggregation and reproducibility.}

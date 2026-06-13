@@ -1,0 +1,19 @@
+\begin{table}[ht]
+\centering
+\caption{T8. The winning base configuration according to each metric (in-domain CMOSE).}
+\label{tab:T8_per_metric_winner}
+\fittable{%
+\begin{tabular}{lllr}
+\toprule
+Metric & Best model & Loss & Value \\
+\midrule
+QWK & openface\_tcn & CE & 0.537 \\
+Macro-Accuracy & i3d\_mlp & Ordinal & 0.635 \\
+Macro-MAE (lower is better) & i3d\_mlp & Ordinal & 0.458 \\
+Accuracy & i3d\_mlp & CE & 0.773 \\
+MAE (lower is better) & i3d\_mlp & CE & 0.244 \\
+Cohen $\kappa$ & i3d\_mlp & CE & 0.436 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}

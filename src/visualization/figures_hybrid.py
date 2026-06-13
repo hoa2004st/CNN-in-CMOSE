@@ -34,8 +34,12 @@ def _best_base_indomain(metric: str = _METRIC) -> float:
 
 def _ablation_panel(ax, frame, metric: str, variants) -> None:
     data = [frame[frame["variant"] == v][metric].to_numpy() for v in variants]
-    bp = ax.boxplot(data, widths=0.5, patch_artist=True, showmeans=True,
-                    medianprops=dict(color="black"))
+    bp = ax.boxplot(data, widths=0.5, patch_artist=True, showmeans=True, showfliers=False,
+                    medianprops=dict(color="black"),
+                    meanprops=dict(marker="D", markersize=5,
+                                   markerfacecolor="white", markeredgecolor="black"))
+    for mean in bp["means"]:
+        mean.set_zorder(4)
     for patch, v in zip(bp["boxes"], variants):
         patch.set_facecolor(_VARIANT_COLOR[v])
         patch.set_alpha(0.55)
@@ -76,13 +80,10 @@ def fig_ablation_all_metrics(directory: Path | None = None) -> Path:
     return save(fig, "hybrid_ablation_all_metrics", directory=directory)
 
 
-def fig_group_marginal(directory: Path | None = None) -> Path:
-    """For each semantic group, the QWK distribution when its encoder is TCN, Transformer, or LSTM.
-
-    A box plot (not a bar chart) because the configurations form a distribution: the marginal
-    spread per encoder is the point, and a box plot reads honestly without a zero baseline.
-    """
-    frame = _indomain_hybrid()
+def _fig_group_marginal(frame, *, name: str, title: str, ylabel: str,
+                        base_value: float, base_label: str,
+                        directory: Path | None = None) -> Path:
+    """Shared body for the per-group marginal box plots (in-domain and unseen variants)."""
     groups = ag.OPENFACE_GROUP_ORDER
     tokens = ag.ARCH_TOKENS
     width = 0.8 / len(tokens)
@@ -104,14 +105,102 @@ def fig_group_marginal(directory: Path | None = None) -> Path:
         for whisker in bp["whiskers"] + bp["caps"]:
             whisker.set_color(_ARCH_COLOR[token])
         bp["boxes"][0].set_label(ag.ARCH_TOKEN_DISPLAY[token])
-    base = _best_base_indomain()
-    ax.axhline(base, ls="--", color="gray", lw=1.2, label=f"Best base model (QWK={base:.3f})")
+    ax.axhline(base_value, ls="--", color="gray", lw=1.2, label=base_label)
     ax.set_xticks(np.arange(len(groups)))
     ax.set_xticklabels([ag.GROUP_DISPLAY[g] for g in groups], rotation=15, ha="right")
-    ax.set_ylabel("QWK (in-domain CMOSE)")
-    ax.set_title("Per-group marginal effect of encoder choice (TCN vs Transformer vs LSTM)")
+    ax.set_ylabel(ylabel)
+    ax.set_title(title)
     ax.legend(title="Encoder for this group", loc="upper left", bbox_to_anchor=(1.02, 1))
-    return save(fig, "hybrid_group_marginal", directory=directory)
+    return save(fig, name, directory=directory)
+
+
+def fig_group_marginal(directory: Path | None = None) -> Path:
+    """For each semantic group, the QWK distribution when its encoder is TCN, Transformer, or LSTM.
+
+    A box plot (not a bar chart) because the configurations form a distribution: the marginal
+    spread per encoder is the point, and a box plot reads honestly without a zero baseline.
+    """
+    base = _best_base_indomain()
+    return _fig_group_marginal(
+        _indomain_hybrid(),
+        name="hybrid_group_marginal",
+        title="Per-group marginal effect of encoder choice (TCN vs Transformer vs LSTM)",
+        ylabel="QWK (in-domain CMOSE)",
+        base_value=base, base_label=f"Best base model (QWK={base:.3f})",
+        directory=directory)
+
+
+def fig_group_marginal_unseen(directory: Path | None = None) -> Path:
+    """The same per-group marginal, pooled over the unseen-target cells.
+
+    Answers whether the in-domain encoder preferences (head pose -> TCN, everything else
+    encoder-agnostic) are corpus-specific or survive domain shift.
+    """
+    h = ag.load_hybrid_matrix()
+    frame = h[ag.unseen_target_mask(h)]
+    m = ag.load_matrix()
+    base = float(m[ag.unseen_target_mask(m)]
+                 .groupby(["train_group", "test_set"])[_METRIC].max().mean())
+    return _fig_group_marginal(
+        frame,
+        name="hybrid_group_marginal_unseen",
+        title="Per-group marginal effect of encoder choice — unseen-target cells",
+        ylabel="QWK (pooled unseen-target cells)",
+        base_value=base, base_label=f"Best base model, mean over unseen cells (QWK={base:.3f})",
+        directory=directory)
+
+
+# (train_group, test_set) buckets for the paired I3D ablation: cells where the test corpus
+# was seen during training, the two cross-corpus cells, and the (always unseen) private set.
+_SEEN_CELLS = [("cmose", "cmose_test"), ("daisee", "daisee_test"),
+               ("combined", "cmose_test"), ("combined", "daisee_test")]
+_CROSS_CELLS = [("cmose", "daisee_test"), ("daisee", "cmose_test")]
+
+
+def fig_i3d_paired_delta(directory: Path | None = None) -> Path:
+    """Paired effect of fusing I3D: delta QWK between the same arch_key with vs without I3D.
+
+    Pairing each OpenFace-only config with its exact +I3D twin removes the configuration as
+    a confounder, so the distribution of deltas IS the I3D effect — shown separately for
+    seen-target cells, the cross-corpus cells, and the private set.
+    """
+    h = ag.load_hybrid_matrix()
+    pivot = h.pivot_table(index=["train_group", "test_set", "arch_key", "loss"],
+                          columns="has_i3d", values=_METRIC)
+    delta = (pivot[True] - pivot[False]).dropna().rename("delta").reset_index()
+    cell = list(zip(delta["train_group"], delta["test_set"]))
+    delta["regime"] = ["Seen target" if c in _SEEN_CELLS
+                       else "Cross-corpus" if c in _CROSS_CELLS
+                       else "Private set" for c in cell]
+    regimes = ["Seen target", "Cross-corpus", "Private set"]
+    data = [delta[delta["regime"] == r]["delta"].to_numpy() for r in regimes]
+
+    fig, ax = new_fig(figsize=(8.0, 4.8))
+    bp = ax.boxplot(data, widths=0.5, patch_artist=True, showmeans=True, showfliers=False,
+                    medianprops=dict(color="black"),
+                    meanprops=dict(marker="D", markersize=5,
+                                   markerfacecolor="white", markeredgecolor="black"))
+    for patch in bp["boxes"]:
+        patch.set_facecolor(_VARIANT_COLOR["Hybrid + I3D"])
+        patch.set_alpha(0.55)
+    for i, values in enumerate(data, start=1):
+        jitter = np.random.default_rng(0).normal(0, 0.06, size=len(values))
+        ax.scatter(np.full(len(values), i) + jitter, values, s=8, alpha=0.35,
+                   color=_VARIANT_COLOR["Hybrid + I3D"], linewidth=0, zorder=3)
+    ax.axhline(0, ls="--", color="gray", lw=1.2)
+    top = max(np.max(values) for values in data)
+    bottom = min(np.min(values) for values in data)
+    span = top - bottom
+    ax.set_ylim(bottom - 0.04 * span, top + 0.22 * span)  # headroom for the annotations
+    for i, values in enumerate(data, start=1):
+        share_pos = (values > 0).mean() * 100
+        ax.annotate(f"mean {values.mean():+.3f}\n{share_pos:.0f}% > 0",
+                    xy=(i, top + 0.20 * span), ha="center", va="top", fontsize=8)
+    ax.set_xticks(range(1, len(regimes) + 1))
+    ax.set_xticklabels([f"{r}\n(n={len(d)} pairs)" for r, d in zip(regimes, data)])
+    ax.set_ylabel("$\\Delta$QWK  (with I3D $-$ without I3D, same config)")
+    ax.set_title("Paired effect of I3D fusion across evaluation regimes")
+    return save(fig, "i3d_paired_delta", directory=directory)
 
 
 def fig_best_comparison(directory: Path | None = None) -> Path:
@@ -157,5 +246,7 @@ def make_all(directory: Path | None = None) -> list[Path]:
     return [
         fig_ablation_all_metrics(directory),
         fig_group_marginal(directory),
+        fig_group_marginal_unseen(directory),
+        fig_i3d_paired_delta(directory),
         fig_best_comparison(directory),
     ]

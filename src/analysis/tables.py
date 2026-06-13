@@ -80,26 +80,6 @@ def table_base_indomain() -> tuple[str, pd.DataFrame, str]:
                  "T2. Base models × losses, in-domain (CMOSE→CMOSE), sorted by QWK.")
 
 
-def table_crossdomain() -> tuple[str, pd.DataFrame, str]:
-    m = ag.load_matrix()
-    rows = []
-    for metric in ["quadratic_weighted_kappa", "macro_mae", "accuracy"]:
-        best = ag.best_per_cell(m, metric)
-        for _, r in best.iterrows():
-            rows.append({
-                "Metric": ag.METRIC_DISPLAY[metric],
-                "Train": ag.TRAIN_GROUP_DISPLAY.get(r["train_group"], r["train_group"]),
-                "Test": ag.TEST_SET_DISPLAY.get(r["test_set"], r["test_set"]),
-                "Best model": display_model_name(r["model"]),
-                "Loss": r["loss_display"],
-                "Score": round(float(r[metric]), 3),
-            })
-    frame = pd.DataFrame(rows)
-    return _spec(frame, "T3_crossdomain",
-                 "T3. Best base model per cross-domain cell (QWK, macro-MAE, and Accuracy; "
-                 "macro-MAE lower is better).")
-
-
 def table_hybrid_topk(k: int = 10) -> tuple[str, pd.DataFrame, str]:
     h = ag.load_hybrid_matrix()
     cell = h[(h["train_group"] == "cmose") & (h["test_set"] == "cmose_test")].copy()
@@ -114,9 +94,8 @@ def table_hybrid_topk(k: int = 10) -> tuple[str, pd.DataFrame, str]:
                  f"(macro-MAE lower is better).")
 
 
-def table_group_marginal() -> tuple[str, pd.DataFrame, str]:
-    h = ag.load_hybrid_matrix()
-    cell = h[(h["train_group"] == "cmose") & (h["test_set"] == "cmose_test")]
+def _group_marginal_frame(cell: pd.DataFrame) -> pd.DataFrame:
+    """Per-group marginal mean QWK per encoder token over the configs in ``cell``."""
     rows = []
     for g in ag.OPENFACE_GROUP_ORDER:
         means = {
@@ -131,8 +110,13 @@ def table_group_marginal() -> tuple[str, pd.DataFrame, str]:
         row["Spread"] = round(spread, 3)
         row["Prefers"] = ag.ARCH_TOKEN_DISPLAY[best_token]
         rows.append(row)
-    frame = pd.DataFrame(rows)
-    return _spec(frame, "T5_group_marginal",
+    return pd.DataFrame(rows)
+
+
+def table_group_marginal() -> tuple[str, pd.DataFrame, str]:
+    h = ag.load_hybrid_matrix()
+    cell = h[(h["train_group"] == "cmose") & (h["test_set"] == "cmose_test")]
+    return _spec(_group_marginal_frame(cell), "T5_group_marginal",
                  "T5. Per-group marginal effect of encoder choice on in-domain QWK.")
 
 
@@ -183,16 +167,87 @@ def table_indomain_cmose_vs_daisee() -> tuple[str, pd.DataFrame, str]:
                  "T7. Best in-domain result per dataset (CMOSE vs DaiSEE; macro-MAE lower is better).")
 
 
+def table_per_metric_winner() -> tuple[str, pd.DataFrame, str]:
+    """Which (model, loss) each of the six metrics declares best, in-domain CMOSE.
+
+    The disagreement between rows is the point: it motivates fixing the primary metrics
+    before any architecture comparison.
+    """
+    m = ag.load_matrix()
+    cell = m[(m["train_group"] == "cmose") & (m["test_set"] == "cmose_test")]
+    rows = []
+    for metric in _PRIMARY:
+        best = cell.loc[cell[metric].idxmin() if metric in ag.LOWER_BETTER_METRICS
+                        else cell[metric].idxmax()]
+        rows.append({
+            "Metric": ag.METRIC_DISPLAY[metric]
+                      + (" (lower is better)" if metric in ag.LOWER_BETTER_METRICS else ""),
+            "Best model": best["model_display"],
+            "Loss": best["loss_display"],
+            "Value": round(float(best[metric]), 3),
+        })
+    frame = pd.DataFrame(rows)
+    return _spec(frame, "T8_per_metric_winner",
+                 "T8. The winning base configuration according to each metric "
+                 "(in-domain CMOSE).")
+
+
+def table_agreement_stats() -> tuple[str, pd.DataFrame, str]:
+    """Prediction-agreement and ensemble-headroom statistics, in-domain CMOSE."""
+    from src.analysis import agreement as agr  # local import: loads the 24 MB prediction log
+
+    wide, true = agr.indomain_prediction_table()
+    oracle = agr.oracle_stats(wide, true)
+    blocks = agr.kappa_block_means(agr.pairwise_kappa(wide))
+    of_vs_i3d = agr.pair_overlap(wide, true, ("temporal_cnn", "ce"), ("i3d_mlp", "ce"))
+
+    def pct(x: float) -> str:
+        return f"{x * 100:.1f}%"
+
+    rows = [
+        ("Configs compared / test clips", f"{oracle['n_configs']} / {oracle['n_clips']}"),
+        ("Best single-config accuracy", pct(oracle["best_single_accuracy"])),
+        ("Majority-vote accuracy (all configs)", pct(oracle["majority_vote_accuracy"])),
+        ("Oracle accuracy (>=1 config correct)", pct(oracle["oracle_accuracy"])),
+        ("Clips every config gets wrong", pct(oracle["all_wrong_share"])),
+        ("Mean pairwise Cohen κ — same model, different loss", f"{blocks['same model']:.3f}"),
+        ("Mean pairwise Cohen κ — same loss, different model", f"{blocks['same loss']:.3f}"),
+        ("Mean pairwise Cohen κ — different model and loss",
+         f"{blocks['different model & loss']:.3f}"),
+        ("openface_tcn/CE vs i3d_mlp/CE — Cohen κ", f"{of_vs_i3d['kappa']:.3f}"),
+        ("openface_tcn/CE vs i3d_mlp/CE — only openface_tcn correct", pct(of_vs_i3d["only_a"])),
+        ("openface_tcn/CE vs i3d_mlp/CE — only i3d_mlp correct", pct(of_vs_i3d["only_b"])),
+        ("openface_tcn/CE vs i3d_mlp/CE — both wrong", pct(of_vs_i3d["both_wrong"])),
+        ("openface_tcn/CE + i3d_mlp/CE — pair oracle accuracy",
+         pct(of_vs_i3d["pair_oracle_accuracy"])),
+    ]
+    frame = pd.DataFrame(rows, columns=["Statistic", "Value"])
+    return _spec(frame, "T9_agreement_stats",
+                 "T9. Prediction-level agreement and ensemble headroom of the base "
+                 "configurations (in-domain CMOSE).")
+
+
+def table_group_marginal_unseen() -> tuple[str, pd.DataFrame, str]:
+    """T5's marginal recomputed on the unseen-target cells (does the preference transfer?)."""
+    h = ag.load_hybrid_matrix()
+    cell = h[ag.unseen_target_mask(h)]
+    return _spec(_group_marginal_frame(cell), "T10_group_marginal_unseen",
+                 "T10. Per-group marginal effect of encoder choice on QWK, pooled over the "
+                 "unseen-target cells.")
+
+
 def build_all() -> list[tuple[str, pd.DataFrame, str]]:
     """Every result table as a ``(name, frame, caption)`` spec (no I/O)."""
     return [
         table_dataset_stats(),
         table_base_indomain(),
-        table_crossdomain(),
         table_hybrid_topk(),
         table_group_marginal(),
         table_private_by_source(),
         table_indomain_cmose_vs_daisee(),
+        table_per_metric_winner(),
+        table_agreement_stats(),
+        table_group_marginal_unseen(),
     ]
 
 
