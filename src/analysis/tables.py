@@ -80,7 +80,7 @@ def table_base_indomain() -> tuple[str, pd.DataFrame, str]:
                  "T2. Base models × losses, in-domain (CMOSE→CMOSE), sorted by QWK.")
 
 
-def table_hybrid_topk(k: int = 10) -> tuple[str, pd.DataFrame, str]:
+def table_hybrid_topk(k: int = 5) -> tuple[str, pd.DataFrame, str]:
     h = ag.load_hybrid_matrix()
     cell = h[(h["train_group"] == "cmose") & (h["test_set"] == "cmose_test")].copy()
     cell = cell.sort_values("quadratic_weighted_kappa", ascending=False).head(k)
@@ -118,6 +118,36 @@ def table_group_marginal() -> tuple[str, pd.DataFrame, str]:
     cell = h[(h["train_group"] == "cmose") & (h["test_set"] == "cmose_test")]
     return _spec(_group_marginal_frame(cell), "T5_group_marginal",
                  "T5. Per-group marginal effect of encoder choice on in-domain QWK.")
+
+
+def table_group_marginal_combined() -> tuple[str, pd.DataFrame, str]:
+    """T5 and T10 merged: the per-group marginal in-domain AND on the unseen-target cells.
+
+    One table instead of two so the across-regime comparison (does the head-pose -> TCN
+    preference survive shift?) is read in place.
+    """
+    h = ag.load_hybrid_matrix()
+    regimes = [
+        ("In-domain", h[(h["train_group"] == "cmose") & (h["test_set"] == "cmose_test")]),
+        ("Unseen targets", h[ag.unseen_target_mask(h)]),
+    ]
+    rows = []
+    for g in ag.OPENFACE_GROUP_ORDER:
+        for regime, cell in regimes:
+            means = {
+                token: float(cell[cell[f"arch_{g}"] == token]["quadratic_weighted_kappa"].mean())
+                for token in ag.ARCH_TOKENS
+            }
+            row = {"Group": ag.GROUP_DISPLAY[g], "Regime": regime}
+            for token in ag.ARCH_TOKENS:
+                row[ag.ARCH_TOKEN_DISPLAY[token]] = round(means[token], 3)
+            row["Spread"] = round(max(means.values()) - min(means.values()), 3)
+            row["Prefers"] = ag.ARCH_TOKEN_DISPLAY[max(means, key=means.get)]
+            rows.append(row)
+    frame = pd.DataFrame(rows)
+    return _spec(frame, "T12_group_marginal_combined",
+                 "T12. Per-group marginal effect of encoder choice on mean QWK, in-domain "
+                 "(CMOSE) and pooled over the unseen-target cells.")
 
 
 def table_private_by_source() -> tuple[str, pd.DataFrame, str]:
@@ -227,6 +257,34 @@ def table_agreement_stats() -> tuple[str, pd.DataFrame, str]:
                  "configurations (in-domain CMOSE).")
 
 
+def table_openface_vs_i3d() -> tuple[str, pd.DataFrame, str]:
+    """Best OpenFace encoder vs the I3D MLP on the primary metrics (in-domain CMOSE, CE).
+
+    Replaces the former bar chart: two rows x three primary metrics read more honestly as a
+    table. The contrast (complementary feature families) motivates fusing the two streams.
+    """
+    m = ag.load_matrix()
+    cell = m[(m["train_group"] == "cmose") & (m["test_set"] == "cmose_test")
+             & (m["loss"] == "ce")]
+    of = cell[cell["model"].isin(["openface_mlp", "temporal_cnn", "lstm", "transformer"])]
+    best_of = of.loc[of["quadratic_weighted_kappa"].idxmax()]
+    i3d = cell[cell["model"] == "i3d_mlp"].iloc[0]
+    rows = []
+    for family, row in [("OpenFace (behaviour descriptors)", best_of),
+                        ("I3D (appearance/motion)", i3d)]:
+        rows.append({
+            "Feature family": family,
+            "Model": display_model_name(row["model"]),
+            "QWK": round(float(row["quadratic_weighted_kappa"]), 3),
+            "Macro-Acc": round(float(row["macro_accuracy"]), 3),
+            "Macro-MAE": round(float(row["macro_mae"]), 3),
+        })
+    frame = pd.DataFrame(rows)
+    return _spec(frame, "T11_openface_vs_i3d",
+                 "T11. Best OpenFace encoder vs the I3D MLP on the primary metrics "
+                 "(in-domain CMOSE, cross-entropy; macro-MAE lower is better).")
+
+
 def table_group_marginal_unseen() -> tuple[str, pd.DataFrame, str]:
     """T5's marginal recomputed on the unseen-target cells (does the preference transfer?)."""
     h = ag.load_hybrid_matrix()
@@ -242,12 +300,12 @@ def build_all() -> list[tuple[str, pd.DataFrame, str]]:
         table_dataset_stats(),
         table_base_indomain(),
         table_hybrid_topk(),
-        table_group_marginal(),
+        table_group_marginal_combined(),
         table_private_by_source(),
         table_indomain_cmose_vs_daisee(),
         table_per_metric_winner(),
         table_agreement_stats(),
-        table_group_marginal_unseen(),
+        table_openface_vs_i3d(),
     ]
 
 

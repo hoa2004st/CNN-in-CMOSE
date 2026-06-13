@@ -1,0 +1,15 @@
+\begin{table}[ht]
+\centering
+\caption{T11. Best OpenFace encoder vs the I3D MLP on the primary metrics (in-domain CMOSE, cross-entropy; macro-MAE lower is better).}
+\label{tab:T11_openface_vs_i3d}
+\fittable{%
+\begin{tabular}{llrrr}
+\toprule
+Feature family & Model & QWK & Macro-Acc & Macro-MAE \\
+\midrule
+OpenFace (behaviour descriptors) & openface\_tcn & 0.537 & 0.535 & 0.547 \\
+I3D (appearance/motion) & i3d\_mlp & 0.519 & 0.526 & 0.585 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}

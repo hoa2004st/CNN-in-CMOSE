@@ -14,11 +14,15 @@ import numpy as np
 
 from src.analysis import aggregate as ag
 from src.visualization.figbase import new_fig, save
-from src.visualization.style import CLASS_LABEL_SHORT, CLASS_LABELS, display_model_name
+from src.visualization.style import (
+    CLASS_LABEL_SHORT,
+    CLASS_LABELS,
+    FAMILY_COLORS,
+    display_model_name,
+)
 
 _METRIC = "quadratic_weighted_kappa"
 _SHORT = [CLASS_LABEL_SHORT[c] for c in CLASS_LABELS]
-_SRC_COLOR = {"cmose": "#0072B2", "daisee": "#D55E00", "combined": "#009E73"}
 
 
 def _best_private(frame, src: str, metric: str) -> "pd.Series":
@@ -48,9 +52,9 @@ def fig_private_by_source(directory: Path | None = None) -> Path:
     x = np.arange(len(sources))
     width = 0.38
     fig, ax = new_fig(figsize=(7.6, 4.8))
-    b1 = ax.bar(x - width / 2, base, width, color="#BBBBBB",
+    b1 = ax.bar(x - width / 2, base, width, color=FAMILY_COLORS["base"],
                 edgecolor="black", linewidth=0.4, label="Best base model")
-    b2 = ax.bar(x + width / 2, hyb, width, color=[_SRC_COLOR[s] for s in sources],
+    b2 = ax.bar(x + width / 2, hyb, width, color=FAMILY_COLORS["hybrid"],
                 edgecolor="black", linewidth=0.4, label="Best semantic-group hybrid")
     ax.bar_label(b1, fmt="%.3f", fontsize=8, padding=1)
     ax.bar_label(b2, fmt="%.3f", fontsize=8, padding=1)
@@ -103,46 +107,8 @@ def fig_indomain_cmose_vs_daisee(directory: Path | None = None) -> Path:
     return save(fig, "indomain_cmose_vs_daisee", directory=directory)
 
 
-def fig_private_confusion(directory: Path | None = None) -> Path:
-    """Confusion on the private set of the best combined-trained model.
-
-    Features the headline model — the best combined-trained *hybrid* — when its prediction
-    log is available; falls back to the best combined *base* model otherwise (e.g. when the
-    large hybrid LFS file has not been fetched).
-    """
-    hyb = ag.load_hybrid_matrix()
-    hyb_preds = ag.load_hybrid_predictions()
-    title_model = None
-    cm = None
-
-    if hyb_preds is not None:
-        cell = hyb[(hyb["train_group"] == "combined") & (hyb["test_set"] == "private")]
-        best = cell.loc[cell[_METRIC].idxmax()]
-        slc = hyb_preds[(hyb_preds["train_group"] == "combined")
-                        & (hyb_preds["test_set"] == "private")
-                        & (hyb_preds["model_type"] == best["model"])
-                        & (hyb_preds["arch_key"] == best["arch_key"])
-                        & (hyb_preds["loss"] == best["loss"])]
-        if len(slc):
-            cm = ag.confusion_from_predictions(slc).to_numpy()
-            title_model = f"{best['variant']} {best['arch_key']}"
-            qwk = float(best[_METRIC])
-            macro_mae = float(best["macro_mae"])
-
-    if cm is None:  # fallback: best combined base model
-        m = ag.load_matrix()
-        preds = ag.load_naive_predictions()
-        cell = m[(m["train_group"] == "combined") & (m["test_set"] == "private")]
-        best = cell.loc[cell[_METRIC].idxmax()]
-        slc = preds[(preds["train_group"] == "combined") & (preds["test_set"] == "private")
-                    & (preds["model"] == best["model"]) & (preds["loss"] == best["loss"])]
-        cm = ag.confusion_from_predictions(slc).to_numpy()
-        title_model = f"{display_model_name(best['model'])}/{best['loss']}"
-        qwk = float(best[_METRIC])
-        macro_mae = float(best["macro_mae"])
-
-    fig, ax = new_fig(figsize=(5.4, 4.6))
-    im = ax.imshow(cm, cmap="Greens", vmin=0, vmax=1, aspect="auto")
+def _plot_private_cm(ax, cm, title: str):
+    im = ax.imshow(cm, cmap="Blues", vmin=0, vmax=1, aspect="auto")
     ax.set_xticks(range(len(_SHORT))); ax.set_xticklabels(_SHORT)
     ax.set_yticks(range(len(_SHORT))); ax.set_yticklabels(_SHORT)
     ax.set_xlabel("Predicted"); ax.set_ylabel("True")
@@ -151,9 +117,63 @@ def fig_private_confusion(directory: Path | None = None) -> Path:
         for j in range(cm.shape[1]):
             ax.text(j, i, f"{cm[i, j]:.2f}", ha="center", va="center", fontsize=9,
                     color="white" if cm[i, j] > 0.5 else "black")
-    fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04, label="Row-normalized")
-    ax.set_title(f"Private set — combined-trained {title_model}\n"
-                 f"(row-normalized; QWK={qwk:.3f}, macro-MAE={macro_mae:.3f})", fontsize=9)
+    ax.set_title(title, fontsize=9)
+    return im
+
+
+def _base_private_confusion():
+    """(confusion, title) of the best combined-trained base model on the private set."""
+    m = ag.load_matrix()
+    preds = ag.load_naive_predictions()
+    cell = m[(m["train_group"] == "combined") & (m["test_set"] == "private")]
+    best = cell.loc[cell[_METRIC].idxmax()]
+    slc = preds[(preds["train_group"] == "combined") & (preds["test_set"] == "private")
+                & (preds["model"] == best["model"]) & (preds["loss"] == best["loss"])]
+    cm = ag.confusion_from_predictions(slc).to_numpy()
+    title = (f"Best base: {display_model_name(best['model'])}/{best['loss']}\n"
+             f"QWK={float(best[_METRIC]):.3f}, macro-MAE={float(best['macro_mae']):.3f}")
+    return cm, title
+
+
+def _hybrid_private_confusion():
+    """(confusion, title) of the best combined-trained hybrid on the private set, or None."""
+    hyb = ag.load_hybrid_matrix()
+    hyb_preds = ag.load_hybrid_predictions()
+    if hyb_preds is None:
+        return None
+    cell = hyb[(hyb["train_group"] == "combined") & (hyb["test_set"] == "private")]
+    best = cell.loc[cell[_METRIC].idxmax()]
+    slc = hyb_preds[(hyb_preds["train_group"] == "combined")
+                    & (hyb_preds["test_set"] == "private")
+                    & (hyb_preds["model_type"] == best["model"])
+                    & (hyb_preds["arch_key"] == best["arch_key"])
+                    & (hyb_preds["loss"] == best["loss"])]
+    if not len(slc):
+        return None
+    cm = ag.confusion_from_predictions(slc).to_numpy()
+    title = (f"Best hybrid: {best['variant']} {best['arch_key']}\n"
+             f"QWK={float(best[_METRIC]):.3f}, macro-MAE={float(best['macro_mae']):.3f}")
+    return cm, title
+
+
+def fig_private_confusion(directory: Path | None = None) -> Path:
+    """Side-by-side private-set confusion: best base vs best hybrid (both combined-trained).
+
+    Mirrors the in-domain base-vs-hybrid confusion figure so the two regimes read the same
+    way. Falls back to the base panel alone when the hybrid prediction log is unavailable
+    (e.g. the large LFS file has not been fetched).
+    """
+    panels = [_base_private_confusion()]
+    hybrid_panel = _hybrid_private_confusion()
+    if hybrid_panel is not None:
+        panels.append(hybrid_panel)
+
+    fig, axes = new_fig(1, len(panels), figsize=(4.7 * len(panels) + 0.6, 4.2))
+    axes = np.atleast_1d(axes)
+    for ax, (cm, title) in zip(axes, panels):
+        im = _plot_private_cm(ax, cm, title)
+    fig.colorbar(im, ax=list(axes), fraction=0.046, pad=0.04, label="Row-normalized")
+    fig.suptitle("Private set (combined-trained, row-normalized)", y=1.04, fontweight="bold")
     return save(fig, "private_confusion_combined", directory=directory)
 
 

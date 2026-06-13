@@ -40,7 +40,7 @@ All four sets share the four ordinal labels HD/DE/EG/HE.
 Table~\ref{tab:T1_dataset_stats} and Figure~\ref{fig:dataset_class_distribution_overall} show that all three training corpora are heavily imbalanced toward the upper-middle classes, and --- crucially --- imbalanced in \emph{different directions}.
 CMOSE is dominated by \emph{Engage} (69.4\%) with only 2.8\% \emph{Highly\nobreakdash-Disengage}, whereas DAiSEE is split between \emph{Engage} (50.3\%) and \emph{Highly\nobreakdash-Engage} (43.8\%) with just 0.7\% \emph{Highly\nobreakdash-Disengage}.
 The rare disengaged classes are precisely the ones a useful monitoring system must catch, yet they amount to a fraction of a percent to a few percent of the data.
-The split-wise distribution (Figure~\ref{fig:dataset_class_distribution_by_split}) confirms that this imbalance is consistent across the train, validation, and test partitions, so it is a property of the problem rather than of a particular split.
+The same imbalance holds within each of the train, validation, and test partitions, so it is a property of the problem rather than of a particular split.
 \input{Table/T1_dataset_stats}
 
 \begin{figure}[ht]
@@ -48,13 +48,6 @@ The split-wise distribution (Figure~\ref{fig:dataset_class_distribution_by_split
 \includegraphics[width=0.85\linewidth]{dataset_class_distribution_overall.png}
 \caption{Engagement class distribution by dataset.}
 \label{fig:dataset_class_distribution_overall}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=0.85\linewidth]{dataset_class_distribution_by_split.png}
-\caption{Class distribution by split, per dataset.}
-\label{fig:dataset_class_distribution_by_split}
 \end{figure}
 
 This severe and \emph{heterogeneous} imbalance shapes three choices the thesis returns to.
@@ -111,43 +104,40 @@ Each follows the standard recipe of the literature: a \emph{single} encoder cons
 \end{itemize}
 A sixth model, \texttt{openface\_tcn\_i3d\_fusion} (a shared-fusion TCN over both modalities), exists in the codebase but is \textbf{excluded from the assessment} so that the comparison isolates the semantic-group hypothesis rather than generic modality fusion.
 
-The five baseline architectures are shown in Figures~\ref{fig:openface_mlp}--\ref{fig:i3d_mlp}.
-The four OpenFace baselines encode the full $T\times709$ sequence with a single encoder, while \texttt{i3d\_mlp} classifies the pooled 1024-d I3D clip vector.
+The five baseline architectures are shown in Figure~\ref{fig:baselines}.
+The four OpenFace baselines (a--d) encode the full $T\times709$ sequence with a single encoder, while \texttt{i3d\_mlp} (e) classifies the pooled 1024-d I3D clip vector.
 Forcing one encoder --- and therefore one temporal bias --- onto all 709 heterogeneous features at once is exactly the design decision the proposed model revisits in Sections~\ref{sec:groups} and~\ref{sec:hybrid}.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
-\includegraphics[width=0.95\linewidth]{openface_mlp.png}
-\caption{Baseline \texttt{openface\_mlp}: the full $T\times709$ OpenFace sequence is flattened and classified by a multilayer perceptron.}
+\begin{subfigure}{\linewidth}\centering
+\includegraphics[width=0.72\linewidth]{openface_mlp.png}
+\caption{\texttt{openface\_mlp}: the $T\times709$ sequence is flattened and classified by an MLP.}
 \label{fig:openface_mlp}
-\end{figure}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.95\linewidth]{openface_tcn.png}
-\caption{Baseline \texttt{openface\_tcn}: a temporal convolutional network over the full 709-d sequence, adaptively average-pooled and classified.}
+\end{subfigure}\\[1.2ex]
+\begin{subfigure}{\linewidth}\centering
+\includegraphics[width=0.86\linewidth]{openface_tcn.png}
+\caption{\texttt{openface\_tcn}: a TCN over the 709-d sequence, adaptively average-pooled and classified.}
 \label{fig:openface_tcn}
-\end{figure}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.95\linewidth]{openface_lstm.png}
-\caption{Baseline \texttt{openface\_lstm}: a two-layer LSTM over the full 709-d sequence whose final state is classified.}
+\end{subfigure}\\[1.2ex]
+\begin{subfigure}{\linewidth}\centering
+\includegraphics[width=0.78\linewidth]{openface_lstm.png}
+\caption{\texttt{openface\_lstm}: a two-layer LSTM over the 709-d sequence whose final state is classified.}
 \label{fig:openface_lstm}
-\end{figure}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.95\linewidth]{openface_transformer.png}
-\caption{Baseline \texttt{openface\_transformer}: a Transformer encoder over the full 709-d sequence with sinusoidal positional encoding, mean-pooled and classified.}
+\end{subfigure}\\[1.2ex]
+\begin{subfigure}{\linewidth}\centering
+\includegraphics[width=0.92\linewidth]{openface_transformer.png}
+\caption{\texttt{openface\_transformer}: a Transformer encoder over the 709-d sequence, mean-pooled and classified.}
 \label{fig:openface_transformer}
-\end{figure}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.95\linewidth]{i3d_mlp.png}
-\caption{Baseline \texttt{i3d\_mlp}: the pooled 1024-d I3D clip vector is classified by a multilayer perceptron.}
+\end{subfigure}\\[1.2ex]
+\begin{subfigure}{\linewidth}\centering
+\includegraphics[width=0.6\linewidth]{i3d_mlp.png}
+\caption{\texttt{i3d\_mlp}: the pooled 1024-d I3D clip vector is classified by an MLP.}
 \label{fig:i3d_mlp}
+\end{subfigure}
+\caption{The five monolithic baseline architectures. Each applies a \emph{single} encoder to
+the full feature sequence (or pooled I3D vector) before classification.}
+\label{fig:baselines}
 \end{figure}
 
 \FloatBarrier
@@ -187,9 +177,9 @@ Encoding all 709 features together, as the monolithic baselines of Section~\ref{
 The proposed model, shown in Figure~\ref{fig:hybrid}, encodes each stream independently, fuses the resulting embeddings, and supervises every stream with its own auxiliary head.
 It is built from the same three encoder families as the OpenFace baselines of Section~\ref{sec:baselines} --- TCN, Transformer, and LSTM --- but where a baseline applies one encoder to the full $T\times709$ sequence, the hybrid assigns an independently chosen encoder to each of the five semantic groups of Section~\ref{sec:groups}, so any difference in performance can be attributed to the decomposition rather than to new encoder machinery.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
-\includegraphics[width=0.95\linewidth]{hybrid.png}
+\includegraphics[width=0.9\linewidth]{hybrid.png}
 \caption{Semantic-group hybrid architecture.
 Each OpenFace group is encoded independently into a 64-d embedding (group encoders are chosen per group from TCN / Transformer (T) / LSTM); the I3D clip vector is encoded by an MLP into a 128-d embedding.
 The six embeddings are concatenated (448-d) and classified by a shared MLP; each stream also feeds an auxiliary head.
@@ -271,9 +261,8 @@ where $\mathcal{L}_{\text{main}}$ is the chosen loss (CE, weighted CE, or ordina
 All models are optimised with Adam~\cite{adam} at a learning rate of $1\times10^{-4}$.
 Training uses mini-batches (128 for the baseline runs, 64 for the 243-configuration ablation) and \textbf{early stopping on the validation loss} --- the CMOSE \texttt{unlabel} split, and its analogues for DAiSEE and Combined --- with a patience of 10 epochs and an epoch cap (800 for baselines, 400 for the ablation).
 The checkpoint with the lowest validation loss is restored for testing.
-Following the convention adopted in this project, \textbf{only the training and validation loss are recorded per epoch}; no per-epoch classification metrics are computed, and the final classification metrics are evaluated exactly once, on the held-out test split.
-Runs use a fixed random seed (42) and optional automatic mixed precision on GPU.
-Representative loss curves (Figure~\ref{fig:loss_curves_cmose_ce}, Chapter~4) confirm stable convergence and early stopping well before the cap, so the differences reported between models are architectural rather than optimisation artefacts.
+Following the convention adopted in this project, \textbf{only the training and validation loss are recorded per epoch}; the final classification metrics are evaluated exactly once, on the held-out test split.
+Runs use a fixed random seed (42) and optional automatic mixed precision on GPU, and every run converges stably and early-stops well before the cap, so the differences reported between models are architectural rather than optimisation artefacts.
 
 \FloatBarrier
 \section{Evaluation Protocol}
@@ -284,20 +273,17 @@ Generalisation is measured with a 3$\times$3 matrix: every model and loss is tra
 The diagonal cells are the in-domain results; the off-diagonal and the Private column measure transfer to unseen distributions.
 
 \textbf{Metrics.}
-Each evaluation reports the six metrics defined in Section~\ref{sec:metrics-lit} --- accuracy, macro-accuracy, MAE, macro-MAE, Cohen's kappa, and QWK --- with \textbf{QWK, macro-accuracy, and macro-MAE as primary}.
-The empirical justification for this choice --- the six metrics demonstrably disagree on the best model, and accuracy fails to detect cross-corpus collapse --- is laid out in the evaluation-protocol section of Chapter~4 (Section~\ref{sec:protocol}).
+Each evaluation reports the six metrics defined in Section~\ref{sec:metrics-lit} --- accuracy, macro-accuracy, MAE, macro-MAE, Cohen's kappa, and QWK --- with \textbf{QWK, macro-accuracy, and macro-MAE as primary}; the empirical justification for this choice is laid out in the evaluation-protocol section of Chapter~4 (Section~\ref{sec:protocol}).
 Row-normalised confusion matrices and per-class F1 scores are used for error analysis.
 
 \textbf{Aggregation and reproducibility.}
-The complete study comprises roughly 1{,}500 trained runs: the five baselines under three losses across the three training sources, and the 243 per-group hybrid configurations (each with and without I3D) on CMOSE plus selected configurations on the other sources.
-All runs are aggregated programmatically, and the figures and tables of Chapters~4 and~5 are produced from the aggregate by a single command, so the entire results presentation is reproducible from the trained runs.
+The complete study comprises roughly 1{,}500 trained runs (the five baselines $\times$ three losses $\times$ three sources, and the 243 per-group hybrid configurations with and without I3D); all are aggregated programmatically, and every figure and table of Chapters~4 and~5 is produced from the aggregate by a single command.
 
 \FloatBarrier
 \section{Chapter Summary}
 \label{sec:method-summary}
 
-This chapter specified the methodology end to end: the pipeline; the three training corpora and their imbalance, the test-only private set and its collection, and the leakage-free preprocessing; the five monolithic baseline architectures (Figures~\ref{fig:openface_mlp}--\ref{fig:i3d_mlp}); the five-group decomposition of the OpenFace descriptor; and the semantic-group hybrid (Figure~\ref{fig:hybrid}) that reuses the baselines' encoder families per group, with its fusion and auxiliary heads, I3D variant, and 243-configuration design space.
-It also fixed the loss formulations, the training protocol, and the 3$\times$3 evaluation protocol with its primary metrics.
-Chapters~4 and~5 apply this methodology to the in-domain and generalisation results respectively.
+This chapter specified the methodology end to end: the pipeline; the three training corpora and their imbalance, the test-only private set and its collection, and the leakage-free preprocessing; the five monolithic baseline architectures; the five-group decomposition of the OpenFace descriptor; and the semantic-group hybrid (Figure~\ref{fig:hybrid}) that reuses the baselines' encoder families per group, with its fusion and auxiliary heads, I3D variant, and 243-configuration design space.
+It also fixed the loss formulations, the training protocol, and the 3$\times$3 evaluation protocol with its primary metrics, which Chapters~4 and~5 apply to the in-domain and generalisation results.
 
 \end{document}

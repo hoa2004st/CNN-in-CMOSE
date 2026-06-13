@@ -75,6 +75,49 @@ def fig_crossdomain(frame, name: str, suptitle: str, directory: Path | None = No
     return save(fig, name, directory=directory)
 
 
+def fig_crossdomain_delta(directory: Path | None = None) -> Path:
+    """Best-hybrid minus best-base QWK in every cell of the 3x3 train x test matrix.
+
+    The cell-by-cell subtraction of the two cross-dataset QWK heatmaps (best hybrid per
+    cell minus best base per cell). One panel unifies the two comparisons that were
+    previously separate figures: the in-domain CMOSE diagonal cell is the headline
+    in-domain gain, and the Private column is the private-set gain by training source.
+    Every cell is positive --- the hybrid wins the whole matrix --- and the gain is
+    largest on the decisive Private column.
+    """
+    base = ag.cell_matrix(ag.load_matrix(), _METRIC)
+    hybrid = ag.cell_matrix(ag.load_hybrid_matrix(), _METRIC)
+    delta = hybrid - base
+    data = delta.to_numpy(dtype=float)
+    vmax = float(np.nanmax(np.abs(data)))
+
+    fig, ax = new_fig(figsize=(6.6, 5.2))
+    im = ax.imshow(data, cmap="RdYlGn", vmin=-vmax, vmax=vmax, aspect="auto")
+    ax.set_xticks(range(len(delta.columns)))
+    ax.set_xticklabels([ag.TEST_SET_DISPLAY.get(c, c) for c in delta.columns])
+    ax.set_yticks(range(len(delta.index)))
+    ax.set_yticklabels([ag.TRAIN_GROUP_DISPLAY.get(r, r) for r in delta.index])
+    ax.set_xlabel("Tested on")
+    ax.set_ylabel("Trained on")
+    ax.grid(False)
+    # Bold the two cells the old per-figure comparisons isolated: the in-domain CMOSE
+    # diagonal (the headline in-domain gain) and the whole Private column (the unseen,
+    # self-collected target).
+    private_col = list(delta.columns).index("private")
+    for i in range(data.shape[0]):
+        for j in range(data.shape[1]):
+            highlight = (j == private_col) or (delta.index[i] == "cmose"
+                                               and delta.columns[j] == "cmose_test")
+            ax.text(j, i, f"{data[i, j]:+.3f}", ha="center", va="center",
+                    color="black", fontsize=11,
+                    fontweight="bold" if highlight else "normal")
+    fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04, label="$\\Delta$QWK (hybrid $-$ base)")
+    fig.suptitle("Hybrid advantage per cell: best hybrid $-$ best base (QWK)",
+                 fontweight="bold")
+    fig.tight_layout()
+    return save(fig, "crossdomain_delta", directory=directory)
+
+
 def _factor_summary(frame, factor: str, levels: list[str]) -> tuple[list[float], list[float]]:
     """In-domain CMOSE QWK and unseen-cell mean QWK per level of ``factor``.
 
@@ -205,6 +248,7 @@ def make_all(directory: Path | None = None) -> list[Path]:
                         "Cross-domain generalization — best base model per cell", directory),
         fig_crossdomain(hybrid, "crossdomain_hybrid",
                         "Cross-domain generalization — best hybrid config per cell", directory),
+        fig_crossdomain_delta(directory),
         fig_generalization_by_arch(directory),
         fig_generalization_by_loss(directory),
         fig_indomain_vs_generalization(False, directory),

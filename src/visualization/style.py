@@ -75,6 +75,13 @@ LOSS_TINT = {
     "ordinal": 0.45,
 }
 
+# One colour per model family in base-vs-hybrid comparison charts (no grays):
+# every "base" element is blue, every "hybrid" element is vermillion.
+FAMILY_COLORS = {
+    "base": "#0072B2",
+    "hybrid": "#D55E00",
+}
+
 DOMAIN_COLORS = {
     "CMOSE": "#0072B2",
     "cmose": "#0072B2",

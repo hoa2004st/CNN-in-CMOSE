@@ -204,40 +204,44 @@ def fig_i3d_paired_delta(directory: Path | None = None) -> Path:
 
 
 def fig_best_comparison(directory: Path | None = None) -> Path:
-    """Best hybrid (+/- I3D) vs the best base model, in-domain, on the three primary metrics.
+    """Best hybrid vs best base model, in-domain, on the three primary metrics.
 
-    All three primary metrics in a single panel (QWK first/emphasised). On this scale macro-MAE
-    sits comfortably alongside the two higher-is-better metrics, so one panel reads cleanly.
+    A two-category line chart: one line per model family (base vs hybrid, the thesis-wide
+    family colours), the three primary metrics on the x-axis (QWK first/emphasised). On this
+    scale macro-MAE sits comfortably alongside the two higher-is-better metrics.
     """
+    from src.visualization.style import FAMILY_COLORS
+
     h = _indomain_hybrid()
     m = ag.load_matrix()
     cell = m[(m["train_group"] == "cmose") & (m["test_set"] == "cmose_test")]
     best_base = cell.loc[cell[_METRIC].idxmax()]
-    best_of = h[~h["has_i3d"]].loc[h[~h["has_i3d"]][_METRIC].idxmax()]
-    best_i3d = h[h["has_i3d"]].loc[h[h["has_i3d"]][_METRIC].idxmax()]
+    best_hyb = h.loc[h[_METRIC].idxmax()]
 
     entries = [
-        (f"Best base\n{display_model_name(best_base['model'])}/{best_base['loss']}", best_base),
-        ("Best hybrid\n(OF-only)", best_of),
-        ("Best hybrid\n(+I3D)", best_i3d),
+        (f"Best base ({display_model_name(best_base['model'])}/{best_base['loss']})",
+         best_base, FAMILY_COLORS["base"], "o"),
+        (f"Best hybrid ({best_hyb['variant']} {best_hyb['arch_key']})",
+         best_hyb, FAMILY_COLORS["hybrid"], "s"),
     ]
     metrics = ["quadratic_weighted_kappa", "macro_accuracy", "macro_mae"]
-    metric_color = {"quadratic_weighted_kappa": "#0072B2", "macro_accuracy": "#009E73",
-                    "macro_mae": "#D55E00"}
-    fig, ax = new_fig(figsize=(8.6, 4.8))
-    width = 0.26
-    x = np.arange(len(entries))
-    for j, metric in enumerate(metrics):
-        label = ag.METRIC_DISPLAY[metric] + (" (lower is better)"
-                                             if metric in ag.LOWER_BETTER_METRICS else "")
-        bars = ax.bar(x + (j - 1) * width, [float(e[1][metric]) for e in entries], width,
-                      color=metric_color[metric], edgecolor="white", linewidth=0.4, label=label)
-        ax.bar_label(bars, fmt="%.3f", fontsize=7, padding=1)
+    x = np.arange(len(metrics))
+    fig, ax = new_fig(figsize=(7.6, 4.4))
+    for label, row, color, marker in entries:
+        values = [float(row[metric]) for metric in metrics]
+        ax.plot(x, values, color=color, marker=marker, markersize=7,
+                linewidth=1.8, label=label)
+        for xi, v in zip(x, values):
+            ax.annotate(f"{v:.3f}", (xi, v), textcoords="offset points",
+                        xytext=(0, 7), ha="center", fontsize=8, color=color)
     ax.set_xticks(x)
-    ax.set_xticklabels([e[0] for e in entries], fontsize=8)
+    ax.set_xticklabels([ag.METRIC_DISPLAY[metric]
+                        + ("\n(lower is better)" if metric in ag.LOWER_BETTER_METRICS else "")
+                        for metric in metrics])
     ax.set_ylabel("Score  /  Macro-MAE (class-index units)")
-    ax.set_ylim(0, max(float(e[1][m_]) for e in entries for m_ in metrics) * 1.25)
-    ax.legend(loc="upper center", ncol=3, fontsize=8)
+    ymax = max(float(e[1][m_]) for e in entries for m_ in metrics)
+    ax.set_ylim(0, ymax * 1.22)
+    ax.legend(loc="upper left", fontsize=8)
     fig.suptitle("Best hybrid vs best base model (in-domain CMOSE)", y=1.02, fontweight="bold")
     return save(fig, "hybrid_best_comparison", directory=directory)
 

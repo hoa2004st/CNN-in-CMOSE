@@ -41,6 +41,10 @@ The combination of these three properties is what makes the problem both practic
 A system that is accurate on paper but blind to disengagement, or that works on the corpus it was trained on but collapses on real footage, is of no use in a classroom.
 The central concern of this thesis is therefore not headline accuracy but \emph{ordinal agreement on imbalanced data, and its robustness under distribution shift}.
 
+These properties are not abstract: they follow directly from how an engagement signal would actually be consumed.
+The realistic unit of decision is rarely a single clip but an aggregate --- a per-session engagement curve for one learner, or a class-level distribution the instructor watches in real time --- and the value of such a signal lies almost entirely in the tails: confirming that an already-attentive cohort is attentive carries little information, whereas flagging the minority of moments when a learner slips into disengagement is the entire point, exactly the rare, ordinally extreme outcome that imbalance suppresses and accuracy fails to reward.
+A deployment also never sees the data it was tuned on --- cameras, lighting, classroom composition, and the annotation rubric all change --- so an in-domain number is meaningless unless it is shown to survive that change, which is why this thesis treats a self-collected, never-trained-on evaluation set and an explicit cross-dataset protocol as the setting in which any claim of usefulness must finally be judged.
+
 \FloatBarrier
 \section{Background and Problems of Research}
 \label{sec:background}
@@ -129,15 +133,9 @@ Chapter~3 presents the methodology.
 It gives an overview of the complete pipeline as a single diagram, describes the three training corpora and their class imbalance, the private test set, and the preprocessing that makes them comparable, details the monolithic baselines, and then specifies the semantic-group decomposition and the proposed hybrid architecture built on top of it.
 It also fixes the loss functions and their exact formulations, the training protocol, and the 3$\times$3 cross-dataset evaluation protocol with its metrics.
 
-Chapter~4 studies the \emph{monolithic baselines} and fixes the experimental frame, following a protocol-first structure.
-An \emph{evaluation protocol} section first fixes the three conventions every later result depends on --- the primary metrics (QWK, macro-accuracy, and macro-MAE, chosen because the six metrics demonstrably disagree on the best model), CMOSE as the development corpus, and cross-entropy as the development loss (a Pareto choice among the primaries) --- each justified by a-priori reasoning plus in-domain evidence, with the decisive cross-dataset confirmation deferred by explicit forward reference.
-Under that protocol the chapter then reads the in-domain leaderboard, analyses \emph{prediction agreement}: how much the thirty configurations actually agree clip-by-clip, and whether the OpenFace and I3D feature families make complementary errors --- the evidence that motivates fusing them in Chapter~5.
-Finally it takes the baselines out of domain in the 3$\times$3 cross-dataset matrix, establishing that engagement models do not transfer off-the-shelf, and \emph{closes the loop} on the protocol: accuracy is blind to the collapse that QWK exposes, and the loss ranking is the one in-domain preference that survives the shift.
+Chapter~4 studies the \emph{monolithic baselines} and fixes the experimental frame, following a protocol-first structure: an evaluation-protocol section first fixes the primary metrics (QWK, macro-accuracy, macro-MAE), the development corpus (CMOSE), and the development loss (cross-entropy), each justified from a-priori reasoning and in-domain evidence; the chapter then reads the in-domain leaderboard, analyses prediction agreement to show the OpenFace and I3D families make complementary errors, and finally takes the baselines out of domain in the 3$\times$3 matrix, closing the loop on the protocol.
 
-Chapter~5 introduces the \emph{semantic-group hybrid} and evaluates it against that frame.
-It first verifies that the 486-configuration hybrid population reproduces the protocol evidence of Chapter~4, then answers the design questions: which encoder suits which behavioural group (in-domain and under shift), whether fusing the I3D stream helps --- a question whose answer turns out to depend on the evaluation regime --- and how the best hybrid compares with the best baseline through an in-domain error analysis.
-The chapter then takes the hybrid out of domain: it wins every cell of the 3$\times$3 matrix, and on the decisive self-collected private set the architecture and the corpus-pooling insight compound to the best result, showing the value of both contributions is greatest on unseen, real-world data (RQ4).
-Every result in both chapters is accompanied by an explicit conclusion.
+Chapter~5 introduces the \emph{semantic-group hybrid} and evaluates it against that frame: it verifies that the 486-configuration hybrid population reproduces the protocol evidence of Chapter~4, answers the design questions (which encoder suits which group, and whether fusing the I3D stream helps --- an answer that depends on the evaluation regime), and then takes the hybrid out of domain, where it wins every cell of the 3$\times$3 matrix and compounds with corpus pooling to the best result on the self-collected private set (RQ4).
 
 Chapter~6 summarises the findings, restates the contributions in the light of the evidence, discusses the limitations of the study, and proposes concrete directions for future work, including targeting the rarest disengaged class, explicit domain adaptation, and learned rather than enumerated group encoders.
 

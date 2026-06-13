@@ -8,7 +8,7 @@ import numpy as np
 
 from src.analysis import aggregate as ag
 from src.visualization.figbase import new_fig, save
-from src.visualization.style import CLASS_LABEL_SHORT, CLASS_LABELS, class_color
+from src.visualization.style import CLASS_LABEL_SHORT, CLASS_LABELS, FAMILY_COLORS
 
 _METRIC = "quadratic_weighted_kappa"
 _BASE_MODELS = {"openface_mlp", "temporal_cnn", "lstm", "transformer", "i3d_mlp"}
@@ -65,10 +65,11 @@ def fig_per_class_f1(directory: Path | None = None) -> Path:
     fig, ax = new_fig(figsize=(6.6, 4.4))
     x = np.arange(len(CLASS_LABELS))
     b1 = ax.bar(x - width / 2, [base_f1.get(c, 0) for c in CLASS_LABELS], width,
-                color="#999999", label=f"Best base ({best_base['model_display']})")
+                color=FAMILY_COLORS["base"], edgecolor="black", linewidth=0.4,
+                label=f"Best base ({best_base['model_display']})")
     b2 = ax.bar(x + width / 2, [hyb_f1.get(c, 0) for c in CLASS_LABELS], width,
-                color=[class_color(c) for c in CLASS_LABELS],
-                label="Best hybrid", edgecolor="black", linewidth=0.4)
+                color=FAMILY_COLORS["hybrid"], edgecolor="black", linewidth=0.4,
+                label="Best hybrid")
     ax.bar_label(b1, fmt="%.2f", fontsize=6.5, padding=1)
     ax.bar_label(b2, fmt="%.2f", fontsize=6.5, padding=1)
     ax.set_xticks(x)
