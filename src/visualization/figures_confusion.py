@@ -1,4 +1,4 @@
-"""Error-analysis figures: confusion matrices and per-class F1 for the best models."""
+"""Error-analysis figure: per-class F1 for the best in-domain models."""
 
 from __future__ import annotations
 
@@ -23,37 +23,6 @@ def _best_runs(hist):
     best_base = base.loc[base[_METRIC].idxmax()]
     best_hyb = hyb.loc[hyb[_METRIC].idxmax()]
     return best_base, best_hyb
-
-
-def _plot_cm(ax, row, title: str) -> None:
-    cm = np.asarray(row["confusion_matrix_normalized"], dtype=float)
-    im = ax.imshow(cm, cmap="Blues", vmin=0, vmax=1, aspect="auto")
-    ax.set_xticks(range(len(_SHORT)))
-    ax.set_xticklabels(_SHORT)
-    ax.set_yticks(range(len(_SHORT)))
-    ax.set_yticklabels(_SHORT)
-    ax.set_xlabel("Predicted")
-    ax.set_ylabel("True")
-    ax.set_title(title, fontsize=9)
-    ax.grid(False)
-    for i in range(cm.shape[0]):
-        for j in range(cm.shape[1]):
-            ax.text(j, i, f"{cm[i, j]:.2f}", ha="center", va="center", fontsize=8,
-                    color="white" if cm[i, j] > 0.5 else "black")
-    return im
-
-
-def fig_confusion(directory: Path | None = None) -> Path:
-    hist = ag.load_training_histories()
-    best_base, best_hyb = _best_runs(hist)
-    fig, axes = new_fig(1, 2, figsize=(9, 4.2))
-    _plot_cm(axes[0], best_base,
-             f"Best base: {best_base['model_display']} / {best_base['loss']}\nQWK={best_base[_METRIC]:.3f}")
-    im = _plot_cm(axes[1], best_hyb,
-                  f"Best hybrid: {best_hyb['model']}\n[{best_hyb['loss']}]  QWK={best_hyb[_METRIC]:.3f}")
-    fig.colorbar(im, ax=axes, fraction=0.046, pad=0.04, label="Row-normalized")
-    fig.suptitle("Confusion matrices, in-domain CMOSE (row-normalized)", y=1.04, fontweight="bold")
-    return save(fig, "confusion_best_models", directory=directory)
 
 
 def fig_per_class_f1(directory: Path | None = None) -> Path:
@@ -82,4 +51,4 @@ def fig_per_class_f1(directory: Path | None = None) -> Path:
 
 
 def make_all(directory: Path | None = None) -> list[Path]:
-    return [fig_confusion(directory), fig_per_class_f1(directory)]
+    return [fig_per_class_f1(directory)]

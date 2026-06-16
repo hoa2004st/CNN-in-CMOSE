@@ -59,19 +59,19 @@
 \contentsline {section}{\numberline {5.3}Encoder Choice per Group}{34}{section.5.3}%
 \contentsline {section}{\numberline {5.4}Effect of I3D Fusion}{35}{section.5.4}%
 \contentsline {section}{\numberline {5.5}Comparison with Baselines}{36}{section.5.5}%
-\contentsline {section}{\numberline {5.6}Cross-Dataset Generalization}{37}{section.5.6}%
-\contentsline {subsection}{\numberline {5.6.1}Cross-Dataset Matrix}{37}{subsection.5.6.1}%
-\contentsline {subsection}{\numberline {5.6.2}The Private Set}{38}{subsection.5.6.2}%
-\contentsline {subsection}{\numberline {5.6.3}In-Domain versus Transfer}{39}{subsection.5.6.3}%
-\contentsline {section}{\numberline {5.7}Discussion}{40}{section.5.7}%
-\contentsline {section}{\numberline {5.8}Chapter Summary}{41}{section.5.8}%
-\contentsline {chapter}{\numberline {6}CONCLUSIONS}{42}{chapter.6}%
-\contentsline {section}{\numberline {6.1}Summary}{42}{section.6.1}%
-\contentsline {section}{\numberline {6.2}Synthesis}{43}{section.6.2}%
-\contentsline {section}{\numberline {6.3}Revisiting the Research Questions}{44}{section.6.3}%
-\contentsline {section}{\numberline {6.4}Limitations}{45}{section.6.4}%
-\contentsline {section}{\numberline {6.5}Practical Recommendations}{46}{section.6.5}%
-\contentsline {section}{\numberline {6.6}Suggestion for Future Works}{46}{section.6.6}%
-\contentsline {section}{\numberline {6.7}Closing Remarks}{47}{section.6.7}%
-\contentsline {chapter}{REFERENCE}{49}{section*.34}%
+\contentsline {section}{\numberline {5.6}Cross-Dataset Generalization}{38}{section.5.6}%
+\contentsline {subsection}{\numberline {5.6.1}Cross-Dataset Matrix}{38}{subsection.5.6.1}%
+\contentsline {subsection}{\numberline {5.6.2}The Private Set}{39}{subsection.5.6.2}%
+\contentsline {subsection}{\numberline {5.6.3}In-Domain versus Transfer}{40}{subsection.5.6.3}%
+\contentsline {section}{\numberline {5.7}Discussion}{41}{section.5.7}%
+\contentsline {section}{\numberline {5.8}Chapter Summary}{42}{section.5.8}%
+\contentsline {chapter}{\numberline {6}CONCLUSIONS}{43}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Summary}{43}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Synthesis}{44}{section.6.2}%
+\contentsline {section}{\numberline {6.3}Revisiting the Research Questions}{45}{section.6.3}%
+\contentsline {section}{\numberline {6.4}Limitations}{46}{section.6.4}%
+\contentsline {section}{\numberline {6.5}Practical Recommendations}{47}{section.6.5}%
+\contentsline {section}{\numberline {6.6}Suggestion for Future Works}{47}{section.6.6}%
+\contentsline {section}{\numberline {6.7}Closing Remarks}{48}{section.6.7}%
+\contentsline {chapter}{REFERENCE}{50}{section*.35}%
 \contentsfinish 

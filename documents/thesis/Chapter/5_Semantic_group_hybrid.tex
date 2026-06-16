@@ -29,7 +29,7 @@ model on that metric, across all three losses.}
 \end{figure}
 
 \textbf{The metric structure reproduces.}
-Recomputing the Kendall rank correlation between the six metrics over the 486 in-domain configurations yields the same two-block picture as Section~\ref{sec:protocol-metrics}: a micro block ($\tau=0.87$), a macro block ($\tau=0.73$), weak cross-block agreement, and QWK again the only bridge ($\tau=0.63$--$0.73$ with both blocks) --- a property of the metrics on this task, not of any model family.
+Recomputing the Kendall rank correlation between the six metrics over the 486 in-domain configurations yields the same two-block picture as Section~\ref{sec:protocol-metrics}: a micro block, a macro block, weak cross-block agreement, and QWK again the only bridge between them --- a property of the metrics on this task, not of any model family.
 
 \textbf{Accuracy is still blind.}
 In Figure~\ref{fig:hybrid_ablation_all_metrics} every configuration sits in a narrow accuracy band around the best baseline's 0.773 (top-left panel), so a model chosen on accuracy would see no architecture signal at all, while the QWK panel separates the families cleanly.
@@ -64,12 +64,13 @@ Chapter~4 predicted, from the error-overlap analysis of Section~\ref{sec:openfac
 This section measures the prediction with the strongest design in the grid: \textbf{pairing each OpenFace-only configuration with its exact +I3D twin} (same five encoders), so the distribution of paired QWK differences \emph{is} the I3D effect, free of the configuration as a confounder, in three evaluation regimes.
 
 \textbf{Where the test corpus is seen in training, fusion pays decisively.}
-Over the seen-target cells the mean paired gain is \textbf{+0.060 QWK, and 94\% of the 972 pairs improve}.
+Over the seen-target cells the mean paired gain is \textbf{+0.060 QWK, and 94\% of the 972 pairs improve} (Table~\ref{tab:T13_i3d_fusion_effect}).
 In-domain on CMOSE this is the cash value of the complementarity of Section~\ref{sec:openface-vs-i3d}: the I3D-fused family is centred above the OpenFace-only family (median QWK 0.553 against 0.522, visible in Figure~\ref{fig:hybrid_ablation_all_metrics}), and \textbf{82\% of the 243 fused configurations clear the 0.537 baseline bar}, against 26\% of the OpenFace-only ones.
 The gain is a property of the \emph{family}, not of one lucky configuration (RQ3).
+\input{Table/T13_i3d_fusion_effect}
 
 \textbf{Beyond the training corpora, the gain evaporates.}
-Cross-corpus the mean paired effect is \textbf{$-0.021$ QWK with only 26\% of pairs improving}; on the private set it is +0.005 with 52\% improving and very high variance ($\pm0.2$).
+Cross-corpus the mean paired effect is \textbf{$-0.021$ QWK with only 26\% of pairs improving}; on the private set it is +0.005 with 52\% improving and high variance across configurations (Table~\ref{tab:T13_i3d_fusion_effect}).
 I3D's global appearance features drag corpus bias along --- the same mechanism behind the I3D MLP's fall from second to fourth in the architecture ranking under shift (Section~\ref{sec:crossdomain-matrix}).
 The practical rule (RQ3): \emph{fuse I3D when the target domain is represented in training; rely on the OpenFace groups otherwise} --- a rule about the family average (the single best private-set model does carry I3D, but it is one tail of a wide, zero-centred distribution).
 
@@ -78,7 +79,7 @@ The practical rule (RQ3): \emph{fuse I3D when the target domain is represented i
 \label{sec:error}
 
 \textbf{Best hybrid versus best baseline.}
-Table~\ref{tab:T4_hybrid_topk} lists the top-10 configurations; the best overall is the I3D-fused hybrid \texttt{TCN\_T\_TCN\_LSTM\_T}, and every top configuration mixes at least two encoder types.
+Table~\ref{tab:T4_hybrid_topk} lists the top-5 configurations; the best overall is the I3D-fused hybrid \texttt{TCN\_T\_TCN\_LSTM\_T}, and every top configuration mixes at least two encoder types.
 On all three primary metrics the best hybrid improves on the best baseline --- \textbf{+0.068 QWK} (0.605 versus 0.537), macro-accuracy 0.582 versus 0.535, and macro-MAE 0.489 versus 0.547 (lower is better).
 All three move in the same direction, so the gain is real --- but \textbf{modest}; it is the CMOSE diagonal cell of the cell-by-cell comparison in Section~\ref{sec:hybrid-crossdomain} (Figure~\ref{fig:crossdomain_delta}).
 \input{Table/T4_hybrid_topk}

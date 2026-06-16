@@ -80,6 +80,10 @@
     \field{labeltitlesource}{title}
     \field{booktitle}{Proceedings of the IEEE/CVF Conference on Computer Vision
   and Pattern Recognition (CVPR) Workshops}
+    \verb{doi}
+    \verb 10.1109/CVPRW63382.2024.00466
+    \endverb
+    \field{pages}{4636\bibrangedash 4645}
     \field{title}{{CMOSE}: Comprehensive Multi-Modality Online Student
   Engagement Dataset with High-Quality Labels}
     \field{year}{2024}
@@ -152,31 +156,60 @@
     \strng{fullhash}{BTZALYCMLP1}
     \field{labelnamesource}{author}
     \field{labeltitlesource}{title}
-    \field{booktitle}{IEEE International Conference on Automatic Face and
+    \field{booktitle}{13th IEEE International Conference on Automatic Face and
   Gesture Recognition (FG)}
+    \verb{doi}
+    \verb 10.1109/FG.2018.00019
+    \endverb
+    \field{pages}{59\bibrangedash 66}
     \field{title}{{OpenFace 2.0}: Facial Behavior Analysis Toolkit}
     \field{year}{2018}
   \endentry
 
-  \entry{openface_bilstm}{thesis}{}{}
-    \name{author}{1}{}{%
+  \entry{openface_bilstm}{inproceedings}{}{}
+    \name{author}{4}{}{%
       {{hash=CO}{%
-         family={Copur},
-         familyi={C\bibinitperiod},
+         family={{\c{C}}opur},
+         familyi={{\c{C}}\bibinitperiod},
          given={Onur},
          giveni={O\bibinitperiod},
       }}%
+      {{hash=NM}{%
+         family={Nakip},
+         familyi={N\bibinitperiod},
+         given={Mert},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=SS}{%
+         family={Scardapane},
+         familyi={S\bibinitperiod},
+         given={Simone},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=SJ}{%
+         family={Slowack},
+         familyi={S\bibinitperiod},
+         given={J{\"u}rgen},
+         giveni={J\bibinitperiod},
+      }}%
     }
-    \strng{namehash}{CO1}
-    \strng{fullhash}{CO1}
+    \list{publisher}{1}{%
+      {Springer}%
+    }
+    \strng{namehash}{CO+1}
+    \strng{fullhash}{CONMSSSJ1}
     \field{labelnamesource}{author}
     \field{labeltitlesource}{title}
-    \field{title}{Engagement Detection in e-learning Environments}
-    \list{institution}{1}{%
-      {Sapienza University of Rome}%
-    }
-    \field{type}{Master's thesis}
-    \field{year}{2021}
+    \field{booktitle}{Image Analysis and Processing -- ICIAP 2022}
+    \verb{doi}
+    \verb 10.1007/978-3-031-06433-3_35
+    \endverb
+    \field{pages}{411\bibrangedash 422}
+    \field{series}{Lecture Notes in Computer Science}
+    \field{title}{Engagement Detection with Multi-Task Training in E-Learning
+  Environments}
+    \field{volume}{13233}
+    \field{year}{2022}
   \endentry
 
   \entry{classical_ml_engagement}{article}{}{}
@@ -244,8 +277,11 @@
     \verb{doi}
     \verb 10.32604/jai.2024.048911
     \endverb
+    \field{number}{1}
+    \field{pages}{85\bibrangedash 103}
     \field{title}{Detection of Student Engagement in E-Learning Environments
   Using {EfficientNetV2-L} Together with {RNN}-Based Models}
+    \field{volume}{6}
     \field{journaltitle}{Journal on Artificial Intelligence}
     \field{year}{2024}
   \endentry
@@ -285,6 +321,7 @@
     \verb 10.1109/TNNLS.2024.3476249
     \endverb
     \field{number}{7}
+    \field{pages}{13567\bibrangedash 13578}
     \field{title}{Three-Dimensional View Relationship-Based Context-Aware
   Emotion Recognition}
     \field{volume}{36}
@@ -318,6 +355,10 @@
     \strng{fullhash}{QISNOS1}
     \field{labelnamesource}{author}
     \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.1109/ACCESS.2025.3596885
+    \endverb
+    \field{pages}{140519\bibrangedash 140545}
     \field{title}{Student's Engagement Detection Based on Computer Vision: A
   Systematic Literature Review}
     \field{volume}{13}
@@ -350,7 +391,11 @@
     \strng{fullhash}{SMMBTJK1}
     \field{labelnamesource}{author}
     \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.14569/IJACSA.2023.0140371
+    \endverb
     \field{number}{3}
+    \field{pages}{617\bibrangedash 626}
     \field{title}{Convolutional Neural Network Model based Students' Engagement
   Detection in Imbalanced {DAiSEE} Dataset}
     \field{volume}{14}
@@ -378,8 +423,12 @@
     \strng{fullhash}{TMLQV1}
     \field{labelnamesource}{author}
     \field{labeltitlesource}{title}
-    \field{booktitle}{International Conference on Machine Learning (ICML)}
+    \field{booktitle}{Proceedings of the 38th International Conference on
+  Machine Learning (ICML)}
+    \field{pages}{10096\bibrangedash 10106}
+    \field{series}{Proceedings of Machine Learning Research}
     \field{title}{{EfficientNetV2}: Smaller Models and Faster Training}
+    \field{volume}{139}
     \field{year}{2021}
   \endentry
 
@@ -404,6 +453,10 @@
     \field{labeltitlesource}{title}
     \field{booktitle}{Proceedings of the IEEE Conference on Computer Vision and
   Pattern Recognition (CVPR)}
+    \verb{doi}
+    \verb 10.1109/CVPR.2017.502
+    \endverb
+    \field{pages}{4724\bibrangedash 4733}
     \field{title}{Quo Vadis, Action Recognition? A New Model and the Kinetics
   Dataset}
     \field{year}{2017}
@@ -459,6 +512,9 @@
     \strng{fullhash}{HSSJ1}
     \field{labelnamesource}{author}
     \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.1162/neco.1997.9.8.1735
+    \endverb
     \field{number}{8}
     \field{pages}{1735\bibrangedash 1780}
     \field{title}{Long Short-Term Memory}
@@ -524,6 +580,7 @@
     \field{labeltitlesource}{title}
     \field{booktitle}{Advances in Neural Information Processing Systems
   (NeurIPS)}
+    \field{pages}{5998\bibrangedash 6008}
     \field{title}{Attention Is All You Need}
     \field{year}{2017}
   \endentry
@@ -559,6 +616,9 @@
     \strng{fullhash}{CNVBKWHLOKWP1}
     \field{labelnamesource}{author}
     \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.1613/jair.953
+    \endverb
     \field{pages}{321\bibrangedash 357}
     \field{title}{{SMOTE}: Synthetic Minority Over-sampling Technique}
     \field{volume}{16}
@@ -604,6 +664,9 @@
     \strng{fullhash}{CJ1}
     \field{labelnamesource}{author}
     \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.1177/001316446002000104
+    \endverb
     \field{number}{1}
     \field{pages}{37\bibrangedash 46}
     \field{title}{A Coefficient of Agreement for Nominal Scales}

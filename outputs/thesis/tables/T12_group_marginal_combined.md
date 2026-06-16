@@ -1,4 +1,4 @@
-**T12. Per-group marginal effect of encoder choice on mean QWK, in-domain (CMOSE) and pooled over the unseen-target cells.**
+**Per-group marginal effect of encoder choice on mean QWK, in-domain (CMOSE) and pooled over the unseen-target cells.**
 
 | Group | Regime | TCN | Transformer | LSTM | Spread | Prefers |
 | --- | --- | --- | --- | --- | --- | --- |

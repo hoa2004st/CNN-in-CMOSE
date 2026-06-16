@@ -65,7 +65,7 @@ def table_dataset_stats() -> tuple[str, pd.DataFrame, str]:
             row[short] = round(float(sub.loc[cls, "proportion"]) * 100, 1) if cls in sub.index else 0.0
         rows.append(row)
     frame = pd.DataFrame(rows)
-    return _spec(frame, "T1_dataset_stats", "T1. Dataset statistics and class balance (%).")
+    return _spec(frame, "T1_dataset_stats", "Dataset statistics and class balance (%).")
 
 
 def table_base_indomain() -> tuple[str, pd.DataFrame, str]:
@@ -77,7 +77,7 @@ def table_base_indomain() -> tuple[str, pd.DataFrame, str]:
                  **{k: ag.METRIC_DISPLAY[k] for k in _PRIMARY}}
     )
     return _spec(frame, "T2_base_indomain",
-                 "T2. Base models × losses, in-domain (CMOSE→CMOSE), sorted by QWK.")
+                 "Base models × losses, in-domain (CMOSE→CMOSE), sorted by QWK.")
 
 
 def table_hybrid_topk(k: int = 5) -> tuple[str, pd.DataFrame, str]:
@@ -90,8 +90,48 @@ def table_hybrid_topk(k: int = 5) -> tuple[str, pd.DataFrame, str]:
                  "quadratic_weighted_kappa": "QWK", "macro_accuracy": "Macro-Acc",
                  "macro_mae": "Macro-MAE", "accuracy": "Accuracy"})
     return _spec(frame, "T4_hybrid_topk",
-                 f"T4. Top-{k} hybrid configs in-domain (CMOSE), sorted by QWK "
+                 f"Top-{k} hybrid configs in-domain (CMOSE), sorted by QWK "
                  f"(macro-MAE lower is better).")
+
+
+def table_i3d_fusion_effect() -> tuple[str, pd.DataFrame, str]:
+    """Paired effect of adding the I3D stream, by evaluation regime.
+
+    Each OpenFace-only hybrid is paired with its exact +I3D twin (same five per-group
+    encoders, same train source, test set and loss), so the distribution of paired QWK
+    differences isolates the I3D contribution free of the configuration as a confounder.
+    The three regimes split by whether the test corpus is represented in training: ``seen
+    target`` (the four train×test cells whose test corpus is in the training pool),
+    ``cross-corpus`` (train on one public corpus, test on the other), and the unseen
+    ``private`` set.
+    """
+    h = ag.load_hybrid_matrix()
+    qwk = "quadratic_weighted_kappa"
+    seen = ~ag.unseen_target_mask(h)
+    cross = (((h["train_group"] == "cmose") & (h["test_set"] == "daisee_test"))
+             | ((h["train_group"] == "daisee") & (h["test_set"] == "cmose_test")))
+    private = h["test_set"] == "private"
+    regimes = [
+        ("Seen target", seen),
+        ("Cross-corpus (public)", cross),
+        ("Private (unseen)", private),
+    ]
+    rows = []
+    for label, mask in regimes:
+        piv = h[mask].pivot_table(
+            index=["train_group", "test_set", "loss", "arch_key"],
+            columns="has_i3d", values=qwk).dropna()
+        delta = piv[True] - piv[False]
+        rows.append({
+            "Regime": label,
+            "Pairs (n)": int(len(delta)),
+            "Mean ΔQWK": f"{delta.mean():+.3f}",
+            "Pairs improving (%)": int(round(float((delta > 0).mean()) * 100)),
+        })
+    frame = pd.DataFrame(rows)
+    return _spec(frame, "T13_i3d_fusion_effect",
+                 "Paired effect of adding the I3D stream on QWK, by evaluation regime "
+                 "(each OpenFace-only hybrid against its exact +I3D twin).")
 
 
 def _group_marginal_frame(cell: pd.DataFrame) -> pd.DataFrame:
@@ -117,7 +157,7 @@ def table_group_marginal() -> tuple[str, pd.DataFrame, str]:
     h = ag.load_hybrid_matrix()
     cell = h[(h["train_group"] == "cmose") & (h["test_set"] == "cmose_test")]
     return _spec(_group_marginal_frame(cell), "T5_group_marginal",
-                 "T5. Per-group marginal effect of encoder choice on in-domain QWK.")
+                 "Per-group marginal effect of encoder choice on in-domain QWK.")
 
 
 def table_group_marginal_combined() -> tuple[str, pd.DataFrame, str]:
@@ -146,7 +186,7 @@ def table_group_marginal_combined() -> tuple[str, pd.DataFrame, str]:
             rows.append(row)
     frame = pd.DataFrame(rows)
     return _spec(frame, "T12_group_marginal_combined",
-                 "T12. Per-group marginal effect of encoder choice on mean QWK, in-domain "
+                 "Per-group marginal effect of encoder choice on mean QWK, in-domain "
                  "(CMOSE) and pooled over the unseen-target cells.")
 
 
@@ -172,7 +212,7 @@ def table_private_by_source() -> tuple[str, pd.DataFrame, str]:
         })
     frame = pd.DataFrame(rows)
     return _spec(frame, "T6_private_by_source",
-                 "T6. Private set (test-only): best base vs best hybrid by training source "
+                 "Private set (test-only): best base vs best hybrid by training source "
                  "(macro-MAE lower is better).")
 
 
@@ -194,7 +234,7 @@ def table_indomain_cmose_vs_daisee() -> tuple[str, pd.DataFrame, str]:
         })
     frame = pd.DataFrame(rows)
     return _spec(frame, "T7_indomain_datasets",
-                 "T7. Best in-domain result per dataset (CMOSE vs DaiSEE; macro-MAE lower is better).")
+                 "Best in-domain result per dataset (CMOSE vs DaiSEE; macro-MAE lower is better).")
 
 
 def table_per_metric_winner() -> tuple[str, pd.DataFrame, str]:
@@ -218,7 +258,7 @@ def table_per_metric_winner() -> tuple[str, pd.DataFrame, str]:
         })
     frame = pd.DataFrame(rows)
     return _spec(frame, "T8_per_metric_winner",
-                 "T8. The winning base configuration according to each metric "
+                 "The winning base configuration according to each metric "
                  "(in-domain CMOSE).")
 
 
@@ -253,7 +293,7 @@ def table_agreement_stats() -> tuple[str, pd.DataFrame, str]:
     ]
     frame = pd.DataFrame(rows, columns=["Statistic", "Value"])
     return _spec(frame, "T9_agreement_stats",
-                 "T9. Prediction-level agreement and ensemble headroom of the base "
+                 "Prediction-level agreement and ensemble headroom of the base "
                  "configurations (in-domain CMOSE).")
 
 
@@ -281,7 +321,7 @@ def table_openface_vs_i3d() -> tuple[str, pd.DataFrame, str]:
         })
     frame = pd.DataFrame(rows)
     return _spec(frame, "T11_openface_vs_i3d",
-                 "T11. Best OpenFace encoder vs the I3D MLP on the primary metrics "
+                 "Best OpenFace encoder vs the I3D MLP on the primary metrics "
                  "(in-domain CMOSE, cross-entropy; macro-MAE lower is better).")
 
 
@@ -290,7 +330,7 @@ def table_group_marginal_unseen() -> tuple[str, pd.DataFrame, str]:
     h = ag.load_hybrid_matrix()
     cell = h[ag.unseen_target_mask(h)]
     return _spec(_group_marginal_frame(cell), "T10_group_marginal_unseen",
-                 "T10. Per-group marginal effect of encoder choice on QWK, pooled over the "
+                 "Per-group marginal effect of encoder choice on QWK, pooled over the "
                  "unseen-target cells.")
 
 
@@ -300,6 +340,7 @@ def build_all() -> list[tuple[str, pd.DataFrame, str]]:
         table_dataset_stats(),
         table_base_indomain(),
         table_hybrid_topk(),
+        table_i3d_fusion_effect(),
         table_group_marginal_combined(),
         table_private_by_source(),
         table_indomain_cmose_vs_daisee(),

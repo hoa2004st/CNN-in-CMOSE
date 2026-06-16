@@ -1,4 +1,4 @@
-**T1. Dataset statistics and class balance (%).**
+**Dataset statistics and class balance (%).**
 
 | Dataset | Total | Train | Val | Test | HD% | DE% | EG% | HE% |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |

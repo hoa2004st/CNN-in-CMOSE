@@ -1,9 +1,8 @@
 """Prediction-agreement and metric-reliability figures.
 
-Three views the score tables cannot give: a pairwise Cohen-kappa heatmap over every
-in-domain base config (do models give the same answers?), an error-overlap bar against the
-best OpenFace model (are the feature families complementary?), and Kendall-tau heatmaps
-showing how far the six metrics agree on the model ranking (which metric to trust).
+Two views the score tables cannot give: a pairwise Cohen-kappa heatmap over every in-domain
+base config (do models give the same answers?), and a Kendall-tau heatmap showing how far the
+six metrics agree on the model ranking (which metric to trust).
 """
 
 from __future__ import annotations
@@ -16,13 +15,6 @@ from src.analysis import aggregate as ag
 from src.analysis import agreement as agr
 from src.visualization.figbase import new_fig, save
 from src.visualization.style import COMPARISON_LOSS_SLUGS
-
-_OVERLAP_COLORS = {
-    "both correct": "#009E73",
-    "only reference": "#0072B2",
-    "only other": "#E69F00",
-    "both wrong": "#999999",
-}
 
 
 def _annotated_heatmap(ax, matrix, *, vmin, vmax, cmap, fmt="{:.2f}", fontsize=7,
@@ -72,47 +64,6 @@ def fig_agreement_base(directory: Path | None = None) -> Path:
     return save(fig, "agreement_base_models", directory=directory)
 
 
-def fig_feature_overlap(directory: Path | None = None) -> Path:
-    """Error overlap of the best OpenFace model against every other architecture (CE loss).
-
-    One stacked bar per partner: where both are right, where exactly one is right, where
-    both fail. If the partner's exclusive-correct share is large, the pair is complementary
-    — the comparison OpenFace-vs-OpenFace rows are the within-family reference.
-    """
-    wide, true = agr.indomain_prediction_table()
-    reference = ("temporal_cnn", "ce")
-    partners = [(m, "ce") for m in ["openface_mlp", "lstm", "transformer", "i3d_mlp"]]
-
-    rows = [(partner, agr.pair_overlap(wide, true, reference, partner))
-            for partner in partners]
-    fig, ax = new_fig(figsize=(9.0, 3.6))
-    y = np.arange(len(rows))[::-1]
-    left = np.zeros(len(rows))
-    for segment, key in [("both correct", "both_correct"), ("only reference", "only_a"),
-                         ("only other", "only_b"), ("both wrong", "both_wrong")]:
-        values = np.array([stats[key] for _, stats in rows])
-        label = segment.replace("reference", agr.config_label(*reference))
-        ax.barh(y, values, left=left, color=_OVERLAP_COLORS[segment],
-                edgecolor="white", linewidth=0.5, label=label)
-        for yi, value, start in zip(y, values, left):
-            if value > 0.04:
-                ax.text(start + value / 2, yi, f"{value * 100:.0f}%", ha="center",
-                        va="center", fontsize=8,
-                        color="white" if segment != "only other" else "black")
-        left += values
-    for yi, (_, stats) in zip(y, rows):
-        ax.text(1.01, yi, f"$\\kappa$={stats['kappa']:.2f}", va="center", fontsize=8,
-                transform=ax.get_yaxis_transform())
-    ax.set_yticks(y)
-    ax.set_yticklabels([agr.config_label(*partner) for partner, _ in rows], fontsize=9)
-    ax.set_xlim(0, 1)
-    ax.set_xlabel("Share of in-domain CMOSE test clips")
-    ax.set_title(f"Error overlap with {agr.config_label(*reference)} — in-domain CMOSE")
-    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.28), ncol=4, fontsize=8)
-    ax.grid(False)
-    return save(fig, "feature_error_overlap", directory=directory)
-
-
 def _fig_metric_correlation(frame, name: str, subtitle: str,
                             directory: Path | None = None) -> Path:
     corr = agr.metric_rank_correlation(frame)
@@ -139,18 +90,8 @@ def fig_metric_correlation_base(directory: Path | None = None) -> Path:
                                    "15 base configs, in-domain CMOSE", directory)
 
 
-def fig_metric_correlation_hybrid(directory: Path | None = None) -> Path:
-    """Same rank-agreement question over the full hybrid ablation population."""
-    h = ag.load_hybrid_matrix()
-    cell = h[(h["train_group"] == "cmose") & (h["test_set"] == "cmose_test")]
-    return _fig_metric_correlation(cell, "metric_correlation_hybrid",
-                                   f"{len(cell)} hybrid configs, in-domain CMOSE", directory)
-
-
 def make_all(directory: Path | None = None) -> list[Path]:
     return [
         fig_agreement_base(directory),
-        fig_feature_overlap(directory),
         fig_metric_correlation_base(directory),
-        fig_metric_correlation_hybrid(directory),
     ]

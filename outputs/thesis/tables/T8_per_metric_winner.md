@@ -1,4 +1,4 @@
-**T8. The winning base configuration according to each metric (in-domain CMOSE).**
+**The winning base configuration according to each metric (in-domain CMOSE).**
 
 | Metric | Best model | Loss | Value |
 | --- | --- | --- | --- |

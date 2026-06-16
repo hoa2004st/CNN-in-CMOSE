@@ -1,0 +1,7 @@
+**Paired effect of adding the I3D stream on QWK, by evaluation regime (each OpenFace-only hybrid against its exact +I3D twin).**
+
+| Regime | Pairs (n) | Mean ΔQWK | Pairs improving (%) |
+| --- | --- | --- | --- |
+| Seen target | 972 | +0.060 | 94 |
+| Cross-corpus (public) | 486 | -0.021 | 26 |
+| Private (unseen) | 729 | +0.005 | 52 |

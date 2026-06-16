@@ -1,8 +1,7 @@
-"""Cross-domain generalization figures: 3x3 heatmaps plus factor-level summaries.
+"""Cross-domain generalization figures: 3x3 heatmaps plus the in-domain-vs-transfer scatter.
 
-Beyond the best-per-cell heatmaps, this module asks whether the factors that win
-in-domain (architecture, loss) are still the ones that win on unseen-target cells, and
-whether in-domain strength predicts generalization at all (per-config scatter).
+Beyond the best-per-cell heatmaps, this module asks whether in-domain strength predicts
+generalization at all (per-config scatter, hybrid population overlaid).
 """
 
 from __future__ import annotations
@@ -17,15 +16,12 @@ from scipy.stats import spearmanr
 from src.analysis import aggregate as ag
 from src.visualization.figbase import new_fig, save
 from src.visualization.style import (
-    COMPARISON_LOSS_SLUGS,
     MODEL_ORDER,
     display_model_name,
-    loss_display_name,
     model_color,
 )
 
 _METRIC = "quadratic_weighted_kappa"
-_REGIME_COLORS = {"in-domain": "#0072B2", "unseen": "#D55E00"}
 
 
 def _heatmap(ax, pivot, title: str, *, vmin, vmax, cmap="RdYlGn", fmt="{:.2f}",
@@ -118,65 +114,6 @@ def fig_crossdomain_delta(directory: Path | None = None) -> Path:
     return save(fig, "crossdomain_delta", directory=directory)
 
 
-def _factor_summary(frame, factor: str, levels: list[str]) -> tuple[list[float], list[float]]:
-    """In-domain CMOSE QWK and unseen-cell mean QWK per level of ``factor``.
-
-    Both numbers use the same aggregation policy as the leaderboard: within each cell the
-    other factor is tuned away by taking the best value (losses and architectures are
-    validation-tunable hyperparameters, so max — not mean — is the deployable summary).
-    """
-    indomain = frame[(frame["train_group"] == "cmose") & (frame["test_set"] == "cmose_test")]
-    unseen = frame[ag.unseen_target_mask(frame)]
-    in_values, out_values = [], []
-    for level in levels:
-        in_values.append(float(indomain[indomain[factor] == level][_METRIC].max()))
-        per_cell = (unseen[unseen[factor] == level]
-                    .groupby(["train_group", "test_set"])[_METRIC].max())
-        out_values.append(float(per_cell.mean()))
-    return in_values, out_values
-
-
-def _fig_factor_generalization(factor: str, levels: list[str], tick_labels: list[str],
-                               name: str, title: str,
-                               directory: Path | None = None) -> Path:
-    base = ag.load_matrix()
-    in_values, out_values = _factor_summary(base, factor, levels)
-    x = np.arange(len(levels))
-    width = 0.36
-    fig, ax = new_fig(figsize=(8.2, 4.4))
-    for offset, values, label, key in [
-        (-width / 2, in_values, "In-domain CMOSE (best of other factor)", "in-domain"),
-        (width / 2, out_values, "Unseen-target mean (best per cell)", "unseen"),
-    ]:
-        bars = ax.bar(x + offset, values, width, color=_REGIME_COLORS[key],
-                      edgecolor="white", linewidth=0.4, label=label)
-        ax.bar_label(bars, fmt="%.3f", fontsize=8, padding=1)
-    ax.axhline(0, color="black", lw=0.8)
-    ax.set_ylim(0, max(in_values) * 1.35)  # headroom so the legend clears the bar labels
-    ax.set_xticks(x)
-    ax.set_xticklabels(tick_labels)
-    ax.set_ylabel("QWK")
-    ax.set_title(title)
-    ax.legend(loc="upper center", fontsize=8, ncol=2)
-    return save(fig, name, directory=directory)
-
-
-def fig_generalization_by_arch(directory: Path | None = None) -> Path:
-    """Does the architecture ranking survive domain shift? (best loss per cell)."""
-    return _fig_factor_generalization(
-        "model", MODEL_ORDER, [display_model_name(m) for m in MODEL_ORDER],
-        "generalization_by_arch",
-        "Architecture ranking: in-domain vs unseen-target QWK", directory)
-
-
-def fig_generalization_by_loss(directory: Path | None = None) -> Path:
-    """Does the loss ranking survive domain shift? (best architecture per cell)."""
-    return _fig_factor_generalization(
-        "loss", COMPARISON_LOSS_SLUGS, [loss_display_name(l) for l in COMPARISON_LOSS_SLUGS],
-        "generalization_by_loss",
-        "Loss ranking: in-domain vs unseen-target QWK", directory)
-
-
 def _scatter_points(frame, keys: list[str]):
     """(x, y, rows) per trained model: in-domain QWK vs mean QWK on its unseen cells.
 
@@ -249,8 +186,5 @@ def make_all(directory: Path | None = None) -> list[Path]:
         fig_crossdomain(hybrid, "crossdomain_hybrid",
                         "Cross-domain generalization — best hybrid config per cell", directory),
         fig_crossdomain_delta(directory),
-        fig_generalization_by_arch(directory),
-        fig_generalization_by_loss(directory),
-        fig_indomain_vs_generalization(False, directory),
         fig_indomain_vs_generalization(True, directory),
     ]

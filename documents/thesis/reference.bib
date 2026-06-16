@@ -1,7 +1,10 @@
 % =====================================================================
 % Bibliography for the thesis. All entries are complete and verified
-% (the local reference PDFs in documents/references/ were read directly,
-% and venues confirmed online). No TODO placeholders remain.
+% against the most reliable published version (journal > conference >
+% preprint). DOIs/pages added where a formal publication exists.
+% Three entries (daisee, tcn, classical_ml_engagement) have no
+% peer-reviewed version and are cited as their canonical preprint — see
+% the per-entry notes.
 % =====================================================================
 
 % --- Datasets ---------------------------------------------------------
@@ -9,9 +12,13 @@
   title     = {{CMOSE}: Comprehensive Multi-Modality Online Student Engagement Dataset with High-Quality Labels},
   author    = {Wu, Chi-Hsuan and Liu, Shih-yang and Huang, Xijie and Wang, Xingbo and Zhang, Rong and Minciullo, Luca and Yiu, Wong Kai and Kwan, Kenny and Cheng, Kwang-Ting},
   booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) Workshops},
-  year      = {2024}
+  pages     = {4636--4645},
+  year      = {2024},
+  doi       = {10.1109/CVPRW63382.2024.00466}
 }
 
+% No peer-reviewed publication exists; the arXiv report is the canonical
+% citation used across the engagement-recognition literature.
 @article{daisee,
   title   = {{DAiSEE}: Towards User Engagement Recognition in the Wild},
   author  = {Gupta, Abhay and D'Cunha, Arjun and Awasthi, Kamal and Balasubramanian, Vineeth},
@@ -23,18 +30,24 @@
 @inproceedings{openface2,
   title     = {{OpenFace 2.0}: Facial Behavior Analysis Toolkit},
   author    = {Baltru{\v{s}}aitis, Tadas and Zadeh, Amir and Lim, Yao Chong and Morency, Louis-Philippe},
-  booktitle = {IEEE International Conference on Automatic Face and Gesture Recognition (FG)},
-  year      = {2018}
+  booktitle = {13th IEEE International Conference on Automatic Face and Gesture Recognition (FG)},
+  pages     = {59--66},
+  year      = {2018},
+  doi       = {10.1109/FG.2018.00019}
 }
 
 @inproceedings{i3d,
   title     = {Quo Vadis, Action Recognition? A New Model and the Kinetics Dataset},
   author    = {Carreira, Jo{\~a}o and Zisserman, Andrew},
   booktitle = {Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
-  year      = {2017}
+  pages     = {4724--4733},
+  year      = {2017},
+  doi       = {10.1109/CVPR.2017.502}
 }
 
 % --- Temporal / sequence architectures --------------------------------
+% The ICLR 2018 submission ("Convolutional Sequence Modeling Revisited")
+% was not accepted; this technical report is the canonical TCN reference.
 @article{tcn,
   title   = {An Empirical Evaluation of Generic Convolutional and Recurrent Networks for Sequence Modeling},
   author  = {Bai, Shaojie and Kolter, J. Zico and Koltun, Vladlen},
@@ -49,20 +62,25 @@
   volume  = {9},
   number  = {8},
   pages   = {1735--1780},
-  year    = {1997}
+  year    = {1997},
+  doi     = {10.1162/neco.1997.9.8.1735}
 }
 
 @inproceedings{transformer,
   title     = {Attention Is All You Need},
   author    = {Vaswani, Ashish and Shazeer, Noam and Parmar, Niki and Uszkoreit, Jakob and Jones, Llion and Gomez, Aidan N. and Kaiser, Lukasz and Polosukhin, Illia},
   booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  pages     = {5998--6008},
   year      = {2017}
 }
 
 @inproceedings{efficientnetv2,
   title     = {{EfficientNetV2}: Smaller Models and Faster Training},
   author    = {Tan, Mingxing and Le, Quoc V.},
-  booktitle = {International Conference on Machine Learning (ICML)},
+  booktitle = {Proceedings of the 38th International Conference on Machine Learning (ICML)},
+  series    = {Proceedings of Machine Learning Research},
+  volume    = {139},
+  pages     = {10096--10106},
   year      = {2021}
 }
 
@@ -73,7 +91,8 @@
   journal = {Journal of Artificial Intelligence Research},
   volume  = {16},
   pages   = {321--357},
-  year    = {2002}
+  year    = {2002},
+  doi     = {10.1613/jair.953}
 }
 
 @inproceedings{adam,
@@ -90,18 +109,22 @@
   volume  = {20},
   number  = {1},
   pages   = {37--46},
-  year    = {1960}
+  year    = {1960},
+  doi     = {10.1177/001316446002000104}
 }
 
 % =====================================================================
-% Local reference PDFs (documents/references/) — verified from the PDFs.
+% Local reference PDFs (documents/references/) — verified from the PDFs
+% and upgraded to their final published versions.
 % =====================================================================
 @article{review_engagement_cv,
   title   = {Student's Engagement Detection Based on Computer Vision: A Systematic Literature Review},
   author  = {Qarbal, Ikram and Sael, Nawal and Ouahabi, Sara},
   journal = {IEEE Access},
   volume  = {13},
-  year    = {2025}
+  pages   = {140519--140545},
+  year    = {2025},
+  doi     = {10.1109/ACCESS.2025.3596885}
 }
 
 @article{openface_pca_smote,
@@ -110,25 +133,37 @@
   journal = {International Journal of Advanced Computer Science and Applications (IJACSA)},
   volume  = {14},
   number  = {3},
-  year    = {2023}
+  pages   = {617--626},
+  year    = {2023},
+  doi     = {10.14569/IJACSA.2023.0140371}
 }
 
-@mastersthesis{openface_bilstm,
-  title  = {Engagement Detection in e-learning Environments},
-  author = {Copur, Onur},
-  school = {Sapienza University of Rome},
-  type   = {Master's thesis},
-  year   = {2021}
+% Upgraded from the author's MSc thesis to the peer-reviewed ICIAP 2022
+% publication of the same work (Springer LNCS).
+@inproceedings{openface_bilstm,
+  title     = {Engagement Detection with Multi-Task Training in E-Learning Environments},
+  author    = {{\c{C}}opur, Onur and Nakip, Mert and Scardapane, Simone and Slowack, J{\"u}rgen},
+  booktitle = {Image Analysis and Processing -- ICIAP 2022},
+  series    = {Lecture Notes in Computer Science},
+  volume    = {13233},
+  pages     = {411--422},
+  publisher = {Springer},
+  year      = {2022},
+  doi       = {10.1007/978-3-031-06433-3_35}
 }
 
 @article{efficientnet_lstm_engagement,
   title   = {Detection of Student Engagement in E-Learning Environments Using {EfficientNetV2-L} Together with {RNN}-Based Models},
   author  = {Shiri, Farhad Mortezapour and Ahmadi, Ehsan and Rezaee, Mohammadreza and Perumal, Thinagaran},
   journal = {Journal on Artificial Intelligence},
+  volume  = {6},
+  number  = {1},
+  pages   = {85--103},
   year    = {2024},
   doi     = {10.32604/jai.2024.048911}
 }
 
+% No peer-reviewed publication located; cited as the canonical preprint.
 @article{classical_ml_engagement,
   title   = {A General Model for Detecting Learner Engagement: Implementation and Evaluation},
   author  = {Malekshahi, Somayeh and Kheyridoost, Javad M. and Fatemi, Omid},
@@ -142,6 +177,7 @@
   journal = {IEEE Transactions on Neural Networks and Learning Systems},
   volume  = {36},
   number  = {7},
+  pages   = {13567--13578},
   year    = {2025},
   doi     = {10.1109/TNNLS.2024.3476249}
 }

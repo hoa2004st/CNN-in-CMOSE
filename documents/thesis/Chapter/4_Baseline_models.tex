@@ -137,7 +137,7 @@ Table~\ref{tab:T11_openface_vs_i3d} compares their best cross-entropy models: th
 
 The agreement map says otherwise.
 In Figure~\ref{fig:agreement_base_models}, the I3D MLP's row is the palest in the grid: its agreement with the OpenFace TCN is among the \emph{lowest} of any pair, despite the two posting the closest scores.
-Two models that score alike but agree this rarely must succeed on different clips, and the clip-level decomposition confirms it: against the OpenFace TCN, the I3D MLP has the largest exclusive-correct share --- \textbf{8.6\% of all test clips are clips only I3D gets right}, against 5--6\% for the OpenFace partners --- and the smallest both-wrong share (15.3\%, against 18--19\% within the OpenFace family).
+Two models that score alike but agree this rarely must succeed on different clips, and the clip-level decomposition confirms it: against the OpenFace TCN, the I3D MLP has the largest exclusive-correct share of any pair in the grid --- \textbf{8.6\% of all test clips are clips only I3D gets right} --- and the smallest both-wrong share (15.3\%).
 The pair's oracle accuracy is 84.7\%, +7.4 points over the best single model and the largest pair gain in the grid.
 
 \textbf{Conclusion.}
@@ -171,11 +171,11 @@ The 3$\times$3 heatmaps of Figure~\ref{fig:crossdomain_base} are the central bas
 The collapse is roughly symmetric --- neither public corpus transfers to the other --- which rules out one corpus being a superset of the other and points to a genuine shift in both label priors and recording conditions.
 
 \textbf{The architecture ranking is reshuffled.}
-Comparing, per architecture, the in-domain QWK with the mean QWK over the \emph{unseen-target} cells --- the cells whose test corpus contributed no training data (the two cross-corpus cells and the private column) --- the in-domain order TCN 0.537 $>$ I3D 0.519 $>$ Transformer 0.443 $>$ MLP 0.399 $>$ LSTM 0.387 becomes TCN 0.112 $\approx$ Transformer 0.110 $>$ LSTM 0.096 $>$ \textbf{I3D 0.085} $>$ MLP 0.065 on unseen targets.
+Comparing, per architecture, the in-domain QWK with the mean QWK over the \emph{unseen-target} cells --- the cells whose test corpus contributed no training data (the two cross-corpus cells and the private column) --- the in-domain order TCN 0.537 $>$ I3D 0.519 $>$ Transformer 0.443 $>$ MLP 0.399 $>$ LSTM 0.387 becomes TCN $\approx$ Transformer $>$ LSTM $>$ \textbf{I3D} $>$ MLP on unseen targets.
 \textbf{The I3D MLP falls from second place to fourth}: its global appearance features bind to the corpus, while the OpenFace behaviour descriptors carry more corpus-invariant signal.
 
 \textbf{The lever: pool the source corpora.}
-The most actionable cell is the unseen \textbf{Private} column: training on the \textbf{Combined} corpus gives the best private-set QWK (0.285), beating DAiSEE-only (0.256) and CMOSE-only (0.190), while keeping near-in-domain CMOSE performance (0.477).
+The most actionable cell is the unseen \textbf{Private} column: training on the \textbf{Combined} corpus gives the best private-set QWK (0.285), beating DAiSEE-only (0.256) and CMOSE-only (0.190), while keeping near-in-domain CMOSE performance (0.477, the Combined$\rightarrow$CMOSE cell of Figure~\ref{fig:crossdomain_base}).
 The union of CMOSE and DAiSEE spans a wider range of label priors than either alone, so an unseen target sits closer to the pooled distribution.
 This is the single most effective design lever for an unknown target, and Chapter~5 combines it with the architecture contribution on the decisive private set (\textbf{RQ4}).
 
@@ -187,7 +187,7 @@ In the accuracy panel of Figure~\ref{fig:crossdomain_base}, CMOSE$\rightarrow$DA
 A metric that reports business-as-usual while the ordinal signal is gone is a blindfold, not a safety net: \textbf{accuracy is the least reliable metric in this study and QWK} --- the only block-bridging metric, and the one that detects the collapse --- \textbf{the most}.
 
 \textbf{The loss ranking survives the shift (completes Section~\ref{sec:loss-tradeoff}).}
-On the unseen-target cells the best-architecture QWK by loss is CE 0.160, weighted CE 0.099, ordinal 0.093 --- the same order as in-domain.
+On the unseen-target cells the best-architecture QWK by loss follows the same CE $>$ weighted CE $>$ ordinal order as in-domain.
 The loss is the only factor in the grid whose ranking transfers (the architecture ranking reshuffles): choosing cross-entropy in-domain remains the right choice out of domain, which retroactively validates fixing it as the development loss.
 
 \subsection{In-Domain versus Transfer}

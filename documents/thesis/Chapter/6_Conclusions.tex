@@ -67,13 +67,13 @@ Encoding the five behavioural groups separately and fusing them outperforms enco
 
 \textbf{RQ2 (encoder assignment).}
 \emph{Only head pose matters.}
-Four of the five groups are essentially indifferent to whether their encoder is a TCN, a Transformer, or an LSTM (spread $\le0.005$ QWK); head pose alone shows a clear and interpretable preference for a TCN.
+Four of the five groups are essentially indifferent to whether their encoder is a TCN, a Transformer, or an LSTM (spread $\le0.006$ QWK); head pose alone shows a clear and interpretable preference for a TCN.
 The practical implication is that the design space is mostly flat and that a TCN is a safe default for every group, with head pose the one place the choice is worth making deliberately.
 
 \textbf{RQ3 (motion fusion).}
 \emph{Yes in-domain, with an honest caveat under shift.}
-When the model is evaluated on a distribution it has trained on, adding the clip-level I3D embedding is decisively beneficial: the paired comparison over all 243 OpenFace assignments shows a median gain of $+0.060$ QWK with 94\% of pairs improving, and the fused family produces both the best in-domain model and the best private-set model.
-Under cross-corpus shift, however, the same stream is neutral to mildly harmful on average (median $-0.021$ on cross-public cells, $+0.005$ on the private set) --- the I3D stream encodes useful but corpus-specific appearance cues.
+When the model is evaluated on a distribution it has trained on, adding the clip-level I3D embedding is decisively beneficial: the paired comparison over the seen-target cells shows a mean gain of $+0.060$ QWK with 94\% of pairs improving, and the fused family produces both the best in-domain model and the best private-set model.
+Under cross-corpus shift, however, the same stream is neutral to mildly harmful on average (mean $-0.021$ on cross-public cells, $+0.005$ on the private set) --- the I3D stream encodes useful but corpus-specific appearance cues.
 The fusion is therefore recommended, but its gain should be claimed only for the regime in which it holds.
 
 \textbf{RQ4 (generalisation and losses).}

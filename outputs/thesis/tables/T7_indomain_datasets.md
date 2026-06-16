@@ -1,4 +1,4 @@
-**T7. Best in-domain result per dataset (CMOSE vs DaiSEE; macro-MAE lower is better).**
+**Best in-domain result per dataset (CMOSE vs DaiSEE; macro-MAE lower is better).**
 
 | In-domain dataset | Best model | Loss | QWK | Macro-Acc | Macro-MAE | Accuracy |
 | --- | --- | --- | --- | --- | --- | --- |

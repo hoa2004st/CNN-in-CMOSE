@@ -1,4 +1,4 @@
-**T4. Top-5 hybrid configs in-domain (CMOSE), sorted by QWK (macro-MAE lower is better).**
+**Top-5 hybrid configs in-domain (CMOSE), sorted by QWK (macro-MAE lower is better).**
 
 | Variant | Arch (gaze_eye_face_head_au) | QWK | Macro-Acc | Macro-MAE | Accuracy |
 | --- | --- | --- | --- | --- | --- |

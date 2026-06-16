@@ -1,4 +1,4 @@
-**T9. Prediction-level agreement and ensemble headroom of the base configurations (in-domain CMOSE).**
+**Prediction-level agreement and ensemble headroom of the base configurations (in-domain CMOSE).**
 
 | Statistic | Value |
 | --- | --- |

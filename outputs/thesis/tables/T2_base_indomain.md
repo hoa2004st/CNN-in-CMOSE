@@ -1,4 +1,4 @@
-**T2. Base models × losses, in-domain (CMOSE→CMOSE), sorted by QWK.**
+**Base models × losses, in-domain (CMOSE→CMOSE), sorted by QWK.**
 
 | Model | Loss | QWK | Macro-Accuracy | Macro-MAE | Accuracy | MAE | Cohen κ |
 | --- | --- | --- | --- | --- | --- | --- | --- |
