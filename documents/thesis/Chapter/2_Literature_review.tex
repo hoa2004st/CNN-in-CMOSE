@@ -3,7 +3,7 @@
 
 This chapter sets the technical and scientific context for the thesis.
 It first fixes the scope of the study (Section~\ref{sec:scope}), then analyses the related work and its limitations (Section~\ref{sec:related}).
-The remaining sections present the foundational knowledge the thesis builds on and that later chapters assume: the feature extractors that turn a video into numerical descriptors (Section~\ref{sec:feat}), the three temporal architecture families used both as baselines and as the building blocks of the proposed model (Section~\ref{sec:temporal}), the loss functions for imbalanced ordinal targets (Section~\ref{sec:losses-lit}), and the metrics used to evaluate ordinal imbalanced classification (Section~\ref{sec:metrics-lit}).
+The remaining sections present the foundational knowledge the thesis builds on and that later chapters assume: the feature extractors that turn a video into numerical descriptors (Section~\ref{sec:feat}), the three temporal architecture families used both as baselines and as the building blocks of the proposed model (Section~\ref{sec:temporal}), the loss functions for imbalanced ordinal targets (Section~\ref{sec:losses-lit}), the metrics used to evaluate ordinal imbalanced classification (Section~\ref{sec:metrics-lit}), and the statistical measures used to compare and analyse the results (Section~\ref{sec:stats-lit}).
 The chapter closes by summarising how these pieces are combined in Chapter~3.
 
 \FloatBarrier
@@ -85,7 +85,7 @@ The result is a strong inductive bias for \emph{short, local temporal motifs} at
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.92\linewidth]{openface_tcn_block.png}
+\includegraphics[width=\linewidth]{openface_tcn_block.png}
 \caption{The residual TemporalBlock used in every TCN of this thesis: two weight-normalised dilated causal 1-D convolutions, each followed by a ReLU and dropout, summed with a residual connection (kernel size~3).}
 \label{fig:tcn_block}
 \end{figure}
@@ -108,7 +108,7 @@ The cost is that the sequential recurrence is harder to parallelise than convolu
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.95\linewidth]{openface_lstm_cell.png}
+\includegraphics[width=\linewidth]{openface_lstm_cell.png}
 \caption{A single LSTM cell at time step $t$: the forget, input, and output gates regulate how the cell state $C_t$ and hidden state $h_t$ are updated from the previous states $C_{t-1}$, $h_{t-1}$ and the input $x_t$.}
 \label{fig:lstm_cell}
 \end{figure}
@@ -122,8 +122,15 @@ For queries $Q$, keys $K$, and values $V$ obtained by linear projections of the 
 \end{equation}
 so that every output position is a learned weighted combination of every input position, with $d_k$ the key dimension.
 Because attention is permutation-invariant, order is injected through a \emph{positional encoding} added to the input; this thesis uses the standard sinusoidal encoding.
-Multiple attention ``heads'' run in parallel and their outputs are concatenated, and each attention sub-layer is followed by a position-wise feed-forward network, with residual connections and layer normalisation throughout.
+Multiple attention ``heads'' run in parallel and their outputs are concatenated, and each attention sub-layer is followed by a position-wise feed-forward network, with residual connections and layer normalisation throughout (Figure~\ref{fig:transformer_encoder_layer}).
 The Transformer has the weakest temporal prior of the three families --- it can attend anywhere --- which makes it flexible but comparatively data-hungry.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\linewidth]{openface_transformer_encoder_layer.png}
+\caption{A single Transformer encoder layer used in this thesis: multi-head self-attention over the sinusoidally position-encoded input, followed by a position-wise feed-forward network, each sub-layer wrapped in a residual connection and layer normalisation.}
+\label{fig:transformer_encoder_layer}
+\end{figure}
 
 \FloatBarrier
 \section{Loss Functions for Imbalance and Ordinality}
@@ -191,11 +198,43 @@ QWK is therefore the natural single number for this problem: it is corrected for
 It is the \textbf{primary} metric of the thesis, with macro-accuracy as the primary balanced-recall companion and macro-MAE as the primary ordinal-distance companion.
 
 \FloatBarrier
+\section{Statistical Measures for Result Analysis}
+\label{sec:stats-lit}
+
+Beyond scoring each model in isolation, the results chapters ask three \emph{comparative} questions that need their own statistical tools: do the six metrics \emph{rank} the configurations the same way (Section~\ref{sec:protocol-metrics}), does in-domain strength \emph{predict} cross-dataset strength (Section~\ref{sec:indomain-vs-transfer}), and do different models make the \emph{same per-clip decisions} (Section~\ref{sec:agreement})?
+The first two are rank-correlation questions; the third is an agreement question.
+
+\textbf{Spearman's rank correlation} $\rho$~\cite{spearman} measures how well a monotonic relationship describes two variables by applying the Pearson correlation coefficient to their ranks rather than their values.
+For $n$ paired observations with rank differences $d_i$ and no ties it reduces to
+\begin{equation}
+\rho = 1 - \frac{6\sum_{i=1}^{n} d_i^{2}}{n\,(n^{2}-1)},
+\end{equation}
+ranging from $-1$ (perfectly inverted ordering) through $0$ (no monotonic relation) to $+1$ (identical ordering).
+This thesis uses $\rho$ to test whether a model's in-domain QWK predicts its QWK on unseen target corpora.
+
+\textbf{Kendall's $\tau$}~\cite{kendall} measures rank agreement through \emph{concordance} rather than squared rank distance.
+Counting the pairs of observations ordered the same way in both variables (concordant, $n_c$) against those ordered oppositely (discordant, $n_d$),
+\begin{equation}
+\tau = \frac{n_c - n_d}{\tfrac{1}{2}\,n\,(n-1)},
+\end{equation}
+again bounded by $[-1,1]$.
+It is less sensitive to small samples and to a few large rank displacements than $\rho$, which is why it is used here to quantify how far the six evaluation metrics agree on the ranking of the baseline configurations.
+
+\textbf{Prediction agreement and ensemble headroom.}
+To ask whether two models \emph{agree clip by clip} rather than merely score alike, the thesis reuses Cohen's $\kappa$ (Section~\ref{sec:metrics-lit}) between the two models' predicted-label vectors; chance-correction matters because two majority-leaning models agree often by default.
+The headroom available from combining a pool of $M$ configurations is bounded by the \emph{oracle accuracy}, the fraction of clips that at least one configuration classifies correctly,
+\begin{equation}
+\mathrm{Acc}_{\mathrm{oracle}} = \frac{1}{N}\sum_{n=1}^{N} \mathbf{1}\!\left[\,\exists\, m\in\{1,\dots,M\}:\ \hat{y}^{(m)}_n = y_n\,\right],
+\end{equation}
+which upper-bounds any fixed combiner, and is contrasted with the realistic \emph{majority-vote accuracy} obtained by taking the modal prediction across the pool.
+A large gap between the best single model, the majority vote, and the oracle indicates that the models err on \emph{different} clips and that an ensemble has room to improve.
+
+\FloatBarrier
 \section{Chapter Summary}
 \label{sec:lit-summary}
 
 This chapter scoped the thesis to webcam-based ordinal engagement recognition and analysed the two dominant approaches in the literature, identifying their shared limitations: heterogeneous facial descriptors are encoded monolithically, and cross-dataset generalisation is seldom measured with metrics that resist majority-class inflation.
-It then laid the technical foundations the rest of the thesis depends on --- the OpenFace 709-dimensional descriptor and its five behavioural groups, the clip-level I3D embedding, the three temporal architecture families (TCN, LSTM, Transformer) and their differing temporal biases, the three loss families for imbalance and ordinality, and the six evaluation metrics with QWK, macro-accuracy, and macro-MAE as primary.
+It then laid the technical foundations the rest of the thesis depends on --- the OpenFace 709-dimensional descriptor and its five behavioural groups, the clip-level I3D embedding, the three temporal architecture families (TCN, LSTM, Transformer) and their differing temporal biases, the three loss families for imbalance and ordinality, the six evaluation metrics with QWK, macro-accuracy, and macro-MAE as primary, and the rank-correlation (Spearman $\rho$, Kendall $\tau$) and prediction-agreement statistics used to analyse the results.
 Chapter~3 combines these foundations into a concrete methodology: it turns the five-group decomposition into the proposed semantic-group hybrid architecture, specifies the baselines and the exact loss formulations, and defines the training and 3$\times$3 cross-dataset evaluation protocols.
 
 \end{document}

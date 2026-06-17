@@ -20,14 +20,14 @@ Every configuration is trained once with a fixed seed (Section~\ref{sec:training
 \subsection{Metrics}
 \label{sec:protocol-metrics}
 
-Engagement is an \emph{ordinal}, severely \emph{imbalanced} four-class problem: the levels lie on a line, and 69.4\% of CMOSE is the single class \emph{Engage} (Table~\ref{tab:T1_dataset_stats}).
+Engagement is an \emph{ordinal}, severely \emph{imbalanced} four-class problem: the levels lie on a line, and 69.4\% of CMOSE is the single class \emph{Engage} (Table~\ref{tab:T3_1_dataset_stats}).
 Raw accuracy ignores both properties --- it rewards majority-class collapse and counts a one-level miss the same as a three-level miss --- whereas QWK is chance-corrected and weights every error by the squared distance between predicted and true levels (Section~\ref{sec:metrics-lit}).
 On first principles, accuracy is the wrong yardstick for this task; the in-domain data say the same thing twice over.
 
 First, \textbf{the leaderboard winner depends on the metric}.
-Table~\ref{tab:T8_per_metric_winner} reports which of the fifteen baseline configurations (five architectures $\times$ three losses) each of the six metrics declares best in-domain on CMOSE, and no two camps agree: QWK crowns the \textbf{OpenFace TCN under cross-entropy} (0.537), both macro metrics crown the \textbf{I3D MLP under the ordinal loss} (macro-accuracy 0.635, macro-MAE 0.458), and accuracy, micro-MAE, and Cohen's kappa all crown the \textbf{I3D MLP under cross-entropy} (0.773, 0.244, 0.436).
+Table~\ref{tab:T4_1_per_metric_winner} reports which of the fifteen baseline configurations (five architectures $\times$ three losses) each of the six metrics declares best in-domain on CMOSE, and no two camps agree: QWK crowns the \textbf{OpenFace TCN under cross-entropy} (0.537), both macro metrics crown the \textbf{I3D MLP under the ordinal loss} (macro-accuracy 0.635, macro-MAE 0.458), and accuracy, micro-MAE, and Cohen's kappa all crown the \textbf{I3D MLP under cross-entropy} (0.773, 0.244, 0.436).
 A metric choice is never innocent, so it must be argued, not defaulted.
-\input{Table/T8_per_metric_winner}
+\input{Table/T4_1_per_metric_winner}
 
 Second, \textbf{the six metrics form two blocks, bridged only by QWK}.
 Figure~\ref{fig:metric_correlation_base} reports the Kendall rank correlation between every pair of metrics over the fifteen configurations: a \emph{micro} block --- accuracy and micro-MAE ($\tau=0.98$), dominated by the majority class --- and a \emph{macro} block --- macro-accuracy and macro-MAE ($\tau=0.89$) --- that are nearly orthogonal to each other (cross-block $\tau\approx0.01$--$0.10$).
@@ -51,10 +51,10 @@ Accuracy and micro-MAE remain in the tables for comparability with the literatur
 \subsection{Development Corpus}
 \label{sec:cmose-anchor}
 
-Table~\ref{tab:T7_indomain_datasets} compares the two in-domain cells of the evaluation matrix: the best in-domain model reaches \textbf{QWK 0.537 on CMOSE but only 0.166 on DAiSEE} (macro-accuracy 0.535 versus 0.289, macro-MAE 0.547 versus 1.226 --- more than twice the ordinal error), while DAiSEE's raw accuracy of 0.548 hides the failure --- a first taste of the foil accuracy was retained to play.
+Table~\ref{tab:T4_2_indomain_datasets} compares the two in-domain cells of the evaluation matrix: the best in-domain model reaches \textbf{QWK 0.537 on CMOSE but only 0.166 on DAiSEE} (macro-accuracy 0.535 versus 0.289, macro-MAE 0.547 versus 1.226 --- more than twice the ordinal error), while DAiSEE's raw accuracy of 0.548 hides the failure --- a first taste of the foil accuracy was retained to play.
 A corpus on which no model rises meaningfully above chance cannot separate good architectures from bad ones: whatever ranking it produces is dominated by label noise.
 \textbf{CMOSE is therefore the development corpus}; DAiSEE re-enters as a transfer source and target in Section~\ref{sec:crossdomain} and in Chapter~5, where its difficulty is informative rather than obstructive.
-\input{Table/T7_indomain_datasets}
+\input{Table/T4_2_indomain_datasets}
 
 \subsection{Development Loss}
 \label{sec:loss-tradeoff}
@@ -132,8 +132,8 @@ The headroom exists, but claiming it requires a \emph{learned} combination of co
 \label{sec:openface-vs-i3d}
 
 The two families behind the near-tie of Section~\ref{sec:baseline-results} are of very different natures: \textbf{OpenFace} is a per-frame, structured account of facial behaviour (gaze, eye and face landmarks, head pose, action units), while \textbf{I3D} is a single clip-level vector of global appearance and motion.
-Table~\ref{tab:T11_openface_vs_i3d} compares their best cross-entropy models: the OpenFace TCN wins all three primary metrics, so by scores alone the I3D MLP looks merely redundant.
-\input{Table/T11_openface_vs_i3d}
+Table~\ref{tab:T4_3_openface_vs_i3d} compares their best cross-entropy models: the OpenFace TCN wins all three primary metrics, so by scores alone the I3D MLP looks merely redundant.
+\input{Table/T4_3_openface_vs_i3d}
 
 The agreement map says otherwise.
 In Figure~\ref{fig:agreement_base_models}, the I3D MLP's row is the palest in the grid: its agreement with the OpenFace TCN is among the \emph{lowest} of any pair, despite the two posting the closest scores.

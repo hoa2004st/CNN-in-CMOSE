@@ -2,17 +2,17 @@
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {3.1}{\ignorespaces Dataset statistics and class balance (\%).}}{16}{table.caption.10}%
-\contentsline {table}{\numberline {3.2}{\ignorespaces Semantic decomposition of the 709-dimensional OpenFace descriptor.}}{19}{table.caption.13}%
+\contentsline {table}{\numberline {3.1}{\ignorespaces Dataset statistics and class balance (\%).}}{17}{table.caption.11}%
+\contentsline {table}{\numberline {3.2}{\ignorespaces Semantic decomposition of the 709-dimensional OpenFace descriptor.}}{21}{table.caption.14}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {4.1}{\ignorespaces The winning base configuration according to each metric (in-domain CMOSE).}}{25}{table.caption.16}%
-\contentsline {table}{\numberline {4.2}{\ignorespaces Best in-domain result per dataset (CMOSE vs DaiSEE; macro-MAE lower is better).}}{26}{table.caption.18}%
-\contentsline {table}{\numberline {4.3}{\ignorespaces Best OpenFace encoder vs the I3D MLP on the primary metrics (in-domain CMOSE, cross-entropy; macro-MAE lower is better).}}{29}{table.caption.22}%
+\contentsline {table}{\numberline {4.1}{\ignorespaces The winning base configuration according to each metric (in-domain CMOSE).}}{26}{table.caption.17}%
+\contentsline {table}{\numberline {4.2}{\ignorespaces Best in-domain result per dataset (CMOSE vs DaiSEE; macro-MAE lower is better).}}{27}{table.caption.19}%
+\contentsline {table}{\numberline {4.3}{\ignorespaces Best OpenFace encoder vs the I3D MLP on the primary metrics (in-domain CMOSE, cross-entropy; macro-MAE lower is better).}}{30}{table.caption.23}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {5.1}{\ignorespaces Per-group marginal effect of encoder choice on mean QWK, in-domain (CMOSE) and pooled over the unseen-target cells.}}{35}{table.caption.25}%
-\contentsline {table}{\numberline {5.2}{\ignorespaces Paired effect of adding the I3D stream on QWK, by evaluation regime (each OpenFace-only hybrid against its exact +I3D twin).}}{35}{table.caption.26}%
-\contentsline {table}{\numberline {5.3}{\ignorespaces Top-5 hybrid configs in-domain (CMOSE), sorted by QWK (macro-MAE lower is better).}}{36}{table.caption.27}%
-\contentsline {table}{\numberline {5.4}{\ignorespaces Private set (test-only): best base vs best hybrid by training source (macro-MAE lower is better).}}{39}{table.caption.31}%
+\contentsline {table}{\numberline {5.1}{\ignorespaces Per-group marginal effect of encoder choice on mean QWK, in-domain (CMOSE) and pooled over the unseen-target cells.}}{36}{table.caption.26}%
+\contentsline {table}{\numberline {5.2}{\ignorespaces Paired effect of adding the I3D stream on QWK, by evaluation regime (each OpenFace-only hybrid against its exact +I3D twin).}}{36}{table.caption.27}%
+\contentsline {table}{\numberline {5.3}{\ignorespaces Top-5 hybrid configs in-domain (CMOSE), sorted by QWK (macro-MAE lower is better).}}{37}{table.caption.28}%
+\contentsline {table}{\numberline {5.4}{\ignorespaces Private set (test-only): best base vs best hybrid by training source (macro-MAE lower is better).}}{40}{table.caption.32}%
 \addvspace {10\p@ }
 \contentsfinish 
 \contentsfinish 

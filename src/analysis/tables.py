@@ -1,4 +1,9 @@
-"""Thesis result tables (T1-T7) emitted as Markdown previews into outputs/thesis/tables/.
+"""Thesis result tables emitted as Markdown previews into outputs/thesis/tables/.
+
+Table file stems follow the LaTeX number they render as (``T<chapter>_<index>_<slug>``,
+e.g. ``T5_2_i3d_fusion_effect`` is Table 5.2). Two specs in ``build_all`` are kept for
+provenance but not currently ``\\input`` into the thesis, so they retain their legacy
+stems (``T2_base_indomain``, ``T9_agreement_stats``).
 
 Each table is built as a ``(name, frame, caption)`` spec (:func:`build_all`); :func:`make_all`
 writes the Markdown preview. The LaTeX (``.tex``) rendering of these tables now lives with the
@@ -65,7 +70,7 @@ def table_dataset_stats() -> tuple[str, pd.DataFrame, str]:
             row[short] = round(float(sub.loc[cls, "proportion"]) * 100, 1) if cls in sub.index else 0.0
         rows.append(row)
     frame = pd.DataFrame(rows)
-    return _spec(frame, "T1_dataset_stats", "Dataset statistics and class balance (%).")
+    return _spec(frame, "T3_1_dataset_stats", "Dataset statistics and class balance (%).")
 
 
 def table_base_indomain() -> tuple[str, pd.DataFrame, str]:
@@ -89,7 +94,7 @@ def table_hybrid_topk(k: int = 5) -> tuple[str, pd.DataFrame, str]:
         columns={"variant": "Variant", "arch_key": "Arch (gaze_eye_face_head_au)",
                  "quadratic_weighted_kappa": "QWK", "macro_accuracy": "Macro-Acc",
                  "macro_mae": "Macro-MAE", "accuracy": "Accuracy"})
-    return _spec(frame, "T4_hybrid_topk",
+    return _spec(frame, "T5_3_hybrid_topk",
                  f"Top-{k} hybrid configs in-domain (CMOSE), sorted by QWK "
                  f"(macro-MAE lower is better).")
 
@@ -129,7 +134,7 @@ def table_i3d_fusion_effect() -> tuple[str, pd.DataFrame, str]:
             "Pairs improving (%)": int(round(float((delta > 0).mean()) * 100)),
         })
     frame = pd.DataFrame(rows)
-    return _spec(frame, "T13_i3d_fusion_effect",
+    return _spec(frame, "T5_2_i3d_fusion_effect",
                  "Paired effect of adding the I3D stream on QWK, by evaluation regime "
                  "(each OpenFace-only hybrid against its exact +I3D twin).")
 
@@ -185,7 +190,7 @@ def table_group_marginal_combined() -> tuple[str, pd.DataFrame, str]:
             row["Prefers"] = ag.ARCH_TOKEN_DISPLAY[max(means, key=means.get)]
             rows.append(row)
     frame = pd.DataFrame(rows)
-    return _spec(frame, "T12_group_marginal_combined",
+    return _spec(frame, "T5_1_group_marginal_combined",
                  "Per-group marginal effect of encoder choice on mean QWK, in-domain "
                  "(CMOSE) and pooled over the unseen-target cells.")
 
@@ -211,7 +216,7 @@ def table_private_by_source() -> tuple[str, pd.DataFrame, str]:
             "Hybrid macro-MAE": round(float(bh["macro_mae"]), 3),
         })
     frame = pd.DataFrame(rows)
-    return _spec(frame, "T6_private_by_source",
+    return _spec(frame, "T5_4_private_by_source",
                  "Private set (test-only): best base vs best hybrid by training source "
                  "(macro-MAE lower is better).")
 
@@ -233,7 +238,7 @@ def table_indomain_cmose_vs_daisee() -> tuple[str, pd.DataFrame, str]:
             "Accuracy": round(float(best["accuracy"]), 3),
         })
     frame = pd.DataFrame(rows)
-    return _spec(frame, "T7_indomain_datasets",
+    return _spec(frame, "T4_2_indomain_datasets",
                  "Best in-domain result per dataset (CMOSE vs DaiSEE; macro-MAE lower is better).")
 
 
@@ -257,7 +262,7 @@ def table_per_metric_winner() -> tuple[str, pd.DataFrame, str]:
             "Value": round(float(best[metric]), 3),
         })
     frame = pd.DataFrame(rows)
-    return _spec(frame, "T8_per_metric_winner",
+    return _spec(frame, "T4_1_per_metric_winner",
                  "The winning base configuration according to each metric "
                  "(in-domain CMOSE).")
 
@@ -320,7 +325,7 @@ def table_openface_vs_i3d() -> tuple[str, pd.DataFrame, str]:
             "Macro-MAE": round(float(row["macro_mae"]), 3),
         })
     frame = pd.DataFrame(rows)
-    return _spec(frame, "T11_openface_vs_i3d",
+    return _spec(frame, "T4_3_openface_vs_i3d",
                  "Best OpenFace encoder vs the I3D MLP on the primary metrics "
                  "(in-domain CMOSE, cross-entropy; macro-MAE lower is better).")
 

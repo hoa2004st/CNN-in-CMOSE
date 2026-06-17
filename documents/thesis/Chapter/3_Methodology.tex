@@ -25,7 +25,7 @@ Every model is trained and evaluated under a 3$\times$3 cross-dataset protocol a
 
 \subsection{Datasets}
 
-The thesis uses three training sources and three test sets, whose sizes and class balance are reported in Table~\ref{tab:T1_dataset_stats}.
+The thesis uses three training sources and three test sets, whose sizes and class balance are reported in Table~\ref{tab:T3_1_dataset_stats}.
 
 \begin{itemize}
   \item \textbf{CMOSE}~\cite{cmose}: 12{,}197 clips, divided into a \texttt{train} split (8{,}783), an \texttt{unlabel} split (2{,}193) that this thesis uses as the validation set for early stopping and checkpoint selection, and a \texttt{test} split (1{,}221).
@@ -37,11 +37,11 @@ The thesis uses three training sources and three test sets, whose sizes and clas
 \end{itemize}
 
 All four sets share the four ordinal labels HD/DE/EG/HE.
-Table~\ref{tab:T1_dataset_stats} and Figure~\ref{fig:dataset_class_distribution_overall} show that all three training corpora are heavily imbalanced toward the upper-middle classes, and --- crucially --- imbalanced in \emph{different directions}.
+Table~\ref{tab:T3_1_dataset_stats} and Figure~\ref{fig:dataset_class_distribution_overall} show that all three training corpora are heavily imbalanced toward the upper-middle classes, and --- crucially --- imbalanced in \emph{different directions}.
 CMOSE is dominated by \emph{Engage} (69.4\%) with only 2.8\% \emph{Highly\nobreakdash-Disengage}, whereas DAiSEE is split between \emph{Engage} (50.3\%) and \emph{Highly\nobreakdash-Engage} (43.8\%) with just 0.7\% \emph{Highly\nobreakdash-Disengage}.
 The rare disengaged classes are precisely the ones a useful monitoring system must catch, yet they amount to a fraction of a percent to a few percent of the data.
 The same imbalance holds within each of the train, validation, and test partitions, so it is a property of the problem rather than of a particular split.
-\input{Table/T1_dataset_stats}
+\input{Table/T3_1_dataset_stats}
 
 \begin{figure}[ht]
 \centering
@@ -111,27 +111,27 @@ Forcing one encoder --- and therefore one temporal bias --- onto all 709 heterog
 \begin{figure}[htbp]
 \centering
 \begin{subfigure}{\linewidth}\centering
-\includegraphics[width=0.72\linewidth]{openface_mlp.png}
+\includegraphics[width=\linewidth]{openface_mlp.png}
 \caption{\texttt{openface\_mlp}: the $T\times709$ sequence is flattened and classified by an MLP.}
 \label{fig:openface_mlp}
 \end{subfigure}\\[1.2ex]
 \begin{subfigure}{\linewidth}\centering
-\includegraphics[width=0.86\linewidth]{openface_tcn.png}
+\includegraphics[width=\linewidth]{openface_tcn.png}
 \caption{\texttt{openface\_tcn}: a TCN over the 709-d sequence, adaptively average-pooled and classified.}
 \label{fig:openface_tcn}
 \end{subfigure}\\[1.2ex]
 \begin{subfigure}{\linewidth}\centering
-\includegraphics[width=0.78\linewidth]{openface_lstm.png}
+\includegraphics[width=\linewidth]{openface_lstm.png}
 \caption{\texttt{openface\_lstm}: a two-layer LSTM over the 709-d sequence whose final state is classified.}
 \label{fig:openface_lstm}
 \end{subfigure}\\[1.2ex]
 \begin{subfigure}{\linewidth}\centering
-\includegraphics[width=0.92\linewidth]{openface_transformer.png}
+\includegraphics[width=\linewidth]{openface_transformer.png}
 \caption{\texttt{openface\_transformer}: a Transformer encoder over the 709-d sequence, mean-pooled and classified.}
 \label{fig:openface_transformer}
 \end{subfigure}\\[1.2ex]
 \begin{subfigure}{\linewidth}\centering
-\includegraphics[width=0.6\linewidth]{i3d_mlp.png}
+\includegraphics[width=\linewidth]{i3d_mlp.png}
 \caption{\texttt{i3d\_mlp}: the pooled 1024-d I3D clip vector is classified by an MLP.}
 \label{fig:i3d_mlp}
 \end{subfigure}
@@ -179,7 +179,7 @@ It is built from the same three encoder families as the OpenFace baselines of Se
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.9\linewidth]{hybrid.png}
+\includegraphics[width=\linewidth]{hybrid.png}
 \caption{Semantic-group hybrid architecture.
 Each OpenFace group is encoded independently into a 64-d embedding (group encoders are chosen per group from TCN / Transformer (T) / LSTM); the I3D clip vector is encoded by an MLP into a 128-d embedding.
 The six embeddings are concatenated (448-d) and classified by a shared MLP; each stream also feeds an auxiliary head.
@@ -199,19 +199,19 @@ Each group is encoded by a \texttt{GroupEncoder} that is one of three interchang
 \centering
 \begin{subfigure}{\linewidth}
 \centering
-\includegraphics[width=0.78\linewidth]{hybrid_tcn_encoder.png}
+\includegraphics[width=\linewidth]{hybrid_tcn_encoder.png}
 \caption{TCN group encoder.}
 \label{fig:ge_tcn}
 \end{subfigure}\\[2ex]
 \begin{subfigure}{\linewidth}
 \centering
-\includegraphics[width=0.92\linewidth]{hybrid_transformer_encoder.png}
+\includegraphics[width=\linewidth]{hybrid_transformer_encoder.png}
 \caption{Transformer group encoder.}
 \label{fig:ge_transformer}
 \end{subfigure}\\[2ex]
 \begin{subfigure}{\linewidth}
 \centering
-\includegraphics[width=0.85\linewidth]{hybrid_lstm_encoder.png}
+\includegraphics[width=\linewidth]{hybrid_lstm_encoder.png}
 \caption{LSTM group encoder.}
 \label{fig:ge_lstm}
 \end{subfigure}

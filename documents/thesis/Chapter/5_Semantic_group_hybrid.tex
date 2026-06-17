@@ -47,11 +47,11 @@ All three pillars of the Chapter~4 frame thus survive a 32-fold larger model pop
 
 The 243-configuration grid varies five group$\rightarrow$encoder choices at once; this section marginalises them to find which group's choice actually moves the primary metrics (RQ2), and whether any preference is corpus-specific or survives shift.
 
-Table~\ref{tab:T12_group_marginal_combined} reports the marginal in both regimes.
+Table~\ref{tab:T5_1_group_marginal_combined} reports the marginal in both regimes.
 \textbf{In-domain}, only \textbf{head pose} shows a clear preference: TCN (mean QWK 0.545), ahead of LSTM (0.541) and Transformer (0.523), a spread of 0.022; macro-MAE agrees, lowest (best) under the TCN.
 The other four groups are essentially encoder-agnostic (QWK spread $\le0.006$).
 \textbf{Under shift} (the same marginal over the unseen-target cells), head pose again has the largest spread (0.010) and again prefers the TCN, while the other groups' spreads (0.002--0.004) flip winners arbitrarily --- noise.
-\input{Table/T12_group_marginal_combined}
+\input{Table/T5_1_group_marginal_combined}
 
 The consistency across regimes elevates the head-pose rule from a tuning accident to a property of the signal: head dynamics such as nodding and turning away are temporally local and convolution-friendly (RQ2).
 The design space is otherwise flat, so most of the architecture's benefit must come from \emph{decomposing and fusing} rather than from the per-group encoder search --- which is what the next section measures.
@@ -64,13 +64,13 @@ Chapter~4 predicted, from the error-overlap analysis of Section~\ref{sec:openfac
 This section measures the prediction with the strongest design in the grid: \textbf{pairing each OpenFace-only configuration with its exact +I3D twin} (same five encoders), so the distribution of paired QWK differences \emph{is} the I3D effect, free of the configuration as a confounder, in three evaluation regimes.
 
 \textbf{Where the test corpus is seen in training, fusion pays decisively.}
-Over the seen-target cells the mean paired gain is \textbf{+0.060 QWK, and 94\% of the 972 pairs improve} (Table~\ref{tab:T13_i3d_fusion_effect}).
+Over the seen-target cells the mean paired gain is \textbf{+0.060 QWK, and 94\% of the 972 pairs improve} (Table~\ref{tab:T5_2_i3d_fusion_effect}).
 In-domain on CMOSE this is the cash value of the complementarity of Section~\ref{sec:openface-vs-i3d}: the I3D-fused family is centred above the OpenFace-only family (median QWK 0.553 against 0.522, visible in Figure~\ref{fig:hybrid_ablation_all_metrics}), and \textbf{82\% of the 243 fused configurations clear the 0.537 baseline bar}, against 26\% of the OpenFace-only ones.
 The gain is a property of the \emph{family}, not of one lucky configuration (RQ3).
-\input{Table/T13_i3d_fusion_effect}
+\input{Table/T5_2_i3d_fusion_effect}
 
 \textbf{Beyond the training corpora, the gain evaporates.}
-Cross-corpus the mean paired effect is \textbf{$-0.021$ QWK with only 26\% of pairs improving}; on the private set it is +0.005 with 52\% improving and high variance across configurations (Table~\ref{tab:T13_i3d_fusion_effect}).
+Cross-corpus the mean paired effect is \textbf{$-0.021$ QWK with only 26\% of pairs improving}; on the private set it is +0.005 with 52\% improving and high variance across configurations (Table~\ref{tab:T5_2_i3d_fusion_effect}).
 I3D's global appearance features drag corpus bias along --- the same mechanism behind the I3D MLP's fall from second to fourth in the architecture ranking under shift (Section~\ref{sec:crossdomain-matrix}).
 The practical rule (RQ3): \emph{fuse I3D when the target domain is represented in training; rely on the OpenFace groups otherwise} --- a rule about the family average (the single best private-set model does carry I3D, but it is one tail of a wide, zero-centred distribution).
 
@@ -79,10 +79,10 @@ The practical rule (RQ3): \emph{fuse I3D when the target domain is represented i
 \label{sec:error}
 
 \textbf{Best hybrid versus best baseline.}
-Table~\ref{tab:T4_hybrid_topk} lists the top-5 configurations; the best overall is the I3D-fused hybrid \texttt{TCN\_T\_TCN\_LSTM\_T}, and every top configuration mixes at least two encoder types.
+Table~\ref{tab:T5_3_hybrid_topk} lists the top-5 configurations; the best overall is the I3D-fused hybrid \texttt{TCN\_T\_TCN\_LSTM\_T}, and every top configuration mixes at least two encoder types.
 On all three primary metrics the best hybrid improves on the best baseline --- \textbf{+0.068 QWK} (0.605 versus 0.537), macro-accuracy 0.582 versus 0.535, and macro-MAE 0.489 versus 0.547 (lower is better).
 All three move in the same direction, so the gain is real --- but \textbf{modest}; it is the CMOSE diagonal cell of the cell-by-cell comparison in Section~\ref{sec:hybrid-crossdomain} (Figure~\ref{fig:crossdomain_delta}).
-\input{Table/T4_hybrid_topk}
+\input{Table/T5_3_hybrid_topk}
 
 \textbf{Where does the gain land?}
 The per-class F1 scores (Figure~\ref{fig:per_class_f1}) localise it.
@@ -142,8 +142,8 @@ Sections~\ref{sec:error} and~\ref{sec:private-results}.}
 
 The most consequential evaluation in this thesis is on the \textbf{private set} --- the 366 clips we collected and hand-labelled ourselves (Section~\ref{sec:private-collection}), processed through the identical OpenFace/I3D pipeline and used \textbf{for testing only}.
 Because no model is ever trained on it, it is a genuine ``in-the-wild'' probe of deployment, with its own recording conditions and label prior (58\% Engage, 31\% Highly-Engage, only 2.7\% Highly-Disengage); the \emph{only} design lever is the choice of training source.
-The Private column of Figure~\ref{fig:crossdomain_delta} and Table~\ref{tab:T6_private_by_source} report the best base model and the best hybrid per training source, and two effects compound.
-\input{Table/T6_private_by_source}
+The Private column of Figure~\ref{fig:crossdomain_delta} and Table~\ref{tab:T5_4_private_by_source} report the best base model and the best hybrid per training source, and two effects compound.
+\input{Table/T5_4_private_by_source}
 
 \begin{enumerate}
   \item \textbf{Training source matters, and the combined corpus wins.}
@@ -151,7 +151,7 @@ The Private column of Figure~\ref{fig:crossdomain_delta} and Table~\ref{tab:T6_p
   \item \textbf{The hybrid generalizes better --- and helps more here than in-domain.}
   The hybrid beats the best base model on QWK for \emph{every} training source, and the gap is largest exactly where it matters: under combined training, \textbf{QWK 0.379 versus 0.285}, a \textbf{$+0.094$} improvement --- wider than the $+0.068$ in-domain gain, so distribution shift \emph{amplifies} rather than erodes the architecture's advantage.
   The overall best private-set model is the combined-trained I3D-fused hybrid \texttt{T\_T\_T\_LSTM\_T}, best on both ordinal primaries: \textbf{QWK 0.379} and the lowest \textbf{macro-MAE 0.877} (against the best base's 0.997).
-  (One caveat in Table~\ref{tab:T6_private_by_source}: the CMOSE-only base model posts a deceptively low macro-MAE (0.75) despite the weakest QWK by predicting conservatively around the majority classes --- the false comfort that reporting all three primaries together is designed to catch.)
+  (One caveat in Table~\ref{tab:T5_4_private_by_source}: the CMOSE-only base model posts a deceptively low macro-MAE (0.75) despite the weakest QWK by predicting conservatively around the majority classes --- the false comfort that reporting all three primaries together is designed to catch.)
 \end{enumerate}
 
 Figure~\ref{fig:private_confusion_combined} compares the confusion of the two combined-trained models on the private set.
