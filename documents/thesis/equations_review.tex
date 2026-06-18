@@ -1,0 +1,161 @@
+% =====================================================================
+%  equations_review.tex  --  SCRATCH / REVIEW COPY (not compiled into the thesis)
+% ---------------------------------------------------------------------
+%  Purpose: a single place to hand-edit every equation in the thesis.
+%  Workflow:
+%    1. Edit any equation below to taste (wording, symbols, layout).
+%    2. Tell Claude "propagate equations_review.tex" and it will read this
+%       file and copy each block back to the SOURCE location noted in the
+%       % SOURCE: comment above it.
+%  Conventions enforced here (see MATH_STYLE.md):
+%    - multi-letter operators  -> \operatorname{...}
+%    - loss / metric subscripts -> \text{...}
+%    - transpose -> ^\top ; indicator -> \mathbf{1}[...] ; aux weight -> \lambda_{\text{aux}}
+%  You can compile this file on its own to preview (pdflatex equations_review.tex).
+% =====================================================================
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsbsy}
+\allowdisplaybreaks
+\begin{document}
+
+% =====================================================================
+% CHAPTER 2 -- Literature Review
+% =====================================================================
+
+% ---------------------------------------------------------------------
+% SOURCE: Chapter/2_Literature_review.tex  (LSTM gates, align block ~L97-104)
+% READING: forget/input/output gates, candidate cell state, cell update, hidden update.
+% NOTE: currently the first two rows carry \notag so only the last row is numbered.
+%       If you want one number for the whole block, use the single-equation form below instead.
+\begin{align}
+f_t &= \sigma(W_f x_t + U_f h_{t-1} + b_f), &
+i_t &= \sigma(W_i x_t + U_i h_{t-1} + b_i), \notag\\
+o_t &= \sigma(W_o x_t + U_o h_{t-1} + b_o), &
+\tilde{c}_t &= \tanh(W_c x_t + U_c h_{t-1} + b_c), \notag\\
+c_t &= f_t \odot c_{t-1} + i_t \odot \tilde{c}_t, &
+h_t &= o_t \odot \tanh(c_t),
+\end{align}
+% (alt: single number for the block)
+% \begin{equation}
+% \begin{aligned}
+% f_t &= \sigma(W_f x_t + U_f h_{t-1} + b_f), &
+% i_t &= \sigma(W_i x_t + U_i h_{t-1} + b_i), \\
+% o_t &= \sigma(W_o x_t + U_o h_{t-1} + b_o), &
+% \tilde{c}_t &= \tanh(W_c x_t + U_c h_{t-1} + b_c), \\
+% c_t &= f_t \odot c_{t-1} + i_t \odot \tilde{c}_t, &
+% h_t &= o_t \odot \tanh(c_t).
+% \end{aligned}
+% \end{equation}
+% where $\sigma$ is the logistic sigmoid and $\odot$ is the element-wise product.
+
+% ---------------------------------------------------------------------
+% SOURCE: Chapter/2_Literature_review.tex  (scaled dot-product attention ~L120-122)
+% READING: each output position is a softmax-weighted combination of all value rows.
+\begin{equation}
+\operatorname{Attention}(Q,K,V) = \operatorname{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right) V,
+\end{equation}
+% with $d_k$ the key dimension.
+
+% ---------------------------------------------------------------------
+% SOURCE: Chapter/2_Literature_review.tex  (inline ~L139, softmax probabilities)
+% READING: class probabilities are the softmax of the logits.
+$ p_k = \operatorname{softmax}(z)_k = e^{z_k}/\sum_j e^{z_j} $
+
+% ---------------------------------------------------------------------
+% SOURCE: Chapter/2_Literature_review.tex  (cross-entropy ~L143-145)
+% READING: negative log-probability of the true class.
+\begin{equation}
+\mathcal{L}_{\text{CE}} = -\log p_{y},
+\end{equation}
+
+% ---------------------------------------------------------------------
+% SOURCE: Chapter/2_Literature_review.tex  (inline ~L149, weighted CE)
+% READING: cross-entropy scaled by the class weight of the true class.
+$ \mathcal{L}_{\text{WCE}} = -\,w_{y}\log p_{y} $
+
+% ---------------------------------------------------------------------
+% SOURCE: Chapter/2_Literature_review.tex  (ordinal / squared-EMD loss, label eq:emd ~L155-157)
+% READING: mean squared distance between predicted CDF P_k and target step CDF T_k.
+% with (inline ~L154):  P_k = \sum_{j\le k} p_j   and   T_k = \mathbf{1}[k \ge y].
+\begin{equation}
+\mathcal{L}_{\text{ord}} = \frac{1}{K}\sum_{k=0}^{K-1}\bigl(P_k - T_k\bigr)^2 ,
+\label{eq:emd}
+\end{equation}
+
+% ---------------------------------------------------------------------
+% SOURCE: Chapter/2_Literature_review.tex  (inline ~L172, accuracy)
+% READING: fraction of correct predictions = trace of confusion matrix / N.
+$ \operatorname{Acc}=\frac{1}{N}\sum_i C_{ii} $
+
+% ---------------------------------------------------------------------
+% SOURCE: Chapter/2_Literature_review.tex  (macro-accuracy ~L176-178)
+% READING: mean of per-class recalls (each class weighted equally).
+\begin{equation}
+\operatorname{MacroAcc} = \frac{1}{K}\sum_{i=0}^{K-1}\frac{C_{ii}}{\sum_j C_{ij}},
+\end{equation}
+
+% ---------------------------------------------------------------------
+% SOURCE: Chapter/2_Literature_review.tex  (inline ~L182, MAE)
+% READING: average ordinal distance |i-j| over the confusion matrix.
+$ \operatorname{MAE}=\frac{1}{N}\sum_{ij}C_{ij}\,|i-j| $
+
+% ---------------------------------------------------------------------
+% SOURCE: Chapter/2_Literature_review.tex  (inline ~L187-189, Cohen's kappa)
+% READING: chance-corrected agreement; weighted form; unweighted uses W_ij=1 off-diagonal.
+$ \kappa = (p_o-p_e)/(1-p_e) $
+$ \kappa = 1 - \dfrac{\sum_{ij} W_{ij}C_{ij}}{\sum_{ij} W_{ij}E_{ij}} $
+
+% ---------------------------------------------------------------------
+% SOURCE: Chapter/2_Literature_review.tex  (QWK penalty, label eq:qwk ~L192-194)
+% READING: quadratic penalty matrix used by quadratic-weighted kappa.
+\begin{equation}
+W_{ij} = \frac{(i-j)^2}{(K-1)^2},
+\label{eq:qwk}
+\end{equation}
+
+% ---------------------------------------------------------------------
+% SOURCE: Chapter/2_Literature_review.tex  (Spearman rho ~L209-211)
+% READING: rank correlation from squared rank differences (no-ties form).
+\begin{equation}
+\rho = 1 - \frac{6\sum_{i=1}^{n} d_i^{2}}{n\,(n^{2}-1)},
+\end{equation}
+
+% ---------------------------------------------------------------------
+% SOURCE: Chapter/2_Literature_review.tex  (Kendall tau ~L217-219)
+% READING: (concordant - discordant) pairs over the number of pairs C(n,2).
+\begin{equation}
+\tau = \frac{n_c - n_d}{\binom{n}{2}},
+\end{equation}
+
+% ---------------------------------------------------------------------
+% SOURCE: Chapter/2_Literature_review.tex  (oracle accuracy ~L226-228)
+% READING: fraction of clips that at least one of M configurations gets right.
+\begin{equation}
+\operatorname{Acc}_{\text{oracle}} = \frac{1}{N}\sum_{n=1}^{N}
+  \mathbf{1}\!\left[\,\exists\, m\in\{1,\dots,M\}:\ \hat{y}^{(m)}_n = y_n\,\right],
+\end{equation}
+
+% =====================================================================
+% CHAPTER 3 -- Methodology
+% =====================================================================
+
+% ---------------------------------------------------------------------
+% SOURCE: Chapter/3_Methodology.tex  (inverse-frequency class weights ~L243-246)
+% READING: weight inversely proportional to class count, normalised to mean 1.
+%          n_c = #training samples of class c ; C = #non-empty classes.
+\begin{equation}
+w_c = \frac{1}{n_c}\cdot\frac{C}{\sum_{k} 1/n_k},
+\qquad\text{so that}\quad \frac{1}{C}\sum_c w_c = 1 .
+\end{equation}
+
+% ---------------------------------------------------------------------
+% SOURCE: Chapter/3_Methodology.tex  (hybrid total loss ~L251-254)
+% READING: main-head loss + aux weight * mean of per-stream CE aux losses.
+%          z = main logits ; a^{(s)} = stream-s aux logits ; S = #streams (5, or 6 with I3D).
+%          \lambda_{\text{aux}} = 0.2 (defined in prose just after the equation).
+\begin{equation}
+\mathcal{L} = \mathcal{L}_{\text{main}}(z,y) \;+\; \lambda_{\text{aux}}\cdot\frac{1}{S}\sum_{s=1}^{S}
+              \mathcal{L}_{\text{CE}}\!\bigl(a^{(s)},y\bigr),
+\end{equation}
+
+\end{document}

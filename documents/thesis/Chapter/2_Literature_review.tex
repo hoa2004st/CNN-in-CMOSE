@@ -118,7 +118,7 @@ The cost is that the sequential recurrence is harder to parallelise than convolu
 The Transformer encoder~\cite{transformer} dispenses with recurrence and convolution and instead relates all time steps directly through \emph{self-attention}.
 For queries $Q$, keys $K$, and values $V$ obtained by linear projections of the input, attention computes
 \begin{equation}
-\mathrm{Attention}(Q,K,V) = \mathrm{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right) V,
+\operatorname{Attention}(Q,K,V) = \operatorname{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right) V,
 \end{equation}
 so that every output position is a learned weighted combination of every input position, with $d_k$ the key dimension.
 Because attention is permutation-invariant, order is injected through a \emph{positional encoding} added to the input; this thesis uses the standard sinusoidal encoding.
@@ -136,24 +136,24 @@ The Transformer has the weakest temporal prior of the three families --- it can 
 \section{Loss Functions for Imbalance and Ordinality}
 \label{sec:losses-lit}
 
-Let a model produce logits $z \in \mathbb{R}^{K}$ for the $K=4$ engagement classes, softmax probabilities $p_k = e^{z_k}/\sum_j e^{z_j}$, and let $y\in\{0,\dots,K-1\}$ be the ordinal ground-truth class.
+Let a model produce logits $z \in \mathbb{R}^{K}$ for the $K=4$ engagement classes, softmax probabilities $p_k = \operatorname{softmax}(z)_k = e^{z_k}/\sum_j e^{z_j}$, and let $y\in\{0,\dots,K-1\}$ be the ordinal ground-truth class.
 Three loss families are compared in this thesis; their exact application (which weights, computed on which split, combined with which auxiliary term) is given in Section~\ref{sec:losses-method}.
 
 \textbf{Cross-entropy (CE)} is the standard classification loss,
 \begin{equation}
-\mathcal{L}_{\mathrm{CE}} = -\log p_{y},
+\mathcal{L}_{\text{CE}} = -\log p_{y},
 \end{equation}
 which treats all classes symmetrically and all errors as equally severe.
 On imbalanced data it is dominated by the majority class and on ordinal data it ignores class order, so it serves as the baseline against which the other losses are judged.
 
-\textbf{Weighted cross-entropy} counteracts imbalance by scaling each class's contribution by a weight $w_c$ inversely proportional to its frequency, $\mathcal{L}_{\mathrm{WCE}} = -\,w_{y}\log p_{y}$.
+\textbf{Weighted cross-entropy} counteracts imbalance by scaling each class's contribution by a weight $w_c$ inversely proportional to its frequency, $\mathcal{L}_{\text{WCE}} = -\,w_{y}\log p_{y}$.
 This raises the cost of mistakes on rare classes such as \emph{Highly\nobreakdash-Disengage} and pushes the model away from collapsing onto the majority, at the expense of some headline accuracy.
 Resampling techniques such as SMOTE~\cite{smote} address the same imbalance at the data level by synthesising minority examples; this thesis instead studies loss-level remedies, which require no change to the data pipeline.
 
 \textbf{Ordinal (EMD-style) loss} encodes the order of the classes by comparing \emph{cumulative} distributions.
 Writing the predicted cumulative distribution as $P_k=\sum_{j\le k} p_j$ and the cumulative distribution of the one-hot label as the unit step $T_k=\mathbf{1}[\,k\ge y\,]$ (which rises from $0$ to $1$ at class $y$), the loss is the mean squared distance between the two step functions,
 \begin{equation}
-\mathcal{L}_{\mathrm{ord}} = \frac{1}{K}\sum_{k=0}^{K-1}\bigl(P_k - T_k\bigr)^2 ,
+\mathcal{L}_{\text{ord}} = \frac{1}{K}\sum_{k=0}^{K-1}\bigl(P_k - T_k\bigr)^2 ,
 \label{eq:emd}
 \end{equation}
 a one-dimensional, squared Earth Mover's Distance between the predicted and target distributions over the ordered classes.
@@ -169,17 +169,17 @@ Because the labels are ordinal and imbalanced, the choice of metric is itself a 
 This thesis reports six metrics, computed from the $K\times K$ confusion matrix $C$ where $C_{ij}$ counts samples of true class $i$ predicted as $j$, and treats three of them as primary.
 Let $N=\sum_{ij}C_{ij}$.
 
-\textbf{Accuracy} is the fraction of correct predictions, $\mathrm{Acc}=\frac{1}{N}\sum_i C_{ii}$.
+\textbf{Accuracy} is the fraction of correct predictions, $\operatorname{Acc}=\frac{1}{N}\sum_i C_{ii}$.
 It is reported for comparability with the literature but is explicitly \emph{not} a primary metric here, because on imbalanced data it rewards majority prediction.
 
 \textbf{Macro-accuracy} (balanced accuracy) is the mean of the per-class recalls,
 \begin{equation}
-\mathrm{MacroAcc} = \frac{1}{K}\sum_{i=0}^{K-1}\frac{C_{ii}}{\sum_j C_{ij}},
+\operatorname{MacroAcc} = \frac{1}{K}\sum_{i=0}^{K-1}\frac{C_{ii}}{\sum_j C_{ij}},
 \end{equation}
 giving every class equal weight regardless of frequency.
 It exposes the minority-class collapse that accuracy hides and is a \textbf{primary} metric.
 
-\textbf{Mean absolute error (MAE)} treats the class indices as an ordinal scale and averages the distance between truth and prediction, $\mathrm{MAE}=\frac{1}{N}\sum_{ij}C_{ij}\,|i-j|$, while \textbf{macro-MAE} averages the per-class MAE so that errors on rare classes are not drowned out.
+\textbf{Mean absolute error (MAE)} treats the class indices as an ordinal scale and averages the distance between truth and prediction, $\operatorname{MAE}=\frac{1}{N}\sum_{ij}C_{ij}\,|i-j|$, while \textbf{macro-MAE} averages the per-class MAE so that errors on rare classes are not drowned out.
 Both reward predictions that are at least \emph{close} on the scale even when not exactly right; both are smaller-is-better.
 \textbf{Macro-MAE is a primary metric}: it is the natural ordinal-distance companion to QWK and macro-accuracy, reporting \emph{how far} a prediction misses rather than only \emph{whether} it misses, with each class weighted equally so the rare disengaged classes are not masked by the majority.
 
@@ -215,7 +215,7 @@ This thesis uses $\rho$ to test whether a model's in-domain QWK predicts its QWK
 \textbf{Kendall's $\tau$}~\cite{kendall} measures rank agreement through \emph{concordance} rather than squared rank distance.
 Counting the pairs of observations ordered the same way in both variables (concordant, $n_c$) against those ordered oppositely (discordant, $n_d$),
 \begin{equation}
-\tau = \frac{n_c - n_d}{\tfrac{1}{2}\,n\,(n-1)},
+\tau = \frac{n_c - n_d}{\binom{n}{2}},
 \end{equation}
 again bounded by $[-1,1]$.
 It is less sensitive to small samples and to a few large rank displacements than $\rho$, which is why it is used here to quantify how far the six evaluation metrics agree on the ranking of the baseline configurations.
@@ -224,7 +224,7 @@ It is less sensitive to small samples and to a few large rank displacements than
 To ask whether two models \emph{agree clip by clip} rather than merely score alike, the thesis reuses Cohen's $\kappa$ (Section~\ref{sec:metrics-lit}) between the two models' predicted-label vectors; chance-correction matters because two majority-leaning models agree often by default.
 The headroom available from combining a pool of $M$ configurations is bounded by the \emph{oracle accuracy}, the fraction of clips that at least one configuration classifies correctly,
 \begin{equation}
-\mathrm{Acc}_{\mathrm{oracle}} = \frac{1}{N}\sum_{n=1}^{N} \mathbf{1}\!\left[\,\exists\, m\in\{1,\dots,M\}:\ \hat{y}^{(m)}_n = y_n\,\right],
+\operatorname{Acc}_{\text{oracle}} = \frac{1}{N}\sum_{n=1}^{N} \mathbf{1}\!\left[\,\exists\, m\in\{1,\dots,M\}:\ \hat{y}^{(m)}_n = y_n\,\right],
 \end{equation}
 which upper-bounds any fixed combiner, and is contrasted with the realistic \emph{majority-vote accuracy} obtained by taking the modal prediction across the pool.
 A large gap between the best single model, the majority vote, and the oracle indicates that the models err on \emph{different} clips and that an ensemble has room to improve.

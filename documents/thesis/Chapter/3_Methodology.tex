@@ -249,10 +249,10 @@ The ordinal loss is applied in its class-weighted form as well, multiplying each
 For the hybrid models the objective also includes the auxiliary term.
 With main logits $z$ and per-stream auxiliary logits $\{a^{(s)}\}$, the total loss is
 \begin{equation}
-\mathcal{L} = \mathcal{L}_{\text{main}}(z,y) \;+\; 0.2\cdot\frac{1}{S}\sum_{s=1}^{S}
-              \mathcal{L}_{\mathrm{CE}}\!\bigl(a^{(s)},y\bigr),
+\mathcal{L} = \mathcal{L}_{\text{main}}(z,y) \;+\; \lambda_{\text{aux}}\cdot\frac{1}{S}\sum_{s=1}^{S}
+              \mathcal{L}_{\text{CE}}\!\bigl(a^{(s)},y\bigr),
 \end{equation}
-where $\mathcal{L}_{\text{main}}$ is the chosen loss (CE, weighted CE, or ordinal) and the auxiliary heads are always trained with plain cross-entropy, over the $S$ streams (five groups, or six with I3D).
+where $\mathcal{L}_{\text{main}}$ is the chosen loss (CE, weighted CE, or ordinal), $\lambda_{\text{aux}}=0.2$ is the auxiliary weight, and the auxiliary heads are always trained with plain cross-entropy, over the $S$ streams (five groups, or six with I3D).
 
 \FloatBarrier
 \section{Training Protocol}
