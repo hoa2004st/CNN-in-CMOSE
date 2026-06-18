@@ -1,297 +1,297 @@
-PWD C:\HOA\1.HUST\Thesis\CNN-in-CMOSE\documents\thesis
-INPUT C:\Users\NC PC\AppData\Local\MiKTeX\miktex\data\le\pdftex\pdflatex.fmt
-INPUT main.tex
+PWD c:\Hofa\Thesis\CNN-in-CMOSE\documents\thesis
+INPUT C:\Users\hoa20\AppData\Local\MiKTeX\miktex\data\le\pdftex\pdflatex.fmt
+INPUT c:\Hofa\Thesis\CNN-in-CMOSE\documents\thesis\main.tex
 OUTPUT main.log
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\base\report.cls
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\base\report.cls
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\base\size10.clo
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\base\size10.clo
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\base\size10.clo
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\koma-script\scrextend.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\koma-script\scrextend.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\koma-script\scrkbase.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\koma-script\scrkbase.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\koma-script\scrbase.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\koma-script\scrbase.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\koma-script\scrlfile.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\koma-script\scrlfile.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\koma-script\scrlfile-hook.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\koma-script\scrlfile-hook.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\koma-script\scrlogo.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\koma-script\scrlogo.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\graphics\keyval.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\graphics\keyval.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\footmisc\footmisc.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmr12.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\vntex\vietnam.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\vntex\vietnam.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\base\ifthen.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\base\ifthen.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\base\inputenc.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\base\fontenc.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\base\fontenc.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5enc.def
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5enc.def
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5enc.def
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5enc.dfu
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5enc.dfu
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5enc.dfu
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5cmr.fd
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5cmr.fd
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5cmr.fd
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\vnr\vnr12.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\base\inputenc.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\vntex\vncaps.tex
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\vntex\vncaps.tex
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\vntex\vncaps.tex
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\geometry\geometry.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\geometry\geometry.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\iftex\ifvtex.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\iftex\ifvtex.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\iftex\iftex.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\iftex\iftex.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\geometry\geometry.cfg
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\geometry\geometry.cfg
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\geometry\geometry.cfg
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\xurl\xurl.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\xurl\xurl.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\url\url.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\url\url.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\appendix\appendix.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\appendix\appendix.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\babel\babel.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\babel\babel.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\babel\txtbabel.def
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\arabi\bblopts.cfg
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\arabi\bblopts.cfg
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\arabi\bblopts.cfg
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\babel\locale\und\babel-und-x-nil.ini
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\babel\nil.ldf
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\babel\nil.ldf
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\babel\nil.ldf
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\xcolor\xcolor.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\xcolor\xcolor.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\graphics-cfg\color.cfg
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\graphics-cfg\color.cfg
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\graphics-cfg\color.cfg
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\graphics-def\pdftex.def
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\graphics-def\pdftex.def
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\graphics-def\pdftex.def
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\graphics\mathcolor.ltx
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\graphics\mathcolor.ltx
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\graphics\mathcolor.ltx
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\outlines\outlines.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\outlines\outlines.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\graphics\graphicx.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\graphics\graphicx.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\graphics\graphics.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\graphics\graphics.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\graphics\trig.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\graphics\trig.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\graphics-cfg\graphics.cfg
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\graphics-cfg\graphics.cfg
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\graphics-cfg\graphics.cfg
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\fancybox\fancybox.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\fancybox\fancybox.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\tools\indentfirst.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\tools\indentfirst.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\amscls\amsthm.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\amscls\amsthm.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\base\latexsym.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\base\latexsym.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\amsmath\amsmath.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\amsmath\amsmath.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\amsmath\amsopn.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\amsmath\amstext.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\amsmath\amstext.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\amsmath\amsgen.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\amsmath\amsgen.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\amsmath\amsbsy.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\amsmath\amsbsy.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\amsmath\amsopn.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\amsfonts\amssymb.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\amsfonts\amssymb.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\amsfonts\amsfonts.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\amsfonts\amsfonts.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\psnfss\times.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\psnfss\times.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\tools\array.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\tools\array.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\enumitem\enumitem.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\enumitem\enumitem.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\subfiles\subfiles.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\subfiles\subfiles.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\import\import.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\import\import.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\titlesec\titlesec.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\titlesec\titlesec.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\titlesec\titletoc.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\titlesec\titletoc.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\chngcntr\chngcntr.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\chngcntr\chngcntr.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\pdflscape\pdflscape.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\pdflscape\pdflscape.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\pdflscape\pdflscape-nometadata.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\pdflscape\pdflscape-nometadata.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\graphics\lscape.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\graphics\lscape.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\tools\afterpage.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\tools\afterpage.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\algorithm2e\algorithm2e.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\algorithm2e\algorithm2e.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\ifoddpage\ifoddpage.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\ifoddpage\ifoddpage.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\tools\xspace.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\tools\xspace.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\relsize\relsize.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\relsize\relsize.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\capt-of\capt-of.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\capt-of\capt-of.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\multirow\multirow.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\multirow\multirow.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\booktabs\booktabs.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\booktabs\booktabs.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\fancyhdr\fancyhdr.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\fancyhdr\fancyhdr.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\caption\caption.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\caption\caption.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\caption\caption3.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\caption\caption3.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\listings\listings.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\listings\listings.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\listings\lstpatch.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\listings\lstpatch.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\listings\lstpatch.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\listings\lstmisc.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\listings\lstmisc.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\listings\lstmisc.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\listings\listings.cfg
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\listings\listings.cfg
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\listings\listings.cfg
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\float\float.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\float\float.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\caption\subcaption.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\caption\subcaption.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\placeins\placeins.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\placeins\placeins.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\glossaries\base\glossaries.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\glossaries\base\glossaries.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\xkeyval\xkeyval.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\xkeyval\xkeyval.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\xkeyval\xkeyval.tex
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\xkeyval\xkvutils.tex
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\mfirstuc\mfirstuc.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\mfirstuc\mfirstuc.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\etoolbox\etoolbox.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\etoolbox\etoolbox.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\xfor\xfor.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\xfor\xfor.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\supertabular\supertabular.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\supertabular\supertabular.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\tracklang\tracklang.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\tracklang\tracklang.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\tracklang\tracklang.tex
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\tracklang\tracklang.tex
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\tracklang\tracklang.tex
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\tracklang\tracklang.tex
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\tracklang\tracklang.tex
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\translator\translator.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\translator\translator.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\translator\translator.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\datatool\datatool-base.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\datatool\datatool-base.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\datatool\datatool-l3fp.def
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\datatool\datatool-l3fp.def
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\datatool\datatool-l3fp.def
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\datatool\datatool-utf8.ldf
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\datatool\datatool-utf8.ldf
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\datatool\datatool-utf8.ldf
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\datatool\datatool-undetermined.ldf
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\datatool\datatool-undetermined.ldf
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\datatool\datatool-undetermined.ldf
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\glossaries\styles\glossary-hypernav.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\glossaries\styles\glossary-hypernav.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\glossaries\styles\glossary-list.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\glossaries\styles\glossary-list.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\glossaries\styles\glossary-long.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\glossaries\styles\glossary-long.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\tools\longtable.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\tools\longtable.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\glossaries\styles\glossary-super.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\glossaries\styles\glossary-super.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\supertabular\supertabular.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\glossaries\styles\glossary-tree.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\glossaries\styles\glossary-tree.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\glossaries\styles\glossary-superragged.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\glossaries\styles\glossary-superragged.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\setspace\setspace.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\setspace\setspace.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\parskip\parskip.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\parskip\parskip.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\kvoptions\kvoptions.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\kvoptions\kvoptions.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\ltxcmds\ltxcmds.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\ltxcmds\ltxcmds.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\kvsetkeys\kvsetkeys.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\kvsetkeys\kvsetkeys.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\koma-script\tocbasic.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\koma-script\tocbasic.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\blindtext\blindtext.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\blindtext\blindtext.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\biblatex.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\biblatex.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\pdftexcmds\pdftexcmds.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\pdftexcmds\pdftexcmds.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\infwarerr\infwarerr.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\infwarerr\infwarerr.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\logreq\logreq.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\logreq\logreq.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\logreq\logreq.def
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\logreq\logreq.def
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\logreq\logreq.def
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\blx-dm.def
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\blx-dm.def
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\blx-dm.def
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\blx-compat.def
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\blx-compat.def
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\blx-compat.def
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\blx-bibtex.def
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\blx-bibtex.def
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\blx-bibtex.def
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\biblatex.def
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\biblatex.def
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\biblatex.def
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex-ieee\ieee.bbx
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex-ieee\ieee.bbx
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex-ieee\ieee.bbx
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\bbx\numeric-comp.bbx
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\bbx\numeric-comp.bbx
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\bbx\numeric-comp.bbx
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\bbx\numeric.bbx
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\bbx\numeric.bbx
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\bbx\numeric.bbx
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\bbx\standard.bbx
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\bbx\standard.bbx
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\bbx\standard.bbx
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\lbx\english.lbx
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\lbx\english.lbx
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex-ieee\ieee.cbx
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex-ieee\ieee.cbx
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex-ieee\ieee.cbx
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\cbx\numeric-verb.cbx
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\cbx\numeric-verb.cbx
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\cbx\numeric-verb.cbx
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\biblatex.cfg
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\biblatex.cfg
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\biblatex.cfg
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\l3kernel\expl3.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\l3kernel\expl3.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\l3backend\l3backend-pdftex.def
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\l3backend\l3backend-pdftex.def
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\blx-case-expl3.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\blx-case-expl3.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\l3packages\xparse\xparse.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\l3packages\xparse\xparse.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\base\report.cls
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\base\report.cls
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\base\size10.clo
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\base\size10.clo
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\base\size10.clo
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\koma-script\scrextend.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\koma-script\scrextend.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\koma-script\scrkbase.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\koma-script\scrkbase.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\koma-script\scrbase.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\koma-script\scrbase.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\koma-script\scrlfile.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\koma-script\scrlfile.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\koma-script\scrlfile-hook.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\koma-script\scrlfile-hook.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\koma-script\scrlogo.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\koma-script\scrlogo.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\graphics\keyval.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\graphics\keyval.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\footmisc\footmisc.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmr12.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\vntex\vietnam.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\vntex\vietnam.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\base\ifthen.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\base\ifthen.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\base\inputenc.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\base\fontenc.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\base\fontenc.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5enc.def
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5enc.def
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5enc.def
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5enc.dfu
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5enc.dfu
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5enc.dfu
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5cmr.fd
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5cmr.fd
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5cmr.fd
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\vnr\vnr12.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\base\inputenc.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\vntex\vncaps.tex
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\vntex\vncaps.tex
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\vntex\vncaps.tex
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\geometry\geometry.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\geometry\geometry.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\generic\iftex\ifvtex.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\generic\iftex\ifvtex.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\generic\iftex\iftex.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\generic\iftex\iftex.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\geometry\geometry.cfg
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\geometry\geometry.cfg
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\geometry\geometry.cfg
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\xurl\xurl.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\xurl\xurl.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\url\url.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\url\url.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\appendix\appendix.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\appendix\appendix.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\generic\babel\babel.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\generic\babel\babel.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\generic\babel\txtbabel.def
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\arabi\bblopts.cfg
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\arabi\bblopts.cfg
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\arabi\bblopts.cfg
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\generic\babel\locale\und\babel-und-x-nil.ini
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\generic\babel\nil.ldf
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\generic\babel\nil.ldf
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\generic\babel\nil.ldf
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\xcolor\xcolor.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\xcolor\xcolor.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\graphics-cfg\color.cfg
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\graphics-cfg\color.cfg
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\graphics-cfg\color.cfg
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\graphics-def\pdftex.def
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\graphics-def\pdftex.def
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\graphics-def\pdftex.def
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\graphics\mathcolor.ltx
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\graphics\mathcolor.ltx
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\graphics\mathcolor.ltx
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\outlines\outlines.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\outlines\outlines.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\graphics\graphicx.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\graphics\graphicx.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\graphics\graphics.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\graphics\graphics.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\graphics\trig.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\graphics\trig.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\graphics-cfg\graphics.cfg
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\graphics-cfg\graphics.cfg
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\graphics-cfg\graphics.cfg
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\fancybox\fancybox.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\fancybox\fancybox.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\tools\indentfirst.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\tools\indentfirst.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\amscls\amsthm.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\amscls\amsthm.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\base\latexsym.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\base\latexsym.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\amsmath\amsmath.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\amsmath\amsmath.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\amsmath\amsopn.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\amsmath\amstext.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\amsmath\amstext.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\amsmath\amsgen.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\amsmath\amsgen.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\amsmath\amsbsy.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\amsmath\amsbsy.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\amsmath\amsopn.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\amsfonts\amssymb.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\amsfonts\amssymb.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\amsfonts\amsfonts.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\amsfonts\amsfonts.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\psnfss\times.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\psnfss\times.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\tools\array.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\tools\array.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\enumitem\enumitem.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\enumitem\enumitem.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\subfiles\subfiles.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\subfiles\subfiles.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\import\import.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\import\import.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\titlesec\titlesec.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\titlesec\titlesec.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\titlesec\titletoc.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\titlesec\titletoc.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\chngcntr\chngcntr.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\chngcntr\chngcntr.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\pdflscape\pdflscape.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\pdflscape\pdflscape.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\pdflscape\pdflscape-nometadata.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\pdflscape\pdflscape-nometadata.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\graphics\lscape.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\graphics\lscape.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\tools\afterpage.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\tools\afterpage.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\algorithm2e\algorithm2e.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\algorithm2e\algorithm2e.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\ifoddpage\ifoddpage.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\ifoddpage\ifoddpage.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\tools\xspace.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\tools\xspace.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\relsize\relsize.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\relsize\relsize.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\capt-of\capt-of.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\capt-of\capt-of.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\multirow\multirow.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\multirow\multirow.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\booktabs\booktabs.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\booktabs\booktabs.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\fancyhdr\fancyhdr.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\fancyhdr\fancyhdr.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\caption\caption.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\caption\caption.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\caption\caption3.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\caption\caption3.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\listings\listings.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\listings\listings.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\listings\lstpatch.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\listings\lstpatch.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\listings\lstpatch.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\listings\lstmisc.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\listings\lstmisc.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\listings\lstmisc.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\listings\listings.cfg
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\listings\listings.cfg
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\listings\listings.cfg
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\float\float.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\float\float.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\caption\subcaption.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\caption\subcaption.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\placeins\placeins.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\placeins\placeins.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\glossaries\base\glossaries.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\glossaries\base\glossaries.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\xkeyval\xkeyval.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\xkeyval\xkeyval.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\generic\xkeyval\xkeyval.tex
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\generic\xkeyval\xkvutils.tex
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\mfirstuc\mfirstuc.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\mfirstuc\mfirstuc.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\etoolbox\etoolbox.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\etoolbox\etoolbox.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\xfor\xfor.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\xfor\xfor.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\supertabular\supertabular.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\supertabular\supertabular.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\tracklang\tracklang.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\tracklang\tracklang.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\generic\tracklang\tracklang.tex
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\generic\tracklang\tracklang.tex
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\generic\tracklang\tracklang.tex
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\generic\tracklang\tracklang.tex
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\generic\tracklang\tracklang.tex
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\translator\translator.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\translator\translator.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\translator\translator.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\datatool\datatool-base.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\datatool\datatool-base.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\datatool\datatool-l3fp.def
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\datatool\datatool-l3fp.def
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\datatool\datatool-l3fp.def
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\datatool\datatool-utf8.ldf
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\datatool\datatool-utf8.ldf
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\datatool\datatool-utf8.ldf
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\datatool\datatool-undetermined.ldf
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\datatool\datatool-undetermined.ldf
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\datatool\datatool-undetermined.ldf
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\glossaries\styles\glossary-hypernav.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\glossaries\styles\glossary-hypernav.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\glossaries\styles\glossary-list.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\glossaries\styles\glossary-list.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\glossaries\styles\glossary-long.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\glossaries\styles\glossary-long.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\tools\longtable.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\tools\longtable.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\glossaries\styles\glossary-super.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\glossaries\styles\glossary-super.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\supertabular\supertabular.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\glossaries\styles\glossary-tree.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\glossaries\styles\glossary-tree.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\glossaries\styles\glossary-superragged.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\glossaries\styles\glossary-superragged.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\setspace\setspace.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\setspace\setspace.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\parskip\parskip.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\parskip\parskip.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\kvoptions\kvoptions.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\kvoptions\kvoptions.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\generic\ltxcmds\ltxcmds.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\generic\ltxcmds\ltxcmds.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\kvsetkeys\kvsetkeys.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\kvsetkeys\kvsetkeys.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\koma-script\tocbasic.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\koma-script\tocbasic.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\blindtext\blindtext.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\blindtext\blindtext.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\biblatex.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\biblatex.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\generic\pdftexcmds\pdftexcmds.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\generic\pdftexcmds\pdftexcmds.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\generic\infwarerr\infwarerr.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\generic\infwarerr\infwarerr.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\logreq\logreq.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\logreq\logreq.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\logreq\logreq.def
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\logreq\logreq.def
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\logreq\logreq.def
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\blx-dm.def
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\blx-dm.def
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\blx-dm.def
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\blx-compat.def
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\blx-compat.def
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\blx-compat.def
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\blx-bibtex.def
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\blx-bibtex.def
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\blx-bibtex.def
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\biblatex.def
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\biblatex.def
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\biblatex.def
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\biblatex-ieee\ieee.bbx
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\biblatex-ieee\ieee.bbx
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\biblatex-ieee\ieee.bbx
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\bbx\numeric-comp.bbx
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\bbx\numeric-comp.bbx
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\bbx\numeric-comp.bbx
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\bbx\numeric.bbx
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\bbx\numeric.bbx
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\bbx\numeric.bbx
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\bbx\standard.bbx
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\bbx\standard.bbx
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\bbx\standard.bbx
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\lbx\english.lbx
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\lbx\english.lbx
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\biblatex-ieee\ieee.cbx
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\biblatex-ieee\ieee.cbx
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\biblatex-ieee\ieee.cbx
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\cbx\numeric-verb.cbx
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\cbx\numeric-verb.cbx
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\cbx\numeric-verb.cbx
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\biblatex.cfg
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\biblatex.cfg
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\biblatex.cfg
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\l3kernel\expl3.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\l3kernel\expl3.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\l3backend\l3backend-pdftex.def
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\l3backend\l3backend-pdftex.def
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\blx-case-expl3.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\blx-case-expl3.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\l3packages\xparse\xparse.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\l3packages\xparse\xparse.sty
 INPUT .\lstlisting.tex
 INPUT .\lstlisting.tex
 INPUT .\lstlisting.tex
@@ -302,65 +302,65 @@ INPUT .\glossary.tex
 INPUT .\glossary.tex
 INPUT .\glossary.tex
 INPUT glossary.tex
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\hyperref\hyperref.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\hyperref\hyperref.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\kvdefinekeys\kvdefinekeys.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\kvdefinekeys\kvdefinekeys.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\pdfescape\pdfescape.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\pdfescape\pdfescape.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\hycolor\hycolor.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\hycolor\hycolor.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\hyperref\nameref.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\hyperref\nameref.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\refcount\refcount.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\refcount\refcount.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\gettitlestring\gettitlestring.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\gettitlestring\gettitlestring.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\stringenc\stringenc.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\stringenc\stringenc.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\hyperref\pd1enc.def
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\hyperref\pd1enc.def
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\hyperref\pd1enc.def
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\intcalc\intcalc.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\intcalc\intcalc.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\hyperref\puenc.def
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\hyperref\puenc.def
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\hyperref\puenc.def
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\bitset\bitset.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\bitset\bitset.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\bigintcalc\bigintcalc.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\bigintcalc\bigintcalc.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\hyperref\hpdftex.def
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\hyperref\hpdftex.def
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\hyperref\hpdftex.def
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\rerunfilecheck\rerunfilecheck.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\rerunfilecheck\rerunfilecheck.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\uniquecounter\uniquecounter.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\uniquecounter\uniquecounter.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\hypcap\hypcap.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\hypcap\hypcap.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\letltxmacro\letltxmacro.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\letltxmacro\letltxmacro.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5ptm.fd
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5ptm.fd
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5ptm.fd
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\hyperref\hyperref.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\hyperref\hyperref.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\generic\kvdefinekeys\kvdefinekeys.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\generic\kvdefinekeys\kvdefinekeys.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\generic\pdfescape\pdfescape.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\generic\pdfescape\pdfescape.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\hycolor\hycolor.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\hycolor\hycolor.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\hyperref\nameref.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\hyperref\nameref.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\refcount\refcount.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\refcount\refcount.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\generic\gettitlestring\gettitlestring.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\generic\gettitlestring\gettitlestring.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\generic\stringenc\stringenc.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\generic\stringenc\stringenc.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\hyperref\pd1enc.def
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\hyperref\pd1enc.def
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\hyperref\pd1enc.def
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\generic\intcalc\intcalc.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\generic\intcalc\intcalc.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\hyperref\puenc.def
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\hyperref\puenc.def
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\hyperref\puenc.def
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\generic\bitset\bitset.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\generic\bitset\bitset.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\generic\bigintcalc\bigintcalc.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\generic\bigintcalc\bigintcalc.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\hyperref\hpdftex.def
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\hyperref\hpdftex.def
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\hyperref\hpdftex.def
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\rerunfilecheck\rerunfilecheck.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\rerunfilecheck\rerunfilecheck.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\generic\uniquecounter\uniquecounter.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\generic\uniquecounter\uniquecounter.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\hypcap\hypcap.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\hypcap\hypcap.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\letltxmacro\letltxmacro.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\letltxmacro\letltxmacro.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5ptm.fd
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5ptm.fd
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5ptm.fd
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
 INPUT .\main.aux
 INPUT .\main.aux
 INPUT main.aux
 OUTPUT main.aux
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\context\base\mkii\supp-pdf.mkii
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\context\base\mkii\supp-pdf.mkii
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\context\base\mkii\supp-pdf.mkii
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\epstopdf-pkg\epstopdf-base.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\epstopdf-pkg\epstopdf-base.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\grfext\grfext.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\grfext\grfext.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\00miktex\epstopdf-sys.cfg
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\00miktex\epstopdf-sys.cfg
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\00miktex\epstopdf-sys.cfg
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\caption\ltcaption.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\caption\ltcaption.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\context\base\mkii\supp-pdf.mkii
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\context\base\mkii\supp-pdf.mkii
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\context\base\mkii\supp-pdf.mkii
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\epstopdf-pkg\epstopdf-base.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\epstopdf-pkg\epstopdf-base.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\grfext\grfext.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\grfext\grfext.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\00miktex\epstopdf-sys.cfg
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\00miktex\epstopdf-sys.cfg
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\00miktex\epstopdf-sys.cfg
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\caption\ltcaption.sty
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\caption\ltcaption.sty
 OUTPUT main-blx.bib
 INPUT main.bbl
 INPUT .\main.bbl
@@ -381,45 +381,45 @@ INPUT Cover.tex
 INPUT .\Cover.tex
 INPUT .\Cover.tex
 INPUT Cover.tex
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmb8v.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmb8v.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmb8v.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmb8v.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmr9.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmr6.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmmi12.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmmi9.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmmi6.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmsy10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmsy9.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmsy6.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmex10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmex9.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmex7.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\base\ulasy.fd
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\base\ulasy.fd
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\base\ulasy.fd
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\base\ulasy.fd
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\latex-fonts\lasy10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\latex-fonts\lasy9.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\latex-fonts\lasy6.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\amsfonts\umsa.fd
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\amsfonts\umsa.fd
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\amsfonts\umsa.fd
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\amsfonts\umsa.fd
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msam10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msam10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msam7.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\amsfonts\umsb.fd
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\amsfonts\umsb.fd
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\amsfonts\umsb.fd
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\amsfonts\umsb.fd
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm7.tfm
-INPUT C:\Users\NC PC\AppData\Local\MiKTeX\fonts\map\pdftex\pdftex.map
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\enc\dvips\vntex\t5.enc
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmb8v.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmb8v.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmb8v.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmb8v.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmr9.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmr6.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmmi12.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmmi9.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmmi6.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmsy10.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmsy9.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmsy6.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmex10.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmex9.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmex7.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\base\ulasy.fd
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\base\ulasy.fd
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\base\ulasy.fd
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\base\ulasy.fd
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\latex-fonts\lasy10.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\latex-fonts\lasy9.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\latex-fonts\lasy6.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\amsfonts\umsa.fd
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\amsfonts\umsa.fd
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\amsfonts\umsa.fd
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\amsfonts\umsa.fd
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msam10.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msam10.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msam7.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\amsfonts\umsb.fd
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\amsfonts\umsb.fd
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\amsfonts\umsb.fd
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\amsfonts\umsb.fd
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm10.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm10.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm7.tfm
+INPUT C:\Users\hoa20\AppData\Local\MiKTeX\fonts\map\pdftex\pdftex.map
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\enc\dvips\vntex\t5.enc
 INPUT .\Cover2.tex
 INPUT .\Cover2.tex
 INPUT Cover2.tex
@@ -430,22 +430,22 @@ INPUT .\Chapter\0_2_Acknowledgment.tex
 INPUT Chapter\0_2_Acknowledgment.tex
 INPUT .\Chapter\0_2_Acknowledgment.tex
 INPUT Chapter\0_2_Acknowledgment.tex
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
 INPUT .\Chapter\0_3_Abstract.tex
 INPUT Chapter\0_3_Abstract.tex
 INPUT .\Chapter\0_3_Abstract.tex
 INPUT Chapter\0_3_Abstract.tex
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmri8v.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmri8v.tfm
 INPUT .\main.toc
 INPUT .\main.toc
 INPUT main.toc
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmbc8v.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmbc8v.tfm
 OUTPUT main.toc
 INPUT .\main.lof
 INPUT .\main.lof
 INPUT main.lof
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
 OUTPUT main.lof
 INPUT .\main.lot
 INPUT .\main.lot
@@ -457,14 +457,14 @@ INPUT Chapter\1_Introduction.tex
 INPUT .\Chapter\1_Introduction.tex
 INPUT .\Chapter\1_Introduction.tex
 INPUT Chapter\1_Introduction.tex
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\psnfss\ts1ptm.fd
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\psnfss\ts1ptm.fd
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\psnfss\ts1ptm.fd
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\psnfss\ts1ptm.fd
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmr8c.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\vf\adobe\times\ptmr8c.vf
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmr8r.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\enc\dvips\base\8r.enc
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\psnfss\ts1ptm.fd
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\psnfss\ts1ptm.fd
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\psnfss\ts1ptm.fd
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\psnfss\ts1ptm.fd
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmr8c.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\vf\adobe\times\ptmr8c.vf
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmr8r.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\enc\dvips\base\8r.enc
 INPUT .\Chapter\2_Literature_review.tex
 INPUT .\Chapter\2_Literature_review.tex
 INPUT Chapter\2_Literature_review.tex
@@ -477,47 +477,47 @@ INPUT .\Figure\openface_tcn_block.png
 INPUT .\Figure\openface_tcn_block.png
 INPUT .\Figure\openface_tcn_block.png
 INPUT .\Figure\openface_tcn_block.png
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmb8v.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmb8v.tfm
 INPUT .\Figure\openface_lstm_cell.png
 INPUT Figure\openface_lstm_cell.png
 INPUT .\Figure\openface_lstm_cell.png
 INPUT .\Figure\openface_lstm_cell.png
 INPUT .\Figure\openface_lstm_cell.png
 INPUT .\Figure\openface_lstm_cell.png
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmr8.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmmi8.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmsy8.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmex10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmex8.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmex7.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\latex-fonts\lasy8.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msam10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msam10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msam5.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm5.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmr8.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmmi8.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmsy8.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmex10.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmex8.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmex7.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\latex-fonts\lasy8.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msam10.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msam10.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msam5.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm10.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm10.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm5.tfm
 INPUT .\Figure\openface_transformer_encoder_layer.png
 INPUT Figure\openface_transformer_encoder_layer.png
 INPUT .\Figure\openface_transformer_encoder_layer.png
 INPUT .\Figure\openface_transformer_encoder_layer.png
 INPUT .\Figure\openface_transformer_encoder_layer.png
 INPUT .\Figure\openface_transformer_encoder_layer.png
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmbx12.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmbx9.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmbx6.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmbx12.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmbx9.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmbx6.tfm
 INPUT .\Chapter\3_Methodology.tex
 INPUT .\Chapter\3_Methodology.tex
 INPUT Chapter\3_Methodology.tex
 INPUT .\Chapter\3_Methodology.tex
 INPUT .\Chapter\3_Methodology.tex
 INPUT Chapter\3_Methodology.tex
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5pcr.fd
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5pcr.fd
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5pcr.fd
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5pcr.fd
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\ucrr8v.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5pcr.fd
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5pcr.fd
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5pcr.fd
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5pcr.fd
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\ucrr8v.tfm
 INPUT .\Table\T3_1_dataset_stats.tex
 INPUT .\Table\T3_1_dataset_stats.tex
 INPUT Table\T3_1_dataset_stats.tex
@@ -536,26 +536,26 @@ INPUT .\Figure\openface_mlp.png
 INPUT .\Figure\openface_mlp.png
 INPUT .\Figure\openface_mlp.png
 INPUT .\Figure\openface_mlp.png
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmb8v.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\ucrr8v.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmr10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmmi10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmsy10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmex10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmex8.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmex7.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmbx10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmbx8.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmbx5.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\latex-fonts\lasy10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\latex-fonts\lasy5.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msam10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msam7.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msam5.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm7.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm5.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmb8v.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\ucrr8v.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmr10.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmmi10.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmsy10.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmex10.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmex8.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmex7.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmbx10.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmbx8.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmbx5.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\latex-fonts\lasy10.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\latex-fonts\lasy5.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msam10.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msam7.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msam5.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm10.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm7.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm5.tfm
 INPUT .\Figure\openface_tcn.png
 INPUT Figure\openface_tcn.png
 INPUT .\Figure\openface_tcn.png
@@ -580,7 +580,7 @@ INPUT .\Figure\i3d_mlp.png
 INPUT .\Figure\i3d_mlp.png
 INPUT .\Figure\i3d_mlp.png
 INPUT .\Figure\i3d_mlp.png
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmri8v.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmri8v.tfm
 INPUT .\Figure\hybrid.png
 INPUT Figure\hybrid.png
 INPUT .\Figure\hybrid.png
@@ -605,13 +605,13 @@ INPUT .\Figure\hybrid_lstm_encoder.png
 INPUT .\Figure\hybrid_lstm_encoder.png
 INPUT .\Figure\hybrid_lstm_encoder.png
 INPUT .\Figure\hybrid_lstm_encoder.png
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\ucrr8v.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\ucrr8v.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\ucrb8v.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmb8v.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmb8v.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\ucrr8v.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\ucrr8v.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\ucrb8v.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmb8v.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmb8v.tfm
 INPUT .\Chapter\4_Baseline_models.tex
 INPUT .\Chapter\4_Baseline_models.tex
 INPUT Chapter\4_Baseline_models.tex
@@ -666,13 +666,13 @@ INPUT .\Figure\crossdomain_base.png
 INPUT .\Figure\crossdomain_base.png
 INPUT .\Figure\crossdomain_base.png
 INPUT .\Figure\crossdomain_base.png
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmmib10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmmib9.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmmib6.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmbsy10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmbsy9.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmbsy6.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\latex-fonts\lasyb10.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmmib10.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmmib9.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmmib6.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmbsy10.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmbsy9.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmbsy6.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\public\latex-fonts\lasyb10.tfm
 INPUT .\Chapter\5_Semantic_group_hybrid.tex
 INPUT .\Chapter\5_Semantic_group_hybrid.tex
 INPUT Chapter\5_Semantic_group_hybrid.tex
@@ -745,55 +745,55 @@ INPUT Chapter\6_Conclusions.tex
 INPUT .\Chapter\6_Conclusions.tex
 INPUT .\Chapter\6_Conclusions.tex
 INPUT Chapter\6_Conclusions.tex
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmrc8v.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\vf\vntex\urwvn\utmrc8v.vf
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmrc8v.tfm
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\vf\vntex\urwvn\utmrc8v.vf
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
 INPUT main.aux
 INPUT .\main.out
 INPUT .\main.out
 INPUT main.run.xml
 OUTPUT main.run.xml
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmbx12.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmbx12.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmex10.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmex10.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi10.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi10.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi12.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi12.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi6.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi6.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi8.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi8.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi9.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi9.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmib10.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmib10.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmr10.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmr10.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmr12.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmr12.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmr8.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmr8.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmr9.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmr9.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmsy10.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmsy10.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmsy8.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmsy8.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmsy9.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmsy9.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\symbols\msbm10.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\symbols\msbm10.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\vntex\urwvn\ucrb8v.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\vntex\urwvn\ucrb8v.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\vntex\urwvn\ucrr8v.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\vntex\urwvn\ucrr8v.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\vntex\urwvn\utmb8v.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\vntex\urwvn\utmb8v.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\urw\times\utmr8a.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\urw\times\utmr8a.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\vntex\urwvn\utmr8v.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\vntex\urwvn\utmr8v.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\vntex\urwvn\utmri8v.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\vntex\urwvn\utmri8v.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmbx12.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmbx12.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmex10.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmex10.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi10.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi10.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi12.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi12.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi6.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi6.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi8.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi8.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi9.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi9.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmib10.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmib10.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmr10.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmr10.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmr12.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmr12.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmr8.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmr8.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmr9.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmr9.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmsy10.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmsy10.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmsy8.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmsy8.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmsy9.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmsy9.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\symbols\msbm10.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\symbols\msbm10.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\vntex\urwvn\ucrb8v.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\vntex\urwvn\ucrb8v.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\vntex\urwvn\ucrr8v.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\vntex\urwvn\ucrr8v.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\vntex\urwvn\utmb8v.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\vntex\urwvn\utmb8v.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\urw\times\utmr8a.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\urw\times\utmr8a.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\vntex\urwvn\utmr8v.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\vntex\urwvn\utmr8v.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\vntex\urwvn\utmri8v.pfb
+INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\fonts\type1\vntex\urwvn\utmri8v.pfb

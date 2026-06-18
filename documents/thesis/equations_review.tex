@@ -65,51 +65,69 @@ $ p_k = \operatorname{softmax}(z)_k = e^{z_k}/\sum_j e^{z_j} $
 % SOURCE: Chapter/2_Literature_review.tex  (cross-entropy ~L143-145)
 % READING: negative log-probability of the true class.
 \begin{equation}
-\mathcal{L}_{\text{CE}} = -\log p_{y},
+\mathcal{L}_{\text{CE}} = -\sum_{c=1}^{C} y_c \log \widehat{y}_c
 \end{equation}
 
 % ---------------------------------------------------------------------
 % SOURCE: Chapter/2_Literature_review.tex  (inline ~L149, weighted CE)
 % READING: cross-entropy scaled by the class weight of the true class.
-$ \mathcal{L}_{\text{WCE}} = -\,w_{y}\log p_{y} $
+\begin{equation}
+\mathcal{L}_{\text{WCE}} = -\sum_{c=1}^{C} w_c\, y_c \log \widehat{y}_c
+\end{equation}
 
 % ---------------------------------------------------------------------
 % SOURCE: Chapter/2_Literature_review.tex  (ordinal / squared-EMD loss, label eq:emd ~L155-157)
-% READING: mean squared distance between predicted CDF P_k and target step CDF T_k.
-% with (inline ~L154):  P_k = \sum_{j\le k} p_j   and   T_k = \mathbf{1}[k \ge y].
+% READING: class-weighted mean squared distance between predicted CDF and target step CDF.
+% Per-sample form (matches OrdinalEMDLoss in src/training/train.py): predicted CDF = cumsum of
+% softmax, target CDF = cumsum of one-hot; mean over the C classes; weight w_y of the TRUE class
+% multiplies the whole per-sample term (outside the class sum), and is 1 in the unweighted variant.
 \begin{equation}
-\mathcal{L}_{\text{ord}} = \frac{1}{K}\sum_{k=0}^{K-1}\bigl(P_k - T_k\bigr)^2 ,
+\mathcal{L}_{\text{EMD}} = \frac{w_y}{C}\sum_{k=1}^{C}\left(\sum_{j=1}^{k}\widehat{y}_j-\sum_{j=1}^{k}y_j\right)^2
 \label{eq:emd}
 \end{equation}
 
 % ---------------------------------------------------------------------
 % SOURCE: Chapter/2_Literature_review.tex  (inline ~L172, accuracy)
 % READING: fraction of correct predictions = trace of confusion matrix / N.
-$ \operatorname{Acc}=\frac{1}{N}\sum_i C_{ii} $
+\begin{equation}
+    \operatorname{Accuracy}=\frac{1}{N}\sum_{i=1}^{N}\mathbf{1}\!\left[\,y_i=\widehat{y}_i\,\right]
+\end{equation}
 
 % ---------------------------------------------------------------------
 % SOURCE: Chapter/2_Literature_review.tex  (macro-accuracy ~L176-178)
 % READING: mean of per-class recalls (each class weighted equally).
 \begin{equation}
-\operatorname{MacroAcc} = \frac{1}{K}\sum_{i=0}^{K-1}\frac{C_{ii}}{\sum_j C_{ij}},
+\operatorname{MacroAcc} = \frac{1}{C}\sum_{c=1}^{C}\frac{\sum_{i=1}^{N}\mathbf{1}\!\left[\,y_i=\widehat{y}_i=c\,\right]}{\sum_{i=1}^{N}\mathbf{1}\!\left[\,y_i=c\,\right]}
 \end{equation}
 
 % ---------------------------------------------------------------------
-% SOURCE: Chapter/2_Literature_review.tex  (inline ~L182, MAE)
-% READING: average ordinal distance |i-j| over the confusion matrix.
-$ \operatorname{MAE}=\frac{1}{N}\sum_{ij}C_{ij}\,|i-j| $
+% SOURCE: Chapter/2_Literature_review.tex  (MAE, now a display eq)
+% READING: mean ordinal distance between true and predicted class index, over all N samples.
+\begin{equation}
+    \operatorname{MAE} = \frac{1}{N}\sum_{i=1}^{N}\left|y_i-\widehat{y}_i\right|
+\end{equation}
+
+% ---------------------------------------------------------------------
+% SOURCE: Chapter/2_Literature_review.tex  (macro-MAE, display eq -- ADDED to match MacroAcc)
+% READING: per-class MAE averaged over classes (rare-class errors weighted equally).
+\begin{equation}
+    \operatorname{MacroMAE} = \frac{1}{C}\sum_{c=1}^{C}\frac{\sum_{i=1}^{N}\mathbf{1}\!\left[\,y_i=c\,\right]\left|y_i-\widehat{y}_i\right|}{\sum_{i=1}^{N}\mathbf{1}\!\left[\,y_i=c\,\right]}
+\end{equation}
 
 % ---------------------------------------------------------------------
 % SOURCE: Chapter/2_Literature_review.tex  (inline ~L187-189, Cohen's kappa)
-% READING: chance-corrected agreement; weighted form; unweighted uses W_ij=1 off-diagonal.
+% READING: chance-corrected agreement. Basic form stays inline; weighted form is a display eq
+% (unweighted uses w_ij=1 off-diagonal, 0 on it). O_ij = observed counts, E_ij = expected.
 $ \kappa = (p_o-p_e)/(1-p_e) $
-$ \kappa = 1 - \dfrac{\sum_{ij} W_{ij}C_{ij}}{\sum_{ij} W_{ij}E_{ij}} $
+\begin{equation}
+\kappa = 1 - \frac{\sum_{ij} w_{ij}\,O_{ij}}{\sum_{ij} w_{ij}\,E_{ij}}
+\end{equation}
 
 % ---------------------------------------------------------------------
 % SOURCE: Chapter/2_Literature_review.tex  (QWK penalty, label eq:qwk ~L192-194)
 % READING: quadratic penalty matrix used by quadratic-weighted kappa.
 \begin{equation}
-W_{ij} = \frac{(i-j)^2}{(K-1)^2},
+w_{ij} = \frac{(i-j)^2}{(C-1)^2},
 \label{eq:qwk}
 \end{equation}
 
@@ -124,15 +142,15 @@ W_{ij} = \frac{(i-j)^2}{(K-1)^2},
 % SOURCE: Chapter/2_Literature_review.tex  (Kendall tau ~L217-219)
 % READING: (concordant - discordant) pairs over the number of pairs C(n,2).
 \begin{equation}
-\tau = \frac{n_c - n_d}{\binom{n}{2}},
+\tau_a = \frac{n_c - n_d}{\binom{n}{2}},
 \end{equation}
 
 % ---------------------------------------------------------------------
 % SOURCE: Chapter/2_Literature_review.tex  (oracle accuracy ~L226-228)
 % READING: fraction of clips that at least one of M configurations gets right.
 \begin{equation}
-\operatorname{Acc}_{\text{oracle}} = \frac{1}{N}\sum_{n=1}^{N}
-  \mathbf{1}\!\left[\,\exists\, m\in\{1,\dots,M\}:\ \hat{y}^{(m)}_n = y_n\,\right],
+\operatorname{OracleAcc} = \frac{1}{N}\sum_{n=1}^{N}
+  \mathbf{1}\!\left[\,\exists\, m\in\{1,\dots,M\}:\ \widehat{y}^{(m)}_n = y_n\,\right],
 \end{equation}
 
 % =====================================================================
@@ -144,7 +162,7 @@ W_{ij} = \frac{(i-j)^2}{(K-1)^2},
 % READING: weight inversely proportional to class count, normalised to mean 1.
 %          n_c = #training samples of class c ; C = #non-empty classes.
 \begin{equation}
-w_c = \frac{1}{n_c}\cdot\frac{C}{\sum_{k} 1/n_k},
+w_c = \frac{1}{n_c}\cdot\frac{C}{\sum_{k} \frac{1}{n_k}},
 \qquad\text{so that}\quad \frac{1}{C}\sum_c w_c = 1 .
 \end{equation}
 
@@ -153,6 +171,8 @@ w_c = \frac{1}{n_c}\cdot\frac{C}{\sum_{k} 1/n_k},
 % READING: main-head loss + aux weight * mean of per-stream CE aux losses.
 %          z = main logits ; a^{(s)} = stream-s aux logits ; S = #streams (5, or 6 with I3D).
 %          \lambda_{\text{aux}} = 0.2 (defined in prose just after the equation).
+% NOTE: the main term is L_main (the CHOSEN loss: CE / WCE / EMD), NOT fixed to CE; only the
+%       auxiliary heads are always trained with plain CE. Keep L_main here to match the prose.
 \begin{equation}
 \mathcal{L} = \mathcal{L}_{\text{main}}(z,y) \;+\; \lambda_{\text{aux}}\cdot\frac{1}{S}\sum_{s=1}^{S}
               \mathcal{L}_{\text{CE}}\!\bigl(a^{(s)},y\bigr),

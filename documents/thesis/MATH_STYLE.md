@@ -7,19 +7,19 @@ lives in `documents/thesis/equations_review.tex`.
 ## Rules
 
 1. **Multi-letter operators use `\operatorname{...}`** (not `\mathrm`, not bare letters).
-   - Applies to: `\operatorname{Attention}`, `\operatorname{softmax}`, `\operatorname{Acc}`,
-     `\operatorname{MacroAcc}`, `\operatorname{MAE}`.
+   - Applies to: `\operatorname{Attention}`, `\operatorname{softmax}`, `\operatorname{Accuracy}`,
+     `\operatorname{MacroAcc}`, `\operatorname{MAE}`, `\operatorname{MacroMAE}`, `\operatorname{OracleAcc}`.
    - Single-letter symbols stay plain math italic (`\rho`, `\tau`, `\kappa`, `\sigma`).
 
 2. **Loss and metric subscripts use `\text{...}`** (not `\mathrm`), so the font is consistent
    across every subscript.
-   - `\mathcal{L}_{\text{CE}}`, `\mathcal{L}_{\text{WCE}}`, `\mathcal{L}_{\text{ord}}`,
-     `\mathcal{L}_{\text{main}}`, `\operatorname{Acc}_{\text{oracle}}`, `\lambda_{\text{aux}}`.
+   - `\mathcal{L}_{\text{CE}}`, `\mathcal{L}_{\text{WCE}}`, `\mathcal{L}_{\text{EMD}}`,
+     `\mathcal{L}_{\text{main}}`, `\lambda_{\text{aux}}`.
    - Do **not** mix `\mathrm` and `\text` for subscripts in the same document.
 
-3. **Define an operator once, then reuse the name.** The softmax appears both as the class
-   probability `p_k = \operatorname{softmax}(z)_k = e^{z_k}/\sum_j e^{z_j}` and inside attention;
-   both must use `\operatorname{softmax}`, not one spelled out and one not.
+3. **Define an operator once, then reuse the name.** The softmax appears both as the predicted
+   class probability `\widehat{y}_c = \operatorname{softmax}(z)_c = e^{z_c}/\sum_j e^{z_j}` and inside
+   attention; both must use `\operatorname{softmax}`, not one spelled out and one not.
 
 4. **Transpose is `^\top`** everywhere (never `^T`, never `'`).
 
@@ -39,13 +39,14 @@ lives in `documents/thesis/equations_review.tex`.
 
 | Symbol | Meaning |
 | --- | --- |
-| `K` | number of classes (`K=4`) |
-| `z`, `p_k` | logits; softmax probability of class `k` |
-| `y`, `\hat{y}` | true / predicted class label |
-| `C_{ij}` | confusion-matrix count (true `i`, predicted `j`); `N=\sum_{ij}C_{ij}` |
-| `P_k`, `T_k` | predicted CDF; target step CDF `\mathbf{1}[k\ge y]` |
-| `W_{ij}`, `E_{ij}` | kappa penalty / expected-count matrices |
+| `C` | number of classes (`C=4`) |
+| `N` | number of samples in a (test) set |
+| `z`, `\widehat{y}_c` | logits; softmax (predicted) probability of class `c` |
+| `y`, `y_c` | scalar true class; its one-hot component `y_c=\mathbf{1}[c=y]` |
+| `y_i`, `\widehat{y}_i` | true / predicted class label of sample `i` |
+| `O_{ij}`, `E_{ij}` | observed / expected confusion-matrix count (true `i`, predicted `j`) |
+| `w_{ij}` | kappa / QWK penalty matrix |
 | `w_c`, `n_c` | class weight; training count of class `c` |
 | `\lambda_{\text{aux}}` | auxiliary-loss weight (`=0.2`) |
 | `S` | number of supervised streams (5 groups, or 6 with I3D) |
-| `\rho`, `\tau` | Spearman / Kendall rank correlation |
+| `\rho`, `\tau` (`\tau_a`) | Spearman / Kendall (no-ties) rank correlation |

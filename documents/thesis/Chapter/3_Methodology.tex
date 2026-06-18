@@ -241,7 +241,7 @@ With three choices per group there are $3^{5}=\textbf{243}$ configurations, each
 Every model is trained under each of the three losses introduced in Section~\ref{sec:losses-lit}: cross-entropy, weighted cross-entropy, and the ordinal (EMD) loss of Equation~\eqref{eq:emd}.
 The class weights for the weighted and ordinal variants are inverse-frequency weights computed on the \textbf{training split} and normalised to mean~1: for class $c$ with $n_c$ training samples and $C$ non-empty classes,
 \begin{equation}
-w_c = \frac{1}{n_c}\cdot\frac{C}{\sum_{k} 1/n_k},
+w_c = \frac{1}{n_c}\cdot\frac{C}{\sum_{k} \frac{1}{n_k}},
 \qquad\text{so that}\quad \frac{1}{C}\sum_c w_c = 1 .
 \end{equation}
 The ordinal loss is applied in its class-weighted form as well, multiplying each sample's CDF distance by $w_y$.

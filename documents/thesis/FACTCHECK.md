@@ -58,8 +58,8 @@ function Cell($csv,$tr,$te,$mdl,$ls){ Import-Csv $csv |
 ## Equations (form + implementation)
 | Eq | Claim | Check against | Status |
 | --- | --- | --- | --- |
-| eq:emd | ordinal/EMD loss = mean sq. CDF distance | `transformer`/`tcn` paper N/A; impl in `src/evaluation/metrics.py` or training loss | TODO |
-| eq:qwk | QWK weight `W_ij=(i-j)^2/(K-1)^2` | `src/evaluation/metrics.py` + Cohen 1968 | TODO |
+| eq:emd | ordinal/EMD loss = class-weighted mean sq. CDF distance (`w_y` outside class sum) | `OrdinalEMDLoss` in `src/training/train.py` (cumsum of softmax vs one-hot, mean over classes, `*weight[targets]`) | OK |
+| eq:qwk | QWK weight `w_ij=(i-j)^2/(C-1)^2` | `src/evaluation/metrics.py` + Cohen 1968 | TODO |
 | LSTM gates | Eq. in Ch.2 | Hochreiter & Schmidhuber 1997 (standard form) | TODO |
 | attention | softmax(QK^T/√d_k)V | Vaswani et al. 2017 | TODO |
 | inv-freq weights | `w_c=(1/n_c)·C/Σ(1/n_k)`, mean 1 | training code | TODO |
