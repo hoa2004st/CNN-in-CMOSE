@@ -238,7 +238,7 @@ With three choices per group there are $3^{5}=\textbf{243}$ configurations, each
 \section{Loss Functions}
 \label{sec:losses-method}
 
-Every model is trained under each of the three losses introduced in Section~\ref{sec:losses-lit}: cross-entropy, weighted cross-entropy, and the ordinal (EMD) loss of Equation~\eqref{eq:emd}.
+The five baseline models are each trained under all three losses introduced in Section~\ref{sec:losses-lit} --- cross-entropy, weighted cross-entropy, and the ordinal (EMD) loss of Equation~\eqref{eq:emd} --- so that the effect of the loss can be measured directly.
 The class weights for the weighted and ordinal variants are inverse-frequency weights computed on the \textbf{training split} and normalised to mean~1: for class $c$ with $n_c$ training samples and $C$ non-empty classes,
 \begin{equation}
 w_c = \frac{1}{n_c}\cdot\frac{C}{\sum_{k} \frac{1}{n_k}},
@@ -252,7 +252,8 @@ With main logits $z$ and per-stream auxiliary logits $\{a^{(s)}\}$, the total lo
 \mathcal{L} = \mathcal{L}_{\text{main}}(z,y) \;+\; \lambda_{\text{aux}}\cdot\frac{1}{S}\sum_{s=1}^{S}
               \mathcal{L}_{\text{CE}}\!\bigl(a^{(s)},y\bigr),
 \end{equation}
-where $\mathcal{L}_{\text{main}}$ is the chosen loss (CE, weighted CE, or ordinal), $\lambda_{\text{aux}}=0.2$ is the auxiliary weight, and the auxiliary heads are always trained with plain cross-entropy, over the $S$ streams (five groups, or six with I3D).
+where $\mathcal{L}_{\text{main}}$ is the main-head classification loss, $\lambda_{\text{aux}}=0.2$ is the auxiliary weight, and the auxiliary heads are always trained with plain cross-entropy, over the $S$ streams (five groups, or six with I3D).
+The formulation admits any of the three losses for the main head; the 243-configuration hybrid ablation reported here fixes $\mathcal{L}_{\text{main}}$ to cross-entropy, so that its results isolate the effect of the architecture from that of the loss.
 
 \FloatBarrier
 \section{Training Protocol}
