@@ -57,7 +57,7 @@ It predicts difficulty in transferring between corpora, where a model fit to one
 \label{sec:private-collection}
 
 The private set measures deployment rather than in-corpus behaviour; because no model is ever trained or selected on it, it is the cleanest probe in the thesis.
-It also serves a purpose specific to engagement: because the way an inner state of engagement is outwardly displayed varies across cultural and ethnic groups, a model validated only on a foreign-population corpus offers no guarantee on a local deployment population; a small, locally collected, hand-labelled test set is the most direct way to check that a model is fit for its intended users before it is deployed.
+It also serves a purpose specific to engagement: because the OpenFace gaze, head-pose, and landmark features are measured in the camera's image geometry, a model validated only on the narrow range of recording setups in a public corpus offers no guarantee on the varied webcam angles of a real deployment; a small, locally collected, hand-labelled test set is the most direct way to check that a model is fit for its intended setting before it is deployed.
 It was built in five steps.
 
 \begin{enumerate}

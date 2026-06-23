@@ -209,7 +209,7 @@
 \abx@aux@segm{0}{0}{i3d}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.2.2}The private evaluation set}{19}{subsection.3.2.2}\protected@file@percent }
 \newlabel{sec:private-collection}{{3.2.2}{19}{The private evaluation set}{subsection.3.2.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.3}Features and preprocessing}{19}{subsection.3.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.3}Features and preprocessing}{20}{subsection.3.2.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {3.3}Baseline Models}{20}{section.3.3}\protected@file@percent }
 \newlabel{sec:baselines}{{3.3}{20}{Baseline Models}{section.3.3}{}}
 \newlabel{fig:openface_mlp}{{3.2a}{21}{\texttt {openface\_mlp}: the $T\times 709$ sequence is flattened and classified by an MLP}{figure.caption.13}{}}
@@ -230,8 +230,8 @@
 \newlabel{tab:groups}{{3.2}{22}{Semantic decomposition of the 709-dimensional OpenFace descriptor}{table.caption.14}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {3.5}Hybrid Architecture (Proposed)}{22}{section.3.5}\protected@file@percent }
 \newlabel{sec:hybrid}{{3.5}{22}{Hybrid Architecture (Proposed)}{section.3.5}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.3}{\ignorespaces Semantic-group hybrid architecture. Each OpenFace group is encoded independently into a 64-d embedding (group encoders are chosen per group from TCN / Transformer (T) / LSTM); the I3D clip vector is encoded by an MLP into a 128-d embedding. The six embeddings are concatenated (448-d) and classified by a shared MLP; each stream also feeds an auxiliary head. The OpenFace-only variant drops the I3D row and fuses a 320-d vector.}}{22}{figure.caption.15}\protected@file@percent }
-\newlabel{fig:hybrid}{{3.3}{22}{Semantic-group hybrid architecture. Each OpenFace group is encoded independently into a 64-d embedding (group encoders are chosen per group from TCN / Transformer (T) / LSTM); the I3D clip vector is encoded by an MLP into a 128-d embedding. The six embeddings are concatenated (448-d) and classified by a shared MLP; each stream also feeds an auxiliary head. The OpenFace-only variant drops the I3D row and fuses a 320-d vector}{figure.caption.15}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.3}{\ignorespaces Semantic-group hybrid architecture. Each OpenFace group is encoded independently into a 64-d embedding (group encoders are chosen per group from TCN / Transformer (T) / LSTM); the I3D clip vector is encoded by an MLP into a 128-d embedding. The six embeddings are concatenated (448-d) and classified by a shared MLP; each stream also feeds an auxiliary head. The OpenFace-only variant drops the I3D row and fuses a 320-d vector.}}{23}{figure.caption.15}\protected@file@percent }
+\newlabel{fig:hybrid}{{3.3}{23}{Semantic-group hybrid architecture. Each OpenFace group is encoded independently into a 64-d embedding (group encoders are chosen per group from TCN / Transformer (T) / LSTM); the I3D clip vector is encoded by an MLP into a 128-d embedding. The six embeddings are concatenated (448-d) and classified by a shared MLP; each stream also feeds an auxiliary head. The OpenFace-only variant drops the I3D row and fuses a 320-d vector}{figure.caption.15}{}}
 \newlabel{fig:ge_tcn}{{3.4a}{23}{TCN group encoder}{figure.caption.16}{}}
 \newlabel{sub@fig:ge_tcn}{{a}{23}{TCN group encoder}{figure.caption.16}{}}
 \newlabel{fig:ge_transformer}{{3.4b}{23}{Transformer group encoder}{figure.caption.16}{}}
@@ -240,17 +240,17 @@
 \newlabel{sub@fig:ge_lstm}{{c}{23}{LSTM group encoder}{figure.caption.16}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {3.4}{\ignorespaces The three interchangeable per-group encoders. Each maps a group's $T\times D_{\text  {group}}$ sequence to a 64-dimensional embedding through temporal mean-pooling and layer normalisation; one is chosen independently for each of the five groups.}}{23}{figure.caption.16}\protected@file@percent }
 \newlabel{fig:group_encoders}{{3.4}{23}{The three interchangeable per-group encoders. Each maps a group's $T\times D_{\text {group}}$ sequence to a 64-dimensional embedding through temporal mean-pooling and layer normalisation; one is chosen independently for each of the five groups}{figure.caption.16}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.6}Loss Functions}{24}{section.3.6}\protected@file@percent }
+\newlabel{sec:losses-method}{{3.6}{24}{Loss Functions}{section.3.6}{}}
 \citation{adam}
 \abx@aux@cite{0}{adam}
 \abx@aux@segm{0}{0}{adam}
-\@writefile{toc}{\contentsline {section}{\numberline {3.6}Loss Functions}{24}{section.3.6}\protected@file@percent }
-\newlabel{sec:losses-method}{{3.6}{24}{Loss Functions}{section.3.6}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {3.7}Training Protocol}{25}{section.3.7}\protected@file@percent }
 \newlabel{sec:training}{{3.7}{25}{Training Protocol}{section.3.7}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {3.8}Evaluation Protocol}{25}{section.3.8}\protected@file@percent }
 \newlabel{sec:eval}{{3.8}{25}{Evaluation Protocol}{section.3.8}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {3.9}Chapter Summary}{25}{section.3.9}\protected@file@percent }
-\newlabel{sec:method-summary}{{3.9}{25}{Chapter Summary}{section.3.9}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.9}Chapter Summary}{26}{section.3.9}\protected@file@percent }
+\newlabel{sec:method-summary}{{3.9}{26}{Chapter Summary}{section.3.9}{}}
 \@writefile{toc}{\contentsline {chapter}{\numberline {4}BASELINE MODELS}{27}{chapter.4}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}

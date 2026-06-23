@@ -23,8 +23,8 @@
 
 Frame: 5 architectures (`openface_mlp`, `openface_tcn`, `openface_lstm`,
 `openface_transformer`, `i3d_mlp`) × 3 losses (CE, Weighted CE, Ordinal) × 6 metrics,
-evaluated in-domain and on the 3×3 train×test matrix (CMOSE / DaiSEE / Combined →
-CMOSE-test / DaiSEE-test / Private).
+evaluated in-domain and on the 3×3 train×test matrix (CMOSE / DAiSEE / Combined →
+CMOSE-test / DAiSEE-test / Private).
 
 **Aggregation policy (used everywhere below):**
 
@@ -85,12 +85,12 @@ is delivered in **A.5.2**.
 
 This choice needs no deferred evidence: it rests entirely on the two in-domain
 (diagonal) cells. The best in-domain CMOSE model reaches QWK 0.537 / macro-accuracy
-0.535; the best in-domain DaiSEE model only QWK 0.166 / macro-accuracy 0.289 — barely
+0.535; the best in-domain DAiSEE model only QWK 0.166 / macro-accuracy 0.289 — barely
 above chance on every chance-corrected metric, while its raw accuracy (0.548) hides the
 failure (a first taste of A.2.1's foil). A corpus on which no model rises above chance
 cannot separate good architectures from bad ones: whatever ranking it produces is noise.
 
-**Protocol:** **CMOSE is the development corpus**; DaiSEE is kept only as a transfer
+**Protocol:** **CMOSE is the development corpus**; DAiSEE is kept only as a transfer
 target, where its difficulty is informative rather than obstructive.
 
 - Table `T7_indomain_datasets`, Figure `indomain_cmose_vs_daisee.png`.
@@ -161,10 +161,10 @@ looks redundant next to 0.537.
 
 Best-per-cell QWK (Figure `crossdomain_base.png`):
 
-| train \ test | CMOSE | DaiSEE | Private |
+| train \ test | CMOSE | DAiSEE | Private |
 |---|---|---|---|
 | CMOSE | **0.537** | 0.024 | 0.190 |
-| DaiSEE | 0.045 | **0.166** | 0.256 |
+| DAiSEE | 0.045 | **0.166** | 0.256 |
 | Combined | 0.477 | 0.136 | 0.285 |
 
 The off-diagonal collapse spares no factor combination. Along the architecture axis the
@@ -188,7 +188,7 @@ The two claims deferred from the protocol are now provable.
   accuracy stays at 0.49–0.62 while QWK falls to 0.02–0.29 (Figure
   `crossdomain_base.png`). A metric that reports business-as-usual while the model has
   lost all ordinal signal is not a safety net but a blindfold. Combined with its
-  in-domain blindness to imbalance (DaiSEE's 0.548, A.2.2), accuracy is the least
+  in-domain blindness to imbalance (DAiSEE's 0.548, A.2.2), accuracy is the least
   reliable metric in the study; QWK — the only block-bridging metric (A.2.1) and the one
   that detects collapse — is the most. The protocol's metric choice stands confirmed.
 - **The loss ranking survives shift (completes A.2.3).** Best-architecture QWK by loss
@@ -213,7 +213,7 @@ leaderboard alone; it must lean on the pooling result of A.5.1.
 1. Protocol: QWK-led primaries, CMOSE as development corpus, CE as development loss —
    each fixed in A.2 on a-priori + in-domain grounds, and confirmed where deferred
    (A.5.2).
-2. CMOSE (0.537) is the only usable development corpus; DaiSEE (0.166) evaluates noise.
+2. CMOSE (0.537) is the only usable development corpus; DAiSEE (0.166) evaluates noise.
 3. Each metric crowns its own winner (T8); under the primaries the baseline bar is
    openface_tcn/CE = 0.537 (max-over-loss; single-seed caveat).
 4. Configs agree far less than their scores suggest (κ 0.27–0.39); oracle 97.6% vs best
@@ -295,7 +295,7 @@ the OpenFace groups otherwise.
   `confusion_best_models.png`, `per_class_f1.png`. Gains concentrate in the
   upper-engagement classes; Highly-Disengage remains the failure mode.
 - *Every cell*: hybrid ≥ base in all nine train×test cells, e.g. CMOSE→Private 0.309 vs
-  0.190, DaiSEE→DaiSEE 0.228 vs 0.166 (compare `crossdomain_hybrid.png` with
+  0.190, DAiSEE→DAiSEE 0.228 vs 0.166 (compare `crossdomain_hybrid.png` with
   `crossdomain_base.png`). The improvement is not a single tuned point but a uniform
   shift of the whole matrix.
 - *Private set* (Table `T6_private_by_source`, Figures `private_by_source.png`,

@@ -40,7 +40,7 @@ function Cell($csv,$tr,$te,$mdl,$ls){ Import-Csv $csv |
 | 3 | I3D MLP, CE, CMOSE **QWK 0.519** | Ch.4 §4.3 | `BASE` | row `cmose/cmose_test/i3d_mlp/ce` `.quadratic_weighted_kappa` | 0.5192 → 0.519 | OK |
 | 4 | CMOSE **69.4% Engage**, **2.8% HD** | Ch.1; Ch.3 §3.2; T1 | `DIST` | `Import-Csv $DIST \| ? {$_.dataset -eq 'CMOSE'}` | EG 0.6944, HD 0.0285 | OK |
 | 5 | CMOSE **12,197** clips (8,783/2,193/1,221) | Ch.3 §3.2; T1 | `SPLIT` | sum `split_total` per split for CMOSE | 8783+2193+1221 = 12197 | OK |
-| 6 | DAiSEE **8,571** (5,358/1,429/1,784) | Ch.3 §3.2; T1 | `SPLIT` | split totals for DaiSEE | 5358+1429+1784 = 8571 | OK |
+| 6 | DAiSEE **8,571** (5,358/1,429/1,784) | Ch.3 §3.2; T1 | `SPLIT` | split totals for DAiSEE | 5358+1429+1784 = 8571 | OK |
 | 7 | Private **366** clips; 58.2/30.6/8.5/2.7% | Ch.3 §3.2; Ch.5 §5.6 | `PRIV` | `Get-Content $PRIV \| ConvertFrom-Json` → `total_clips`, `class_distribution` | 366; 0.582/0.306/0.085/0.027 | OK |
 | 8 | Best hybrid **QWK 0.605** in-domain CMOSE (`TCN_T_TCN_LSTM_T`, +I3D) | Ch.1; Ch.5 §5.5 | `HYB` | max `quadratic_weighted_kappa` over `cmose/cmose_test`; confirm `arch_key` | 0.6053 → 0.605, arch `TCN_T_TCN_LSTM_T` ✓ | OK |
 | 9 | Median I3D-fused hybrid **QWK 0.553** vs OpenFace-only **0.522**; **82%** vs **26%** clear the 0.537 bar | Ch.1; Ch.5 §5.4 | `HYB` | median QWK of fused vs non-fused families, `cmose/cmose_test`; frac > 0.5372 each | 0.553 / 0.522; 0.82 / 0.26 | OK |

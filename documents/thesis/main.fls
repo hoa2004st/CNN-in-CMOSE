@@ -1,6 +1,6 @@
-PWD c:\Hofa\Thesis\CNN-in-CMOSE\documents\thesis
+PWD C:\Hofa\Thesis\CNN-in-CMOSE\documents\thesis
 INPUT C:\Users\hoa20\AppData\Local\MiKTeX\miktex\data\le\pdftex\pdflatex.fmt
-INPUT c:\Hofa\Thesis\CNN-in-CMOSE\documents\thesis\main.tex
+INPUT main.tex
 OUTPUT main.log
 INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\base\report.cls
 INPUT C:\Users\hoa20\AppData\Local\Programs\MiKTeX\tex\latex\base\report.cls

@@ -1,4 +1,4 @@
-"""Evaluate DaiSEE-trained and CMOSE-trained models on the private dataset side-by-side.
+"""Evaluate DAiSEE-trained and CMOSE-trained models on the private dataset side-by-side.
 
 Each model group uses its own training-set statistics for normalization,
 matching how each model was trained.
@@ -428,9 +428,9 @@ def main(argv: list[str] | None = None) -> None:
     else:
         print(f"[skip] CMOSE training root not found: {args.cmose_training_root}")
 
-    # --- DaiSEE-trained models ---
+    # --- DAiSEE-trained models ---
     if Path(args.daisee_training_root).exists():
-        print("\n--- DaiSEE-trained models ---")
+        print("\n--- DAiSEE-trained models ---")
         m = evaluate_group(
             tag="daisee",
             training_root=args.daisee_training_root,
@@ -449,7 +449,7 @@ def main(argv: list[str] | None = None) -> None:
         if not m.empty:
             all_metrics.append(m)
     else:
-        print(f"[skip] DaiSEE training root not found: {args.daisee_training_root}")
+        print(f"[skip] DAiSEE training root not found: {args.daisee_training_root}")
 
     # --- Side-by-side comparison ---
     if all_metrics:

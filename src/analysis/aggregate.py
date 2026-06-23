@@ -70,11 +70,11 @@ METRIC_DISPLAY = {
 LOWER_BETTER_METRICS = {"mae", "macro_mae"}
 TRAIN_GROUPS = ["cmose", "daisee", "combined"]
 TEST_SETS = ["cmose_test", "daisee_test", "private"]
-TRAIN_GROUP_DISPLAY = {"cmose": "CMOSE", "daisee": "DaiSEE", "combined": "Combined"}
-TEST_SET_DISPLAY = {"cmose_test": "CMOSE", "daisee_test": "DaiSEE", "private": "Private"}
+TRAIN_GROUP_DISPLAY = {"cmose": "CMOSE", "daisee": "DAiSEE", "combined": "Combined"}
+TEST_SET_DISPLAY = {"cmose_test": "CMOSE", "daisee_test": "DAiSEE", "private": "Private"}
 
 # Cells of the 3x3 matrix whose TEST corpus contributed no training data — the genuine
-# generalization regime. "combined" pools CMOSE+DaiSEE train splits, so for it only the
+# generalization regime. "combined" pools CMOSE+DAiSEE train splits, so for it only the
 # private set is unseen; combined→cmose/daisee_test are seen-target cells.
 UNSEEN_TARGET_CELLS = [
     ("cmose", "daisee_test"),

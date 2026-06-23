@@ -1,4 +1,4 @@
-"""Run hybrid ablations on CMOSE, DaiSEE and Combined sequentially (single GPU).
+"""Run hybrid ablations on CMOSE, DAiSEE and Combined sequentially (single GPU).
 
 For every selected dataset and every selected hybrid model type, runs the full
 3^5 per-group architecture sweep (see run_hybrid_ablation.py).

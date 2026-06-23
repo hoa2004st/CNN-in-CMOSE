@@ -54,7 +54,7 @@ def table_dataset_stats() -> tuple[str, pd.DataFrame, str]:
     by_split = ag.load_class_distribution_by_split()
     totals = by_split.groupby(["dataset", "split"])["split_total"].first().unstack().fillna(0).astype(int)
     rows = []
-    for dataset in ["CMOSE", "DaiSEE", "Combined"]:
+    for dataset in ["CMOSE", "DAiSEE", "Combined"]:
         if dataset not in set(overall["dataset"]):
             continue
         sub = overall[overall["dataset"] == dataset].set_index("class_label")
@@ -225,7 +225,7 @@ def table_indomain_cmose_vs_daisee() -> tuple[str, pd.DataFrame, str]:
     """Best in-domain result per dataset (justifies CMOSE-centric ablation)."""
     m = ag.load_matrix()
     rows = []
-    for tr, te, label in [("cmose", "cmose_test", "CMOSE"), ("daisee", "daisee_test", "DaiSEE")]:
+    for tr, te, label in [("cmose", "cmose_test", "CMOSE"), ("daisee", "daisee_test", "DAiSEE")]:
         cell = m[(m["train_group"] == tr) & (m["test_set"] == te)]
         best = cell.loc[cell["quadratic_weighted_kappa"].idxmax()]
         rows.append({
@@ -239,7 +239,7 @@ def table_indomain_cmose_vs_daisee() -> tuple[str, pd.DataFrame, str]:
         })
     frame = pd.DataFrame(rows)
     return _spec(frame, "T4_2_indomain_datasets",
-                 "Best in-domain result per dataset (CMOSE vs DaiSEE; macro-MAE lower is better).")
+                 "Best in-domain result per dataset (CMOSE vs DAiSEE; macro-MAE lower is better).")
 
 
 def table_per_metric_winner() -> tuple[str, pd.DataFrame, str]:

@@ -31,14 +31,14 @@
 \contentsline {section}{\numberline {3.2}Data and Preprocessing}{17}{section.3.2}%
 \contentsline {subsection}{\numberline {3.2.1}Datasets}{17}{subsection.3.2.1}%
 \contentsline {subsection}{\numberline {3.2.2}The private evaluation set}{19}{subsection.3.2.2}%
-\contentsline {subsection}{\numberline {3.2.3}Features and preprocessing}{19}{subsection.3.2.3}%
+\contentsline {subsection}{\numberline {3.2.3}Features and preprocessing}{20}{subsection.3.2.3}%
 \contentsline {section}{\numberline {3.3}Baseline Models}{20}{section.3.3}%
 \contentsline {section}{\numberline {3.4}Semantic-Group Decomposition}{21}{section.3.4}%
 \contentsline {section}{\numberline {3.5}Hybrid Architecture (Proposed)}{22}{section.3.5}%
 \contentsline {section}{\numberline {3.6}Loss Functions}{24}{section.3.6}%
 \contentsline {section}{\numberline {3.7}Training Protocol}{25}{section.3.7}%
 \contentsline {section}{\numberline {3.8}Evaluation Protocol}{25}{section.3.8}%
-\contentsline {section}{\numberline {3.9}Chapter Summary}{25}{section.3.9}%
+\contentsline {section}{\numberline {3.9}Chapter Summary}{26}{section.3.9}%
 \contentsline {chapter}{\numberline {4}BASELINE MODELS}{27}{chapter.4}%
 \contentsline {section}{\numberline {4.1}Overview}{27}{section.4.1}%
 \contentsline {section}{\numberline {4.2}Evaluation Protocol}{27}{section.4.2}%

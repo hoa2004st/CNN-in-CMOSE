@@ -243,7 +243,7 @@ def _build_clips(config: Config) -> dict[str, Any]:
         if not clip_id:
             continue
 
-        # Dataset true label (available for CMOSE/DaiSEE splits, not for private)
+        # Dataset true label (available for CMOSE/DAiSEE splits, not for private)
         true_id_str = row.get("true_id", "")
         true_id = _to_int(true_id_str) if true_id_str else None
         true_label = row.get("true_label", "") or (LABEL_BY_ID.get(true_id, "") if true_id is not None else "")

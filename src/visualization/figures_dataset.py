@@ -11,7 +11,7 @@ from src.analysis import aggregate as ag
 from src.visualization.figbase import new_fig, save
 from src.visualization.style import CLASS_LABELS, class_color
 
-_DATASET_ORDER = ["CMOSE", "DaiSEE", "Combined"]
+_DATASET_ORDER = ["CMOSE", "DAiSEE", "Combined"]
 _SPLIT_DISPLAY = {"train": "Train", "unlabel": "Val", "test": "Test"}
 
 

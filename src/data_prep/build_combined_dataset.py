@@ -1,4 +1,4 @@
-"""Build a combined CMOSE + DaiSEE dataset for training.
+"""Build a combined CMOSE + DAiSEE dataset for training.
 
 Creates:
   data/combined/features/openface/  -- NTFS hardlinks, IDs prefixed cmose__/daisee__
