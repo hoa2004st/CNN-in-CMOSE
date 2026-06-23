@@ -16,7 +16,7 @@ Within this scope the thesis concentrates on four technical components, and the 
 Several adjacent problems are deliberately left out of scope.
 We do not consider physiological-sensor engagement estimation (heart rate, electrodermal activity, eye-tracking hardware), nor interaction- or clickstream-based estimation from platform logs, because they require instrumentation beyond a webcam.
 We do not treat general facial-expression or emotion recognition as an end in itself, referring to it only where it informs the design of engagement features.
-Finally, the thesis works with \emph{precomputed} OpenFace and I3D features as provided by the benchmark datasets; the internal training of those extractors is reviewed for understanding but is not re-implemented.
+Finally, the thesis works with OpenFace and I3D features at the descriptor level rather than re-training the extractors: CMOSE is the only corpus that ships these features precomputed, while for DAiSEE and the self-collected private set we extract them ourselves from the raw video using the same toolkits (Section~\ref{sec:data}); the internal training of those extractors is reviewed for understanding but is not re-implemented.
 
 \FloatBarrier
 \section{Related Work}
@@ -25,7 +25,7 @@ Finally, the thesis works with \emph{precomputed} OpenFace and I3D features as p
 \textbf{Engagement datasets and benchmarks.}
 DAiSEE~\cite{daisee} is the most widely used in-the-wild benchmark for engagement recognition.
 It provides short webcam clips annotated with four ordinal engagement levels and is recorded under varied, uncontrolled conditions, which makes it realistic but noisy.
-CMOSE~\cite{cmose} is a more recent, larger, expert-labelled multimodal corpus that ships precomputed OpenFace and I3D features and reports strong inter-rater reliability; its scale and label quality make it the primary dataset of this thesis.
+CMOSE~\cite{cmose} is a more recent, larger, expert-labelled multimodal corpus that ships precomputed OpenFace and I3D features --- the only one of the three corpora used here to do so --- and reports strong inter-rater reliability; its scale and label quality make it the primary dataset of this thesis.
 A systematic review of computer-vision engagement detection~\cite{review_engagement_cv} surveys the common pipelines and explicitly identifies the field's two recurring difficulties --- severe class imbalance and the subjectivity of engagement labels --- as open problems, which is consistent with the motivation in Chapter~1.
 
 \textbf{Feature-based approaches.}
@@ -63,7 +63,7 @@ Section~\ref{sec:groups} formalises this decomposition and Section~\ref{sec:hybr
 
 The Inflated 3D ConvNet (I3D)~\cite{i3d} is a video representation obtained by ``inflating'' the two-dimensional convolutional filters of an ImageNet-pretrained image network into three dimensions, so that they operate over space and time jointly, and then pretraining the result on the large Kinetics action-recognition dataset.
 I3D thereby captures appearance and short-range motion that landmark-based descriptors omit.
-In the benchmarks used here, CMOSE and DAiSEE each provide a \emph{single precomputed 1024-dimensional I3D embedding per clip} --- a globally pooled spatiotemporal descriptor of the whole clip rather than a per-frame sequence.
+In the data used here, CMOSE ships a \emph{single precomputed 1024-dimensional I3D embedding per clip}, and for DAiSEE and the private set we extract the same single 1024-dimensional embedding per clip from the raw video --- in every case a globally pooled spatiotemporal descriptor of the whole clip rather than a per-frame sequence.
 This thesis therefore treats I3D as a compact, clip-level motion/appearance stream that complements the per-frame OpenFace descriptors, and is careful in its claims accordingly: the I3D stream contributes a global summary, not fine-grained temporal motion.
 
 \FloatBarrier

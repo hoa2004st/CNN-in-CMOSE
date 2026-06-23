@@ -57,6 +57,7 @@ It predicts difficulty in transferring between corpora, where a model fit to one
 \label{sec:private-collection}
 
 The private set measures deployment rather than in-corpus behaviour; because no model is ever trained or selected on it, it is the cleanest probe in the thesis.
+It also serves a purpose specific to engagement: because the way an inner state of engagement is outwardly displayed varies across cultural and ethnic groups, a model validated only on a foreign-population corpus offers no guarantee on a local deployment population; a small, locally collected, hand-labelled test set is the most direct way to check that a model is fit for its intended users before it is deployed.
 It was built in five steps.
 
 \begin{enumerate}
@@ -67,7 +68,7 @@ It was built in five steps.
   \item \textbf{Manual labelling.}
   The accepted clips were labelled by the author through a purpose-built local interface, one engagement label per clip; reliance on a \emph{single annotator} is a limitation revisited in Section~\ref{sec:limitations}.
   \item \textbf{Feature extraction.}
-  Accepted clips were processed through the identical OpenFace (709-d per frame) and I3D (1024-d per clip) extraction used for CMOSE and DAiSEE, so the private features are distributionally comparable to the training features.
+  Accepted clips were processed through the same OpenFace (709-d per frame) and I3D (1024-d per clip) extraction pipeline we applied to the raw DAiSEE video --- identical in format to the features CMOSE ships precomputed --- so the private features are distributionally comparable to the training features.
   \item \textbf{Final set.}
   Of the labelled clips, the \textbf{366} with complete, aligned OpenFace and I3D features form the private evaluation set.
   Its label prior differs again from both public corpora --- 58.2\% \emph{Engage}, 30.6\% \emph{Highly\nobreakdash-Engage}, 8.5\% \emph{Disengage}, and only 2.7\% \emph{Highly\nobreakdash-Disengage} --- which, together with its independent recording conditions, makes it the most realistic measure of how the models would behave in deployment.
@@ -77,7 +78,8 @@ It was built in five steps.
 \subsection{Features and preprocessing}
 
 \textbf{Features.}
-Each clip is represented by per-frame OpenFace~2.0 descriptors (709-d)~\cite{openface2} and a precomputed I3D embedding (1024-d)~\cite{i3d}.
+Each clip is represented by per-frame OpenFace~2.0 descriptors (709-d)~\cite{openface2} and a clip-level I3D embedding (1024-d)~\cite{i3d}.
+CMOSE is the only corpus that ships these features precomputed; for DAiSEE and the private set we extract both from the raw video with the same toolkits, so all three sources share an identical feature format.
 When a single OpenFace frame contains more than one detected face, the highest-confidence row is kept; non-numeric entries are coerced to zero.
 
 \textbf{Temporal resampling.}

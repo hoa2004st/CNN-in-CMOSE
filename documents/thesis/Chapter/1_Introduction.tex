@@ -34,7 +34,8 @@ Although it resembles ordinary video classification, engagement recognition is h
   \item \textbf{Engagement is subjective and corpus-specific.}
   Engagement is not a physical quantity with a ground truth; it is an annotator judgement made under a particular rubric, recording setup, and population.
   Different datasets differ in all three, so a model trained on one corpus is exposed to a target distribution it has never seen the moment it is deployed.
-  How well models survive this shift is rarely measured, even though deployment always means an unseen distribution.
+  Population is not a minor axis of this shift: learners from different cultural and ethnic groups outwardly express the same inner state of engagement differently --- expressive display rules, gaze and head-movement norms, and baseline facial dynamics all vary across groups --- so a model tuned on one population's expressive style can systematically misread another's.
+  How well models survive this shift is rarely measured, even though deployment always means an unseen distribution, typically of a population different from the one the model was trained on.
 \end{enumerate}
 
 The combination of these three properties is what makes the problem both practically important and technically interesting.
@@ -52,7 +53,7 @@ A deployment also never sees the data it was tuned on --- cameras, lighting, cla
 Research on vision-based engagement recognition has, broadly, taken two routes.
 The first encodes each video frame with a facial-behaviour toolkit --- most commonly OpenFace~\cite{openface2}, which estimates gaze direction, head pose, facial landmarks, and action-unit intensities --- and feeds the resulting descriptor sequence to a classical classifier or a recurrent network, for example an OpenFace$+$BiLSTM pipeline~\cite{openface_bilstm} or classical models such as logistic regression, support vector machines, and gradient boosting on aggregated features~\cite{classical_ml_engagement}.
 The second route learns directly from pixels with end-to-end deep video models, for instance an EfficientNetV2 backbone followed by an LSTM~\cite{efficientnet_lstm_engagement}, or borrows context- and relationship-modelling ideas from affect recognition~\cite{context_aware_emotion_3d}.
-The two large benchmarks used in this thesis sit at the centre of this literature: CMOSE~\cite{cmose} is a recent, large, expert-labelled multimodal corpus that ships precomputed OpenFace and I3D features, and DAiSEE~\cite{daisee} is a widely used public counterpart recorded ``in the wild''.
+The two large benchmarks used in this thesis sit at the centre of this literature: CMOSE~\cite{cmose} is a recent, large, expert-labelled multimodal corpus and the only one of our sources that ships precomputed OpenFace and I3D features, and DAiSEE~\cite{daisee} is a widely used public counterpart recorded ``in the wild'' that provides only raw video, from which we extract the same features ourselves.
 A systematic review of computer-vision engagement detection~\cite{review_engagement_cv} catalogues these pipelines and confirms that class imbalance and label subjectivity are recurring, unsolved problems across the field.
 
 Two specific limitations of the existing work motivate this thesis.

@@ -93,7 +93,7 @@ The findings should be read against several limitations, each of which also moti
   The private set was labelled by one annotator (the author) under the public-corpus rubric.
   Although the model suggestions shown during labelling were non-binding, the absence of a second annotator means no inter-rater reliability can be reported for this set, and the 366-clip size limits the statistical power of the private-set conclusions --- especially for the ten Highly\nobreakdash-Disengage clips, where a single misjudged clip moves the recall substantially.
   \item \textbf{Clip-level I3D features.}
-  CMOSE and DAiSEE ship a single pooled 1024-dimensional I3D vector per clip, so the I3D ``stream'' is an MLP over that global motion/appearance summary rather than a temporal encoder; a per-window I3D sequence might contribute more and would let an I3D temporal encoder model genuine dynamics.
+  The I3D features are a single pooled 1024-dimensional vector per clip --- shipped precomputed by CMOSE and extracted by us from the raw video for DAiSEE and the private set --- so the I3D ``stream'' is an MLP over that global motion/appearance summary rather than a temporal encoder; a per-window I3D sequence might contribute more and would let an I3D temporal encoder model genuine dynamics.
   \item \textbf{Incremental in-domain gain and a flat design space.}
   Most of the 243-configuration grid is encoder-agnostic, and the best in-domain improvement over the baseline is modest ($+0.068$ QWK).
   The decomposition is a sound, interpretable framework rather than a large performance leap.
