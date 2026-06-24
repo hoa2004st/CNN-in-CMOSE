@@ -21,8 +21,10 @@ from src.analysis import aggregate as ag
 from src.visualization.figbase import TABLE_DIR
 from src.visualization.style import display_model_name
 
-# Primary metrics first (QWK, macro-accuracy, macro-MAE), then the secondary ones.
-_PRIMARY = ["quadratic_weighted_kappa", "macro_accuracy", "macro_mae", "accuracy", "mae", "cohen_kappa"]
+# All six reported metrics in display order: the single primary/selection metric (QWK)
+# first, then the five secondary metrics. Only QWK ever selects a model; the rest are
+# reported for analysis and comparability (see aggregate.SELECTION_METRIC).
+_REPORTED_METRICS = ["quadratic_weighted_kappa", "macro_accuracy", "macro_mae", "accuracy", "mae", "cohen_kappa"]
 
 
 def _fmt(v) -> str:
@@ -77,9 +79,9 @@ def table_base_indomain() -> tuple[str, pd.DataFrame, str]:
     m = ag.load_matrix()
     cell = m[(m["train_group"] == "cmose") & (m["test_set"] == "cmose_test")].copy()
     cell = cell.sort_values("quadratic_weighted_kappa", ascending=False)
-    frame = cell[["model_display", "loss_display", *_PRIMARY]].rename(
+    frame = cell[["model_display", "loss_display", *_REPORTED_METRICS]].rename(
         columns={"model_display": "Model", "loss_display": "Loss",
-                 **{k: ag.METRIC_DISPLAY[k] for k in _PRIMARY}}
+                 **{k: ag.METRIC_DISPLAY[k] for k in _REPORTED_METRICS}}
     )
     return _spec(frame, "T2_base_indomain",
                  "Base models × losses, in-domain (CMOSE→CMOSE), sorted by QWK.")
@@ -251,7 +253,7 @@ def table_per_metric_winner() -> tuple[str, pd.DataFrame, str]:
     m = ag.load_matrix()
     cell = m[(m["train_group"] == "cmose") & (m["test_set"] == "cmose_test")]
     rows = []
-    for metric in _PRIMARY:
+    for metric in _REPORTED_METRICS:
         best = cell.loc[cell[metric].idxmin() if metric in ag.LOWER_BETTER_METRICS
                         else cell[metric].idxmax()]
         rows.append({
@@ -303,10 +305,11 @@ def table_agreement_stats() -> tuple[str, pd.DataFrame, str]:
 
 
 def table_openface_vs_i3d() -> tuple[str, pd.DataFrame, str]:
-    """Best OpenFace encoder vs the I3D MLP on the primary metrics (in-domain CMOSE, CE).
+    """Best OpenFace encoder vs the I3D MLP on QWK and the balanced secondary metrics (in-domain CMOSE, CE).
 
-    Replaces the former bar chart: two rows x three primary metrics read more honestly as a
-    table. The contrast (complementary feature families) motivates fusing the two streams.
+    Replaces the former bar chart: two rows x three metrics (QWK plus the two balanced
+    secondary metrics) read more honestly as a table. The contrast (complementary feature
+    families) motivates fusing the two streams. The OpenFace winner is selected on QWK.
     """
     m = ag.load_matrix()
     cell = m[(m["train_group"] == "cmose") & (m["test_set"] == "cmose_test")
@@ -326,8 +329,8 @@ def table_openface_vs_i3d() -> tuple[str, pd.DataFrame, str]:
         })
     frame = pd.DataFrame(rows)
     return _spec(frame, "T4_3_openface_vs_i3d",
-                 "Best OpenFace encoder vs the I3D MLP on the primary metrics "
-                 "(in-domain CMOSE, cross-entropy; macro-MAE lower is better).")
+                 "Best OpenFace encoder (selected on QWK) vs the I3D MLP on QWK and the "
+                 "balanced secondary metrics (in-domain CMOSE, cross-entropy; macro-MAE lower is better).")
 
 
 def table_group_marginal_unseen() -> tuple[str, pd.DataFrame, str]:

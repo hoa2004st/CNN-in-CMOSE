@@ -18,7 +18,8 @@ from src.visualization.style import (
 _LOSS_ORDER = ["ce", "weighted_ce", "ordinal"]
 _LOSS_MARKER = {"ce": "o", "weighted_ce": "s", "ordinal": "^"}
 
-# The three primary metrics, QWK first (emphasised); the loss study uses no others.
+# QWK (the single primary/selection metric, shown first and emphasised) against the two
+# balanced secondary metrics it trades off with; the loss study uses no others.
 _TRADEOFF_METRICS = [
     "quadratic_weighted_kappa",
     "macro_accuracy",
@@ -29,10 +30,10 @@ _TRADEOFF_METRICS = [
 def fig_loss_metric_tradeoff(directory: Path | None = None) -> Path:
     """Per-metric lines across the three losses: shows what each loss trades.
 
-    One panel per primary metric; one line per base model across CE -> Weighted CE ->
-    Ordinal. QWK is generally highest under CE, while macro-accuracy rises and macro-MAE
-    drops (improves) as the loss is rebalanced, making the Pareto nature of the loss
-    choice explicit in the primary metrics alone.
+    One panel per metric (QWK plus the two balanced secondary metrics); one line per base
+    model across CE -> Weighted CE -> Ordinal. QWK -- the selection metric -- is generally
+    highest under CE, while macro-accuracy rises and macro-MAE drops (improves) as the loss
+    is rebalanced, making the Pareto nature of the loss choice explicit.
     """
     matrix = ag.load_matrix()
     frame = matrix[(matrix["train_group"] == "cmose") & (matrix["test_set"] == "cmose_test")]
@@ -60,7 +61,7 @@ def fig_loss_metric_tradeoff(directory: Path | None = None) -> Path:
     axes[0].set_ylabel("Score")
     handles, labels = axes[0].get_legend_handles_labels()
     fig.legend(handles, labels, title="Base model", loc="center left", bbox_to_anchor=(1.0, 0.5))
-    fig.suptitle("What each loss trades: primary metrics across losses (in-domain CMOSE)",
+    fig.suptitle("What each loss trades: QWK vs. balanced secondary metrics across losses (in-domain CMOSE)",
                  y=1.04, fontweight="bold")
     return save(fig, "loss_metric_tradeoff", directory=directory)
 

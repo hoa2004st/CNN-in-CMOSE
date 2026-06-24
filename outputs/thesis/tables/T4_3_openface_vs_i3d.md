@@ -1,4 +1,4 @@
-**Best OpenFace encoder vs the I3D MLP on the primary metrics (in-domain CMOSE, cross-entropy; macro-MAE lower is better).**
+**Best OpenFace encoder (selected on QWK) vs the I3D MLP on QWK and the balanced secondary metrics (in-domain CMOSE, cross-entropy; macro-MAE lower is better).**
 
 | Feature family | Model | QWK | Macro-Acc | Macro-MAE |
 | --- | --- | --- | --- | --- |

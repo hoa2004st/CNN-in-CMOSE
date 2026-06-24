@@ -48,7 +48,10 @@ GROUP_DISPLAY = {
 ARCH_TOKENS = ["TCN", "T", "LSTM"]
 ARCH_TOKEN_DISPLAY = {"T": "Transformer", "TCN": "TCN", "LSTM": "LSTM"}
 
-# The six metrics every run reports. QWK + macro_accuracy are the thesis-primary pair.
+# The six metrics every run reports. QWK is the SINGLE primary metric: it is the one
+# and only criterion that selects the best model (see SELECTION_METRIC). The other five
+# are secondary -- reported for analysis and comparability with the literature, but they
+# never pick a winner.
 METRIC_COLUMNS = [
     "accuracy",
     "macro_accuracy",
@@ -68,6 +71,14 @@ METRIC_DISPLAY = {
 # Metrics where a smaller value is better (ordinal-distance errors): selection and
 # colour scales must be inverted for these relative to the agreement/recall metrics.
 LOWER_BETTER_METRICS = {"mae", "macro_mae"}
+
+# The single metric that selects the best model anywhere in the thesis. Every "best",
+# "winner", or "top" config -- base or hybrid, in-domain or transfer -- is the argmax of
+# this column and nothing else. Ties are broken stable-first (first row at the max), with
+# no secondary tiebreak. Do not introduce a second selection metric: that is the whole
+# point of the protocol (see Chapter 4, Section "Evaluation Protocol").
+SELECTION_METRIC = "quadratic_weighted_kappa"
+
 TRAIN_GROUPS = ["cmose", "daisee", "combined"]
 TEST_SETS = ["cmose_test", "daisee_test", "private"]
 TRAIN_GROUP_DISPLAY = {"cmose": "CMOSE", "daisee": "DAiSEE", "combined": "Combined"}
@@ -141,18 +152,22 @@ def load_hybrid_matrix(path: str | Path | None = None) -> pd.DataFrame:
     return frame
 
 
-def best_per_cell(frame: pd.DataFrame, metric: str = "quadratic_weighted_kappa") -> pd.DataFrame:
+def best_per_cell(frame: pd.DataFrame, metric: str = SELECTION_METRIC) -> pd.DataFrame:
     """For each (train_group, test_set) cell return the row with the best ``metric``.
 
-    "Best" maximizes the metric, except for the lower-is-better ordinal-distance metrics
-    (``mae``, ``macro_mae``), which are minimized.
+    The model-selection default is ``SELECTION_METRIC`` (QWK), the thesis's single
+    selection criterion. ``metric`` is parameterised only so callers can *plot* a cell
+    matrix of some other column (e.g. accuracy for the disproof figures); it must not be
+    used to pick a reported "best model". "Best" maximizes the metric, except for the
+    lower-is-better ordinal-distance metrics (``mae``, ``macro_mae``), which are minimized.
+    Ties resolve stable-first (``idxmax``/``idxmin`` return the first occurrence).
     """
     grouped = frame.groupby(["train_group", "test_set"])[metric]
     idx = grouped.idxmin() if metric in LOWER_BETTER_METRICS else grouped.idxmax()
     return frame.loc[idx].reset_index(drop=True)
 
 
-def cell_matrix(frame: pd.DataFrame, metric: str = "quadratic_weighted_kappa") -> pd.DataFrame:
+def cell_matrix(frame: pd.DataFrame, metric: str = SELECTION_METRIC) -> pd.DataFrame:
     """Pivot best-per-cell ``metric`` into a 3x3 train (rows) x test (cols) table."""
     best = best_per_cell(frame, metric)
     pivot = best.pivot(index="train_group", columns="test_set", values=metric)

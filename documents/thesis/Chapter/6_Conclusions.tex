@@ -108,7 +108,7 @@ The findings should be read against several limits, each of which also motivates
 \label{sec:recommendations}
 
 For practitioners building engagement-monitoring systems, the study gives three concrete recommendations that do not depend on the specific architecture.
-First, \textbf{report and optimise ordinal agreement}: use QWK, macro-accuracy, and macro-MAE as the headline metrics and treat plain accuracy as secondary, because on these imbalanced ordinal labels accuracy can look healthy while the model has learned nothing useful about disengagement.
+First, \textbf{select and optimise on ordinal agreement}: make QWK the single metric that chooses models, report macro-accuracy and macro-MAE as secondary balanced checks, and treat plain accuracy as no more than a comparability number, because on these imbalanced ordinal labels accuracy can look healthy while the model has learned nothing useful about disengagement.
 Second, \textbf{train on mixed datasets pooled together} when the deployment data is unknown; pooling was the simplest tool that worked best for the unseen private set and needs no change to the model.
 Third, \textbf{expect and watch rare-class failure}: the most important class, Highly\nobreakdash-Disengage, is also the rarest and the hardest to detect, so a deployed system should treat low-confidence disengagement predictions with care and, where possible, leave the call to a human.
 

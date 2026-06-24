@@ -51,7 +51,7 @@ The same imbalance holds within each of the train, validation, and test partitio
 \end{figure}
 
 This severe and \emph{heterogeneous} imbalance shapes three choices the thesis returns to.
-It predicts difficulty in transferring between corpora, where a model fit to one label prior meets a sharply different one at test time (Chapters~4 and~5); it motivates the imbalance-aware losses of Section~\ref{sec:losses-method}; and, because predicting the majority class alone scores well on every corpus, it rules out raw accuracy in favour of quadratic-weighted kappa, macro-accuracy, and macro-MAE as the \textbf{primary} metrics (Section~\ref{sec:eval}).
+It predicts difficulty in transferring between corpora, where a model fit to one label prior meets a sharply different one at test time (Chapters~4 and~5); it motivates the imbalance-aware losses of Section~\ref{sec:losses-method}; and, because predicting the majority class alone scores well on every corpus, it rules out raw accuracy as a selection criterion in favour of \textbf{quadratic-weighted kappa (QWK), the single metric on which every best model in this thesis is chosen}, with macro-accuracy and macro-MAE kept only as secondary balanced diagnostics (Section~\ref{sec:eval}).
 
 \subsection{The private evaluation set}
 \label{sec:private-collection}
@@ -276,7 +276,7 @@ Generalisation is measured with a 3$\times$3 matrix: every model and loss is tra
 The diagonal cells are the in-domain results; the off-diagonal and the Private column measure transfer to unseen distributions.
 
 \textbf{Metrics.}
-Each evaluation reports the six metrics defined in Section~\ref{sec:metrics-lit} --- accuracy, macro-accuracy, MAE, macro-MAE, Cohen's kappa, and QWK --- with \textbf{QWK, macro-accuracy, and macro-MAE as primary}; the empirical justification for this choice is laid out in the evaluation-protocol section of Chapter~4 (Section~\ref{sec:protocol}).
+Each evaluation reports the six metrics defined in Section~\ref{sec:metrics-lit} --- accuracy, macro-accuracy, MAE, macro-MAE, Cohen's kappa, and QWK --- but \textbf{QWK is the single primary metric: it, and it alone, selects the best model}. The other five are secondary --- reported for analysis and for comparability with the literature, but never used to pick a winner. The empirical justification for selecting on QWK alone is laid out in the evaluation-protocol section of Chapter~4 (Section~\ref{sec:protocol}).
 Row-normalised confusion matrices and per-class F1 scores are used for error analysis.
 
 \textbf{Aggregation and reproducibility.}
@@ -287,6 +287,6 @@ The complete study comprises roughly 1{,}500 trained runs (the five baselines $\
 \label{sec:method-summary}
 
 This chapter specified the methodology end to end: the pipeline; the three training corpora and their imbalance, the test-only private set and its collection, and the leakage-free preprocessing; the five monolithic baseline architectures; the five-group decomposition of the OpenFace descriptor; and the semantic-group hybrid (Figure~\ref{fig:hybrid}) that reuses the baselines' encoder families per group, with its fusion and auxiliary heads, I3D variant, and 243-configuration design space.
-It also fixed the loss formulations, the training protocol, and the 3$\times$3 evaluation protocol with its primary metrics, which Chapters~4 and~5 apply to the in-domain and generalisation results.
+It also fixed the loss formulations, the training protocol, and the 3$\times$3 evaluation protocol with its single primary metric (QWK) and its secondary metrics, which Chapters~4 and~5 apply to the in-domain and generalisation results.
 
 \end{document}

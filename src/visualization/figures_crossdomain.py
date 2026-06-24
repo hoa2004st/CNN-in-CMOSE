@@ -50,7 +50,8 @@ def _heatmap(ax, pivot, title: str, *, vmin, vmax, cmap="RdYlGn", fmt="{:.2f}",
 
 
 def fig_crossdomain(frame, name: str, suptitle: str, directory: Path | None = None) -> Path:
-    # The three primary metrics (QWK first/emphasised) plus raw accuracy, the deceptive foil:
+    # QWK (the single primary/selection metric, first/emphasised) and the two balanced
+    # secondary metrics, plus raw accuracy, the deceptive foil:
     # its high off-diagonal cells against near-zero QWK are the disproof-of-accuracy evidence.
     # Macro-MAE on a reversed colour scale, since lower is better. 2x2 so each matrix stays large.
     fig, axes = new_fig(2, 2, figsize=(10.6, 8.4), layout="constrained")
@@ -112,6 +113,71 @@ def fig_crossdomain_delta(directory: Path | None = None) -> Path:
                  fontweight="bold")
     fig.tight_layout()
     return save(fig, "crossdomain_delta", directory=directory)
+
+
+def _delta_heatmap(ax, delta, *, cmap, show_y=True, show_x=True,
+                   fmt="{:+.3f}", highlight_fn=None):
+    """Draw one diverging hybrid-minus-base panel, scale centred on zero."""
+    data = delta.to_numpy(dtype=float)
+    vmax = float(np.nanmax(np.abs(data)))
+    im = ax.imshow(data, cmap=cmap, vmin=-vmax, vmax=vmax, aspect="auto")
+    ax.set_xticks(range(len(delta.columns)))
+    ax.set_xticklabels([ag.TEST_SET_DISPLAY.get(c, c) for c in delta.columns])
+    ax.set_yticks(range(len(delta.index)))
+    if show_y:
+        ax.set_yticklabels([ag.TRAIN_GROUP_DISPLAY.get(r, r) for r in delta.index])
+        ax.set_ylabel("Trained on")
+    else:
+        ax.set_yticklabels([])
+    if show_x:
+        ax.set_xlabel("Tested on")
+    ax.grid(False)
+    for i in range(data.shape[0]):
+        for j in range(data.shape[1]):
+            highlight = highlight_fn(i, j) if highlight_fn else False
+            ax.text(j, i, fmt.format(data[i, j]), ha="center", va="center",
+                    color="black", fontsize=10,
+                    fontweight="bold" if highlight else "normal")
+    return im
+
+
+def fig_crossdomain_delta_full(directory: Path | None = None) -> Path:
+    """Four-metric version of the per-cell hybrid-minus-base figure.
+
+    The same cell-by-cell (best hybrid - best base) subtraction as
+    ``fig_crossdomain_delta``, drawn for all four cross-domain metrics in a 2x2 grid
+    (mirroring ``fig_crossdomain``'s layout) so the QWK headline can be read against
+    accuracy, macro-accuracy and the lower-is-better macro-MAE. Each panel's diverging
+    scale is centred on zero and signed so green is always the hybrid-favouring
+    direction (hence ``RdYlGn_r`` for macro-MAE, where a negative delta is the win).
+    The Private column and the in-domain CMOSE diagonal cell are bolded in every panel.
+    """
+    base_frame = ag.load_matrix()
+    hybrid_frame = ag.load_hybrid_matrix()
+    fig, axes = new_fig(2, 2, figsize=(10.6, 8.4), layout="constrained")
+    for k, (ax, metric, cmap) in enumerate((
+        (axes[0][0], "quadratic_weighted_kappa", "RdYlGn"),
+        (axes[0][1], "macro_accuracy", "RdYlGn"),
+        (axes[1][0], "macro_mae", "RdYlGn_r"),
+        (axes[1][1], "accuracy", "RdYlGn"),
+    )):
+        delta = ag.cell_matrix(hybrid_frame, metric) - ag.cell_matrix(base_frame, metric)
+        private_col = list(delta.columns).index("private")
+
+        def highlight_fn(i, j, d=delta, pc=private_col):
+            return (j == pc) or (d.index[i] == "cmose" and d.columns[j] == "cmose_test")
+
+        im = _delta_heatmap(ax, delta, cmap=cmap, show_y=(k % 2 == 0),
+                            show_x=(k >= 2), highlight_fn=highlight_fn)
+        title = ag.METRIC_DISPLAY[metric]
+        if metric in ag.LOWER_BETTER_METRICS:
+            title += " (lower is better)"
+        ax.set_title(title)
+        fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04,
+                     label="$\\Delta$ (hybrid $-$ base)")
+    fig.suptitle("Hybrid advantage per cell: best hybrid $-$ best base",
+                 fontweight="bold")
+    return save(fig, "crossdomain_delta_full", directory=directory)
 
 
 def _scatter_points(frame, keys: list[str]):
@@ -186,5 +252,6 @@ def make_all(directory: Path | None = None) -> list[Path]:
         fig_crossdomain(hybrid, "crossdomain_hybrid",
                         "Cross-domain generalization — best hybrid config per cell", directory),
         fig_crossdomain_delta(directory),
+        fig_crossdomain_delta_full(directory),
         fig_indomain_vs_generalization(True, directory),
     ]

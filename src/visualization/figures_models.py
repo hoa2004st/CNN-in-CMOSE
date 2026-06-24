@@ -74,5 +74,27 @@ def fig_base_all_metrics(directory: Path | None = None) -> Path:
     return save(fig, "base_models_all_metrics", directory=directory)
 
 
+def fig_base_accuracy_vs_qwk(directory: Path | None = None) -> Path:
+    """Two panels --- Accuracy (left) and QWK (right) --- base models x losses, in-domain.
+
+    A slimmed two-panel cut of ``fig_base_all_metrics`` for the metrics slide: accuracy is
+    kept only because it is what most prior work reports, shown beside QWK so the audience
+    can see the two metrics rank the base models differently --- accuracy favours the I3D
+    MLP, QWK the OpenFace TCN --- motivating the order-aware primary metric.
+    """
+    matrix = ag.load_matrix()
+    frame = matrix[(matrix["train_group"] == "cmose") & (matrix["test_set"] == "cmose_test")]
+    fig, axes = new_fig(1, 2, figsize=(11.0, 4.6))
+    for ax, metric in zip(axes.ravel(), ["accuracy", "quadratic_weighted_kappa"]):
+        _grouped_bar(ax, frame, metric)
+    axes[0].set_ylabel("Score")
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(handles, labels, title="Loss", loc="center left", bbox_to_anchor=(1.0, 0.5))
+    fig.suptitle("Accuracy vs QWK, base models x losses, in-domain (CMOSE -> CMOSE)",
+                 y=1.02, fontweight="bold")
+    fig.tight_layout()
+    return save(fig, "base_models_accuracy_vs_qwk", directory=directory)
+
+
 def make_all(directory: Path | None = None) -> list[Path]:
-    return [fig_base_all_metrics(directory)]
+    return [fig_base_all_metrics(directory), fig_base_accuracy_vs_qwk(directory)]

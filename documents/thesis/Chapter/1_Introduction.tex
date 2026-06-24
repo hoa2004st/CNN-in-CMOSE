@@ -98,7 +98,7 @@ The OpenFace features are split into five meaningful groups --- gaze, eye landma
 A global I3D clip embedding can be added as a sixth stream.
 The embeddings are joined and classified, and every stream also gets its own small head so that each behavioural channel has to be useful on its own.
 We call this ``divide the face, then fuse'' design the \emph{semantic-group hybrid}, and it is the main object tested in this thesis against standard monolithic baselines, across datasets, and across loss functions.
-The rule behind RQ4 is to report ordinal agreement (quadratic-weighted kappa), balanced accuracy, and balanced ordinal error (macro-MAE) as the main metrics, never plain accuracy alone, and to test every model not only in-domain but on two unseen datasets, one of which we collected ourselves.
+The rule behind RQ4 is to \textbf{select and rank every model on a single metric --- ordinal agreement (quadratic-weighted kappa, QWK)} --- reporting balanced accuracy and balanced ordinal error (macro-MAE) only as secondary checks and never using plain accuracy to choose a model, and to test every model not only in-domain but on two unseen datasets, one of which we collected ourselves.
 
 \FloatBarrier
 \section{Contributions}

@@ -169,7 +169,7 @@ All models are optimised with Adam~\cite{adam}, an adaptive first-order optimise
 \label{sec:metrics-lit}
 
 Because the labels are ordinal and imbalanced, the choice of metric is itself a research question (RQ4).
-This thesis reports six metrics over a test set of $N$ samples with true labels $y_i$ and predicted labels $\widehat{y}_i$ (for $i=1,\dots,N$), and treats three of them as primary.
+This thesis reports six metrics over a test set of $N$ samples with true labels $y_i$ and predicted labels $\widehat{y}_i$ (for $i=1,\dots,N$), but treats exactly one of them --- QWK --- as the \emph{primary} metric that selects the best model; the other five are secondary, reported to describe a result but never to choose one.
 Where a confusion matrix is needed, $O_{ij}$ denotes the number of samples of true class $i$ predicted as class $j$.
 
 \textbf{Accuracy} is the fraction of correct predictions,
@@ -183,7 +183,7 @@ It is reported for comparability with the literature but is explicitly \emph{not
 \operatorname{MacroAcc} = \frac{1}{C}\sum_{c=1}^{C}\frac{\sum_{i=1}^{N}\mathbf{1}\!\left[\,y_i=\widehat{y}_i=c\,\right]}{\sum_{i=1}^{N}\mathbf{1}\!\left[\,y_i=c\,\right]},
 \end{equation}
 giving every class equal weight regardless of frequency.
-It exposes the minority-class collapse that accuracy hides and is a \textbf{primary} metric.
+It exposes the minority-class collapse that accuracy hides; here it is a \textbf{secondary} metric, reported to characterise class balance but never used to select a model.
 
 \textbf{Mean absolute error (MAE)} treats the class indices as an ordinal scale and averages the distance between truth and prediction,
 \begin{equation}
@@ -194,7 +194,7 @@ while \textbf{macro-MAE} averages the per-class MAE so that errors on rare class
 \operatorname{MacroMAE} = \frac{1}{C}\sum_{c=1}^{C}\frac{\sum_{i=1}^{N}\mathbf{1}\!\left[\,y_i=c\,\right]\left|y_i-\widehat{y}_i\right|}{\sum_{i=1}^{N}\mathbf{1}\!\left[\,y_i=c\,\right]}.
 \end{equation}
 Both reward predictions that are at least \emph{close} on the scale even when not exactly right; both are smaller-is-better.
-\textbf{Macro-MAE is a primary metric}: it is the natural ordinal-distance companion to QWK and macro-accuracy, reporting \emph{how far} a prediction misses rather than only \emph{whether} it misses, with each class weighted equally so the rare disengaged classes are not masked by the majority.
+\textbf{Macro-MAE is a secondary metric}: it is the natural ordinal-distance companion to QWK, reporting \emph{how far} a prediction misses rather than only \emph{whether} it misses, with each class weighted equally so the rare disengaged classes are not masked by the majority --- but, like the other secondary metrics, it is reported alongside QWK and never used to select a model.
 
 \textbf{Cohen's kappa}~\cite{cohenkappa} measures agreement corrected for the agreement expected by chance.
 With observed agreement $p_o$ and expected agreement $p_e$ (computed from the marginals), $\kappa=(p_o-p_e)/(1-p_e)$.
@@ -212,7 +212,7 @@ w_{ij} = \frac{(i-j)^2}{(C-1)^2},
 \end{equation}
 so that disagreements are penalised in proportion to the \emph{square} of the ordinal distance between the true and predicted classes.
 QWK is therefore the natural single number for this problem: it is corrected for chance, it respects the class order, and it cannot be inflated by majority prediction.
-It is the \textbf{primary} metric of the thesis, with macro-accuracy as the primary balanced-recall companion and macro-MAE as the primary ordinal-distance companion.
+It is the \textbf{single primary metric of the thesis --- the one and only criterion used to select the best model} --- with macro-accuracy (balanced recall) and macro-MAE (ordinal distance) reported as secondary companions that describe a result but never choose it.
 
 \FloatBarrier
 \section{Statistical Measures for Result Analysis}
