@@ -55,7 +55,7 @@ The five ⭐ DWELL slides (7, 8, 11–13) are your contributions — non-negotia
 
 ## Slide 1 — Title (0:15)
 
-**Visual:** HUST logo (image). Thesis title: "Student's engagement detection in online classes". Author: "Phan Minh Hoa - 20225495". Slide number.
+**Visual:** Bilingual HUST / Hanoi University of Science and Technology logo (image). Thesis title: "Student's engagement detection in online classes". Author: "Phan Minh Hòa - 20225495". Slide number.
 
 **Script:**
 > "Good morning everyone. I’m Phan Minh Hòa. Today, I will present to you my thesis on “Student’s engagement detection in online classes”. Without wasting your time, let’s go right into the main content."
@@ -80,10 +80,10 @@ The five ⭐ DWELL slides (7, 8, 11–13) are your contributions — non-negotia
 
 ## Slide 3 — Problem Statement (0:35)
 
-**Visual:** Section tag "1. Introduction"; title "Problem Statement". One illustration figure plus three example webcam screenshots. Text:
+**Visual:** Section tag "1. Introduction"; title "Problem Statement"; "(1/3)" marker. Four real webcam screenshots of students in online classes (different people, rooms, and cameras). Text:
 - "Recognize students' engagement level"
 - "Input: 10s clips from students' webcams"
-- "Output: 4 classes: HE / E / D / HD"
+- "Output: 4 classes: HE/E/D/HD"
 
 **Script:**
 > "In online classes, the webcam became the teacher's only window onto the learner. When teaching and focusing on their own screen sharing, teachers realistically cannot read the room and decide they should change the pace or repeat the points they just made. To assist online teachers our thesis focus on one automation task: classify ten-second clips into four ordered engagement levels, from Highly-Disengaged to Highly-Engaged."
@@ -92,10 +92,17 @@ The five ⭐ DWELL slides (7, 8, 11–13) are your contributions — non-negotia
 
 ## Slide 4 — Key Challenges: Ordinality, Imbalance, Angle Diversity (0:50)
 
-**Visual:** Section tag "1. Introduction"; title "Key Challenges". Three labelled items, each with a small figure:
-1. Ordinality
-2. Imbalance
-3. Angle Diversity
+**Visual:** Section tag "1. Introduction"; title "Key Challenges"; "(2/3)" marker. Three labelled challenges:
+1. **Ordinality** — the four classes (HE / EG / DE / HD) form an ordered scale.
+2. **Imbalance** — per-dataset class-distribution table (model-independent, ⬜ DATA / PROTOCOL):
+
+   | Engagement class | CMOSE | DAiSEE | Private |
+   |---|---|---|---|
+   | Highly Engage (HE) | 9.6% | 43.8% | 30.6% |
+   | Engage (EG) | 69.4% | 50.3% | 58.2% |
+   | Disengage (DE) | 18.1% | 5.1% | 8.5% |
+   | Highly Disengage (HD) | 2.8% | 0.7% | 2.7% |
+3. **Angle Diversity** — four real webcam screenshots at different camera angles (eye-level, looking up from a phone, monitor cam, laptop looking down).
 
 **Script:**
 > "This task innately have three key challenges. One: the ordinal scale forms a *stair* — mistaking a disengaged student for a highly-engaged one is a disaster, off-by-one is fine, but plain accuracy can't tell those apart. Two: the dataset is highly imbalance for example, CMOSE dataset have almost 70% of the clips labeled 'Engaged' while only under 3% labeled highly-disengaged. A model can have high accuracy by always guessing 'Engaged' and never doing its job. Three: every learner frames their webcam differently — a laptop looking up, a monitor camera at eye level, a phone off to the side — so the same expression reaches the model at a different angle and head pose. The OpenFace features are measured in that geometry, so the angle alone shifts them even when the engagement is identical. Doing well on one dataset's camera setups tells us little about the angles the model will actually meet."
@@ -104,15 +111,15 @@ The five ⭐ DWELL slides (7, 8, 11–13) are your contributions — non-negotia
 
 ## Slide 5 — Research Gaps & Contributions (0:35)
 
-**Visual:** Section tag "1. Introduction"; titles "Research Gaps" and "Contributions".
+**Visual:** Section tag "1. Introduction"; titles "Research Gaps" and "Contributions"; "(3/3)" marker.
 
 Research Gaps (text):
-- All facial features are put into a model / pipeline as a block.
-- Studies mostly use the accuracy metric, both for in-domain and cross-dataset evaluation.
+- All facial features are always put into a model/pipeline as a block.
+- Studies mostly use accuracy metric, both for in-domain and cross-dataset evaluation.
 
 Contributions (text):
-- New architecture that divides the facial features, then fuses them.
-- New private dataset, manually labelled from a SOICT online class.
+- New architecture that divide facial features then fuse.
+- New private dataset manually labeled from SOICT online class.
 - Generalization study using QWK instead of accuracy.
 
 **Script:**
@@ -177,45 +184,45 @@ Contributions (text):
 
 ## Slide 10 — Baselines: In-Domain Results & Prediction Agreement (0:40)
 
-**Visual:** Figure `base_models_all_metrics.png` (left) - best baseline QWK 0.537. Figure `agreement_base_models.png` (right), caption: "different errors -> best-picker 97.6% vs 77.3% best single."
+**Visual:** QWK of all baseline models — the QWK bars for the five architectures across the three losses, in-domain CMOSE (left); best = OpenFace TCN, cross-entropy, QWK 0.537. Figure `agreement_base_models.png` — pairwise Cohen's kappa between all fifteen baseline configurations (right).
 
 **Provenance:** 🟦 BASELINE.
 
 **Script:**
-> "The baseline scores, in-domain on CMOSE: the best single model reaches QWK (Quadratic Weighted Kappa) 0.537 — the bar to beat. The second plot is why I add I3D: the best OpenFace model and the I3D model disagree with each other more than the OpenFace models disagree among themselves — they get different clips right. They make different errors, so I join them. A perfect picker over the two would reach 97.6% versus 77.3% — real room to improve, which I leave as future work."
+> "The baseline scores, in-domain on CMOSE, ranked by QWK (Quadratic Weighted Kappa) — the selection metric. The strongest single model is the OpenFace TCN at QWK 0.537 — the bar the proposed model must clear — with the I3D MLP just behind at 0.519, a near-tie across two completely different feature families. The right plot asks whether those clustered scores mean the models agree: they don't. Pairwise agreement is only Cohen's kappa 0.27 to 0.39, and the I3D MLP's row is the palest in the grid — it disagrees most with the OpenFace TCN even though they score almost the same. So the two families are right on different clips; the best single model is correct on 77.3% of clips, but at least one model is correct on 97.6%. They make different errors — that headroom is exactly why I fuse the streams in the next chapter, rather than averaging finished predictions."
 
 ---
 
 ## Slide 11 — ⭐ DWELL — Encoder Ablation & In-Domain Comparison (0:50)
 
-**Visual:** Figure `hybrid_ablation_all_metrics.png`. Caption: "Best baseline 0.537 -> hybrid median 0.553, best 0.605; 82% beat baseline." Note: "Only head pose prefers a specific encoder -> TCN."
+**Visual:** Figure `hybrid_ablation_all_metrics.png` (left) — the two hybrid families (with I3D / OpenFace-only) on all six metrics, each panel against the QWK-selected baseline (dashed line). Table 5.1 `T5_1_group_marginal_combined` (right) — per-group encoder marginal, in-domain and under shift.
 
 **Provenance:** 🟩 HYBRID.
 
 **Script (slow down — architecture result):**
-> "The architecture, in-domain — all 243 versions. As a *family*, the I3D hybrid sits above the baseline: median QWK (Quadratic Weighted Kappa) 0.553 versus 0.537, 82% of versions beat the bar, best 0.605. To be honest, that best gain — plus 0.068 — is small. The stronger finding is a design rule: four of the five groups don't care which encoder they get; only *head pose* clearly prefers one — the TCN — because head motion is short and local in time. So the message isn't a magic model; it's that *split-and-join* helps, and a TCN is a safe default."
+> "The architecture, in-domain — both hybrid families, all 243 encoder versions, on every metric, with the dashed line being the same QWK-selected baseline read on each panel. Read the QWK panel: the I3D-fused family sits clearly above the OpenFace-only family — median QWK (Quadratic Weighted Kappa) 0.553 versus 0.522 — and 82% of the fused versions clear the 0.537 baseline bar, best 0.605. The accuracy panel, by contrast, is a flat band — accuracy can't even see the architecture. To be honest, the best gain — plus 0.068 — is modest. The stronger finding is the table on the right: four of the five facial groups don't care which encoder they get; only *head pose* clearly prefers one — the TCN — because head motion, nodding and turning away, is short and local in time, and that preference even survives domain shift. So the message isn't a magic model; it's that *split-and-fuse* is what helps, and a TCN is a safe default for head pose."
 
 ---
 
 ## Slide 12 — ⭐ DWELL — Cross-Dataset Generalization (0:45)
 
-**Visual:** Figures `crossdomain_base.png` (left) and `crossdomain_hybrid.png` (right). Caption: "Off-diagonal QWK approx 0 (CMOSE->DAiSEE 0.02) - yet accuracy looks fine."
+**Visual:** Figures `crossdomain_base.png` (left, base model) and `crossdomain_hybrid.png` (right, hybrid model) — 3×3 train×test heatmaps, QWK + macro-accuracy + macro-MAE + accuracy. Caption: "Off-diagonal QWK approx 0 (CMOSE->DAiSEE 0.02) yet accuracy looks fine; same shape for both families; hybrid wins all 9 cells."
 
 **Provenance:** 🟦 BASELINE matrix (left) + 🟩 HYBRID matrix (right). Label both.
 
 **Script (slow down — contribution #3):**
-> "The key negative finding — my third contribution. Move any model to a dataset it did not train on, and it falls apart: the off-diagonal QWK (Quadratic Weighted Kappa) drops to near zero — CMOSE to DAiSEE is 0.02. These models don't transfer. And on those same cells, *accuracy still looks fine* — the majority-guessing trap again. If I had reported accuracy like most papers, I would have hidden a complete failure. The simplest fix that works best — train on the datasets pooled together — sets up the final result."
+> "The key negative finding — my third contribution. The base matrix on the left, the hybrid on the right. Read the diagonal — train and test on the same corpus — and QWK (Quadratic Weighted Kappa) is healthy, 0.54 on CMOSE. Move off the diagonal, to a corpus the model never trained on, and every chance-corrected metric collapses together: CMOSE to DAiSEE drops to 0.02, DAiSEE to CMOSE to 0.05 — chance level. These models don't transfer. And in those exact cells the *accuracy* panel still reads 0.49 and 0.69 — the majority-guessing trap. If I had reported accuracy like most papers, I would have hidden a complete failure. The hybrid on the right shows the *same* collapse — it's a property of the problem, not the model — but cell by cell it beats the baseline in all nine, and the simplest fix that works best, training on the datasets pooled together, sets up the final result."
 
 ---
 
 ## Slide 13 — ⭐ DWELL — Private-Set Generalization (0:55)
 
-**Visual:** Figure `private_confusion_combined.png` (best baseline vs best hybrid). Caption: "Private set - Hybrid QWK 0.379 vs baseline 0.285 (+0.094); hybrid wins all 9 cells."
+**Visual:** Figure `private_per_class_f1.png` (left) — per-class F1 on the private set, combined-trained best base vs best hybrid. Figure `private_confusion_combined.png` (right) — private-set confusion of the same two models, side by side (row-normalised). Caption: "Private set - Hybrid QWK 0.379 vs baseline 0.285 (+0.094, wider than in-domain); rare HD class collapses to 0."
 
 **Provenance:** 🟪 BASELINE vs HYBRID.
 
 **Script (the climax — slow down most):**
-> "Now all three contributions come together on the private set — the unseen, real-student test. Best baseline against best hybrid, on my own data. First, the hybrid wins all *nine* train-by-test cells — not one lucky case. Second, because the set is test-only, my only choice is the training data: training on the pooled datasets with the hybrid gives the best result in the whole thesis — QWK (Quadratic Weighted Kappa) 0.379 versus 0.285. That gap, plus 0.094, is *bigger* than in-domain. The architecture proves its worth exactly where it's hardest — on real, unseen students. That's the practical heart of the thesis."
+> "Now all three contributions come together on the private set — the unseen, real-student test, used for testing only. Best baseline against best hybrid, both trained on the pooled corpora, on my own data. The headline: the hybrid reaches QWK (Quadratic Weighted Kappa) 0.379 versus 0.285 — plus 0.094, a gap *wider* than the in-domain gain. The per-class F1 on the left shows where it comes from: the hybrid lifts Engage from 0.52 to 0.70, Highly-Engage from 0.49 to 0.56, and gives the middle Disengage class real mass, 0.09 to 0.28. The confusion matrices on the right confirm it — Engage recall climbs from 0.46 to 0.72, and the errors concentrate on the diagonal and its neighbours instead of scattering. But I'll be honest about the failure mode: the rarest class, Highly-Disengaged, collapses to zero — all the private HD clips are misread — because no encoder choice can recover a class the training data barely contains. Still, the architecture proves its worth exactly where it's hardest — on real, unseen students. That's the practical heart of the thesis."
 
 ---
 
@@ -258,7 +265,7 @@ Contributions (text):
 | I3D fusion effect | Table `T5_2_i3d_fusion_effect` | 🟩 HYBRID | "does fusion help under shift?" |
 | Top-k hybrid configs | Table `T5_3_hybrid_topk` | 🟩 HYBRID | best configuration details |
 | Private by source | Table `T5_4_private_by_source` | 🟩 HYBRID | per-training-source private results |
-| Per-class F1 | `per_class_f1.png` | 🟪 vs | rare-class behaviour |
+| Per-class F1 (private) | `private_per_class_f1.png` | 🟩 HYBRID | rare-class behaviour on the private set |
 | In-domain ≠ transfer | `indomain_vs_generalization_hybrid.png` | 🟩 HYBRID | "can you pick a model in-domain?" (ρ=−0.31) |
 | Dataset stats | Table `T3_1_dataset_stats` | ⬜ DATA | exact counts |
 

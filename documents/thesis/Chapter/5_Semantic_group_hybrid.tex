@@ -86,16 +86,10 @@ The selection metric and the secondary metrics move in the same direction, so th
 \input{Table/T5_3_hybrid_topk}
 
 \textbf{Where does the gain land?}
-The per-class F1 scores (Figure~\ref{fig:per_class_f1}) localise it.
+The per-class scores localise it.
 Relative to the best baseline, the hybrid improves recall on the ordinal extreme \textbf{Highly\nobreakdash-Engage} ($0.38\to0.51$) and on \textbf{Disengage} ($0.45\to0.55$), while keeping \emph{Engage} near 0.90.
 The rarest class \textbf{Highly\nobreakdash-Disengage}, however, stays unsolved and is slightly traded away (recall $0.40\to0.37$): the model reallocates capacity toward the more frequent extreme.
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=0.62\linewidth]{per_class_f1.png}
-\caption{Per-class F1: best base versus best hybrid (in-domain CMOSE).}
-\label{fig:per_class_f1}
-\end{figure}
+The per-class \emph{figure} is reserved for the decisive private set (Figure~\ref{fig:private_per_class_f1}, Section~\ref{sec:private-results}), where the same uneven signature recurs in sharper form.
 
 The in-domain improvement is therefore real but \textbf{uneven}: the hybrid clears the baseline on QWK and on the balanced secondary metrics by strengthening the well-populated upper-engagement region and the middle disengaged class, while the $\sim$2--3\%-frequency \emph{Highly\nobreakdash-Disengage} class remains the principal open challenge (RQ1).
 The next section shows the picture becomes more severe still out of domain --- and that the architecture's advantage over the baseline \emph{widens} there.
@@ -165,6 +159,20 @@ As in-domain, the rare disengaged classes are the failure mode --- hybrid \emph{
 \caption{Private-set confusion of the combined-trained best base model versus best hybrid
 (row-normalised).}
 \label{fig:private_confusion_combined}
+\end{figure}
+
+\textbf{Where the private-set gain lands.}
+The per-class F1 scores (Figure~\ref{fig:private_per_class_f1}) localise the $+0.094$ QWK gain, and the signature is the same as in-domain (Section~\ref{sec:error}) but sharper.
+The hybrid lifts F1 on the well-populated \emph{Engage} ($0.52\to0.70$) and \emph{Highly\nobreakdash-Engage} ($0.49\to0.56$) classes, and---where the base model is all but flat---gives the middle \emph{Disengage} class real mass ($0.09\to0.28$).
+The rarest \emph{Highly\nobreakdash-Disengage} class, by contrast, is traded all the way to zero ($0.07\to0.00$): out of domain the model concentrates its limited capacity on the engaged region even more sharply, and the rare disengaged extreme remains the open failure mode of the thesis (RQ4).
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.62\linewidth]{private_per_class_f1.png}
+\caption{Per-class F1 on the private set: combined-trained best base model versus best
+hybrid. The hybrid's out-of-domain gain concentrates on the engaged region and the middle
+\emph{Disengage} class, while \emph{Highly-Disengage} collapses to zero.}
+\label{fig:private_per_class_f1}
 \end{figure}
 
 \subsection{In-Domain versus Transfer}

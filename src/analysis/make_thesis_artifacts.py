@@ -14,7 +14,6 @@ from src.analysis import tables, thesis_latex
 from src.visualization import (
     figbase,
     figures_agreement,
-    figures_confusion,
     figures_crossdomain,
     figures_dataset,
     figures_hybrid,
@@ -31,7 +30,6 @@ _FIGURE_MODULES = [
     ("cross-domain", figures_crossdomain),
     ("agreement / metric reliability", figures_agreement),
     ("private set", figures_private),
-    ("confusion / error", figures_confusion),
 ]
 
 

@@ -298,3 +298,24 @@ def confusion_from_predictions(frame: pd.DataFrame, *, normalize: bool = True) -
     cm.index = CLASS_LABELS
     cm.columns = CLASS_LABELS
     return cm
+
+
+def per_class_f1_from_predictions(frame: pd.DataFrame) -> dict[str, float]:
+    """Per-class F1 (keyed by class label) computed straight from a predictions slice.
+
+    Mirrors :func:`confusion_from_predictions`. Unlike :func:`per_class_f1`, it needs no
+    stored ``classification_report`` dict, so it works for any test set --- in particular
+    the private set, which is test-only and has no training history. A class with no true
+    and no predicted instances gets F1 0.0.
+    """
+    cm = pd.crosstab(frame["true_id"], frame["predicted_id"]).reindex(
+        index=range(len(CLASS_LABELS)), columns=range(len(CLASS_LABELS)), fill_value=0
+    ).to_numpy().astype(float)
+    out: dict[str, float] = {}
+    for i, label in enumerate(CLASS_LABELS):
+        tp = cm[i, i]
+        fp = cm[:, i].sum() - tp
+        fn = cm[i, :].sum() - tp
+        denom = 2 * tp + fp + fn
+        out[label] = float(2 * tp / denom) if denom > 0 else 0.0
+    return out
