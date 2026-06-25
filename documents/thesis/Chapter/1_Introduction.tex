@@ -64,11 +64,11 @@ These parts move at different speeds --- the eyes flick fast and noisily, head t
 The usual practice of joining all 709 numbers and pushing them through one sequence encoder forces a single time model onto signals that do not share one.
 It also makes the model harder to read, because the role of each behavioural channel is no longer separate.
 
-\textbf{Second, cross-dataset generalisation is almost never measured.}
-The engagement literature reports in-domain numbers --- train and test on the same dataset --- almost only.
+\textbf{Second, studies mostly use accuracy for evaluation, and cross-dataset generalisation is limited.}
+Almost every engagement study reports plain \emph{accuracy} as its headline number, and almost always in-domain --- train and test on the same dataset.
 Yet the only deployment that matters is on data the model has never seen, recorded with different cameras, viewpoints, and lighting than the training dataset.
-Because engagement labels are subjective and the class balance differs sharply between datasets (CMOSE is \emph{Engage}-dominated while DAiSEE is split between \emph{Engage} and \emph{Highly\nobreakdash-Engage}), there is every reason to expect that models transfer poorly --- but without measurement this stays a guess.
-One more danger makes it worse: on imbalanced data a model that simply predicts the majority class can post a decent cross-dataset \emph{accuracy} while having learned nothing that transfers, so the very metric most papers report can hide the failure it should show.
+Because engagement labels are subjective and the class balance differs sharply between datasets (CMOSE is \emph{Engage}-dominated while DAiSEE is split between \emph{Engage} and \emph{Highly\nobreakdash-Engage}), there is every reason to expect that models transfer poorly --- but without cross-dataset measurement this stays a guess.
+One more danger makes it worse: on imbalanced data a model that simply predicts the majority class can post a decent accuracy while having learned nothing that transfers, so the very metric most papers report can hide the failure it should show.
 
 These two limits define the gap this thesis addresses.
 The mixed-feature problem calls for a representation that keeps the structure of the facial features instead of flattening it; the generalisation problem calls for an evaluation protocol that measures transfer honestly, with metrics that cannot be fooled by majority prediction.

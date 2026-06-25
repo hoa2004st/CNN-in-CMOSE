@@ -114,8 +114,8 @@ The five ⭐ DWELL slides (7, 8, 11–13) are your contributions — non-negotia
 **Visual:** Section tag "1. Introduction"; titles "Research Gaps" and "Contributions"; "(3/3)" marker.
 
 Research Gaps (text):
-- All facial features are always put into a model/pipeline as a block.
-- Studies mostly use accuracy metric, both for in-domain and cross-dataset evaluation.
+- Facial features are mixed but are encoded as one block.
+- Studies mostly use accuracy for evaluation and cross-dataset generalization is limited.
 
 Contributions (text):
 - New architecture that divide facial features then fuse.
@@ -123,7 +123,7 @@ Contributions (text):
 - Generalization study using QWK instead of accuracy.
 
 **Script:**
-> "Looking across the engagement-detection literature, two habits keep coming back. First, almost every prior study pours all the facial features into a single encoder — gaze, head pose, muscles, all mixed together — so the natural structure of the face is thrown away. Second, the studies that do test across datasets mostly report plain accuracy — which, as we just saw, can be fooled by the majority class and so says little about real generalization — and none of them looks at a Vietnamese academic setting. These two habits are the gaps my work targets — and my three contributions answer them: an architecture that keeps the structure of the features, a private test set I collected and labelled myself in a local online class, and an honest cross-dataset test measured by ordinal agreement rather than accuracy."
+> "Looking across the engagement-detection literature, two habits keep coming back. First, the facial features are mixed — gaze, head pose, muscles, all with different dynamics — yet almost every prior study encodes them as one block, so the natural structure of the face is thrown away. Second, studies mostly judge models by plain accuracy — which, as we just saw, can be fooled by the majority class and so says little about real generalization — while cross-dataset generalization itself is rarely measured, so we don't actually know whether these models transfer; none of them looks at a Vietnamese academic setting either. These two habits are the gaps my work targets — and my three contributions answer them: an architecture that keeps the structure of the features, a private test set I collected and labelled myself in a local online class, and an honest cross-dataset test measured by ordinal agreement rather than accuracy."
 
 ---
 

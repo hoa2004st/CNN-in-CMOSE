@@ -41,8 +41,8 @@ These models can capture appearance and motion cues that landmark-based descript
 
 \textbf{Gap.}
 Two gaps persist across both families and define the contribution of this thesis.
-First, the \emph{heterogeneous} facial descriptor is encoded \emph{monolithically} rather than per behavioural subsystem, even though its constituent signals --- gaze, eye and face geometry, head pose, action units --- have markedly different temporal characteristics.
-Second, \emph{cross-dataset generalisation is rarely measured}; in-domain numbers dominate the literature, and where accuracy is the headline metric, majority-class prediction can disguise a complete failure to transfer.
+First, the facial features are \emph{mixed} but are encoded as \emph{one block} rather than per behavioural subsystem, even though their constituent signals --- gaze, eye and face geometry, head pose, action units --- have markedly different temporal characteristics.
+Second, \emph{studies mostly use accuracy for evaluation and cross-dataset generalisation is limited}: in-domain accuracy dominates the literature, yet on imbalanced data majority-class prediction can disguise a complete failure to transfer, so the headline metric hides exactly the generalisation gap it should reveal.
 The semantic-group hybrid proposed in Chapter~3 targets the first gap, and the 3$\times$3 cross-dataset protocol of Chapter~5 targets the second.
 
 \FloatBarrier

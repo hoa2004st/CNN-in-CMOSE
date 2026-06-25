@@ -18,7 +18,7 @@
 \contentsline {section}{\numberline {2.3}Feature Extraction}{9}{section.2.3}%
 \contentsline {subsection}{\numberline {2.3.1}OpenFace 2.0 facial-behaviour descriptors}{9}{subsection.2.3.1}%
 \contentsline {subsection}{\numberline {2.3.2}I3D motion and appearance features}{9}{subsection.2.3.2}%
-\contentsline {section}{\numberline {2.4}Temporal Architectures}{9}{section.2.4}%
+\contentsline {section}{\numberline {2.4}Temporal Architectures}{10}{section.2.4}%
 \contentsline {subsection}{\numberline {2.4.1}Temporal Convolutional Networks (TCN)}{10}{subsection.2.4.1}%
 \contentsline {subsection}{\numberline {2.4.2}Long Short-Term Memory (LSTM)}{10}{subsection.2.4.2}%
 \contentsline {subsection}{\numberline {2.4.3}Transformers}{11}{subsection.2.4.3}%
