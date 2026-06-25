@@ -1,7 +1,7 @@
 # Thesis architecture diagrams (Mermaid source for manual drawing)
 
-Reference for the Chapter 3 architecture figures: the monolithic **baselines** and the proposed
-**semantic-group hybrid**. Every layer and its width is listed (dims taken from
+Reference for the Chapter 3 architecture figures: the single-encoder **baselines** and the proposed
+**feature-group hybrid**. Every layer and its width is listed (dims taken from
 `src/models/models.py`). These are not compiled into the thesis — paste a block into any Mermaid
 renderer (GitHub, VS Code "Markdown Preview Mermaid Support", or <https://mermaid.live>) to view,
 then draw by hand and export to:
@@ -15,40 +15,80 @@ the temporal architectures); the five group embeddings are **64-d** and the I3D 
 **128-d** (concatenation = 5x64 + 128 = 448). All dropouts are 0.3 except inside the temporal
 encoders (0.2). Boxes are rounded; `classDef default ... rx:7px,ry:7px` rounds every node.
 
+> **Rendering / export notes (read once):**
+> - **Bigger text in boxes:** every block has a `themeVariables.fontSize` config; raise it if text
+>   still looks small relative to the box.
+> - **Long pipelines that go tiny in the thesis:** most diagrams are a single left-to-right row
+>   (`flowchart LR`). The two longest baselines (`openface_tcn`, `openface_transformer`) are wrapped
+>   onto **two labelled stage rows**: outer `flowchart TB`, two `subgraph "<stage>" ... direction LR`
+>   rows kept stacked by an **invisible** `r1 ~~~ r2` link (renders nothing) — draw the D2→E arrow
+>   between the two stage boxes by hand in the editor. (A true node→node arrow across the wrap, e.g.
+>   `D2 --> E`, is impossible — any node with a cross-subgraph edge makes dagre/elk drop that row's
+>   `direction LR`, verified by rendering, which is why the connector is left to the manual drawing
+>   step.) **Export as SVG or PDF (vector), not PNG**, so wide pipelines stay crisp when LaTeX scales
+>   them down.
+> - **Residual / elementwise operators:** drawn with the math-standard glyphs `⊕` (add) and `⊗`
+>   (multiply) as borderless nodes (`:::op`, `font-size: 60px`), instead of a circle wrapping a `+`.
+
 ---
 
-## Diagram 1 — Baseline (monolithic) architectures
+## Diagram 1 — Baseline (single-encoder) architectures
 
 ### 1a. OpenFace baselines (one encoder over the full `T x 709` sequence)
 
 `openface_mlp`
 ```mermaid
+---
+config:
+  themeVariables:
+    fontSize: 20px
+  flowchart:
+    padding: 4
+    nodeSpacing: 30
+    rankSpacing: 40
+---
 flowchart LR
-    A["Input\nT x 709"] --> B["Flatten\nT*709"]
-    B --> C["Linear\n 256"]
-    C --> D["ReLU\nDropout 0.3"]
-    D --> E["Linear\n 128"]
-    E --> F["ReLU\nDropout 0.3"]
-    F --> G["Linear\n 4"]
+    A["Input\nT x 709"] --> B["Flatten\nT*709"] --> C["Linear\n 256"] --> D["ReLU\nDropout 0.3"]
+    D --> E["Linear\n 128"] --> F["ReLU\nDropout 0.3"] --> G["Linear\n 4"]
     classDef default fill:#ffffff,stroke:#333,stroke-width:2px,rx:7px,ry:7px
 ```
 
 `openface_tcn` (temporal_cnn)
 ```mermaid
-flowchart LR
-    A["Input\nT x 709"] --> B["TemporalBlock 1\n256 ch, dilation 1"]
-    B --> C["TemporalBlock 2\n128 ch, dilation 2"]
-    C --> D["TemporalBlock 3\n128 ch, dilation 4"]
-    D --> E["AdaptiveAvgPool\n 128"]
-    E --> F["Dropout 0.3"]
-    F --> G["Linear \n 128"]
-    G --> H["ReLU\nDropout 0.3"]
-    H --> I["Linear\n 4"]
-
+---
+config:
+  themeVariables:
+    fontSize: 20px
+  flowchart:
+    padding: 4
+    nodeSpacing: 30
+    rankSpacing: 40
+---
+flowchart TB
+    subgraph r1[" "]
+      direction LR
+      A["Input\nT x 709"] --> B["TemporalBlock 1\n256 ch, dilation 1"] --> C["TemporalBlock 2\n128 ch, dilation 2"] --> D["TemporalBlock 3\n128 ch, dilation 4"]
+    end
+    subgraph r2[" "]
+      direction LR
+      E["AdaptiveAvgPool\n 128"] --> F["Dropout 0.3"] --> G["Linear \n 128"] --> H["ReLU\nDropout 0.3"] --> I["Linear\n 4"]
+    end
+    r1 ~~~ r2
+    style r1 fill:none,stroke:none
+    style r2 fill:none,stroke:none
     classDef default fill:#ffffff,stroke:#333,stroke-width:2px,rx:7px,ry:7px
 ```
 `openface_tcn(subgraph)`
 ```mermaid
+---
+config:
+  themeVariables:
+    fontSize: 20px
+  flowchart:
+    padding: 4
+    nodeSpacing: 30
+    rankSpacing: 40
+---
 flowchart LR
     subgraph BLK["TemporalBlock (kernel 3)"]
       direction LR
@@ -56,28 +96,42 @@ flowchart LR
       t1 --> t2["ReLU\nDropout 0.2"]
       t2 --> t3["Conv1d\nweight-norm"]
       t3 --> t4["ReLU\nDropout 0.2"]
-      t4 --> t5(("+"))
+      t4 --> t5["⊕"]:::op
       t0 -- residual --> t5
       t5 --> t6["Output"]
     end
     classDef default fill:#ffffff,stroke:#333,stroke-width:2px,rx:7px,ry:7px
+    classDef op fill:none,stroke:none,font-size:60px
 ```
 
 `openface_lstm`
 ```mermaid
+---
+config:
+  themeVariables:
+    fontSize: 20px
+  flowchart:
+    padding: 4
+    nodeSpacing: 30
+    rankSpacing: 40
+---
 flowchart LR
-    A["Input\nT x 709"] --> L1["LSTM layer 1\nhidden 256"]
-    L1 --> LD["Dropout 0.3"]
-    LD --> L2["LSTM layer 2\nhidden 256"]
-    L2 --> D["Dropout 0.3"]
-    D --> E["Linear\n 128"]
-    E --> F["ReLU\nDropout 0.3"]
-    F --> G["Linear\n 4"]
+    A["Input\nT x 709"] --> L1["LSTM layer 1\nhidden 256"] --> LD["Dropout 0.3"] --> L2["LSTM layer 2\nhidden 256"]
+    L2 --> D["Dropout 0.3"] --> E["Linear\n 128"] --> F["ReLU\nDropout 0.3"] --> G["Linear\n 4"]
     classDef default fill:#ffffff,stroke:#333,stroke-width:2px,rx:7px,ry:7px
 ```
 
 `openface_lstm(subgraph)` — one LSTM cell, unrolled per timestep `t`
 ```mermaid
+---
+config:
+  themeVariables:
+    fontSize: 20px
+  flowchart:
+    padding: 4
+    nodeSpacing: 30
+    rankSpacing: 40
+---
 flowchart LR
     subgraph CELL["LSTM cell (timestep t)"]
       direction LR
@@ -90,79 +144,106 @@ flowchart LR
       hp --> G
       hp --> O
 
-      cp["C_(t-1)"] --> M1(("×"))
+      cp["C_(t-1)"] --> M1["⊗"]:::op
       F --> M1
-      I --> M2(("×"))
+      I --> M2["⊗"]:::op
       G --> M2
-      M1 --> S(("+"))
+      M1 --> S["⊕"]:::op
       M2 --> S
       S --> Ct["C_t"]
       Ct --> TH["tanh"]
-      TH --> M3(("×"))
+      TH --> M3["⊗"]:::op
       O --> M3
       M3 --> Ht["h_t"]
     end
     classDef default fill:#ffffff,stroke:#333,stroke-width:2px,rx:7px,ry:7px
+    classDef op fill:none,stroke:none,font-size:60px
 ```
 
 `openface_transformer`
 ```mermaid
 ---
 config:
-  layout: elk
+  themeVariables:
+    fontSize: 20px
+  flowchart:
+    padding: 4
+    nodeSpacing: 30
+    rankSpacing: 40
 ---
-flowchart LR
-    A["Input\nT x 709"] --> B["Input projection\nLinear 128"]
-    PE["Positional encoding\nsinusoidal 128"] --> ADD(("+"))
-    B --> ADD
-    ADD --> D1["EncoderLayer 1\nd 128, heads 4, FF 256"]
-    D1 --> D2["EncoderLayer 2\nd 128, heads 4, FF 256"]
-    D2 --> E["Mean-pool over T\n 128"]
-    E --> G["LayerNorm 128 \n Dropout 0.3"]
-    G --> H["Linear\n 128"]
-    H --> I["ReLU\nDropout 0.3"]
-    I --> J["Linear\n 4"]
+flowchart TB
+    subgraph r1[" "]
+      direction LR
+      A["Input\nT x 709"] --> B["Input projection\nLinear 128"]
+      PE["Positional encoding\nsinusoidal 128"] --> ADD["⊕"]:::op
+      B --> ADD
+      ADD --> D1["EncoderLayer 1\nd 128, heads 4, FF 256"] --> D2["EncoderLayer 2\nd 128, heads 4, FF 256"]
+    end
+    subgraph r2[" "]
+      direction LR
+      E["Mean-pool over T\n 128"] --> G["LayerNorm 128 \n Dropout 0.3"] --> H["Linear\n 128"] --> I["ReLU\nDropout 0.3"] --> J["Linear\n 4"]
+    end
+    r1 ~~~ r2
+    style r1 fill:none,stroke:none
+    style r2 fill:none,stroke:none
     classDef default fill:#ffffff,stroke:#333,stroke-width:2px,rx:7px,ry:7px
+    classDef op fill:none,stroke:none,font-size:60px
 ```
 
 `openface_transformer(subgraph)` — one encoder layer (post-norm)
 ```mermaid
-flowchart LR
-    subgraph ENC["TransformerEncoderLayer (d, FF, heads 4, GELU)"]
+---
+config:
+  themeVariables:
+    fontSize: 20px
+  flowchart:
+    padding: 4
+    nodeSpacing: 30
+    rankSpacing: 40
+---
+flowchart TB
+    subgraph r1[" "]
       direction LR
-      in["Input\nT x d"] --> MHA["Multi-Head\nself-attention"]
-      MHA --> Dr1["Dropout 0.2"]
-      Dr1 --> Ad1(("+"))
-      in -- residual --> Ad1
+      in["Input\nT x d"] --> MHA["Multi-Head\nself-attention"] --> Dr1["Dropout 0.2"] --> Ad1["⊕"]:::op
       Ad1 --> LN1["LayerNorm"]
-      LN1 --> FF1["Linear\nd -> FF, GELU"]
-      FF1 --> Dr2["Dropout 0.2"]
-      Dr2 --> FF2["Linear\nFF -> d"]
-      FF2 --> Dr3["Dropout 0.2"]
-      Dr3 --> Ad2(("+"))
-      LN1 -- residual --> Ad2
-      Ad2 --> LN2["LayerNorm"]
-      LN2 --> out["Output\nT x d"]
+      in -- residual --> Ad1
     end
+    subgraph r2[" "]
+      direction LR
+      FF1["Linear\nd -> FF, GELU"] --> Dr2["Dropout 0.2"] --> FF2["Linear\nFF -> d"] --> Dr3["Dropout 0.2"] --> Ad2["⊕"]:::op
+      Ad2 --> LN2["LayerNorm"] --> out["Output\nT x d"]
+    end
+    r1 ~~~ r2
+    style r1 fill:none,stroke:none
+    style r2 fill:none,stroke:none
     classDef default fill:#ffffff,stroke:#333,stroke-width:2px,rx:7px,ry:7px
+    classDef op fill:none,stroke:none,font-size:60px
+
+%% Draw these two seam arrows by hand in the editor (cross-row, can't be auto-rendered without
+%% collapsing the LR rows): LN1 --> FF1  (main flow)   and   LN1 -- residual --> Ad2  (skip connection)
 ```
 
 ### 1b. I3D baseline (`i3d_mlp`) — MLP on the 1024-d clip vector
 
 ```mermaid
+---
+config:
+  themeVariables:
+    fontSize: 20px
+  flowchart:
+    padding: 4
+    nodeSpacing: 30
+    rankSpacing: 40
+---
 flowchart LR
-    A["Input\nI3D clip 1024-d\n(tiled to T x 1024)"] --> B["Mean-pool\n-> 1024"]
-    B --> C["Linear\n1024 -> 256"]
-    C --> D["ReLU\nDropout 0.3"]
-    D --> E["Linear\n256 -> 128"]
-    E --> F["ReLU\nDropout 0.3"]
-    F --> G["Linear\n128 -> 4"]
+    A["Input\nI3D clip 1024-d"] --> C["Linear\n1024 -> 256"] --> D["ReLU\nDropout 0.3"]
+    D --> E["Linear\n256 -> 128"] --> F["ReLU\nDropout 0.3"] --> G["Linear\n128 -> 4"]
     classDef default fill:#ffffff,stroke:#333,stroke-width:2px,rx:7px,ry:7px
 ```
 
 ---
 
-## Diagram 2 — Semantic-group hybrid architecture
+## Diagram 2 — Feature-group hybrid architecture
 
 Each OpenFace group and the I3D stream is encoded independently into a 64-d embedding; the six
 embeddings are concatenated and classified by a shared MLP; each stream also feeds an auxiliary
@@ -175,14 +256,12 @@ fusion MLP is `320 -> 128 -> 4`.
 ---
 config:
   layout: elk
----
----
-config:
-  layout: elk
----
----
-config:
-  layout: elk
+  themeVariables:
+    fontSize: 20px
+  flowchart:
+    padding: 4
+    nodeSpacing: 30
+    rankSpacing: 40
 ---
 flowchart LR
     GZ["gaze\nT x 8"] --> GZe["Group encoder\n 64\n"]
@@ -221,6 +300,12 @@ Option A: TCN
 ---
 config:
   theme: neutral
+  themeVariables:
+    fontSize: 20px
+  flowchart:
+    padding: 4
+    nodeSpacing: 30
+    rankSpacing: 40
 ---
 flowchart LR
     subgraph ENC["Group Encoder Option TCN"]
@@ -239,30 +324,51 @@ Option B: Transformer (encoder-layer internals in `openface_transformer(subgraph
 config:
   theme: neutral
   layout: elk
+  themeVariables:
+    fontSize: 20px
+  flowchart:
+    padding: 4
+    nodeSpacing: 30
+    rankSpacing: 40
 ---
 flowchart LR
     subgraph ENC["Group Encoder Option Transformer"]
         direction LR
         b1["Input\nT x D_group"] --> b2["Input projection\nLinear D_group 64"]
-        bpe["Positional encoding\nsinusoidal, 64-d"] --> badd(("+"))
+        bpe["Positional encoding\nsinusoidal, 64-d"] --> badd["⊕"]:::op
         b2 --> badd
         badd --> b4a["EncoderLayer 1\nd 64, heads 4, FF 128"]
         b4a --> b4b["EncoderLayer 2\nd 64, heads 4, FF 128"]
         b4b --> b5["Mean-pool over T\n 64"]
         b5 --> b6["LayerNorm\n64"]
-        classDef default fill:#ffffff,stroke:#333,stroke-width:2px,rx:7px,ry:7px    
+        classDef default fill:#ffffff,stroke:#333,stroke-width:2px,rx:7px,ry:7px
+        classDef op fill:none,stroke:none,font-size:60px
         end
 ```
 
 Option C: LSTM (cell internals in `openface_lstm(subgraph)`, with hidden `64`)
 ```mermaid
+---
+config:
+  themeVariables:
+    fontSize: 20px
+  flowchart:
+    padding: 4
+    nodeSpacing: 30
+    rankSpacing: 40
+---
 flowchart LR
-    c1["Input\nT x D_group"] --> cl1["LSTM layer 1\nhidden 64\n(see cell subgraph)"]
-    cl1 --> cld["Dropout 0.2"]
-    cld --> cl2["LSTM layer 2\nhidden 64"]
-    cl2 --> c3["Mean-pool over T\n-> 64"]
-    c3 --> c4["LayerNorm\n64"]
-    classDef default fill:#ffffff,stroke:#333,stroke-width:2px,rx:7px,ry:7px
+    subgraph ENC["Group Encoder Option LSTM"]
+        direction LR
+        c1["Input\nT x D_group"] --> cl1["LSTM layer 1\nhidden 64"]
+        cl1 --> cld["Dropout 0.2"]
+        cld --> cl2["LSTM layer 2\nhidden 64"]
+        cl2 --> c3["Mean-pool over T\n-> 64"]
+        c3 --> c4["LayerNorm\n64"]
+        classDef default fill:#ffffff,stroke:#333,stroke-width:2px,rx:7px,ry:7px
+        classDef op fill:none,stroke:none,font-size:60px
+        end
+
 ```
 
 > TemporalBlock internals (shared by 1a/2b TCNs): `Conv1d (weight-norm) -> ReLU -> Dropout 0.2`

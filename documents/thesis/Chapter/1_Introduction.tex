@@ -29,29 +29,32 @@ Although it looks like ordinary video classification, engagement recognition is 
   \item \textbf{The labels are badly imbalanced.}
   Real classes are mostly attentive, so engagement datasets are dominated by the middle and upper levels.
   In the CMOSE dataset about 69\% of clips are labelled \emph{Engage} and fewer than 3\% are \emph{Highly\nobreakdash-Disengage} (Section~\ref{sec:data}, Table~\ref{tab:T3_1_dataset_stats}).
-  So a model can reach high accuracy by always guessing the majority class and never predicting disengagement at all --- exactly the rare but important case that a useful monitoring system exists to catch.
+  So a model can reach high accuracy by always guessing the majority class and never predicting disengagement at all, which is the rare but important case that a useful monitoring system needs to catch.
 
   \item \textbf{The camera angle is never fixed.}
   Engagement is read from facial behaviour, but the camera geometry behind that behaviour changes from learner to learner: a laptop camera looks up from the desk, a built-in monitor camera sits near eye level, a phone is propped off to the side, so the same expression reaches the model at a different viewpoint, framing, and head pose every time.
   This matters because the OpenFace gaze, head-pose, and landmark features are all measured in the image geometry, so a change of camera angle moves the features even when the underlying engagement is identical.
-  Each dataset bakes in its own narrow range of recording setups, so a model trained on one dataset meets unfamiliar viewpoints the moment it is deployed.
+  Each dataset is recorded with its own narrow range of setups, so a model trained on one dataset meets unfamiliar viewpoints the moment it is deployed.
   How well models survive this change of angle is rarely measured, even though deployment always means cameras and framings the model has never seen.
 \end{enumerate}
 
-These three properties together are what make the problem both practically important and technically interesting.
+Together, these three properties make the problem both practically important and technically interesting.
 A system that is accurate on paper but blind to disengagement, or that works on the dataset it was trained on but falls apart on real video, is of no use in a classroom.
 So the main concern of this thesis is not headline accuracy but \emph{ordinal agreement on imbalanced data, and how well it holds under distribution shift}.
 
 These properties are not abstract: they follow directly from how an engagement signal would actually be used.
-The real unit of decision is rarely a single clip but a summary --- an engagement curve over one session for one student, or a class-level spread the teacher watches in real time --- and the value of such a signal lies almost fully in the tails: confirming that an already-attentive class is attentive tells you little, while flagging the few moments when a student slips into disengagement is the whole point, exactly the rare, extreme case that imbalance hides and accuracy fails to reward.
-A deployment also never sees the data it was tuned on --- cameras, lighting, who is in the class, and the labelling rubric all change --- so an in-domain number means nothing unless it is shown to survive that change, which is why this thesis treats a self-collected, never-trained-on test set and a clear cross-dataset protocol as the setting in which any claim of usefulness must finally be judged.
+The real unit of decision is rarely a single clip but a summary, such as an engagement curve over one session for one student, or a class-level spread the teacher watches in real time.
+The value of such a signal lies almost entirely in the rare cases: confirming that an already-attentive class is attentive tells the teacher little, while flagging the few moments when a student slips into disengagement is the main goal, the rare and extreme case that imbalance hides and accuracy does not reward.
+A deployment also never sees the data it was tuned on: cameras, lighting, who is in the class, and the labelling rubric all change.
+So an in-domain number means little unless it is shown to survive that change.
+This is why the thesis treats a self-collected, never-trained-on test set and a clear cross-dataset protocol as the setting in which any claim of usefulness must finally be judged.
 
 \FloatBarrier
 \section{Background and Problems of Research}
 \label{sec:background}
 
 Research on vision-based engagement recognition has, broadly, taken two routes.
-The first encodes each video frame with a facial-behaviour toolkit --- most often OpenFace~\cite{openface2}, which estimates gaze direction, head pose, facial landmarks, and action-unit intensities --- and feeds the resulting feature sequence to a classical classifier or a recurrent network, for example an OpenFace$+$BiLSTM pipeline~\cite{openface_bilstm} or classical models such as logistic regression, support vector machines, and gradient boosting on summary features~\cite{classical_ml_engagement}.
+The first encodes each video frame with a facial-behaviour toolkit (most often OpenFace~\cite{openface2}, which estimates gaze direction, head pose, facial landmarks, and action-unit intensities) and feeds the resulting feature sequence to a classical classifier or a recurrent network, for example an OpenFace$+$BiLSTM pipeline~\cite{openface_bilstm} or classical models such as logistic regression, support vector machines, and gradient boosting on summary features~\cite{classical_ml_engagement}.
 The second route learns straight from pixels with end-to-end deep video models, for instance an EfficientNetV2 backbone followed by an LSTM~\cite{efficientnet_lstm_engagement}, or borrows context- and relationship-modelling ideas from affect recognition~\cite{context_aware_emotion_3d}.
 The two large datasets used in this thesis sit at the centre of this work: CMOSE~\cite{cmose} is a recent, large, expert-labelled multimodal dataset and the only one of our sources that comes with ready OpenFace and I3D features, and DAiSEE~\cite{daisee} is a widely used public dataset recorded ``in the wild'' that gives only raw video, from which we make the same features ourselves.
 A systematic review of computer-vision engagement detection~\cite{review_engagement_cv} lists these pipelines and confirms that class imbalance and label subjectivity are common, unsolved problems across the field.
@@ -60,15 +63,15 @@ Two specific limits of the existing work motivate this thesis.
 
 \textbf{First, facial-behaviour features are mixed but are encoded as one block.}
 A single OpenFace frame in CMOSE is a 709-dimensional vector that bundles together signals of very different physical kinds: a few gaze direction values, hundreds of eye- and face-landmark coordinates, head-pose shifts and rotations, and action-unit strengths.
-These parts move at different speeds --- the eyes flick fast and noisily, head turns are slow and smooth, action units fire in short bursts.
+These parts move at different speeds: the eyes flick fast and noisily, head turns are slow and smooth, and action units fire in short bursts.
 The usual practice of joining all 709 numbers and pushing them through one sequence encoder forces a single time model onto signals that do not share one.
 It also makes the model harder to read, because the role of each behavioural channel is no longer separate.
 
 \textbf{Second, studies mostly use accuracy for evaluation, and cross-dataset generalisation is limited.}
-Almost every engagement study reports plain \emph{accuracy} as its headline number, and almost always in-domain --- train and test on the same dataset.
+Almost every engagement study reports plain \emph{accuracy} as its headline number, and almost always in-domain, meaning train and test on the same dataset.
 Yet the only deployment that matters is on data the model has never seen, recorded with different cameras, viewpoints, and lighting than the training dataset.
-Because engagement labels are subjective and the class balance differs sharply between datasets (CMOSE is \emph{Engage}-dominated while DAiSEE is split between \emph{Engage} and \emph{Highly\nobreakdash-Engage}), there is every reason to expect that models transfer poorly --- but without cross-dataset measurement this stays a guess.
-One more danger makes it worse: on imbalanced data a model that simply predicts the majority class can post a decent accuracy while having learned nothing that transfers, so the very metric most papers report can hide the failure it should show.
+Because engagement labels are subjective and the class balance differs sharply between datasets (CMOSE is \emph{Engage}-dominated while DAiSEE is split between \emph{Engage} and \emph{Highly\nobreakdash-Engage}), there is every reason to expect that models transfer poorly, but without cross-dataset measurement this stays a guess.
+One more danger makes it worse: on imbalanced data a model that simply predicts the majority class can reach a decent accuracy while having learned nothing that transfers, so the metric most papers report can hide the failure it is meant to reveal.
 
 These two limits define the gap this thesis addresses.
 The mixed-feature problem calls for a representation that keeps the structure of the facial features instead of flattening it; the generalisation problem calls for an evaluation protocol that measures transfer honestly, with metrics that cannot be fooled by majority prediction.
@@ -82,7 +85,7 @@ We do this through one architecture idea and one set of evaluation rules, writte
 
 \begin{itemize}
   \item \textbf{RQ1 --- Decomposition.}
-  Does splitting the OpenFace features into semantic groups, each with its own temporal encoder, improve engagement classification over monolithic baselines that encode all 709 features together?
+  Does splitting the OpenFace features into feature groups, each with its own temporal encoder, improve engagement classification over single-encoder baselines that encode all 709 features together?
   \item \textbf{RQ2 --- Encoder assignment.}
   If splitting helps, which group$\rightarrow$encoder choices actually matter?
   Is there a behavioural channel whose timing really prefers one encoder family (convolutional, recurrent, or attention-based) over another?
@@ -94,11 +97,11 @@ We do this through one architecture idea and one set of evaluation rules, writte
 
 \textbf{Conceptual framework.}
 The shared idea behind RQ1--RQ3, shown by the hybrid architecture in Chapter~3 (Figure~\ref{fig:hybrid}), is to treat a clip as a \emph{multi-stream temporal signal} instead of a single sequence.
-The OpenFace features are split into five meaningful groups --- gaze, eye landmarks, face landmarks, head pose, and action units --- and each group is encoded \emph{on its own} into a fixed-length embedding by an encoder chosen to suit its timing.
+The OpenFace features are split into five meaningful groups (gaze, eye landmarks, face landmarks, head pose, and action units), and each group is encoded \emph{on its own} into a fixed-length embedding by an encoder chosen to suit its timing.
 A global I3D clip embedding can be added as a sixth stream.
 The embeddings are joined and classified, and every stream also gets its own small head so that each behavioural channel has to be useful on its own.
-We call this ``divide the face, then fuse'' design the \emph{semantic-group hybrid}, and it is the main object tested in this thesis against standard monolithic baselines, across datasets, and across loss functions.
-The rule behind RQ4 is to \textbf{select and rank every model on a single metric --- ordinal agreement (quadratic-weighted kappa, QWK)} --- reporting balanced accuracy and balanced ordinal error (macro-MAE) only as secondary checks and never using plain accuracy to choose a model, and to test every model not only in-domain but on two unseen datasets, one of which we collected ourselves.
+We call this ``divide the face, then fuse'' design the \emph{feature-group hybrid}, and it is the main object tested in this thesis against standard single-encoder baselines, across datasets, and across loss functions.
+The rule behind RQ4 is to \textbf{select and rank every model on a single metric, ordinal agreement (quadratic-weighted kappa, QWK)}, reporting balanced accuracy and balanced ordinal error (macro-MAE) only as secondary checks and never using plain accuracy to choose a model, and to test every model not only in-domain but on two unseen datasets, one of which we collected ourselves.
 
 \FloatBarrier
 \section{Contributions}
@@ -107,9 +110,9 @@ The rule behind RQ4 is to \textbf{select and rank every model on a single metric
 This thesis makes three contributions.
 
 \begin{enumerate}
-  \item \textbf{Architecture --- a semantic-group hybrid that divides the face, then fuses.}
+  \item \textbf{Architecture --- a feature-group hybrid that divides the face, then fuses.}
   We propose a temporal architecture for engagement classification that splits the 709-dimensional OpenFace features into five behavioural groups, encodes each group with its own chosen Temporal Convolutional Network (TCN), Transformer, or LSTM, optionally adds a global I3D motion stream, and trains every stream with a small head (Section~\ref{sec:hybrid}).
-  A full 243-configuration ablation of the per-group encoder choice, with and without the I3D stream, shows that the I3D hybrid family sits above the strongest monolithic baseline (median quadratic-weighted kappa, QWK, of 0.553 against 0.537, best 0.605), that the gain belongs to the family rather than to one lucky configuration, and that head pose is the only behavioural group with a clear encoder preference, preferring a TCN --- a preference that also holds under distribution shift (Section~\ref{sec:ablation}).
+  A full 243-configuration ablation of the per-group encoder choice, with and without the I3D stream, shows that the I3D hybrid family sits above the strongest single-encoder baseline (median quadratic-weighted kappa, QWK, of 0.553 against 0.537, best 0.605), that the gain belongs to the family rather than to one lucky configuration, and that head pose is the only behavioural group with a clear encoder preference, preferring a TCN, a preference that also holds under distribution shift (Section~\ref{sec:ablation}).
 
   \item \textbf{Dataset --- a new, self-collected private test set.}
   We collect 366 webcam clips, cut to a fixed length, filtered for tracking quality, labelled by hand by the author through a purpose-built interface, and made with the same OpenFace/I3D pipeline as the public datasets.
@@ -117,7 +120,7 @@ This thesis makes three contributions.
 
   \item \textbf{Generalization --- an honest cross-dataset study measured by QWK, not accuracy.}
   We run a 3$\times$3 cross-dataset study (training on CMOSE, DAiSEE, or both together; testing on each public test set plus the private set) showing that engagement models do not transfer out of the box, that accuracy hides this collapse while QWK shows it, and that training on the datasets pooled together is the simplest fix that works best.
-  On the private set the architecture and the pooled-training idea \emph{compound}: the hybrid trained on both datasets is the best model (QWK 0.379 against 0.285 for the best baseline --- a bigger gap than in-domain), which shows the practical value of all three contributions together (Sections~\ref{sec:crossdomain} and~\ref{sec:private}).
+  On the private set the architecture and the pooled-training idea \emph{compound}: the hybrid trained on both datasets is the best model (QWK 0.379 against 0.285 for the best baseline, a bigger gap than in-domain), which shows the practical value of all three contributions together (Sections~\ref{sec:crossdomain} and~\ref{sec:private}).
 \end{enumerate}
 
 These contributions are backed by a reproducible analysis pipeline that turns about 1{,}500 trained runs into the figures and tables of this thesis, from feature extraction through training, cross-dataset evaluation, and figure/table generation.
@@ -132,12 +135,12 @@ Chapter~2 reviews the work on vision-based engagement recognition and introduces
 It sets the scope of the study, looks at the related feature-based and end-to-end approaches with their strengths and weaknesses, and then presents the technical basics: the OpenFace and I3D feature extractors, the three temporal architecture families (TCN, LSTM, Transformer), the loss functions used for imbalanced ordinal labels, and the ordinal evaluation metrics.
 
 Chapter~3 presents the methodology.
-It gives an overview of the full pipeline as a single diagram, describes the three training datasets and their class imbalance, the private test set, and the preprocessing that makes them comparable, sets out the monolithic baselines, and then gives the semantic-group decomposition and the proposed hybrid architecture built on top of it.
+It gives an overview of the full pipeline as a single diagram, describes the three training datasets and their class imbalance, the private test set, and the preprocessing that makes them comparable, sets out the single-encoder baselines, and then gives the feature-group decomposition and the proposed hybrid architecture built on top of it.
 It also fixes the loss functions and their exact forms, the training protocol, and the 3$\times$3 cross-dataset evaluation protocol with its metrics.
 
-Chapter~4 studies the \emph{monolithic baselines} and fixes the experimental frame, in a protocol-first order: an evaluation-protocol section first fixes the main metrics (QWK, macro-accuracy, macro-MAE), the development dataset (CMOSE), and the development loss (cross-entropy), each justified from up-front reasoning and in-domain evidence; the chapter then reads the in-domain leaderboard, studies prediction agreement to show the OpenFace and I3D families make different errors, and finally takes the baselines out of domain in the 3$\times$3 matrix, closing the loop on the protocol.
+Chapter~4 studies the \emph{single-encoder baselines} and fixes the experimental frame, in a protocol-first order: an evaluation-protocol section first fixes the main metrics (QWK, macro-accuracy, macro-MAE), the development dataset (CMOSE), and the development loss (cross-entropy), each justified from up-front reasoning and in-domain evidence; the chapter then reads the in-domain leaderboard, studies prediction agreement to show the OpenFace and I3D families make different errors, and finally takes the baselines out of domain in the 3$\times$3 matrix, closing the loop on the protocol.
 
-Chapter~5 introduces the \emph{semantic-group hybrid} and tests it against that frame: it checks that the 486-configuration hybrid family repeats the protocol evidence of Chapter~4, answers the design questions (which encoder suits which group, and whether adding the I3D stream helps --- an answer that depends on the test setting), and then takes the hybrid out of domain, where it wins every cell of the 3$\times$3 matrix and compounds with dataset pooling to the best result on the self-collected private set (RQ4).
+Chapter~5 introduces the \emph{feature-group hybrid} and tests it against that frame: it checks that the 486-configuration hybrid family repeats the protocol evidence of Chapter~4, answers the design questions (which encoder suits which group, and whether adding the I3D stream helps, an answer that depends on the test setting), and then takes the hybrid out of domain, where it wins every cell of the 3$\times$3 matrix and compounds with dataset pooling to the best result on the self-collected private set (RQ4).
 
 Chapter~6 sums up the findings, restates the contributions in the light of the evidence, discusses the limits of the study, and proposes concrete directions for future work, including going after the rarest disengaged class, explicit domain adaptation, and group encoders that are learned rather than tried one by one.
 

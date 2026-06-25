@@ -17,6 +17,7 @@
 \usepackage{amssymb}
 \usepackage{amsbsy}
 \usepackage{times} % Times New Roman
+\usepackage[protrusion=true,expansion=true]{microtype} % fixes most overfull lines + spacing
 \usepackage{array}
 \usepackage{enumitem}
 \usepackage{subfiles} % Split chapters into separate files
@@ -138,6 +139,15 @@
 \setlength{\parskip}{6pt}
 \setlength{\parindent}{15pt}
 
+% --- Typography / line-breaking fixes ---
+\setlength{\emergencystretch}{4em} % last resort: stretch lines instead of overflowing the margin
+\widowpenalty=10000   % forbid a paragraph's last line alone at the top of a page
+\clubpenalty=10000    % forbid a paragraph's first line alone at the bottom of a page
+% Turn off end-of-line hyphenation: spread the words with extra space instead of breaking them
+\hyphenpenalty=10000  % never hyphenate a normal word at line end
+\exhyphenpenalty=10000 % never break at an existing hyphen either
+\tolerance=3000       % allow wider interword spacing before complaining (lets words spread)
+
 % =========================== BODY ===============
 \begin{document}
 \subfile{Cover}  % cover page
@@ -238,7 +248,7 @@
 \subfile{Chapter/4_Baseline_models}
 
 \newpage
-\chapter{SEMANTIC-GROUP HYBRID}
+\chapter{FEATURE-GROUP HYBRID}
 \subfile{Chapter/5_Semantic_group_hybrid}
 
 \newpage

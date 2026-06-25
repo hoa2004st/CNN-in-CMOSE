@@ -8,71 +8,71 @@
 \thispagestyle {empty}
 \contentsline {chapter}{\numberline {1}INTRODUCTION}{1}{chapter.1}%
 \contentsline {section}{\numberline {1.1}Problem Statement}{1}{section.1.1}%
-\contentsline {section}{\numberline {1.2}Background and Problems of Research}{2}{section.1.2}%
+\contentsline {section}{\numberline {1.2}Background and Problems of Research}{3}{section.1.2}%
 \contentsline {section}{\numberline {1.3}Research Objectives and Conceptual Framework}{4}{section.1.3}%
 \contentsline {section}{\numberline {1.4}Contributions}{5}{section.1.4}%
 \contentsline {section}{\numberline {1.5}Organization of Thesis}{6}{section.1.5}%
-\contentsline {chapter}{\numberline {2}LITERATURE REVIEW}{7}{chapter.2}%
-\contentsline {section}{\numberline {2.1}Scope of Research}{7}{section.2.1}%
-\contentsline {section}{\numberline {2.2}Related Work}{7}{section.2.2}%
-\contentsline {section}{\numberline {2.3}Feature Extraction}{9}{section.2.3}%
-\contentsline {subsection}{\numberline {2.3.1}OpenFace 2.0 facial-behaviour descriptors}{9}{subsection.2.3.1}%
-\contentsline {subsection}{\numberline {2.3.2}I3D motion and appearance features}{9}{subsection.2.3.2}%
-\contentsline {section}{\numberline {2.4}Temporal Architectures}{10}{section.2.4}%
-\contentsline {subsection}{\numberline {2.4.1}Temporal Convolutional Networks (TCN)}{10}{subsection.2.4.1}%
-\contentsline {subsection}{\numberline {2.4.2}Long Short-Term Memory (LSTM)}{10}{subsection.2.4.2}%
-\contentsline {subsection}{\numberline {2.4.3}Transformers}{11}{subsection.2.4.3}%
-\contentsline {section}{\numberline {2.5}Loss Functions for Imbalance and Ordinality}{12}{section.2.5}%
-\contentsline {section}{\numberline {2.6}Evaluation Metrics}{13}{section.2.6}%
-\contentsline {section}{\numberline {2.7}Statistical Measures for Result Analysis}{15}{section.2.7}%
-\contentsline {section}{\numberline {2.8}Chapter Summary}{16}{section.2.8}%
-\contentsline {chapter}{\numberline {3}METHODOLOGY}{17}{chapter.3}%
-\contentsline {section}{\numberline {3.1}Overview}{17}{section.3.1}%
-\contentsline {section}{\numberline {3.2}Data and Preprocessing}{17}{section.3.2}%
-\contentsline {subsection}{\numberline {3.2.1}Datasets}{17}{subsection.3.2.1}%
-\contentsline {subsection}{\numberline {3.2.2}The private evaluation set}{19}{subsection.3.2.2}%
-\contentsline {subsection}{\numberline {3.2.3}Features and preprocessing}{20}{subsection.3.2.3}%
-\contentsline {section}{\numberline {3.3}Baseline Models}{20}{section.3.3}%
-\contentsline {section}{\numberline {3.4}Semantic-Group Decomposition}{21}{section.3.4}%
-\contentsline {section}{\numberline {3.5}Hybrid Architecture (Proposed)}{22}{section.3.5}%
-\contentsline {section}{\numberline {3.6}Loss Functions}{24}{section.3.6}%
-\contentsline {section}{\numberline {3.7}Training Protocol}{25}{section.3.7}%
-\contentsline {section}{\numberline {3.8}Evaluation Protocol}{25}{section.3.8}%
-\contentsline {section}{\numberline {3.9}Chapter Summary}{26}{section.3.9}%
-\contentsline {chapter}{\numberline {4}BASELINE MODELS}{27}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Overview}{27}{section.4.1}%
-\contentsline {section}{\numberline {4.2}Evaluation Protocol}{27}{section.4.2}%
-\contentsline {subsection}{\numberline {4.2.1}Metrics}{27}{subsection.4.2.1}%
-\contentsline {subsection}{\numberline {4.2.2}Development Corpus}{28}{subsection.4.2.2}%
-\contentsline {subsection}{\numberline {4.2.3}Development Loss}{29}{subsection.4.2.3}%
-\contentsline {section}{\numberline {4.3}In-Domain Results}{30}{section.4.3}%
-\contentsline {section}{\numberline {4.4}Prediction Agreement}{31}{section.4.4}%
-\contentsline {subsection}{\numberline {4.4.1}Agreement between Configurations}{31}{subsection.4.4.1}%
-\contentsline {subsection}{\numberline {4.4.2}OpenFace versus I3D}{32}{subsection.4.4.2}%
-\contentsline {section}{\numberline {4.5}Cross-Dataset Generalization}{33}{section.4.5}%
-\contentsline {subsection}{\numberline {4.5.1}The 3$\times $3 Matrix}{33}{subsection.4.5.1}%
-\contentsline {subsection}{\numberline {4.5.2}Closing the Loop: Metric and Loss Reliability}{34}{subsection.4.5.2}%
-\contentsline {subsection}{\numberline {4.5.3}In-Domain versus Transfer}{35}{subsection.4.5.3}%
-\contentsline {section}{\numberline {4.6}Chapter Summary}{35}{section.4.6}%
-\contentsline {chapter}{\numberline {5}SEMANTIC-GROUP HYBRID}{36}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Overview}{36}{section.5.1}%
-\contentsline {section}{\numberline {5.2}Consistency with the Baseline Frame}{36}{section.5.2}%
-\contentsline {section}{\numberline {5.3}Encoder Choice per Group}{37}{section.5.3}%
-\contentsline {section}{\numberline {5.4}Effect of I3D Fusion}{38}{section.5.4}%
-\contentsline {section}{\numberline {5.5}Comparison with Baselines}{39}{section.5.5}%
-\contentsline {section}{\numberline {5.6}Cross-Dataset Generalization}{40}{section.5.6}%
-\contentsline {subsection}{\numberline {5.6.1}Cross-Dataset Matrix}{40}{subsection.5.6.1}%
-\contentsline {subsection}{\numberline {5.6.2}The Private Set}{41}{subsection.5.6.2}%
-\contentsline {subsection}{\numberline {5.6.3}In-Domain versus Transfer}{43}{subsection.5.6.3}%
-\contentsline {section}{\numberline {5.7}Discussion}{44}{section.5.7}%
-\contentsline {section}{\numberline {5.8}Chapter Summary}{45}{section.5.8}%
-\contentsline {chapter}{\numberline {6}CONCLUSIONS}{46}{chapter.6}%
-\contentsline {section}{\numberline {6.1}Summary}{46}{section.6.1}%
-\contentsline {section}{\numberline {6.2}Synthesis}{47}{section.6.2}%
-\contentsline {section}{\numberline {6.3}Revisiting the Research Questions}{48}{section.6.3}%
-\contentsline {section}{\numberline {6.4}Limitations}{49}{section.6.4}%
-\contentsline {section}{\numberline {6.5}Practical Recommendations}{50}{section.6.5}%
-\contentsline {section}{\numberline {6.6}Suggestion for Future Works}{50}{section.6.6}%
-\contentsline {section}{\numberline {6.7}Closing Remarks}{51}{section.6.7}%
-\contentsline {chapter}{REFERENCE}{53}{section*.36}%
+\contentsline {chapter}{\numberline {2}LITERATURE REVIEW}{8}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Scope of Research}{8}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Related Work}{8}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Feature Extraction}{10}{section.2.3}%
+\contentsline {subsection}{\numberline {2.3.1}OpenFace 2.0 facial-behaviour descriptors}{10}{subsection.2.3.1}%
+\contentsline {subsection}{\numberline {2.3.2}I3D motion and appearance features}{10}{subsection.2.3.2}%
+\contentsline {section}{\numberline {2.4}Temporal Architectures}{11}{section.2.4}%
+\contentsline {subsection}{\numberline {2.4.1}Temporal Convolutional Networks (TCN)}{11}{subsection.2.4.1}%
+\contentsline {subsection}{\numberline {2.4.2}Long Short-Term Memory (LSTM)}{11}{subsection.2.4.2}%
+\contentsline {subsection}{\numberline {2.4.3}Transformers}{12}{subsection.2.4.3}%
+\contentsline {section}{\numberline {2.5}Loss Functions for Imbalance and Ordinality}{13}{section.2.5}%
+\contentsline {section}{\numberline {2.6}Evaluation Metrics}{15}{section.2.6}%
+\contentsline {section}{\numberline {2.7}Statistical Measures for Result Analysis}{16}{section.2.7}%
+\contentsline {section}{\numberline {2.8}Chapter Summary}{17}{section.2.8}%
+\contentsline {chapter}{\numberline {3}METHODOLOGY}{19}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Overview}{19}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Data and Preprocessing}{19}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Datasets}{19}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.2.2}The private evaluation set}{21}{subsection.3.2.2}%
+\contentsline {subsection}{\numberline {3.2.3}Features and preprocessing}{22}{subsection.3.2.3}%
+\contentsline {section}{\numberline {3.3}Baseline Models}{22}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Grouping the Facial Features by Meaning}{25}{section.3.4}%
+\contentsline {section}{\numberline {3.5}Hybrid Architecture (Proposed)}{25}{section.3.5}%
+\contentsline {section}{\numberline {3.6}Loss Functions}{27}{section.3.6}%
+\contentsline {section}{\numberline {3.7}Training Protocol}{28}{section.3.7}%
+\contentsline {section}{\numberline {3.8}Evaluation Protocol}{28}{section.3.8}%
+\contentsline {section}{\numberline {3.9}Chapter Summary}{29}{section.3.9}%
+\contentsline {chapter}{\numberline {4}BASELINE MODELS}{30}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Overview}{30}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Evaluation Protocol}{30}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Metrics}{30}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}Development Corpus}{32}{subsection.4.2.2}%
+\contentsline {subsection}{\numberline {4.2.3}Development Loss}{32}{subsection.4.2.3}%
+\contentsline {section}{\numberline {4.3}In-Domain Results}{33}{section.4.3}%
+\contentsline {section}{\numberline {4.4}Prediction Agreement}{34}{section.4.4}%
+\contentsline {subsection}{\numberline {4.4.1}Agreement between Configurations}{34}{subsection.4.4.1}%
+\contentsline {subsection}{\numberline {4.4.2}OpenFace versus I3D}{35}{subsection.4.4.2}%
+\contentsline {section}{\numberline {4.5}Cross-Dataset Generalization}{36}{section.4.5}%
+\contentsline {subsection}{\numberline {4.5.1}The 3$\times $3 Matrix}{36}{subsection.4.5.1}%
+\contentsline {subsection}{\numberline {4.5.2}Closing the Loop: Metric and Loss Reliability}{37}{subsection.4.5.2}%
+\contentsline {subsection}{\numberline {4.5.3}In-Domain versus Transfer}{38}{subsection.4.5.3}%
+\contentsline {section}{\numberline {4.6}Chapter Summary}{38}{section.4.6}%
+\contentsline {chapter}{\numberline {5}FEATURE-GROUP HYBRID}{39}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Overview}{39}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Consistency with the Baseline Frame}{39}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Encoder Choice per Group}{40}{section.5.3}%
+\contentsline {section}{\numberline {5.4}Effect of I3D Fusion}{41}{section.5.4}%
+\contentsline {section}{\numberline {5.5}Comparison with Baselines}{42}{section.5.5}%
+\contentsline {section}{\numberline {5.6}Cross-Dataset Generalization}{43}{section.5.6}%
+\contentsline {subsection}{\numberline {5.6.1}Cross-Dataset Matrix}{43}{subsection.5.6.1}%
+\contentsline {subsection}{\numberline {5.6.2}The Private Set}{44}{subsection.5.6.2}%
+\contentsline {subsection}{\numberline {5.6.3}In-Domain versus Transfer}{46}{subsection.5.6.3}%
+\contentsline {section}{\numberline {5.7}Discussion}{47}{section.5.7}%
+\contentsline {section}{\numberline {5.8}Chapter Summary}{48}{section.5.8}%
+\contentsline {chapter}{\numberline {6}CONCLUSIONS}{49}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Summary}{49}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Synthesis}{50}{section.6.2}%
+\contentsline {section}{\numberline {6.3}Revisiting the Research Questions}{51}{section.6.3}%
+\contentsline {section}{\numberline {6.4}Limitations}{52}{section.6.4}%
+\contentsline {section}{\numberline {6.5}Practical Recommendations}{53}{section.6.5}%
+\contentsline {section}{\numberline {6.6}Suggestion for Future Works}{53}{section.6.6}%
+\contentsline {section}{\numberline {6.7}Closing Remarks}{54}{section.6.7}%
+\contentsline {chapter}{REFERENCE}{56}{section*.36}%
 \contentsfinish 
