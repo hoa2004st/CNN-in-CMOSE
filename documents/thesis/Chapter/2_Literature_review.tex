@@ -2,21 +2,21 @@
 \begin{document}
 
 This chapter sets the technical and scientific context for the thesis.
-It first fixes the scope of the study (Section~\ref{sec:scope}), then analyses the related work and its limitations (Section~\ref{sec:related}).
-The remaining sections present the foundational knowledge the thesis builds on and that later chapters assume: the feature extractors that turn a video into numerical descriptors (Section~\ref{sec:feat}), the three temporal architecture families used both as baselines and as the building blocks of the proposed model (Section~\ref{sec:temporal}), the loss functions for imbalanced ordinal targets (Section~\ref{sec:losses-lit}), the metrics used to evaluate ordinal imbalanced classification (Section~\ref{sec:metrics-lit}), and the statistical measures used to compare and analyse the results (Section~\ref{sec:stats-lit}).
+It first establishes the scope of the study (Section~\ref{sec:scope}), then analyses the related work and its limitations (Section~\ref{sec:related}).
+The remaining sections present the foundational knowledge the thesis builds on and that later chapters assume: the feature extractors that turn a video into numerical descriptors (Section~\ref{sec:feat}), the three families of temporal architecture used both as baselines and as the building blocks of the proposed model (Section~\ref{sec:temporal}), the loss functions for imbalanced ordinal targets (Section~\ref{sec:losses-lit}), the metrics used to evaluate ordinal imbalanced classification (Section~\ref{sec:metrics-lit}), and the statistical measures used to compare and analyse the results (Section~\ref{sec:stats-lit}).
 The chapter closes by summarising how these pieces are combined in Chapter~3.
 
 \FloatBarrier
 \section{Scope of Research}
 \label{sec:scope}
 
-This review is scoped to \textbf{vision-based automatic engagement recognition}: classifying a learner's engagement level from facial video, where the only input is a frontal webcam recording of a single person.
-Within this scope the thesis concentrates on four technical components, and the review is organised around them: (i) facial-behaviour and motion feature extraction, (ii) temporal sequence modelling of the per-frame descriptors, (iii) loss functions appropriate to imbalanced ordinal labels, and (iv) the metrics used to evaluate such models.
+This review is scoped to vision-based engagement recognition: classifying a learner's engagement from facial video, where the only input is a frontal webcam recording of one person.
+Within this scope the thesis concentrates on four parts, and the review is organised around them: (i) extracting facial-behaviour and motion features, (ii) modelling the per-frame descriptors in time, (iii) loss functions suited to imbalanced ordinal labels, and (iv) the metrics used to evaluate such models.
 
 Several adjacent problems are deliberately left out of scope.
-We do not consider physiological-sensor engagement estimation (heart rate, electrodermal activity, eye-tracking hardware), nor interaction- or clickstream-based estimation from platform logs, because they require instrumentation beyond a webcam.
-We do not treat general facial-expression or emotion recognition as an end in itself, referring to it only where it informs the design of engagement features.
-Finally, the thesis works with OpenFace and I3D features at the descriptor level rather than re-training the extractors: CMOSE is the only dataset that ships these features precomputed, while for DAiSEE and the self-collected private set we extract them ourselves from the raw video using the same toolkits (Section~\ref{sec:data}); the internal training of those extractors is reviewed for understanding but is not re-implemented.
+I do not estimate engagement from physiological sensors (heart rate, electrodermal activity, eye-tracking hardware), nor from interaction or clickstream logs, because they require instrumentation beyond a webcam.
+I do not treat general facial-expression or emotion recognition as an end in itself, referring to it only where it informs how engagement features are designed.
+Finally, the thesis works with OpenFace and I3D features at the descriptor level rather than re-training the extractors: CMOSE is the only dataset that ships these features precomputed, while for DAiSEE and the self-collected private set I extract them myself from the raw video using the same toolkits (Section~\ref{sec:data}); how those extractors are trained internally is reviewed for understanding but is not re-implemented.
 
 \FloatBarrier
 \section{Related Work}
@@ -25,24 +25,24 @@ Finally, the thesis works with OpenFace and I3D features at the descriptor level
 \textbf{Engagement datasets and benchmarks.}
 DAiSEE~\cite{daisee} is the most widely used in-the-wild benchmark for engagement recognition.
 It provides short webcam clips annotated with four ordinal engagement levels and is recorded under varied, uncontrolled conditions, which makes it realistic but noisy.
-CMOSE~\cite{cmose} is a more recent, larger, expert-labelled multimodal dataset that ships precomputed OpenFace and I3D features (the only one of the three datasets used here to do so), and reports strong inter-rater reliability; its scale and label quality make it the primary dataset of this thesis.
-A systematic review of computer-vision engagement detection~\cite{review_engagement_cv} surveys the common pipelines and explicitly identifies the field's two recurring difficulties (severe class imbalance and the subjectivity of engagement labels) as open problems, which is consistent with the motivation in Chapter~1.
+CMOSE~\cite{cmose} is a more recent, larger, expert-labelled multimodal dataset that ships precomputed OpenFace and I3D features (the only one of the three datasets used here to do so), and reports strong inter-rater reliability; its scale and label quality make it the thesis's primary dataset.
+A systematic review of computer-vision engagement detection~\cite{review_engagement_cv} surveys the common pipelines and names the two recurring open problems in the field, severe class imbalance and the subjectivity of engagement labels. This matches the motivation in Chapter~1.
 
 \textbf{Feature-based approaches.}
-A large body of work first reduces each frame to a compact facial descriptor with a toolkit such as OpenFace~\cite{openface2} and then models the resulting sequence.
+A large body of work first reduces each frame to a compact descriptor with a toolkit such as OpenFace~\cite{openface2} and then models the sequence.
 Representative pipelines feed OpenFace action units, gaze, and head pose to a recurrent network, for example an OpenFace$+$BiLSTM model~\cite{openface_bilstm}, or apply dimensionality reduction and resampling (principal component analysis or singular value decomposition together with synthetic minority oversampling) before a convolutional or fully-connected classifier~\cite{openface_pca_smote}.
 Other studies aggregate the features over time and compare classical learners such as logistic regression, support vector machines, multilayer perceptrons, $k$-nearest neighbours, and gradient-boosted trees~\cite{classical_ml_engagement}.
-These works together show that OpenFace descriptors carry a genuine engagement signal, but they share a structural assumption: the 709-dimensional descriptor is treated as a single uniform input vector, encoded by one model with one temporal inductive bias.
+These works together show that OpenFace descriptors carry a real engagement signal, but they share a structural assumption: the 709-dimensional descriptor is treated as one uniform vector, encoded by one model with its temporal bias.
 
 \textbf{End-to-end video approaches.}
 A second family learns directly from pixels.
-EfficientNetV2~\cite{efficientnetv2} backbones followed by an LSTM~\cite{efficientnet_lstm_engagement} encode appearance per frame and integrate it over time, and context-aware affect-recognition models exploit spatial relationships within the scene~\cite{context_aware_emotion_3d}.
+EfficientNetV2~\cite{efficientnetv2} backbones followed by an LSTM~\cite{efficientnet_lstm_engagement} encode appearance per frame and integrate it over time, and context-aware affect-recognition models exploit spatial relationships in the scene~\cite{context_aware_emotion_3d}.
 These models can capture appearance and motion cues that landmark-based descriptors discard, but they are heavier to train, require the raw video rather than released features, and are less interpretable because the learned representation is not decomposed into nameable behavioural channels.
 
-\textbf{Gap.}
+\textbf{Research Gap.}
 Two gaps persist across both families and define the contribution of this thesis.
-First, the facial features are \emph{mixed} but are encoded as \emph{one block} rather than per behavioural subsystem, even though their signals (gaze, eye and face geometry, head pose, action units) have very different temporal characteristics.
-Second, \emph{studies mostly use accuracy for evaluation and cross-dataset generalisation is limited}: in-domain accuracy dominates the literature, yet on imbalanced data majority-class prediction can disguise a complete failure to transfer, so the headline metric hides exactly the generalisation gap it should reveal.
+First, the facial features are mixed but are encoded as one block rather than per behavioural subsystem, even though their signals (gaze, eye and face geometry, head pose, action units) have very different timing.
+Second, studies mostly use accuracy to evaluate and rarely measure transfer across datasets: in-domain accuracy dominates the literature, yet on imbalanced data a high accuracy score can hide a model that does not transfer at all.
 The feature-group hybrid proposed in Chapter~3 targets the first gap, and the 3$\times$3 cross-dataset protocol of Chapter~5 targets the second.
 
 \FloatBarrier
@@ -51,20 +51,22 @@ The feature-group hybrid proposed in Chapter~3 targets the first gap, and the 3$
 
 \subsection{OpenFace 2.0 facial-behaviour descriptors}
 
-OpenFace 2.0~\cite{openface2} is an open-source facial-behaviour analysis toolkit that processes a video frame by frame and, for each frame, estimates four kinds of measurement: the two- and three-dimensional \emph{facial landmarks} that outline the face and eye regions, the \emph{head pose} (three translation and three rotation parameters) recovered from those landmarks, the \emph{eye-gaze} direction vectors and angles for both eyes, and the intensity and presence of the \emph{facial action units} of the Facial Action Coding System.
+OpenFace 2.0~\cite{openface2} is an open-source facial-behaviour analysis toolkit that processes a video frame by frame and, for each frame, estimates four kinds of measurement: the two- and three-dimensional facial landmarks that outline the face and eye regions, the head pose (three translation and three rotation parameters) recovered from those landmarks, the eye-gaze direction vectors and angles for both eyes, and the intensity and presence of the facial action units of the Facial Action Coding System.
 Each frame is also tagged with a tracking-confidence and success flag, which downstream pipelines use to discard poorly tracked frames.
 
-In CMOSE the per-frame descriptor used in this thesis is \textbf{709-dimensional}.
-A key observation, exploited throughout the thesis, is that these 709 numbers are not homogeneous: they decompose naturally into five behavioural groups by the meaning of their columns: \textbf{gaze} (8 dimensions), \textbf{eye landmarks} (280), \textbf{face landmarks} (340), \textbf{head pose} (46), and \textbf{action units} (35).
-These groups correspond to physically distinct subsystems with distinct dynamics: gaze and eye landmarks change rapidly and noisily; head pose drifts slowly and smoothly; action units fire in short, sparse bursts.
+In CMOSE the per-frame descriptor used in this thesis is 709-dimensional.
+These 709 numbers are not homogeneous. By the meaning of their columns they split into five behavioural groups, gaze (8 dimensions), eye landmarks (280), face landmarks (340), head pose (46), and action units (35), and the thesis exploits this split throughout.
+These groups are physically distinct subsystems, each with its own dynamics: gaze and eye landmarks change rapidly and noisily; head pose drifts slowly and smoothly; action units fire in short, sparse bursts.
 Section~\ref{sec:groups} formalises this decomposition and Section~\ref{sec:hybrid} turns it into an architecture.
 
 \subsection{I3D motion and appearance features}
 
-The Inflated 3D ConvNet (I3D)~\cite{i3d} is a video representation obtained by ``inflating'' the two-dimensional convolutional filters of an ImageNet-pretrained image network into three dimensions, so that they operate over space and time jointly, and then pretraining the result on the large Kinetics action-recognition dataset.
+The Inflated 3D ConvNet (I3D)~\cite{i3d} is a video representation obtained by ``inflating'' the two-dimensional convolutional filters of an ImageNet-pretrained image network into three dimensions, so that they operate over space and time jointly, and then pretraining the result on the large Kinetics dataset for action recognition.
 I3D therefore captures appearance and short-range motion that landmark-based descriptors omit.
-In the data used here, CMOSE ships a \emph{single precomputed 1024-dimensional I3D embedding per clip}, and for DAiSEE and the private set we extract the same single 1024-dimensional embedding per clip from the raw video, in every case a globally pooled spatiotemporal descriptor of the whole clip rather than a per-frame sequence.
-This thesis therefore treats I3D as a compact, clip-level motion/appearance stream that complements the per-frame OpenFace descriptors, and is careful in its claims accordingly: the I3D stream contributes a global summary, not fine-grained temporal motion.
+In the data used here, CMOSE ships a single precomputed 1024-dimensional I3D embedding per clip, and for DAiSEE and the private set I extract the same vector from the raw video.
+In every case it is one vector pooled over the whole clip in space and time, not a per-frame sequence.
+This thesis therefore treats I3D as a compact clip-level stream of motion and appearance that complements the OpenFace descriptors.
+The I3D stream contributes a global summary, not fine motion over time.
 
 \FloatBarrier
 \section{Temporal Architectures}
@@ -78,10 +80,10 @@ They differ chiefly in how they let one time step influence another.
 
 A Temporal Convolutional Network~\cite{tcn} applies one-dimensional convolutions along the time axis.
 Two design choices make it well suited to behavioural sequences.
-First, the convolutions are \emph{causal}: the output at time $t$ depends only on inputs at times $\le t$, which is achieved by padding on the left and removing the surplus on the right.
-Second, successive layers use exponentially increasing \emph{dilation}: a layer at depth $l$ skips $2^{l}$ steps between the inputs it convolves, so a stack of $L$ layers reaches a receptive field that grows as $\mathcal{O}(2^{L})$ while keeping the number of parameters small.
+First, the convolutions are causal: the output at time $t$ depends only on inputs at times $\le t$, which is achieved by padding on the left and removing the surplus on the right.
+Second, successive layers use exponentially increasing dilation: a layer at depth $l$ skips $2^{l}$ steps between the inputs it convolves, so a stack of $L$ layers reaches a receptive field that grows as $\mathcal{O}(2^{L})$ while keeping the number of parameters small.
 Each layer is wrapped in a residual block (two dilated convolutions with weight normalisation, a rectified-linear nonlinearity, and dropout, summed with a possibly projected copy of the input) that stabilises the training of deep stacks.
-The result is a strong inductive bias for \emph{short, local temporal motifs} at multiple scales, which matches signals such as a head nod or an action-unit burst.
+The result is a strong inductive bias for short, local temporal motifs at multiple scales, which matches signals such as a head nod or an action-unit burst.
 
 \begin{figure}[ht]
 \centering
@@ -103,7 +105,7 @@ c_t &= f_t \odot c_{t-1} + i_t \odot \tilde{c}_t, &
 h_t &= o_t \odot \tanh(c_t),
 \end{align}
 where $\sigma$ is the logistic sigmoid and $\odot$ is the element-wise product.
-The gating mechanism lets the network carry information across many time steps without the vanishing-gradient problem of plain recurrent networks, giving it a bias toward \emph{longer-range dependencies}.
+The gating mechanism lets the network carry information across many time steps without the vanishing-gradient problem of plain recurrent networks, giving it a bias toward longer-range dependencies.
 The cost is that the sequential recurrence is harder to parallelise than convolution or attention.
 
 \begin{figure}[ht]
@@ -115,15 +117,15 @@ The cost is that the sequential recurrence is harder to parallelise than convolu
 
 \subsection{Transformers}
 
-The Transformer encoder~\cite{transformer} drops recurrence and convolution and instead relates all time steps directly through \emph{self-attention}.
+The Transformer encoder~\cite{transformer} drops recurrence and convolution and instead relates all time steps directly through self-attention.
 For queries $Q$, keys $K$, and values $V$ obtained by linear projections of the input, attention computes
 \begin{equation}
 \operatorname{Attention}(Q,K,V) = \operatorname{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right) V,
 \end{equation}
 so that every output position is a learned weighted combination of every input position, with $d_k$ the key dimension.
-Because attention is permutation-invariant, order is injected through a \emph{positional encoding} added to the input; this thesis uses the standard sinusoidal encoding.
+Because attention is permutation-invariant, order is injected through a positional encoding added to the input; this thesis uses the standard sinusoidal encoding.
 Multiple attention ``heads'' run in parallel and their outputs are concatenated, and each attention sub-layer is followed by a position-wise feed-forward network, with residual connections and layer normalisation throughout (Figure~\ref{fig:transformer_encoder_layer}).
-The Transformer has the weakest temporal prior of the three families, since it can attend anywhere, which makes it flexible but comparatively data-hungry.
+The Transformer has the weakest temporal prior of the three families, since it can attend anywhere, which makes it flexible but reliant on more data than the other two.
 
 \begin{figure}[ht]
 \centering
@@ -137,13 +139,13 @@ The Transformer has the weakest temporal prior of the three families, since it c
 \label{sec:losses-lit}
 
 Let a model produce logits $z \in \mathbb{R}^{C}$ for the $C=4$ engagement classes.
-The \emph{softmax} function maps these logits to a probability distribution over the classes, the predicted probability of class $c$ being
+The softmax function maps these logits to a probability distribution over the classes, the predicted probability of class $c$ being
 \begin{equation}
 \widehat{y}_c = \operatorname{softmax}(z)_c = \frac{e^{z_c}}{\sum_{j=1}^{C} e^{z_j}}
 \label{eq:softmax}
 \end{equation}
 so that $\widehat{y}_c\in(0,1)$ and $\sum_{c=1}^{C}\widehat{y}_c=1$.
-Let $y\in\{1,\dots,C\}$ be the ordinal ground-truth class, encoded as a one-hot vector through the \emph{indicator function} $\mathbf{1}[\,\cdot\,]$, which returns $1$ when its argument (a logical statement) is true and $0$ otherwise:
+Let $y\in\{1,\dots,C\}$ be the ordinal ground-truth class, encoded as a one-hot vector through the indicator function $\mathbf{1}[\,\cdot\,]$, which returns $1$ when its argument (a logical statement) is true and $0$ otherwise:
 \begin{equation}
 \mathbf{1}[\,S\,] =
 \begin{cases}
@@ -166,10 +168,10 @@ On imbalanced data it is dominated by the majority class and on ordinal data it 
 \begin{equation}
 \mathcal{L}_{\text{WCE}} = -\sum_{c=1}^{C} w_c\, y_c \log \widehat{y}_c .
 \end{equation}
-This raises the cost of mistakes on rare classes such as \emph{Highly\nobreakdash-Disengage} and pushes the model away from collapsing onto the majority, at the expense of some headline accuracy.
+This raises the cost of mistakes on rare classes such as Highly\nobreakdash-Disengage and forces the model to avoid collapsing onto the majority, at the expense of some overall accuracy.
 Resampling techniques such as SMOTE~\cite{smote} address the same imbalance at the data level by synthesising minority examples; this thesis instead studies loss-level remedies, which require no change to the data pipeline.
 
-\textbf{Ordinal (EMD-style) loss} encodes the order of the classes by comparing \emph{cumulative} distributions.
+\textbf{Ordinal (EMD-style) loss} encodes the order of the classes by comparing cumulative distributions.
 Writing the predicted cumulative distribution as $\sum_{j=1}^{k}\widehat{y}_j$ and the cumulative distribution of the one-hot label as the unit step $\sum_{j=1}^{k} y_j$ (which rises from $0$ to $1$ at the true class), the loss is the mean squared distance between the two step functions,
 \begin{equation}
 \mathcal{L}_{\text{EMD}} = \frac{w_y}{C}\sum_{k=1}^{C}\left(\sum_{j=1}^{k}\widehat{y}_j-\sum_{j=1}^{k}y_j\right)^2 ,
@@ -185,32 +187,32 @@ All models are optimised with Adam~\cite{adam}, an adaptive first-order optimise
 \label{sec:metrics-lit}
 
 Because the labels are ordinal and imbalanced, the choice of metric is itself a research question (RQ4).
-This thesis reports six metrics over a test set of $N$ samples with true labels $y_i$ and predicted labels $\widehat{y}_i$ (for $i=1,\dots,N$), but treats exactly one of them, QWK, as the \emph{primary} metric that selects the best model; the other five are secondary, reported to describe a result but never to choose one.
+This thesis reports six metrics over a test set of $N$ samples with true labels $y_i$ and predicted labels $\widehat{y}_i$ (for $i=1,\dots,N$), but treats exactly one of them, QWK, as the primary metric that selects the best model; the other five are secondary, reported to describe a result but never to choose one.
 Where a confusion matrix is needed, $O_{ij}$ denotes the number of samples of true class $i$ predicted as class $j$.
 
 \textbf{Accuracy} is the fraction of correct predictions,
 \begin{equation}
 \operatorname{Accuracy}=\frac{1}{N}\sum_{i=1}^{N}\mathbf{1}\!\left[\,y_i=\widehat{y}_i\,\right].
 \end{equation}
-It is reported for comparability with the literature but is explicitly \emph{not} a primary metric here, because on imbalanced data it rewards majority prediction.
+It is reported for comparability with the literature but is explicitly not a primary metric here, because on imbalanced data it rewards majority prediction.
 
 \textbf{Macro-accuracy} (balanced accuracy) is the mean of the per-class recalls,
 \begin{equation}
 \operatorname{MacroAcc} = \frac{1}{C}\sum_{c=1}^{C}\frac{\sum_{i=1}^{N}\mathbf{1}\!\left[\,y_i=\widehat{y}_i=c\,\right]}{\sum_{i=1}^{N}\mathbf{1}\!\left[\,y_i=c\,\right]},
 \end{equation}
 giving every class equal weight regardless of frequency.
-It exposes the minority-class collapse that accuracy hides; here it is a \textbf{secondary} metric, reported to characterise class balance but never used to select a model.
+It exposes the minority-class collapse that accuracy hides; here it is a secondary metric, reported to characterise class balance but never used to select a model.
 
 \textbf{Mean absolute error (MAE)} treats the class indices as an ordinal scale and averages the distance between truth and prediction,
 \begin{equation}
 \operatorname{MAE} = \frac{1}{N}\sum_{i=1}^{N}\left|y_i-\widehat{y}_i\right|,
 \end{equation}
-while \textbf{macro-MAE} averages the per-class MAE so that errors on rare classes are not drowned out,
+while macro-MAE averages the per-class MAE so that errors on rare classes are not drowned out,
 \begin{equation}
 \operatorname{MacroMAE} = \frac{1}{C}\sum_{c=1}^{C}\frac{\sum_{i=1}^{N}\mathbf{1}\!\left[\,y_i=c\,\right]\left|y_i-\widehat{y}_i\right|}{\sum_{i=1}^{N}\mathbf{1}\!\left[\,y_i=c\,\right]}.
 \end{equation}
-Both reward predictions that are at least \emph{close} on the scale even when not exactly right; both are smaller-is-better.
-\textbf{Macro-MAE is a secondary metric}: it is the natural ordinal-distance companion to QWK, reporting \emph{how far} a prediction misses rather than only \emph{whether} it misses, with each class weighted equally so the rare disengaged classes are not masked by the majority. Like the other secondary metrics, though, it is reported alongside QWK and never used to select a model.
+Both reward predictions that are at least close on the scale even when not exactly right; both are smaller-is-better.
+Macro-MAE is a secondary metric: it is the natural ordinal-distance companion to QWK, reporting how far a prediction misses rather than only whether it misses, with each class weighted equally so the rare disengaged classes are not masked by the majority. Like the other secondary metrics, though, it is reported alongside QWK and never used to select a model.
 
 \textbf{Cohen's kappa}~\cite{cohenkappa} measures agreement corrected for the agreement expected by chance.
 With observed agreement $p_o$ and expected agreement $p_e$ (computed from the marginals), $\kappa=(p_o-p_e)/(1-p_e)$.
@@ -226,15 +228,15 @@ The unweighted variant uses $w_{ij}=1$ off the diagonal and $0$ on it.
 w_{ij} = \frac{(i-j)^2}{(C-1)^2},
 \label{eq:qwk}
 \end{equation}
-so that disagreements are penalised in proportion to the \emph{square} of the ordinal distance between the true and predicted classes.
-QWK is therefore the natural single number for this problem: it is corrected for chance, it respects the class order, and it cannot be inflated by majority prediction.
-It is the \textbf{single primary metric of the thesis, the only criterion used to select the best model}, with macro-accuracy (balanced recall) and macro-MAE (ordinal distance) reported as secondary companions that describe a result but never choose it.
+so that disagreements are penalised in proportion to the square of the ordinal distance between the true and predicted classes.
+QWK suits this problem well because it is corrected for chance, it respects the class order, and it cannot be inflated by majority prediction.
+It is the thesis's single primary metric, the only criterion used to select the best model, with macro-accuracy (balanced recall) and macro-MAE (ordinal distance) reported as secondary companions that describe a result but never choose it.
 
 \FloatBarrier
 \section{Statistical Measures for Result Analysis}
 \label{sec:stats-lit}
 
-Beyond scoring each model in isolation, the results chapters ask three \emph{comparative} questions that need their own statistical tools: do the six metrics \emph{rank} the configurations the same way (Section~\ref{sec:protocol-metrics}), does in-domain strength \emph{predict} cross-dataset strength (Section~\ref{sec:indomain-vs-transfer}), and do different models make the \emph{same per-clip decisions} (Section~\ref{sec:agreement})?
+Beyond scoring each model in isolation, the results chapters ask three comparative questions that need their own statistical tools: do the six metrics rank the configurations the same way (Section~\ref{sec:protocol-metrics}), does in-domain strength predict cross-dataset strength (Section~\ref{sec:indomain-vs-transfer}), and do different models make the same per-clip decisions (Section~\ref{sec:agreement})?
 The first two are rank-correlation questions; the third is an agreement question.
 
 \textbf{Spearman's rank correlation} $\rho$~\cite{spearman} measures how well a monotonic relationship describes two variables by applying the Pearson correlation coefficient to their ranks rather than their values.
@@ -245,29 +247,29 @@ For $n$ paired observations with rank differences $d_i$ and no ties it reduces t
 ranging from $-1$ (perfectly inverted ordering) through $0$ (no monotonic relation) to $+1$ (identical ordering).
 This thesis uses $\rho$ to test whether a model's in-domain QWK predicts its QWK on unseen target datasets.
 
-\textbf{Kendall's $\tau$}~\cite{kendall} measures rank agreement through \emph{concordance} rather than squared rank distance.
+\textbf{Kendall's $\tau$}~\cite{kendall} measures rank agreement through concordance rather than squared rank distance.
 Counting the pairs of observations ordered the same way in both variables (concordant, $n_c$) against those ordered oppositely (discordant, $n_d$), and assuming no ties, the coefficient is
 \begin{equation}
 \tau_a = \frac{n_c - n_d}{\binom{n}{2}},
 \end{equation}
 again bounded by $[-1,1]$.
-It is less sensitive to small samples and to a few large rank displacements than $\rho$, which is why it is used here to quantify how far the six evaluation metrics agree on the ranking of the baseline configurations.
+It is less sensitive to small samples and to a few large rank displacements than $\rho$, which is why it is used here to quantify how far the six metrics agree on the ranking of the baseline configurations.
 
 \textbf{Prediction agreement and ensemble headroom.}
-To ask whether two models \emph{agree clip by clip} rather than merely score alike, the thesis reuses Cohen's $\kappa$ (Section~\ref{sec:metrics-lit}) between the two models' predicted-label vectors; chance-correction matters because two majority-leaning models agree often by default.
-The headroom available from combining a pool of $M$ configurations is bounded by the \emph{oracle accuracy}, the fraction of clips that at least one configuration classifies correctly,
+To ask whether two models agree clip by clip rather than merely score alike, the thesis reuses Cohen's $\kappa$ (Section~\ref{sec:metrics-lit}) between the two models' predicted-label vectors; chance-correction matters because two models that lean toward the majority class agree often by default.
+The headroom available from combining a pool of $M$ configurations is bounded by the oracle accuracy, the fraction of clips that at least one configuration classifies correctly,
 \begin{equation}
 \operatorname{OracleAcc} = \frac{1}{N}\sum_{n=1}^{N} \mathbf{1}\!\left[\,\exists\, m\in\{1,\dots,M\}:\ \widehat{y}^{(m)}_n = y_n\,\right],
 \end{equation}
-which upper-bounds any fixed combiner, and is contrasted with the realistic \emph{majority-vote accuracy} obtained by taking the modal prediction across the pool.
-A large gap between the best single model, the majority vote, and the oracle indicates that the models err on \emph{different} clips and that an ensemble has room to improve.
+which upper-bounds any fixed combiner, and is contrasted with the realistic majority-vote accuracy obtained by taking the modal prediction across the pool.
+A large gap between the best single model, the majority vote, and the oracle indicates that the models err on different clips and that an ensemble has room to improve.
 
 \FloatBarrier
 \section{Chapter Summary}
 \label{sec:lit-summary}
 
-This chapter scoped the thesis to webcam-based ordinal engagement recognition and analysed the two dominant approaches in the literature, identifying their shared limitations: mixed facial descriptors are encoded as one block, and cross-dataset generalisation is rarely measured with metrics that resist majority-class inflation.
-It then laid the technical foundations the rest of the thesis depends on: the OpenFace 709-dimensional descriptor and its five behavioural groups, the clip-level I3D embedding, the three temporal architecture families (TCN, LSTM, Transformer) and their differing temporal biases, the three loss families for imbalance and ordinality, the six evaluation metrics with QWK, macro-accuracy, and macro-MAE as primary, and the rank-correlation (Spearman $\rho$, Kendall $\tau$) and prediction-agreement statistics used to analyse the results.
-Chapter~3 combines these foundations into a concrete methodology: it turns the five-group decomposition into the proposed feature-group hybrid architecture, specifies the baselines and the exact loss formulations, and defines the training and 3$\times$3 cross-dataset evaluation protocols.
+This chapter scoped the thesis to ordinal engagement recognition from a webcam and analysed the two main approaches in the literature, identifying their shared limits: mixed facial descriptors are encoded as one block, and transfer across datasets is rarely measured with metrics that resist majority-class inflation.
+It then laid the technical foundations the rest of the thesis depends on: the OpenFace 709-dimensional descriptor and its five behavioural groups, the clip-level I3D embedding, the three families of temporal architecture (TCN, LSTM, Transformer) and their different temporal biases, the three loss families for imbalance and ordinality, the six metrics with QWK as the primary metric and macro-accuracy and macro-MAE as secondary metrics, and the rank-correlation (Spearman $\rho$, Kendall $\tau$) and prediction-agreement statistics used to analyse the results.
+Chapter~3 combines these foundations into a concrete methodology: it turns the five-group decomposition into the proposed feature-group hybrid, specifies the baselines and the exact loss forms, and defines the training and 3$\times$3 cross-dataset protocols.
 
 \end{document}
