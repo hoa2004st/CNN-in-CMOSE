@@ -20,6 +20,9 @@
 \usepackage[protrusion=true,expansion=true]{microtype} % fixes most overfull lines + spacing
 \usepackage{array}
 \usepackage{enumitem}
+% Consistent scientific list style: lowercase Roman numerals at every list level
+\setlist[enumerate]{label=(\roman*)}
+\setlist[enumerate,2]{label=(\alph*)}
 \usepackage{subfiles} % Split chapters into separate files
 \usepackage{titlesec}
 \usepackage{titletoc}

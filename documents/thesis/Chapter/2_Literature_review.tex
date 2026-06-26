@@ -82,7 +82,7 @@ A Temporal Convolutional Network~\cite{tcn} applies one-dimensional convolutions
 Two design choices make it well suited to behavioural sequences.
 First, the convolutions are causal: the output at time $t$ depends only on inputs at times $\le t$, which is achieved by padding on the left and removing the surplus on the right.
 Second, successive layers use exponentially increasing dilation: a layer at depth $l$ skips $2^{l}$ steps between the inputs it convolves, so a stack of $L$ layers reaches a receptive field that grows as $\mathcal{O}(2^{L})$ while keeping the number of parameters small.
-Each layer is wrapped in a residual block (two dilated convolutions with weight normalisation, a rectified-linear nonlinearity, and dropout, summed with a possibly projected copy of the input) that stabilises the training of deep stacks.
+Each layer is wrapped in a residual block (two dilated convolutions with weight normalisation, a rectified-linear nonlinearity, and dropout, summed with a possibly projected copy of the input) that stabilises the training of deep stacks (Figure~\ref{fig:tcn_block}).
 The result is a strong inductive bias for short, local temporal motifs at multiple scales, which matches signals such as a head nod or an action-unit burst.
 
 \begin{figure}[ht]
@@ -94,7 +94,7 @@ The result is a strong inductive bias for short, local temporal motifs at multip
 
 \subsection{Long Short-Term Memory (LSTM)}
 
-The Long Short-Term Memory network~\cite{lstm} is a recurrent architecture that processes the sequence one step at a time while maintaining a cell state $c_t$ and a hidden state $h_t$.
+The Long Short-Term Memory network~\cite{lstm} is a recurrent architecture that processes the sequence one step at a time while maintaining a cell state $c_t$ and a hidden state $h_t$ (Figure~\ref{fig:lstm_cell}).
 Three gates (input $i_t$, forget $f_t$, and output $o_t$) regulate how much new information is written, how much past information is retained, and how much of the cell state is exposed:
 \begin{align}
 f_t &= \sigma(W_f x_t + U_f h_{t-1} + b_f), &
