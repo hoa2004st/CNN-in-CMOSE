@@ -66,7 +66,7 @@ For the I3D MLP, for instance, switching from cross-entropy to the ordinal loss 
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.88\linewidth]{loss_metric_tradeoff.png}
+\includegraphics[width=\linewidth]{loss_metric_tradeoff.png}
 \caption{What each loss trades: QWK (the selection metric) against the balanced secondary
 metrics (macro-accuracy and macro-MAE) for every baseline across the three losses,
 in-domain on CMOSE. Macro-accuracy and macro-MAE improve as the loss is rebalanced, while
@@ -88,7 +88,7 @@ On QWK, the single selection metric, the strongest baseline is the OpenFace TCN 
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.86\linewidth]{base_models_all_metrics.png}
+\includegraphics[width=\linewidth]{base_models_all_metrics.png}
 \caption{The five base models under the three losses on all six metrics, in-domain on
 CMOSE. The metrics disagree on the winner: accuracy, MAE, and Cohen's kappa favour the
 I3D MLP under cross-entropy, QWK favours the OpenFace TCN, and the macro metrics peak
@@ -117,7 +117,7 @@ Mean pairwise agreement is only $\kappa=0.27$--$0.39$, far below what the cluste
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.74\linewidth]{agreement_base_models.png}
+\includegraphics[width=\linewidth]{agreement_base_models.png}
 \caption{Pairwise prediction agreement (Cohen's $\kappa$) between all fifteen baseline
 configurations on the in-domain CMOSE test set, in model-major blocks. The diagonal
 blocks are the same architecture under different losses; agreement is moderate at best
@@ -159,10 +159,10 @@ This section trains on one dataset and tests on another, with three aims: measur
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.72\linewidth]{crossdomain_base.png}
+\includegraphics[width=\linewidth]{crossdomain_base.png}
 \caption{Cross-domain generalisation, best base model per cell (selected by QWK), on QWK
 (the selection metric) and the balanced secondary metrics macro-accuracy and
-macro-MAE (lower is better), plus raw accuracy, the misleading one: accuracy stays high in
+macro-MAE, plus raw accuracy, the misleading one: accuracy stays high in
 exactly the off-diagonal cells where every chance-corrected metric collapses.}
 \label{fig:crossdomain_base}
 \end{figure}

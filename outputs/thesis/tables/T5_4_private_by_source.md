@@ -1,4 +1,4 @@
-**Private set (test-only): best base vs best hybrid by training source (macro-MAE lower is better).**
+**Private set (test-only): best base vs best hybrid by training source.**
 
 | Train source | Best base (model/loss) | Base QWK | Base macro-MAE | Best hybrid (arch) | Hybrid QWK | Hybrid macro-acc | Hybrid macro-MAE |
 | --- | --- | --- | --- | --- | --- | --- | --- |

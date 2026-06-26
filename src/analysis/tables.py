@@ -97,8 +97,7 @@ def table_hybrid_topk(k: int = 5) -> tuple[str, pd.DataFrame, str]:
                  "quadratic_weighted_kappa": "QWK", "macro_accuracy": "Macro-Acc",
                  "macro_mae": "Macro-MAE", "accuracy": "Accuracy"})
     return _spec(frame, "T5_3_hybrid_topk",
-                 f"Top-{k} hybrid configs in-domain (CMOSE), sorted by QWK "
-                 f"(macro-MAE lower is better).")
+                 f"Top-{k} hybrid configs in-domain (CMOSE), sorted by QWK.")
 
 
 def table_i3d_fusion_effect() -> tuple[str, pd.DataFrame, str]:
@@ -219,8 +218,7 @@ def table_private_by_source() -> tuple[str, pd.DataFrame, str]:
         })
     frame = pd.DataFrame(rows)
     return _spec(frame, "T5_4_private_by_source",
-                 "Private set (test-only): best base vs best hybrid by training source "
-                 "(macro-MAE lower is better).")
+                 "Private set (test-only): best base vs best hybrid by training source.")
 
 
 def table_indomain_cmose_vs_daisee() -> tuple[str, pd.DataFrame, str]:
@@ -241,7 +239,7 @@ def table_indomain_cmose_vs_daisee() -> tuple[str, pd.DataFrame, str]:
         })
     frame = pd.DataFrame(rows)
     return _spec(frame, "T4_2_indomain_datasets",
-                 "Best in-domain result per dataset (CMOSE vs DAiSEE; macro-MAE lower is better).")
+                 "Best in-domain result per dataset (CMOSE vs DAiSEE).")
 
 
 def table_per_metric_winner() -> tuple[str, pd.DataFrame, str]:
@@ -257,8 +255,7 @@ def table_per_metric_winner() -> tuple[str, pd.DataFrame, str]:
         best = cell.loc[cell[metric].idxmin() if metric in ag.LOWER_BETTER_METRICS
                         else cell[metric].idxmax()]
         rows.append({
-            "Metric": ag.METRIC_DISPLAY[metric]
-                      + (" (lower is better)" if metric in ag.LOWER_BETTER_METRICS else ""),
+            "Metric": ag.METRIC_DISPLAY[metric],
             "Best model": best["model_display"],
             "Loss": best["loss_display"],
             "Value": round(float(best[metric]), 3),
@@ -330,7 +327,7 @@ def table_openface_vs_i3d() -> tuple[str, pd.DataFrame, str]:
     frame = pd.DataFrame(rows)
     return _spec(frame, "T4_3_openface_vs_i3d",
                  "Best OpenFace encoder (selected on QWK) vs the I3D MLP on QWK and the "
-                 "balanced secondary metrics (in-domain CMOSE, cross-entropy; macro-MAE lower is better).")
+                 "balanced secondary metrics (in-domain CMOSE, cross-entropy).")
 
 
 def table_group_marginal_unseen() -> tuple[str, pd.DataFrame, str]:

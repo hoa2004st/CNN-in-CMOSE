@@ -21,7 +21,7 @@ Three findings of Chapter~4 reproduce.
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.72\linewidth]{hybrid_ablation_all_metrics.png}
+\includegraphics[width=\linewidth]{hybrid_ablation_all_metrics.png}
 \caption{Hybrid ablation across all 243 per-group encoder configurations, with and
 without I3D, on all six metrics (in-domain CMOSE). The dashed line in every panel is the
 same model (the single QWK-selected baseline: OpenFace TCN, cross-entropy) read on
@@ -81,7 +81,7 @@ The rule (RQ3): fuse I3D when the target domain is represented in training; rely
 
 \textbf{Best hybrid versus best baseline.}
 Table~\ref{tab:T5_3_hybrid_topk} lists the top-5 configurations; the best overall is the I3D-fused hybrid \texttt{TCN\_T\_TCN\_LSTM\_T}, and every top configuration mixes at least two encoder types.
-On QWK, the single selection metric, the best hybrid improves on the best baseline by +0.068 (0.605 versus 0.537), and the secondary balanced metrics corroborate it (macro-accuracy 0.582 versus 0.535, macro-MAE 0.489 versus 0.547, lower is better).
+On QWK, the single selection metric, the best hybrid improves on the best baseline by +0.068 (0.605 versus 0.537), and the secondary balanced metrics corroborate it (macro-accuracy 0.582 versus 0.535, macro-MAE 0.489 versus 0.547).
 The selection metric and the secondary metrics move in the same direction, so the gain is real but modest; it is the CMOSE diagonal cell of the cell-by-cell comparison in Section~\ref{sec:hybrid-crossdomain} (Figure~\ref{fig:crossdomain_delta}).
 \input{Table/T5_3_hybrid_topk}
 
@@ -107,10 +107,10 @@ A second architecture family thus lands in the same place (the metric frame is n
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.68\linewidth]{crossdomain_hybrid.png}
+\includegraphics[width=\linewidth]{crossdomain_hybrid.png}
 \caption{Cross-domain generalisation, best hybrid per cell (selected by QWK), on QWK
-(the selection metric) and the balanced secondary metrics macro-accuracy and macro-MAE
-(lower is better), plus raw accuracy, which again stays high in the off-diagonal cells
+(the selection metric) and the balanced secondary metrics macro-accuracy and macro-MAE,
+plus raw accuracy, which again stays high in the off-diagonal cells
 where the chance-corrected metrics collapse.}
 \label{fig:crossdomain_hybrid}
 \end{figure}
@@ -156,7 +156,7 @@ As in-domain, the rare disengaged classes are the failure mode: hybrid Disengage
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.8\linewidth]{private_confusion_combined.png}
+\includegraphics[width=\linewidth]{private_confusion_combined.png}
 \caption{Private-set confusion of the combined-trained best base model versus best hybrid
 (row-normalised).}
 \label{fig:private_confusion_combined}
@@ -185,7 +185,7 @@ The hybrid's advantage is therefore not a position on an in-domain--transfer tre
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.56\linewidth]{indomain_vs_generalization_hybrid.png}
+\includegraphics[width=\linewidth]{indomain_vs_generalization_hybrid.png}
 \caption{In-domain QWK versus mean unseen-target QWK with the hybrid ablation population
 overlaid on the baseline configurations. Within the hybrid family the
 correlation is negative ($\rho=-0.31$): more in-domain fit means more dataset fit. The

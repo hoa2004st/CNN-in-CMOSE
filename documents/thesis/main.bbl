@@ -89,7 +89,7 @@
     \field{year}{2024}
   \endentry
 
-  \entry{daisee}{article}{}{}
+  \entry{daisee}{online}{}{}
     \name{author}{4}{}{%
       {{hash=GA}{%
          family={Gupta},
@@ -121,8 +121,13 @@
     \field{labelnamesource}{author}
     \field{labeltitlesource}{title}
     \field{title}{{DAiSEE}: Towards User Engagement Recognition in the Wild}
-    \field{journaltitle}{arXiv preprint arXiv:1609.01885}
+    \verb{url}
+    \verb https://arxiv.org/abs/1609.01885
+    \endverb
     \field{year}{2016}
+    \field{urlday}{26}
+    \field{urlmonth}{06}
+    \field{urlyear}{2026}
   \endentry
 
   \entry{openface2}{inproceedings}{}{}
@@ -212,7 +217,7 @@
     \field{year}{2022}
   \endentry
 
-  \entry{classical_ml_engagement}{article}{}{}
+  \entry{classical_ml_engagement}{online}{}{}
     \name{author}{3}{}{%
       {{hash=MS}{%
          family={Malekshahi},
@@ -239,8 +244,13 @@
     \field{labeltitlesource}{title}
     \field{title}{A General Model for Detecting Learner Engagement:
   Implementation and Evaluation}
-    \field{journaltitle}{arXiv preprint arXiv:2405.04251}
+    \verb{url}
+    \verb https://arxiv.org/abs/2405.04251
+    \endverb
     \field{year}{2024}
+    \field{urlday}{26}
+    \field{urlmonth}{06}
+    \field{urlyear}{2026}
   \endentry
 
   \entry{efficientnet_lstm_engagement}{article}{}{}
@@ -462,7 +472,7 @@
     \field{year}{2017}
   \endentry
 
-  \entry{tcn}{article}{}{}
+  \entry{tcn}{online}{}{}
     \name{author}{3}{}{%
       {{hash=BS}{%
          family={Bai},
@@ -489,8 +499,13 @@
     \field{labeltitlesource}{title}
     \field{title}{An Empirical Evaluation of Generic Convolutional and
   Recurrent Networks for Sequence Modeling}
-    \field{journaltitle}{arXiv preprint arXiv:1803.01271}
+    \verb{url}
+    \verb https://arxiv.org/abs/1803.01271
+    \endverb
     \field{year}{2018}
+    \field{urlday}{26}
+    \field{urlmonth}{06}
+    \field{urlyear}{2026}
   \endentry
 
   \entry{lstm}{article}{}{}

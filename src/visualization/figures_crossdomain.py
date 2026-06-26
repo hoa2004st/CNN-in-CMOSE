@@ -63,8 +63,6 @@ def fig_crossdomain(frame, name: str, suptitle: str, directory: Path | None = No
     )):
         pivot = ag.cell_matrix(frame, metric)
         title = ag.METRIC_DISPLAY[metric]
-        if metric in ag.LOWER_BETTER_METRICS:
-            title += " (lower is better)"
         im = _heatmap(ax, pivot, title, vmin=vmin, vmax=vmax, cmap=cmap,
                       show_y=(k % 2 == 0), show_x=(k >= 2))
         fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
@@ -170,8 +168,6 @@ def fig_crossdomain_delta_full(directory: Path | None = None) -> Path:
         im = _delta_heatmap(ax, delta, cmap=cmap, show_y=(k % 2 == 0),
                             show_x=(k >= 2), highlight_fn=highlight_fn)
         title = ag.METRIC_DISPLAY[metric]
-        if metric in ag.LOWER_BETTER_METRICS:
-            title += " (lower is better)"
         ax.set_title(title)
         fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04,
                      label="$\\Delta$ (hybrid $-$ base)")
@@ -234,7 +230,7 @@ def fig_indomain_vs_generalization(include_hybrid: bool = False,
     ax.axhline(0, color="gray", lw=0.8, ls=":")
     ax.set_xlabel("In-domain QWK (train corpus = test corpus)")
     ax.set_ylabel("Mean QWK on unseen-target cells")
-    ax.set_title("Does in-domain strength predict generalization?")
+    ax.set_title("In-domain QWK versus generalization to unseen targets")
     handles, _ = ax.get_legend_handles_labels()
     handles += [Line2D([], [], marker="s", linestyle="", color=model_color(m),
                        label=display_model_name(m)) for m in MODEL_ORDER]

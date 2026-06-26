@@ -34,8 +34,6 @@ def _grouped_bar(ax, frame, metric: str, *, label_fontsize: float = 6.5) -> None
     ax.set_xticks(np.arange(len(models)))
     ax.set_xticklabels([display_model_name(m) for m in models], rotation=20, ha="right")
     title = ag.METRIC_DISPLAY.get(metric, metric)
-    if metric in ag.LOWER_BETTER_METRICS:
-        title += " (lower is better)"
     ax.set_title(title)
 
 

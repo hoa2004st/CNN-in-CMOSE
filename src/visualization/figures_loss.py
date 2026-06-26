@@ -55,13 +55,11 @@ def fig_loss_metric_tradeoff(directory: Path | None = None) -> Path:
         ax.set_xticks(x)
         ax.set_xticklabels([loss_display_name(l) for l in _LOSS_ORDER], rotation=15, ha="right")
         title = ag.METRIC_DISPLAY.get(metric, metric)
-        if metric in ag.LOWER_BETTER_METRICS:
-            title += " (lower is better)"
         ax.set_title(title)
     axes[0].set_ylabel("Score")
     handles, labels = axes[0].get_legend_handles_labels()
     fig.legend(handles, labels, title="Base model", loc="center left", bbox_to_anchor=(1.0, 0.5))
-    fig.suptitle("What each loss trades: QWK vs. balanced secondary metrics across losses (in-domain CMOSE)",
+    fig.suptitle("Loss trade-offs: QWK versus the balanced secondary metrics across losses (in-domain CMOSE)",
                  y=1.04, fontweight="bold")
     return save(fig, "loss_metric_tradeoff", directory=directory)
 

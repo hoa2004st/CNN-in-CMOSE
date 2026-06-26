@@ -55,8 +55,7 @@ def _ablation_panel(ax, frame, metric: str, variants, base_row) -> None:
                label=f"QWK-selected base ({label}={base:.3f})")
     ax.set_xticks([1, 2])
     ax.set_xticklabels(variants)
-    suffix = " (lower is better)" if metric in ag.LOWER_BETTER_METRICS else ""
-    ax.set_title(label + suffix)
+    ax.set_title(label)
     ax.legend(loc="best", fontsize=7)
 
 
@@ -72,7 +71,6 @@ def fig_ablation_all_metrics(directory: Path | None = None) -> Path:
     """
     frame = _indomain_hybrid()
     base_row = _qwk_best_base_row()
-    base_name = f"{display_model_name(base_row['model'])}/{base_row.get('loss_display', base_row['loss'])}"
     variants = ["Hybrid (OpenFace only)", "Hybrid + I3D"]
     n_configs = max((len(frame[frame["variant"] == v]) for v in variants), default=0)
     fig, axes = new_fig(2, 3, figsize=(13.5, 8.6))
@@ -80,8 +78,7 @@ def fig_ablation_all_metrics(directory: Path | None = None) -> Path:
         _ablation_panel(ax, frame, metric, variants, base_row)
     for row in axes:
         row[0].set_ylabel("Score (in-domain CMOSE)")
-    fig.suptitle(f"Hybrid ablation across {n_configs} group-architecture configs on all six "
-                 f"metrics (in-domain CMOSE); dashed line = QWK-selected baseline ({base_name})",
+    fig.suptitle(f"Hybrid ablation across {n_configs} configs on all six metrics (in-domain CMOSE)",
                  y=1.01, fontweight="bold")
     fig.tight_layout()
     return save(fig, "hybrid_ablation_all_metrics", directory=directory)
