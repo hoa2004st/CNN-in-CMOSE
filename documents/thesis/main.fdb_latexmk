@@ -1,14 +1,14 @@
 # Fdb version 4
-["bibtex main"] 1782526031.62556 "main.aux" "main.bbl" "main" 1782526036.82774 0
-  "./main-blx.bib" 1782526035 343 eecd58be191eac03682f8fda492bb690 ""
+["bibtex main"] 1782528670.12162 "main.aux" "main.bbl" "main" 1782528675.17073 0
+  "./main-blx.bib" 1782528674 343 eecd58be191eac03682f8fda492bb690 ""
   "./reference.bib" 1782520995 8699 55e7978caf1cf172d4990b3f7c05d333 ""
   "C:/Users/NC PC/AppData/Local/Programs/MiKTeX/bibtex/bst/biblatex/biblatex.bst" 1752408733 65510 9a2a51799b543ff279b8ea2dd91ec499 ""
-  "main.aux" 1782526035 40699 be2f7a89ff0811cea9e2a763d20511f7 "pdflatex"
+  "main.aux" 1782528674 40699 245c62ca70a2c04b9a3ea227cda81a0d "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1782526032.04032 "c:/HOA/1.HUST/Thesis/CNN-in-CMOSE/documents/thesis/main.tex" "main.pdf" "main" 1782526036.82855 0
+["pdflatex"] 1782528670.39268 "c:/HOA/1.HUST/Thesis/CNN-in-CMOSE/documents/thesis/main.tex" "main.pdf" "main" 1782528675.17145 0
   "C:/Users/NC PC/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1782439361 89969 e95579120a3aa0ebc21d2737ca2ba701 ""
   "C:/Users/NC PC/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1781088614 13333523 726ba0580ecf1fb5237723d6322b873a ""
   "C:/Users/NC PC/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/vntex/t5.enc" 1368738347 7824 21ade6c3c7fd67cb4ace8dbc91c53118 ""
@@ -250,12 +250,12 @@
   "C:/Users/NC PC/AppData/Local/Programs/MiKTeX/tex/latex/xurl/xurl.sty" 1641733940 4675 e4b8c405820368c2dfb03526e16d725a ""
   "Chapter/0_2_Acknowledgment.tex" 1782475598 709 e313ceeaa118433699958b6290c154ff ""
   "Chapter/0_3_Abstract.tex" 1782517951 2656 ae5b3ab27a58a1f5f2c4e50eca4e2f0c ""
-  "Chapter/1_Introduction.tex" 1782525340 16791 7087c0929a20aff365d9479c8a9dcbe6 ""
+  "Chapter/1_Introduction.tex" 1782528559 16791 2444456f7ff10df880334048da741e3e ""
   "Chapter/2_Literature_review.tex" 1782525352 25018 4e54b1e438fed1a34344a6c32e4e708e ""
-  "Chapter/3_Methodology.tex" 1782525535 22944 114f2ed04560755d3641cb35eba8426e ""
-  "Chapter/4_Baseline_models.tex" 1782525401 20203 3ac66f1441cf9aea6aef3db0f8eb0905 ""
-  "Chapter/5_Semantic_group_hybrid.tex" 1782525490 21443 1ce6e28a1d3bc301b656a5b97d482244 ""
-  "Chapter/6_Conclusions.tex" 1782525492 15861 58675211db216390d57c0cc823418a0f ""
+  "Chapter/3_Methodology.tex" 1782528447 22932 de6edb52b723196c70e158c837bdce33 ""
+  "Chapter/4_Baseline_models.tex" 1782528533 20195 61e7cd518b88bf869a498977b9a1822c ""
+  "Chapter/5_Semantic_group_hybrid.tex" 1782528546 21403 dccfbacb38e451f3388c8c0773de9d59 ""
+  "Chapter/6_Conclusions.tex" 1782528539 15836 a0596778800779080696a1d1331d0efd ""
   "Cover.tex" 1782475582 1510 50eea5c08aa6ccf02dee88ff4ebc1a63 ""
   "Cover2.tex" 1782516820 1342 e92963219661a3eb0e407f6603ab7955 ""
   "Figure/agreement_base_models.png" 1782525935 265598 9fb782e70ae986250b55eee143512cb9 ""
@@ -293,14 +293,14 @@
   "c:/HOA/1.HUST/Thesis/CNN-in-CMOSE/documents/thesis/main.tex" 1782474696 7618 100ef59ac29c8296579c871d4e065f2c ""
   "glossary.tex" 1782521014 2395 816fef548186f4f80215d73c8d640b32 ""
   "lstlisting.tex" 1780668408 847 536b960931d61baf21a55c6b49c009bc ""
-  "main.aux" 1782526035 40699 be2f7a89ff0811cea9e2a763d20511f7 "pdflatex"
-  "main.bbl" 1782526031 22404 b22bfc761b5b974e467d1b4a761079e8 "bibtex main"
-  "main.lof" 1782526035 6435 28d27cb11b0c9ee94d379d5501d55125 "pdflatex"
-  "main.lot" 1782526035 1648 012432e9c566fdc98177f782b541899b "pdflatex"
-  "main.out" 1782526035 11377 4ed9299e0368eee093a9819d0765d95a "pdflatex"
-  "main.run.xml" 1782526035 2587 cd7a35dd1da26b0d48a583d2f12ae86b "pdflatex"
+  "main.aux" 1782528674 40699 245c62ca70a2c04b9a3ea227cda81a0d "pdflatex"
+  "main.bbl" 1782528670 22404 b22bfc761b5b974e467d1b4a761079e8 "bibtex main"
+  "main.lof" 1782528674 6435 28d27cb11b0c9ee94d379d5501d55125 "pdflatex"
+  "main.lot" 1782528674 1648 012432e9c566fdc98177f782b541899b "pdflatex"
+  "main.out" 1782528674 11377 4ed9299e0368eee093a9819d0765d95a "pdflatex"
+  "main.run.xml" 1782528674 2587 cd7a35dd1da26b0d48a583d2f12ae86b "pdflatex"
   "main.tex" 1782474696 7618 100ef59ac29c8296579c871d4e065f2c ""
-  "main.toc" 1782526035 6393 c8a759e23a50ce0b4786df958a018e1e "pdflatex"
+  "main.toc" 1782528674 6393 93fe8b5a469053ceb2a47808b3483234 "pdflatex"
   (generated)
   "main-blx.bib"
   "main.aux"
