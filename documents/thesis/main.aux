@@ -34,21 +34,15 @@
 \@gls@reference{acronym}{au}{\glsnoidxdisplayloc{}{page}{glsnumberformat}{iv}}
 \@gls@reference{acronym}{tcn}{\glsnoidxdisplayloc{}{page}{glsnumberformat}{iv}}
 \@gls@reference{acronym}{lstm}{\glsnoidxdisplayloc{}{page}{glsnumberformat}{iv}}
-\@gls@reference{acronym}{cnn}{\glsnoidxdisplayloc{}{page}{glsnumberformat}{iv}}
 \@gls@reference{acronym}{mlp}{\glsnoidxdisplayloc{}{page}{glsnumberformat}{iv}}
 \@gls@reference{acronym}{qwk}{\glsnoidxdisplayloc{}{page}{glsnumberformat}{iv}}
 \@gls@reference{acronym}{emd}{\glsnoidxdisplayloc{}{page}{glsnumberformat}{iv}}
 \@gls@reference{acronym}{ce}{\glsnoidxdisplayloc{}{page}{glsnumberformat}{iv}}
 \@gls@reference{acronym}{mae}{\glsnoidxdisplayloc{}{page}{glsnumberformat}{iv}}
 \@gls@reference{acronym}{smote}{\glsnoidxdisplayloc{}{page}{glsnumberformat}{iv}}
-\@gls@reference{acronym}{sota}{\glsnoidxdisplayloc{}{page}{glsnumberformat}{iv}}
-\@gls@reference{acronym}{rnn}{\glsnoidxdisplayloc{}{page}{glsnumberformat}{iv}}
 \@gls@reference{acronym}{bilstm}{\glsnoidxdisplayloc{}{page}{glsnumberformat}{iv}}
-\@gls@reference{acronym}{pca}{\glsnoidxdisplayloc{}{page}{glsnumberformat}{iv}}
-\@gls@reference{acronym}{svd}{\glsnoidxdisplayloc{}{page}{glsnumberformat}{iv}}
 \@gls@reference{acronym}{relu}{\glsnoidxdisplayloc{}{page}{glsnumberformat}{iv}}
 \@gls@reference{acronym}{gelu}{\glsnoidxdisplayloc{}{page}{glsnumberformat}{iv}}
-\@gls@reference{acronym}{amp}{\glsnoidxdisplayloc{}{page}{glsnumberformat}{iv}}
 \@gls@reference{acronym}{cdf}{\glsnoidxdisplayloc{}{page}{glsnumberformat}{iv}}
 \@writefile{toc}{\contentsline {chapter}{\numberline {1}INTRODUCTION}{1}{chapter.1}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
@@ -164,6 +158,12 @@
 \citation{smote}
 \abx@aux@cite{0}{smote}
 \abx@aux@segm{0}{0}{smote}
+\citation{squared_emd}
+\abx@aux@cite{0}{squared_emd}
+\abx@aux@segm{0}{0}{squared_emd}
+\citation{squared_emd}
+\abx@aux@cite{0}{squared_emd}
+\abx@aux@segm{0}{0}{squared_emd}
 \citation{adam}
 \abx@aux@cite{0}{adam}
 \abx@aux@segm{0}{0}{adam}
@@ -283,10 +283,10 @@
 \newlabel{sec:agreement}{{4.4}{33}{Prediction Agreement}{section.4.4}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.4.1}Agreement between Configurations}{33}{subsection.4.4.1}\protected@file@percent }
 \newlabel{sec:agreement-configs}{{4.4.1}{33}{Agreement between Configurations}{subsection.4.4.1}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4.4}{\ignorespaces Pairwise prediction agreement (Cohen's $\kappa $) between all fifteen baseline configurations on the in-domain CMOSE test set, in model-major blocks. The diagonal blocks are the same architecture under different losses; agreement is moderate at best everywhere.}}{34}{figure.caption.22}\protected@file@percent }
-\newlabel{fig:agreement_base_models}{{4.4}{34}{Pairwise prediction agreement (Cohen's $\kappa $) between all fifteen baseline configurations on the in-domain CMOSE test set, in model-major blocks. The diagonal blocks are the same architecture under different losses; agreement is moderate at best everywhere}{figure.caption.22}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.2}OpenFace versus I3D}{35}{subsection.4.4.2}\protected@file@percent }
-\newlabel{sec:openface-vs-i3d}{{4.4.2}{35}{OpenFace versus I3D}{subsection.4.4.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.4}{\ignorespaces Pairwise prediction agreement (Cohen's $\kappa $) between all fifteen baseline configurations on the in-domain CMOSE test set, in model-major blocks. The diagonal blocks are the same architecture under different losses; agreement is moderate at best.}}{34}{figure.caption.22}\protected@file@percent }
+\newlabel{fig:agreement_base_models}{{4.4}{34}{Pairwise prediction agreement (Cohen's $\kappa $) between all fifteen baseline configurations on the in-domain CMOSE test set, in model-major blocks. The diagonal blocks are the same architecture under different losses; agreement is moderate at best}{figure.caption.22}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.2}OpenFace versus I3D}{34}{subsection.4.4.2}\protected@file@percent }
+\newlabel{sec:openface-vs-i3d}{{4.4.2}{34}{OpenFace versus I3D}{subsection.4.4.2}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {4.3}{\ignorespaces Best OpenFace encoder (selected on QWK) vs the I3D MLP on QWK and the balanced secondary metrics (in-domain CMOSE, cross-entropy).}}{35}{table.caption.23}\protected@file@percent }
 \newlabel{tab:T4_3_openface_vs_i3d}{{4.3}{35}{Best OpenFace encoder (selected on QWK) vs the I3D MLP on QWK and the balanced secondary metrics (in-domain CMOSE, cross-entropy)}{table.caption.23}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {4.5}Cross-Dataset Generalisation}{35}{section.4.5}\protected@file@percent }
@@ -341,10 +341,10 @@
 \newlabel{fig:private_per_class_f1}{{5.5}{46}{Per-class F1 on the private set: combined-trained best base model versus best hybrid. The hybrid's out-of-domain gain concentrates on the engaged region and the middle Disengage class, while Highly-Disengage collapses to zero}{figure.caption.33}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.6.3}In-Domain versus Transfer}{46}{subsection.5.6.3}\protected@file@percent }
 \newlabel{sec:hybrid-indomain-transfer}{{5.6.3}{46}{In-Domain versus Transfer}{subsection.5.6.3}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.6}{\ignorespaces In-domain QWK versus mean unseen-target QWK with the hybrid ablation population overlaid on the baseline configurations. Within the hybrid family the correlation is negative ($\rho =-0.31$): more in-domain fit means more dataset fit. The hybrid cloud lies above the baselines throughout: the architecture improves transfer at every level of in-domain performance.}}{47}{figure.caption.34}\protected@file@percent }
-\newlabel{fig:indomain_vs_generalization_hybrid}{{5.6}{47}{In-domain QWK versus mean unseen-target QWK with the hybrid ablation population overlaid on the baseline configurations. Within the hybrid family the correlation is negative ($\rho =-0.31$): more in-domain fit means more dataset fit. The hybrid cloud lies above the baselines throughout: the architecture improves transfer at every level of in-domain performance}{figure.caption.34}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {5.7}Discussion}{47}{section.5.7}\protected@file@percent }
-\newlabel{sec:gen-discussion}{{5.7}{47}{Discussion}{section.5.7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.6}{\ignorespaces In-domain QWK (trained and tested on CMOSE) versus transfer QWK (trained on Combined, tested on the held-out private set); each configuration is one point pairing its own two runs, so the axes pool no training populations. The correlation is weak for both the 486 hybrid configurations ($\rho =0.27$) and the 15 baselines ($\rho =0.31$). The hybrid cloud lies above and to the right of the baselines: the architecture improves both in-domain QWK and private-set transfer.}}{47}{figure.caption.34}\protected@file@percent }
+\newlabel{fig:indomain_vs_generalization_hybrid}{{5.6}{47}{In-domain QWK (trained and tested on CMOSE) versus transfer QWK (trained on Combined, tested on the held-out private set); each configuration is one point pairing its own two runs, so the axes pool no training populations. The correlation is weak for both the 486 hybrid configurations ($\rho =0.27$) and the 15 baselines ($\rho =0.31$). The hybrid cloud lies above and to the right of the baselines: the architecture improves both in-domain QWK and private-set transfer}{figure.caption.34}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.7}Discussion}{48}{section.5.7}\protected@file@percent }
+\newlabel{sec:gen-discussion}{{5.7}{48}{Discussion}{section.5.7}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {5.8}Chapter Summary}{48}{section.5.8}\protected@file@percent }
 \newlabel{sec:hybrid-summary}{{5.8}{48}{Chapter Summary}{section.5.8}{}}
 \@writefile{toc}{\contentsline {chapter}{\numberline {6}CONCLUSIONS}{49}{chapter.6}\protected@file@percent }
@@ -370,7 +370,7 @@
 \newlabel{sec:closing}{{6.7}{54}{Closing Remarks}{section.6.7}{}}
 \@writefile{toc}{\contentsline {chapter}{REFERENCE}{56}{section*.36}\protected@file@percent }
 \ttl@finishall
-\abx@aux@read@bbl@mdfivesum{CA99F0A819F3C592A286644B2116AFEB}
+\abx@aux@read@bbl@mdfivesum{A16526B34F15C709F01BF22F732CF43C}
 \abx@aux@defaultrefcontext{0}{cmose}{none/global//global/global/global}
 \abx@aux@defaultrefcontext{0}{daisee}{none/global//global/global/global}
 \abx@aux@defaultrefcontext{0}{openface2}{none/global//global/global/global}
@@ -386,6 +386,7 @@
 \abx@aux@defaultrefcontext{0}{lstm}{none/global//global/global/global}
 \abx@aux@defaultrefcontext{0}{transformer}{none/global//global/global/global}
 \abx@aux@defaultrefcontext{0}{smote}{none/global//global/global/global}
+\abx@aux@defaultrefcontext{0}{squared_emd}{none/global//global/global/global}
 \abx@aux@defaultrefcontext{0}{adam}{none/global//global/global/global}
 \abx@aux@defaultrefcontext{0}{cohenkappa}{none/global//global/global/global}
 \abx@aux@defaultrefcontext{0}{spearman}{none/global//global/global/global}
@@ -405,8 +406,9 @@
 \abx@aux@defaultlabelprefix{0}{lstm}{}
 \abx@aux@defaultlabelprefix{0}{transformer}{}
 \abx@aux@defaultlabelprefix{0}{smote}{}
+\abx@aux@defaultlabelprefix{0}{squared_emd}{}
 \abx@aux@defaultlabelprefix{0}{adam}{}
 \abx@aux@defaultlabelprefix{0}{cohenkappa}{}
 \abx@aux@defaultlabelprefix{0}{spearman}{}
 \abx@aux@defaultlabelprefix{0}{kendall}{}
-\gdef \@abspage@last{70}
+\gdef \@abspage@last{69}

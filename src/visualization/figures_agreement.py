@@ -70,8 +70,8 @@ def _fig_metric_correlation(frame, name: str, subtitle: str,
     labels = [ag.METRIC_DISPLAY[m] + ("*" if m in ag.LOWER_BETTER_METRICS else "")
               for m in corr.columns]
     fig, ax = new_fig(figsize=(6.4, 5.2))
-    im = _annotated_heatmap(ax, corr, vmin=-1.0, vmax=1.0, cmap="RdBu_r", fontsize=9,
-                            diverging=True)
+    im = _annotated_heatmap(ax, corr, vmin=-1.0, vmax=1.0, cmap="RdBu_r", fontsize=13,
+                            fmt="{:.3f}", diverging=True)
     ax.set_xticks(range(len(labels)))
     ax.set_xticklabels(labels, rotation=30, ha="right")
     ax.set_yticks(range(len(labels)))

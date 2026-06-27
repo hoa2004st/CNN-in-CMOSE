@@ -641,6 +641,37 @@
     \field{year}{2002}
   \endentry
 
+  \entry{squared_emd}{article}{}{}
+    \name{author}{3}{}{%
+      {{hash=HL}{%
+         family={Hou},
+         familyi={H\bibinitperiod},
+         given={Le},
+         giveni={L\bibinitperiod},
+      }}%
+      {{hash=YCP}{%
+         family={Yu},
+         familyi={Y\bibinitperiod},
+         given={Chen-Ping},
+         giveni={C\bibinithyphendelim P\bibinitperiod},
+      }}%
+      {{hash=SD}{%
+         family={Samaras},
+         familyi={S\bibinitperiod},
+         given={Dimitris},
+         giveni={D\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{HL+1}
+    \strng{fullhash}{HLYCPSD1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{Squared Earth Mover's Distance-based Loss for Training Deep
+  Neural Networks}
+    \field{journaltitle}{arXiv preprint arXiv:1611.05916}
+    \field{year}{2016}
+  \endentry
+
   \entry{adam}{inproceedings}{}{}
     \name{author}{2}{}{%
       {{hash=KDP}{%

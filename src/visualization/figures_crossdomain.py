@@ -24,7 +24,7 @@ from src.visualization.style import (
 _METRIC = "quadratic_weighted_kappa"
 
 
-def _heatmap(ax, pivot, title: str, *, vmin, vmax, cmap="RdYlGn", fmt="{:.2f}",
+def _heatmap(ax, pivot, title: str, *, vmin, vmax, cmap="RdYlGn", fmt="{:.3f}",
              show_y=True, show_x=True) -> None:
     data = pivot.to_numpy(dtype=float)
     im = ax.imshow(data, cmap=cmap, vmin=vmin, vmax=vmax, aspect="auto")
@@ -44,7 +44,7 @@ def _heatmap(ax, pivot, title: str, *, vmin, vmax, cmap="RdYlGn", fmt="{:.2f}",
         for j in range(data.shape[1]):
             val = data[i, j]
             ax.text(j, i, fmt.format(val), ha="center", va="center",
-                    color="black", fontsize=9,
+                    color="black", fontsize=12,
                     fontweight="bold" if i == j or (pivot.index[i] == "combined") else "normal")
     return im
 
@@ -104,7 +104,7 @@ def fig_crossdomain_delta(directory: Path | None = None) -> Path:
             highlight = (j == private_col) or (delta.index[i] == "cmose"
                                                and delta.columns[j] == "cmose_test")
             ax.text(j, i, f"{data[i, j]:+.3f}", ha="center", va="center",
-                    color="black", fontsize=11,
+                    color="black", fontsize=13,
                     fontweight="bold" if highlight else "normal")
     fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04, label="$\\Delta$QWK (hybrid $-$ base)")
     fig.suptitle("Hybrid advantage per cell: best hybrid $-$ best base (QWK)",
@@ -176,50 +176,48 @@ def fig_crossdomain_delta_full(directory: Path | None = None) -> Path:
     return save(fig, "crossdomain_delta_full", directory=directory)
 
 
-def _scatter_points(frame, keys: list[str]):
-    """(x, y, rows) per trained model: in-domain QWK vs mean QWK on its unseen cells.
+def _scatter_points_indomain_transfer(frame, keys: list[str]):
+    """One point per config: in-domain QWK (trained and tested on CMOSE) vs transfer QWK
+    (trained on Combined, tested on the held-out private set).
 
-    Only cmose- and daisee-trained models have a true in-domain cell; each contributes
-    one point with y averaged over that source's unseen-target cells.
+    Each config contributes a single (x, y) pair built from two of its own runs -- its
+    pure CMOSE in-domain cell and its Combined->Private deployment cell -- so the scatter
+    is one point per configuration, not a pool of several training populations (the earlier
+    version pooled cmose- and daisee-trained models, two distinct populations, into one
+    correlation).
     """
-    points = []
-    for source, in_test in [("cmose", "cmose_test"), ("daisee", "daisee_test")]:
-        sub = frame[frame["train_group"] == source]
-        indomain = sub[sub["test_set"] == in_test].set_index(keys)[_METRIC]
-        unseen_tests = [t for g, t in ag.UNSEEN_TARGET_CELLS if g == source]
-        unseen = (sub[sub["test_set"].isin(unseen_tests)]
-                  .groupby(keys)[_METRIC].mean())
-        joined = indomain.to_frame("in").join(unseen.to_frame("out"), how="inner").reset_index()
-        joined["source"] = source
-        points.append(joined)
-    return pd.concat(points, ignore_index=True)
+    indomain = frame[(frame["train_group"] == "cmose") &
+                     (frame["test_set"] == "cmose_test")].set_index(keys)[_METRIC]
+    transfer = frame[(frame["train_group"] == "combined") &
+                     (frame["test_set"] == "private")].set_index(keys)[_METRIC]
+    joined = indomain.to_frame("in").join(transfer.to_frame("out"), how="inner").reset_index()
+    return joined.dropna(subset=["in", "out"])
 
 
-def fig_indomain_vs_generalization(include_hybrid: bool = False,
+def fig_indomain_vs_generalization(include_hybrid: bool = True,
                                    directory: Path | None = None) -> Path:
-    """Scatter: does a model's in-domain QWK predict its QWK on unseen targets?
+    """Scatter: does a config's CMOSE in-domain QWK predict its private-set transfer?
 
-    One point per trained model (config x train source); Spearman rho quantifies how much
-    of the in-domain ranking survives the shift. The hybrid variant overlays the ablation
-    population to show whether the (lack of) relationship is architecture-specific.
+    x is the pure in-domain cell (trained and tested on CMOSE); y is the deployment cell
+    (trained on Combined, tested on the held-out private set). Each config is one point that
+    pairs its own two runs, so the scatter is a single population (the earlier version
+    pooled cmose- and daisee-trained models). Spearman rho quantifies how much of the
+    in-domain ranking survives the shift to the private set; the hybrid overlay shows
+    whether the relationship is architecture-specific.
     """
-    base_points = _scatter_points(ag.load_matrix(), ["model", "loss"])
-    source_marker = {"cmose": "o", "daisee": "^"}
+    base_points = _scatter_points_indomain_transfer(ag.load_matrix(), ["model", "loss"])
     fig, ax = new_fig(figsize=(7.6, 5.6))
 
     hybrid_points = None
     if include_hybrid:
-        hybrid_points = _scatter_points(ag.load_hybrid_matrix(), ["model_type", "arch_key", "loss"])
-        for source, marker in source_marker.items():
-            sub = hybrid_points[hybrid_points["source"] == source]
-            ax.scatter(sub["in"], sub["out"], s=12, marker=marker, color="#BBBBBB",
-                       alpha=0.45, linewidth=0,
-                       label=f"Hybrid configs ({ag.TRAIN_GROUP_DISPLAY[source]}-trained)")
-    for source, marker in source_marker.items():
-        sub = base_points[base_points["source"] == source]
-        ax.scatter(sub["in"], sub["out"], s=46, marker=marker,
-                   c=[model_color(m) for m in sub["model"]], edgecolor="black",
-                   linewidth=0.5, label=f"Base configs ({ag.TRAIN_GROUP_DISPLAY[source]}-trained)")
+        hybrid_points = _scatter_points_indomain_transfer(
+            ag.load_hybrid_matrix(), ["model_type", "arch_key", "loss"])
+        ax.scatter(hybrid_points["in"], hybrid_points["out"], s=12, marker="o",
+                   color="#BBBBBB", alpha=0.45, linewidth=0,
+                   label=f"Hybrid configs (n={len(hybrid_points)})")
+    ax.scatter(base_points["in"], base_points["out"], s=46, marker="o",
+               c=[model_color(m) for m in base_points["model"]], edgecolor="black",
+               linewidth=0.5, label=f"Base configs (n={len(base_points)})")
 
     rho_base = spearmanr(base_points["in"], base_points["out"]).statistic
     note = f"Spearman $\\rho$ (base, n={len(base_points)}) = {rho_base:.2f}"
@@ -228,9 +226,9 @@ def fig_indomain_vs_generalization(include_hybrid: bool = False,
         note += f"\nSpearman $\\rho$ (hybrid, n={len(hybrid_points)}) = {rho_hybrid:.2f}"
     ax.annotate(note, xy=(0.02, 0.98), xycoords="axes fraction", va="top", fontsize=9)
     ax.axhline(0, color="gray", lw=0.8, ls=":")
-    ax.set_xlabel("In-domain QWK (train corpus = test corpus)")
-    ax.set_ylabel("Mean QWK on unseen-target cells")
-    ax.set_title("In-domain QWK versus generalization to unseen targets")
+    ax.set_xlabel("In-domain QWK (trained and tested on CMOSE)")
+    ax.set_ylabel("Transfer QWK (trained on Combined, tested on Private)")
+    ax.set_title("In-domain CMOSE QWK versus private-set transfer")
     handles, _ = ax.get_legend_handles_labels()
     handles += [Line2D([], [], marker="s", linestyle="", color=model_color(m),
                        label=display_model_name(m)) for m in MODEL_ORDER]

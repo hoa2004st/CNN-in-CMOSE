@@ -67,7 +67,7 @@ It was built in five steps.
   \item \textbf{Source and segmentation.}
   Webcam recordings of online-class sessions were sampled at several points within each session and cut into fixed-length 10-second clips, each containing a single learner.
   \item \textbf{Tracking-quality filtering.}
-  Every clip was run through the same OpenFace pipeline as the public datasets; clips with too few successfully tracked frames were rejected automatically, since a descriptor built from unreliable frames is meaningless.
+  Every clip was run through the same OpenFace pipeline as the public datasets; clips with too few tracked frames were rejected automatically, since a descriptor built from unreliable frames is meaningless.
   \item \textbf{Manual labelling.}
   The accepted clips were labelled by me through a purpose-built local interface, one engagement label per clip; reliance on a single annotator is a limitation revisited in Section~\ref{sec:limitations}.
   \item \textbf{Feature extraction.}
@@ -88,7 +88,7 @@ When a single OpenFace frame contains more than one detected face, the highest-c
 \textbf{Temporal resampling.}
 OpenFace clips vary in length, so each is resampled along time to a fixed number of frames by linear interpolation per feature.
 The OpenFace sequence length is 300 frames for the single-dataset runs and is reduced to 150 for the larger Combined runs to fit memory; in the multimodal variant the OpenFace stream is resampled to 75 frames.
-The I3D feature is a single 1024-dimensional vector per clip (not a sequence): the I3D stream mean-pools it to that vector and encodes it with an MLP (Section~\ref{sec:hybrid}).
+The I3D feature is a single 1024-dimensional vector per clip, not a sequence, and is encoded by an MLP (Section~\ref{sec:hybrid}).
 
 \textbf{Normalisation.}
 Every feature is standardised by a per-feature $z$-score whose mean and standard deviation are fit on the training split only; the validation, test, and private sets are transformed with those training statistics, so no target-set information leaks into preprocessing.
@@ -99,15 +99,15 @@ OpenFace and I3D are standardised with separate statistics.
 \label{sec:baselines}
 
 Five single-encoder baselines provide the comparison points; they form the allow-list \texttt{MODEL\_ORDER} used by the analysis.
-Each follows the standard approach in the literature: a single encoder consumes the full feature sequence and feeds a classifier.
+Each follows the standard approach: a single encoder consumes the full feature sequence and feeds a classifier.
 \begin{enumerate}
   \item \texttt{openface\_mlp}: flattens the OpenFace sequence and classifies it with a multilayer perceptron ($\to$256$\to$128$\to$4, dropout 0.3).
   \item \texttt{openface\_tcn}: a TCN over the 709-d sequence (residual dilated blocks of widths $256,128,128$; kernel 3; dilations $1,2,4$), adaptive average-pooling, then a $128\!\to\!128\!\to\!4$ classifier.
   \item \texttt{openface\_lstm}: a two-layer LSTM (hidden width 256) whose final hidden state feeds a $256\!\to\!128\!\to\!4$ classifier.
   \item \texttt{openface\_transformer}: a linear projection to 128 dimensions, a sinusoidal positional encoding, and two Transformer encoder layers (4 heads, feed-forward width 256), mean-pooled and classified.
-  \item \texttt{i3d\_mlp}: mean-pools the I3D clip feature to a 1024-d vector and classifies it with an MLP ($1024\!\to\!256\!\to\!128\!\to\!4$, dropout 0.3).
+  \item \texttt{i3d\_mlp}: classifies the single 1024-d I3D clip vector with an MLP ($1024\!\to\!256\!\to\!128\!\to\!4$, dropout 0.3).
 \end{enumerate}
-A sixth model, \texttt{openface\_tcn\_i3d\_fusion} (a shared-fusion TCN over both modalities), exists in the codebase but is excluded from the assessment so that the comparison isolates the feature-group hypothesis rather than generic modality fusion.
+A sixth model, \texttt{openface\_tcn\_i3d\_fusion} (a shared-fusion TCN over both modalities), exists in the codebase but is excluded from the assessment so that the comparison isolates the feature-group hypothesis rather than modality fusion.
 
 The five baseline architectures are shown in Figure~\ref{fig:baselines}.
 The four OpenFace baselines (a--d) encode the full $T\times709$ sequence with a single encoder, while \texttt{i3d\_mlp} (e) classifies the pooled 1024-d I3D clip vector.
@@ -194,7 +194,7 @@ The OpenFace-only variant drops the I3D row and fuses a 320-d vector.}
 \end{figure}
 
 \textbf{Per-group encoder.}
-Each group is encoded by a \texttt{GroupEncoder} that is one of three interchangeable temporal encoders (Figure~\ref{fig:group_encoders}), followed by temporal mean-pooling and a layer normalisation, producing a fixed 64-dimensional embedding:
+Each group is encoded by a \texttt{GroupEncoder} that is one of three interchangeable temporal encoders (Figure~\ref{fig:group_encoders}), followed by temporal mean-pooling and a layer normalisation, producing a 64-dimensional embedding:
 \begin{enumerate}
   \item a TCN: two residual blocks of dilated causal 1-D convolutions (channel widths $64,64$; kernel size 3; dropout 0.2);
   \item a Transformer encoder: a linear projection to 64 dimensions, a sinusoidal positional encoding, and two encoder layers (4 heads, feed-forward width 128, GELU, dropout 0.2);
@@ -229,7 +229,7 @@ Each maps a group's $T\times D_{\text{group}}$ sequence to a 64-dimensional embe
 \textbf{Fusion and heads.}
 The five 64-d group embeddings are concatenated into a 320-d vector and passed through a two-layer MLP classifier ($320\!\to\!128\!\to\!4$, ReLU, dropout 0.3) that produces the main logits.
 Each group additionally feeds an auxiliary classification head ($\mathrm{dropout}\to\mathrm{Linear}(64\!\to\!4)$).
-The total loss is the main-head loss plus $\texttt{aux\_weight}=0.2$ times the mean of the per-group auxiliary losses (Section~\ref{sec:losses-method}); the auxiliary supervision forces every stream to be individually discriminative.
+The total loss is the main-head loss plus $\texttt{aux\_weight}=0.2$ times the mean of the per-group losses (Section~\ref{sec:losses-method}); the auxiliary supervision makes each stream individually~discriminative.
 
 \textbf{Multimodal variant.}
 The I3D-fused model adds a sixth stream: the single 1024-d I3D clip vector is encoded by an MLP ($1024\!\to\!256\!\to\!128$, ReLU, dropout 0.3) and layer-normalised to a 128-d embedding with its own auxiliary head.
@@ -244,7 +244,7 @@ With three choices per group there are $3^{5}=243$ configurations, each evaluate
 \section{Loss Functions}
 \label{sec:losses-method}
 
-The five baseline models are each trained under all three losses introduced in Section~\ref{sec:losses-lit} (cross-entropy, weighted cross-entropy, and the ordinal EMD loss of Equation~\eqref{eq:emd}), so that the effect of the loss can be measured directly.
+The five baseline models are each trained under all three losses introduced in Section~\ref{sec:losses-lit} (cross-entropy, weighted cross-entropy, and the ordinal squared-EMD loss of Equation~\eqref{eq:emd}), so that the effect of the loss can be measured directly.
 The class weights for the weighted and ordinal variants are inverse-frequency weights computed on the training split and normalised to mean~1: for class $c$ with $n_c$ training samples and $C$ non-empty classes,
 \begin{equation}
 w_c = \frac{1}{n_c}\cdot\frac{C}{\sum_{k} \frac{1}{n_k}},

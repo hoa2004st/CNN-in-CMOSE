@@ -32,7 +32,7 @@ A systematic review of computer-vision engagement detection~\cite{review_engagem
 A large body of work first reduces each frame to a compact descriptor with a toolkit such as OpenFace~\cite{openface2} and then models the sequence.
 Representative pipelines feed OpenFace action units, gaze, and head pose to a recurrent network, for example an OpenFace$+$BiLSTM model~\cite{openface_bilstm}, or apply dimensionality reduction and resampling (principal component analysis or singular value decomposition together with synthetic minority oversampling) before a convolutional or fully-connected classifier~\cite{openface_pca_smote}.
 Other studies aggregate the features over time and compare classical learners such as logistic regression, support vector machines, multilayer perceptrons, $k$-nearest neighbours, and gradient-boosted trees~\cite{classical_ml_engagement}.
-These works together show that OpenFace descriptors carry a real engagement signal, but they share a structural assumption: the 709-dimensional descriptor is treated as one uniform vector, encoded by one model with its temporal bias.
+These works show that OpenFace descriptors carry a real engagement signal, but they share a structural assumption: the 709-dimensional descriptor is treated as one uniform vector, encoded by one model with its temporal bias.
 
 \textbf{End-to-end video approaches.}
 A second family learns directly from pixels.
@@ -42,7 +42,7 @@ These models can capture appearance and motion cues that landmark-based descript
 \textbf{Research Gap.}
 Two gaps persist across both families and define the contribution of this thesis.
 First, the facial features are mixed but are encoded as one block rather than per behavioural subsystem, even though their signals (gaze, eye and face geometry, head pose, action units) have very different timing.
-Second, studies mostly use accuracy to evaluate and rarely measure transfer across datasets: in-domain accuracy dominates the literature, yet on imbalanced data a high accuracy score can hide a model that does not transfer at all.
+Second, studies mostly use accuracy to evaluate and do not have reliable evaluation for generalisation: in-domain accuracy dominates the literature, yet on imbalanced data a high accuracy score can hide a model that does not transfer at all.
 The feature-group hybrid proposed in Chapter~3 targets the first gap, and the 3$\times$3 cross-dataset protocol of Chapter~5 targets the second.
 
 \FloatBarrier
@@ -74,7 +74,7 @@ The I3D stream contributes a global summary, not fine motion over time.
 
 A clip is a sequence of per-frame OpenFace descriptors, so a model must reduce a variable-length sequence to a single engagement prediction.
 Three architecture families dominate sequence modelling, and all three are used in this thesis, both as single-encoder baselines (Section~\ref{sec:baselines}) and as the per-group encoders inside the hybrid (Section~\ref{sec:hybrid}).
-They differ chiefly in how they let one time step influence another.
+They differ in how they let one time step influence another.
 
 \subsection{Temporal Convolutional Networks (TCN)}
 
@@ -171,13 +171,13 @@ On imbalanced data it is dominated by the majority class and on ordinal data it 
 This raises the cost of mistakes on rare classes such as Highly\nobreakdash-Disengage and forces the model to avoid collapsing onto the majority, at the expense of some overall accuracy.
 Resampling techniques such as SMOTE~\cite{smote} address the same imbalance at the data level by synthesising minority examples; this thesis instead studies loss-level remedies, which require no change to the data pipeline.
 
-\textbf{Ordinal (EMD-style) loss} encodes the order of the classes by comparing cumulative distributions.
+\textbf{Ordinal (squared-EMD) loss}~\cite{squared_emd} encodes the order of the classes by comparing cumulative distributions.
 Writing the predicted cumulative distribution as $\sum_{j=1}^{k}\widehat{y}_j$ and the cumulative distribution of the one-hot label as the unit step $\sum_{j=1}^{k} y_j$ (which rises from $0$ to $1$ at the true class), the loss is the mean squared distance between the two step functions,
 \begin{equation}
 \mathcal{L}_{\text{EMD}} = \frac{w_y}{C}\sum_{k=1}^{C}\left(\sum_{j=1}^{k}\widehat{y}_j-\sum_{j=1}^{k}y_j\right)^2 ,
 \label{eq:emd}
 \end{equation}
-a one-dimensional, squared Earth Mover's Distance between the predicted and target distributions over the ordered classes; the leading $w_y$ is the weight of the true class (Section~\ref{sec:losses-method}), set to $1$ in the unweighted variant.
+the squared Earth Mover's Distance (squared-EMD, also called the CDF-MSE) between the predicted and target distributions over the ordered classes~\cite{squared_emd}, not the exact Earth Mover's (1-Wasserstein) distance, which is the unsquared $L_1$ distance between the same cumulative distributions; the leading $w_y$ is the weight of the true class (Section~\ref{sec:losses-method}), set to $1$ in the unweighted variant.
 Because moving probability mass across several classes costs more than moving it to an adjacent class, this loss directly penalises the large ordinal errors (HD$\leftrightarrow$HE) that accuracy and plain cross-entropy treat as ordinary.
 
 All models are optimised with Adam~\cite{adam}, an adaptive first-order optimiser that maintains per-parameter running estimates of the first and second moments of the gradient and is the standard default for training such networks.
@@ -230,7 +230,7 @@ w_{ij} = \frac{(i-j)^2}{(C-1)^2},
 \end{equation}
 so that disagreements are penalised in proportion to the square of the ordinal distance between the true and predicted classes.
 QWK suits this problem well because it is corrected for chance, it respects the class order, and it cannot be inflated by majority prediction.
-It is the thesis's single primary metric, the only criterion used to select the best model, with macro-accuracy (balanced recall) and macro-MAE (ordinal distance) reported as secondary companions that describe a result but never choose it.
+It is the thesis's primary metric, the only criterion used to select the best model, with macro-accuracy (balanced recall) and macro-MAE (ordinal distance) reported as secondary companions that describe a result but never choose it.
 
 \FloatBarrier
 \section{Statistical Measures for Result Analysis}

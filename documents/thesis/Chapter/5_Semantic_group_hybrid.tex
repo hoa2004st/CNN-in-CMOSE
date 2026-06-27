@@ -179,18 +179,21 @@ Disengage class, while Highly-Disengage collapses to zero.}
 \subsection{In-Domain versus Transfer}
 \label{sec:hybrid-indomain-transfer}
 
-Section~\ref{sec:indomain-vs-transfer} showed that a baseline's in-domain QWK barely predicts its transfer ($\rho=0.28$); the ablation population sharpens the warning.
-Figure~\ref{fig:indomain_vs_generalization_hybrid} overlays the 972 trained hybrid models on the baseline scatter: within the hybrid family the correlation is negative ($\rho=-0.31$): among closely related configurations, squeezing out more in-domain QWK mildly hurts transfer, because the extra fit is dataset fit.
-The hybrid's advantage is therefore not a position on an in-domain--transfer trend (no usable trend exists); instead, the hybrid cloud lies above the baselines at every level of in-domain performance, and the private-set winner is found by family-level robustness and combined training, not by picking the best in-domain configuration.
+Section~\ref{sec:indomain-vs-transfer} asked, for the baselines, whether in-domain QWK predicts transfer, pairing each configuration's in-domain cell (trained and tested on CMOSE) with its deployment cell (trained on Combined and tested on the held-out private set).
+Figure~\ref{fig:indomain_vs_generalization_hybrid} repeats that scatter and overlays the 486 hybrid configurations; each configuration is a single point pairing its own two runs, so the axes pool no training populations.
+Across the hybrid configurations the correlation stays weak ($\rho=0.27$, significant only because $n=486$), in the same range as the baseline relationship ($\rho=0.31$, $n=15$): a configuration's pure in-domain CMOSE ability is, at most, a weak predictor of how it transfers to the private set.
+The architecture's contribution therefore shows as position rather than slope: the hybrid cloud lies above and to the right of the baseline configurations, reaching both higher in-domain QWK and higher private-set transfer, so the feature-group design lifts both ends together, while combined training remains the lever that places a model in that upper-right region.
+The private-set winner is thus found by family-level robustness and combined training, not by reading the in-domain leaderboard.
 
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\linewidth]{indomain_vs_generalization_hybrid.png}
-\caption{In-domain QWK versus mean unseen-target QWK with the hybrid ablation population
-overlaid on the baseline configurations. Within the hybrid family the
-correlation is negative ($\rho=-0.31$): more in-domain fit means more dataset fit. The
-hybrid cloud lies above the baselines throughout: the architecture improves
-transfer at every level of in-domain performance.}
+\caption{In-domain QWK (trained and tested on CMOSE) versus transfer QWK (trained on
+Combined, tested on the held-out private set); each configuration is one point pairing its
+own two runs, so the axes pool no training populations. The correlation is weak for both
+the 486 hybrid configurations ($\rho=0.27$) and the 15 baselines ($\rho=0.31$). The hybrid
+cloud lies above and to the right of the baselines: the architecture improves both
+in-domain QWK and private-set transfer.}
 \label{fig:indomain_vs_generalization_hybrid}
 \end{figure}
 
@@ -201,7 +204,7 @@ transfer at every level of in-domain performance.}
 \textbf{Why the levers work.}
 Combining datasets works through prior coverage: CMOSE and DAiSEE are imbalanced in opposite directions (Section~\ref{sec:data}), so their combination spans a wider range of label priors and an unseen target is closer to the combined dataset than to either single source.
 The hybrid's margin widens off-domain for the reason it was designed: each behavioural channel is encoded separately and forced to be discriminative through its auxiliary head, so that the representation is less dependent on the distinctive features of any dataset.
-The two feature families diverge under shift because the OpenFace descriptors live in subject-centred physical units that mean the same thing in any setup, whereas the I3D embedding encodes global appearance, exactly what changes between datasets, so fusion adds signal only where the test appearance statistics are represented in training.
+The two feature families diverge under shift because the OpenFace descriptors live in subject-centred physical units that mean the same thing in any setup, whereas the I3D embedding encodes global appearance, what changes between datasets, so fusion adds signal only where the test statistics are represented in training.
 
 \textbf{What the headline number means.}
 QWK 0.379 is a clear improvement over chance, every single-source model, and the best baseline ($+0.094$), but in absolute terms moderate: with macro-MAE 0.877 the model captures the broad engaged-versus-disengaged trend yet is unreliable at fine distinctions, and the rarest class Highly\nobreakdash-Disengage fails in both regimes.

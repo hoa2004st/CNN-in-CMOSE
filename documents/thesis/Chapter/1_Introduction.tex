@@ -67,7 +67,7 @@ These parts move at different speeds: the eyes flick fast and noisily, head turn
 The usual practice of joining all 709 numbers and pushing them through one sequence encoder forces a single temporal model onto signals that do not share a single timescale.
 It also makes the model harder to read, because the role of each behavioural channel is no longer separate.
 
-\textbf{Second, studies mostly use accuracy to evaluate, and rarely measure how models transfer across datasets.}
+\textbf{Second, studies mostly use accuracy to evaluate, and do not have reliable evaluation for generalisation.}
 Almost every engagement study reports plain accuracy as its headline number, and almost always in-domain, meaning train and test on the same dataset.
 Yet the only deployment that matters is on data the model has never seen, recorded with different cameras, viewpoints, and lighting than the training dataset.
 Because engagement labels are subjective and the class balance differs sharply between datasets (CMOSE is Engage-dominated while DAiSEE is split between Engage and Highly\nobreakdash-Engage), it is reasonable to expect that models transfer poorly, but without measuring it across datasets this remains an assumption.
@@ -88,7 +88,7 @@ I do this through one architecture idea and one set of evaluation rules, written
   Does splitting the OpenFace features into groups, each with its own temporal encoder, improve engagement classification over single-encoder baselines that encode all 709 features together?
   \item \textbf{RQ2 --- Encoder assignment.}
   If splitting helps, which group$\rightarrow$encoder choices actually matter?
-  Is there a behavioural channel whose timing really prefers one encoder family (convolutional, recurrent, or attention-based) over another?
+  Is there a behavioural channel whose timing prefers one encoder family (convolutional, recurrent, or attention-based) over another?
   \item \textbf{RQ3 --- Motion fusion.}
   Does adding a global I3D motion stream to the split model help, and does any gain hold across many configurations rather than arise from a single favourable one?
   \item \textbf{RQ4 --- Generalisation and losses.}
@@ -136,7 +136,7 @@ It sets the scope of the study, looks at the related feature-based and end-to-en
 
 Chapter~3 presents the methodology.
 It gives an overview of the full pipeline as a single diagram, describes the three training datasets and their class imbalance, the private test set, and the preprocessing that makes them comparable, sets out the single-encoder baselines, and then gives the feature-group decomposition and the proposed hybrid built on top of it.
-It also establishes the loss functions and their exact forms, the training protocol, and the 3$\times$3 cross-dataset protocol with its metrics.
+It also establishes the loss functions and their forms, the training protocol, and the 3$\times$3 cross-dataset protocol with its metrics.
 
 Chapter~4 studies the single-encoder baselines and fixes the experimental frame, in a protocol-first order: an evaluation-protocol section first fixes the main metrics (QWK, macro-accuracy, macro-MAE), the development dataset (CMOSE), and the development loss (cross-entropy), each justified from up-front reasoning and in-domain evidence; the chapter then reads the in-domain leaderboard, studies prediction agreement to show the OpenFace and I3D families make different errors, and finally takes the baselines out of domain in the 3$\times$3 matrix, closing the loop on the protocol.
 

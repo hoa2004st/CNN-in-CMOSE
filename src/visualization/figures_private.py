@@ -67,7 +67,7 @@ def _plot_private_cm(ax, cm, title: str):
     ax.grid(False)
     for i in range(cm.shape[0]):
         for j in range(cm.shape[1]):
-            ax.text(j, i, f"{cm[i, j]:.2f}", ha="center", va="center", fontsize=9,
+            ax.text(j, i, f"{cm[i, j]:.3f}", ha="center", va="center", fontsize=12,
                     color="white" if cm[i, j] > 0.5 else "black")
     ax.set_title(title, fontsize=9)
     return im

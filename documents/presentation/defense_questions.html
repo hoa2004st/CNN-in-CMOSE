@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thesis Defense — Probing Questions &amp; Answers</title>
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] },
+    svg: { fontCache: 'global' }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" id="MathJax-script" async></script>
+<style>
+  :root{
+    --bg:#0f1115; --card:#181b22; --card2:#1f232c; --ink:#e6e8ec; --muted:#9aa3b2;
+    --accent:#5b9dff; --accent2:#ffb454; --line:#2a2f3a; --ans:#11331f; --ans-line:#1f6b3f;
+    --gotcha:#3a1f22; --gotcha-line:#a23b44;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.65;
+  }
+  header{
+    padding:28px 24px 18px; border-bottom:1px solid var(--line);
+    position:sticky; top:0; background:rgba(15,17,21,.92); backdrop-filter:blur(8px); z-index:10;
+  }
+  header h1{margin:0 0 4px; font-size:1.4rem}
+  header p{margin:0; color:var(--muted); font-size:.9rem}
+  .toolbar{display:flex; gap:10px; flex-wrap:wrap; margin-top:14px}
+  button{
+    font:inherit; cursor:pointer; border:1px solid var(--line); background:var(--card2);
+    color:var(--ink); padding:7px 14px; border-radius:8px; transition:.15s;
+  }
+  button:hover{border-color:var(--accent); color:#fff}
+  .toolbar button{font-size:.85rem}
+  .filter{margin-left:auto; color:var(--muted); font-size:.8rem; display:flex; align-items:center; gap:8px}
+  main{max-width:880px; margin:0 auto; padding:24px 18px 80px}
+  .section-title{
+    margin:34px 0 12px; font-size:1.05rem; color:var(--accent); letter-spacing:.3px;
+    border-left:3px solid var(--accent); padding-left:10px;
+  }
+  .q{
+    background:var(--card); border:1px solid var(--line); border-radius:12px;
+    margin:14px 0; overflow:hidden;
+  }
+  .q.gotcha{border-color:var(--gotcha-line)}
+  .q-head{
+    display:flex; gap:12px; align-items:flex-start; padding:16px 18px; cursor:pointer; user-select:none;
+  }
+  .q-head:hover{background:var(--card2)}
+  .qid{
+    flex:0 0 auto; font-weight:700; color:var(--accent); font-variant-numeric:tabular-nums;
+    min-width:42px;
+  }
+  .q.gotcha .qid{color:var(--accent2)}
+  .q-text{flex:1}
+  .badge{
+    display:inline-block; font-size:.68rem; font-weight:700; letter-spacing:.5px;
+    background:var(--gotcha); color:#ff9aa2; border:1px solid var(--gotcha-line);
+    padding:1px 7px; border-radius:20px; margin-right:8px; vertical-align:1px;
+  }
+  .chev{flex:0 0 auto; color:var(--muted); transition:transform .2s; margin-top:2px}
+  .q.open .chev{transform:rotate(90deg)}
+  .answer{
+    display:none; padding:0 18px 18px; border-top:1px solid var(--line);
+  }
+  .q.open .answer{display:block}
+  .answer-inner{
+    background:var(--ans); border:1px solid var(--ans-line); border-radius:9px;
+    padding:13px 16px; margin-top:14px;
+  }
+  .answer-inner .label{
+    font-size:.7rem; font-weight:700; letter-spacing:.6px; color:#7fe0a3; text-transform:uppercase;
+    display:block; margin-bottom:6px;
+  }
+  .answer-inner p{margin:.5em 0}
+  .answer-inner ul{margin:.5em 0; padding-left:1.2em}
+  .answer-inner li{margin:.25em 0}
+  .eg{
+    display:block; margin:.6em 0; padding:.5em .8em; border-left:3px solid var(--ans-line);
+    background:rgba(127,224,163,.06); border-radius:4px; font-size:.95em;
+  }
+  .eg b{color:#7fe0a3}
+  footer{color:var(--muted); font-size:.8rem; text-align:center; padding:30px 18px}
+  a{color:var(--accent)}
+  code{background:var(--card2); padding:1px 5px; border-radius:4px; font-size:.85em}
+</style>
+</head>
+<body>
+<header>
+  <h1>Thesis Defense — Probing Questions</h1>
+  <p>Student engagement recognition · feature-group hybrid · cross-dataset protocol. Click a question to reveal a full answer with worked examples.</p>
+  <div class="toolbar">
+    <button id="showAll">Show all answers</button>
+    <button id="hideAll">Hide all answers</button>
+    <button id="expandAll">Expand all</button>
+    <button id="collapseAll">Collapse all</button>
+    <label class="filter"><input type="checkbox" id="gotchaOnly"> Show only ⚑ gotcha questions</label>
+  </div>
+</header>
+
+<main id="main">
+
+  <div class="section-title">B1 — Metrics (what you actually selected on)</div>
+
+  <div class="q">
+    <div class="q-head"><span class="qid">Q1</span>
+      <span class="q-text">Your QWK penalty is \( w_{ij}=\dfrac{(i-j)^2}{(C-1)^2} \). Why divide by \((C-1)^2\)? With \(C=4\), what is the largest weight and what error does it correspond to?</span>
+      <span class="chev">▶</span></div>
+    <div class="answer"><div class="answer-inner"><span class="label">Answer</span>
+      <p>The division by \((C-1)^2\) rescales the penalty matrix so its entries run from \(0\) (correct) to \(1\) (worst possible ordinal error), independent of how many classes \(C\) there are. The largest distance is \(|i-j|=C-1\), so the divisor maps that worst case to exactly \(1\).</p>
+      <p>With \(C=4\) and class indices \(0,1,2,3\) (HD, DE, EG, HE), the weight grid is:</p>
+      <ul>
+        <li>\(|i-j|=0\) (correct): \(0/9=0\)</li>
+        <li>\(|i-j|=1\) (e.g. EG↔HE): \(1/9\approx0.111\)</li>
+        <li>\(|i-j|=2\) (e.g. DE↔HE): \(4/9\approx0.444\)</li>
+        <li>\(|i-j|=3\) (HD↔HE): \(9/9=1\)</li>
+      </ul>
+      <span class="eg"><b>Worth being precise:</b> because the same \((C-1)^2\) multiplies both the numerator and denominator of \(\text{QWK}=1-\frac{\sum w_{ij}O_{ij}}{\sum w_{ij}E_{ij}}\), it <em>cancels</em> and does not change the QWK value. Its real job is to give a standard, \(C\)-independent weight scale so the penalty reads as "fraction of the worst error." The \([-1,1]\) range of QWK comes from the chance-correction in kappa, not from this divisor.</span>
+      <p>Using the <em>square</em> (not \(|i-j|\)) is the substantive choice: a 3-step error costs \(9\times\) a 1-step error, so QWK punishes HD↔HE confusions far harder than neighbour confusions — exactly what an ordinal task wants.</p>
+    </div></div>
+  </div>
+
+  <div class="q">
+    <div class="q-head"><span class="qid">Q2</span>
+      <span class="q-text">QWK can be negative. What do \( \text{QWK}=1,\,0,\,<0 \) each mean, and did any of your off-diagonal cells go negative?</span>
+      <span class="chev">▶</span></div>
+    <div class="answer"><div class="answer-inner"><span class="label">Answer</span>
+      <p>\(\text{QWK}=1-\dfrac{\text{observed weighted disagreement}}{\text{chance-expected weighted disagreement}}\), so the three landmarks are:</p>
+      <ul>
+        <li><b>\(=1\):</b> zero observed disagreement — every prediction is exactly right. Perfect ordinal agreement.</li>
+        <li><b>\(=0\):</b> observed disagreement equals what the marginals predict by chance — the model is no better than guessing class labels at the dataset's base rates.</li>
+        <li><b>\(<0\):</b> observed disagreement <em>exceeds</em> chance — the model is systematically anti-correlated with truth (it tends to move predictions the wrong way along the scale). The theoretical floor \(-1\) needs perfect inversion, which is rare with 4 imbalanced classes.</li>
+      </ul>
+      <span class="eg"><b>Example:</b> a CMOSE-trained model evaluated on DAiSEE that nudges true-Engage clips toward Highly-Engage and vice-versa more often than chance yields a small <em>negative</em> QWK. In my results the collapse cells sit at \(\approx0.02\text{–}0.05\) (essentially chance), and a few worst cross-dataset cells touch just below \(0\).</span>
+      <p><b>Why this matters:</b> a near-zero off-diagonal QWK means the transferred model has learned nothing about the new dataset's ordinal scale — even when its plain accuracy looks acceptable, because accuracy is propped up by predicting the majority class.</p>
+    </div></div>
+  </div>
+
+  <div class="q">
+    <div class="q-head"><span class="qid">Q3</span>
+      <span class="q-text">Why Kendall's \(\tau\) for the metric-agreement matrix but Spearman's \(\rho\) for in-domain-vs-transfer? They are interchangeable rank statistics — justify the split.</span>
+      <span class="chev">▶</span></div>
+    <div class="answer"><div class="answer-inner"><span class="label">Answer</span>
+      <p>Both live in \([-1,1]\) and both measure monotonic rank agreement, but they weight disagreement differently:</p>
+      <ul>
+        <li><b>\(\tau=\dfrac{n_c-n_d}{\binom{n}{2}}\)</b> is the (concordant − discordant) fraction of all item <em>pairs</em> — literally the probability that two items are ordered the same way by both variables. It is robust to a single wild rank jump and behaves well at small \(n\).</li>
+        <li><b>\(\rho\)</b> is Pearson applied to ranks; it penalises a displacement by its <em>squared</em> rank distance, so one item leaping from rank 1 to rank 15 dominates the score.</li>
+      </ul>
+      <p>I use \(\tau\) for the six-metric agreement matrix because \(n=15\) configurations is small and the question is purely "do these two metrics order the configs the same way?" — a pairwise-concordance question where I don't want one outlier config to dictate the answer. I use \(\rho\) for the 30-point in-domain-vs-transfer scatter because there I want one monotonic-strength summary comparable to how the literature reports correlations.</p>
+      <span class="eg"><b>Example:</b> if metrics A and B agree on every config except they swap ranks 7↔8, \(\tau\) loses just one discordant pair (tiny drop) — the honest reading is "they basically agree." A single large reversal (rank 1↔15) is where \(\rho\) plunges but \(\tau\) stays moderate; for the noisy small matrix \(\tau\)'s outlier-resistance is the safer choice.</span>
+    </div></div>
+  </div>
+
+  <div class="q gotcha">
+    <div class="q-head"><span class="qid">Q4</span>
+      <span class="q-text"><span class="badge">GOTCHA</span>In \( \rho = 1 - \dfrac{6\sum d_i^2}{n(n^2-1)} \), where does the 6 come from, what assumption does it need, and what makes \(\rho\) land at \(-1\), \(0\), \(+1\)?</span>
+      <span class="chev">▶</span></div>
+    <div class="answer"><div class="answer-inner"><span class="label">Answer</span>
+      <p><b>What the 6 is for.</b> \(\rho\) is just Pearson correlation computed on ranks. The 6 is the constant that normalises the raw quantity \(\sum d_i^2\) (sum of squared rank differences) so that the whole expression is forced into \([-1,1]\). It comes from the fixed variance of the integer ranks \(1,\dots,n\): with no ties,</p>
+      \[ \sum_i (r_i-\bar r)^2=\frac{n(n^2-1)}{12}. \]
+      <p>Substituting this rank-variance into the Pearson formula and expanding \(\sum d_i^2=\sum(R_i-S_i)^2\) makes the \(\tfrac{1}{12}\) and a factor 2 combine into the \(6\) in the numerator. So the 6 is not arbitrary — it is exactly what maps the best and worst orderings onto \(+1\) and \(-1\).</p>
+      <p><b>The three landmark values, with meaning and example (\(n=3\)):</b></p>
+      <ul>
+        <li><b>\(\rho=+1\) — identical ordering.</b> Every \(d_i=0\Rightarrow\sum d_i^2=0\Rightarrow\rho=1-0=1\). <span class="eg">Ranks \((1,2,3)\) vs \((1,2,3)\): the model's in-domain QWK ranking of the configs is exactly their transfer ranking. In-domain perfectly predicts transfer.</span></li>
+        <li><b>\(\rho=0\) — no monotonic relation.</b> Happens when \(\sum d_i^2=\frac{n(n^2-1)}{6}\) (the average value under random ordering): \(\rho=1-6\cdot\frac{n(n^2-1)/6}{n(n^2-1)}=1-1=0\). <span class="eg">In-domain rank tells you nothing about transfer rank.</span></li>
+        <li><b>\(\rho=-1\) — perfectly reversed ordering.</b> The maximum possible \(\sum d_i^2=\frac{n(n^2-1)}{3}\). <span class="eg">Ranks \((1,2,3)\) vs \((3,2,1)\): \(d=(-2,0,2)\), \(\sum d_i^2=8\), and \(\rho=1-\dfrac{6\cdot 8}{3(3^2-1)}=1-\dfrac{48}{24}=1-2=-1\). The best in-domain config is the worst in transfer — exactly inverted.</span></li>
+      </ul>
+      <p><b>Assumption.</b> The closed "6" form is exact only with <em>no ties</em>. Because <code>scipy.stats.spearmanr</code> data has ties, it falls back to the general Pearson-on-ranks formula; I quote the "6" form for exposition and report the tie-corrected value. This is also why I use \(\rho\) to ask whether a model's in-domain QWK predicts its QWK on unseen datasets.</p>
+    </div></div>
+  </div>
+
+  <div class="q">
+    <div class="q-head"><span class="qid">Q5</span>
+      <span class="q-text">Cohen's \(\kappa\) appears twice — as model-vs-truth evaluation and as model-vs-model agreement. Justify reusing the same coefficient, and show why chance-correction matters.</span>
+      <span class="chev">▶</span></div>
+    <div class="answer"><div class="answer-inner"><span class="label">Answer</span>
+      <p>\(\kappa=\dfrac{p_o-p_e}{1-p_e}\): observed agreement minus chance agreement, renormalised so \(1\)=perfect, \(0\)=chance, \(<0\)=worse than chance. It is <em>symmetric</em> in its two inputs, so it is well-defined whether I feed it (prediction, truth) for evaluation or (model A labels, model B labels) for agreement.</p>
+      <p>Chance-correction is essential for the agreement use because, on an imbalanced set, two models that both lean to the majority class agree a lot <em>by default</em>.</p>
+      <span class="eg"><b>Example:</b> CMOSE is \(\approx69\%\) Engage. Suppose two models each predict Engage \(80\%\) of the time. By chance alone they agree on \(p_e\approx 0.8\cdot0.8+0.2\cdot0.2=0.68\) of clips. If raw agreement is \(p_o=0.72\), that looks high — but \(\kappa=\frac{0.72-0.68}{1-0.68}=0.125\), revealing they barely agree beyond the shared majority habit.</span>
+      <p>That residual disagreement is exactly the headroom the oracle / ensemble analysis exploits: models that err on <em>different</em> clips (low \(\kappa\)) leave room for combination.</p>
+    </div></div>
+  </div>
+
+  <div class="section-title">B2 — Loss functions</div>
+
+  <div class="q gotcha">
+    <div class="q-head"><span class="qid">Q6</span>
+      <span class="q-text"><span class="badge">GOTCHA</span>You call \( \mathcal{L}_{\text{EMD}}=\dfrac{w_y}{C}\sum_{k}\Big(\sum_{j\le k}\hat y_j-\sum_{j\le k}y_j\Big)^2 \) the "Earth Mover's Distance," but it sums <em>squared</em> CDF differences. The true 1-D EMD is the \(L_1\) CDF distance. Which is it, and why squared?</span>
+      <span class="chev">▶</span></div>
+    <div class="answer"><div class="answer-inner"><span class="label">Answer</span>
+      <p>It is the <em>squared</em>-EMD (CDF-MSE). The exact 1-D Earth Mover's / 1-Wasserstein distance is the \(L_1\) sum \(\sum_k\big|\,\mathrm{CDF}_{\hat y}(k)-\mathrm{CDF}_{y}(k)\,\big|\); mine squares each term. Both are \(0\) only when the distributions match and both grow with how far probability mass must travel across the ordered classes. I square because (a) \(L_1\) has a non-differentiable kink at \(0\) whereas the square is smooth everywhere (better gradients), and (b) squaring penalises a far miss super-linearly.</p>
+      <p><b>Worked example.</b> True class = HD, so the target CDF is \([1,1,1,1]\).</p>
+      <ul>
+        <li>Predict all mass on HE → \(\mathrm{CDF}=[0,0,0,1]\), diffs \([1,1,1,0]\): \(L_1=3\), squared \(=3\).</li>
+        <li>Predict all mass on DE (one step off) → \(\mathrm{CDF}=[0,1,1,1]\), diffs \([1,0,0,0]\): \(L_1=1\), squared \(=1\).</li>
+        <li>Predict spread \([0.5\,\text{HD},0,0,0.5\,\text{HE}]\) → \(\mathrm{CDF}=[.5,.5,.5,1]\), diffs \([.5,.5,.5,0]\): \(L_1=1.5\), squared \(=0.75\).</li>
+      </ul>
+      <span class="eg">The third case is where the two diverge: \(L_1=1.5\) vs squared \(=0.75\) — squaring rewards getting <em>half</em> the mass onto the correct extreme more than \(L_1\) does.</span>
+      <p><b>Resolved in the thesis:</b> the loss is now named the "ordinal squared-EMD (CDF-MSE) loss" and cited to Hou et&nbsp;al. (2016); §2.5 states explicitly that this is the <em>squared</em> EMD, not the exact Earth Mover's / 1-Wasserstein distance (which is the unsquared \(L_1\) CDF distance).</p>
+    </div></div>
+  </div>
+
+  <div class="q">
+    <div class="q-head"><span class="qid">Q7</span>
+      <span class="q-text">Derive your class-weight normalisation \( w_c=\dfrac{1}{n_c}\cdot\dfrac{C}{\sum_k 1/n_k} \). Prove \( \frac1C\sum_c w_c=1 \), and explain why mean-1 instead of plain \(1/n_c\).</span>
+      <span class="chev">▶</span></div>
+    <div class="answer"><div class="answer-inner"><span class="label">Answer</span>
+      <p><b>Proof of mean-1.</b></p>
+      \[ \frac1C\sum_{c} w_c=\frac1C\sum_c\frac{1}{n_c}\cdot\frac{C}{\sum_k 1/n_k}=\frac{\sum_c 1/n_c}{\sum_k 1/n_k}=1. \]
+      <p>The \(\sum_k 1/n_k\) in the denominator cancels the \(\sum_c 1/n_c\) in the numerator, so the weights average to exactly 1 by construction.</p>
+      <span class="eg"><b>Numeric example</b> (illustrative CMOSE-like counts \(n=[\text{HD }350,\text{DE }1500,\text{EG }8400,\text{HE }1900]\)): \(\sum 1/n_k\approx0.00417\), so \(C/\sum=4/0.00417\approx959\). Then \(w_{\text{HD}}\approx959/350\approx2.74\), \(w_{\text{DE}}\approx0.64\), \(w_{\text{EG}}\approx0.114\), \(w_{\text{HE}}\approx0.505\) — mean \(=1.0\). The rare HD class is up-weighted \(\sim2.7\times\); the majority EG is down-weighted to \(\sim0.11\times\).</span>
+      <p><b>Why mean-1, not plain \(1/n_c\).</b> Plain \(1/n_c\) values are tiny (\(\sim10^{-3}\)) and dataset-dependent, so they would shrink the total loss magnitude and silently change the effective learning rate — making CE, WCE and the ordinal loss no longer comparable. Rescaling to mean-1 fixes the overall gradient scale so that <em>only the relative emphasis between classes</em> differs across the three losses, which is the thing I actually want to study.</p>
+    </div></div>
+  </div>
+
+  <div class="q gotcha">
+    <div class="q-head"><span class="qid">Q8</span>
+      <span class="q-text"><span class="badge">GOTCHA</span>The auxiliary weight \(\lambda_{\text{aux}}=0.2\). Tuned or fixed? What does 0.2 actually buy, and what breaks at 0 or at 1?</span>
+      <span class="chev">▶</span></div>
+    <div class="answer"><div class="answer-inner"><span class="label">Answer</span>
+      <p>Fixed by design, not swept — and I state that as a limitation (single fixed recipe, single seed). The total objective is \(\mathcal{L}=\mathcal{L}_{\text{main}}+\lambda_{\text{aux}}\sum_{s}\mathcal{L}^{(s)}_{\text{aux}}\) over the per-stream heads. \(0.2\) keeps each stream's auxiliary pull a minority of the total so it regularises without overriding the fused head.</p>
+      <ul>
+        <li><b>\(\lambda=0\):</b> no per-stream supervision — streams can co-adapt and go "lazy," letting the fusion head dominate with features that are not individually meaningful (and the interpretability claim weakens).</li>
+        <li><b>\(\lambda=1\) (or higher):</b> with \(\sim6\) streams the auxiliary block can outweigh the main head (\(0.2\times6=1.2\) already exceeds it); streams over-optimise their own heads and the fused classifier is starved.</li>
+      </ul>
+      <span class="eg"><b>Honest position:</b> 0.2 is a reasonable middle value held constant so the encoder-assignment comparison is controlled; I do not claim it is optimal, and sweeping it is future work.</span>
+    </div></div>
+  </div>
+
+  <div class="q">
+    <div class="q-head"><span class="qid">Q9</span>
+      <span class="q-text">In your reported hybrid, both the main head and the auxiliary heads use cross-entropy. Why CE for the auxiliary heads — and given the class imbalance, why not a weighted or ordinal auxiliary loss?</span>
+      <span class="chev">▶</span></div>
+    <div class="answer"><div class="answer-inner"><span class="label">Answer</span>
+      <p>First, to be precise about what I actually run: the 243-configuration hybrid ablation fixes the <em>main</em> loss to cross-entropy (to isolate the effect of architecture from the effect of the loss, §3.6), and the auxiliary heads are always cross-entropy — so in the reported model <b>both heads are CE; they are matched</b>. The general formulation admits WCE or squared-EMD for the main head, but that is not the configuration the hybrid results are reported on.</p>
+      <p>Why CE for the auxiliary heads specifically: their only job is deep supervision — keeping each stream individually discriminative so the fused head cannot lean on one or two streams. CE on a 4-way head is a simple, stable signal for that. The auxiliary term is a <em>representation regulariser</em>, not the place where class imbalance or ordinality is meant to be corrected, so a weighted or ordinal auxiliary loss is not needed there.</p>
+      <span class="eg"><b>Design benefit:</b> keeping the auxiliary heads fixed at CE also means that <em>if</em> the main loss is ever varied (the formulation allows it), the auxiliary path stays a constant, loss-agnostic anchor, so a main-loss change remains a clean one-variable change.</span>
+    </div></div>
+  </div>
+
+  <div class="section-title">B3 — Architecture (did you build it or describe it?)</div>
+
+  <div class="q gotcha">
+    <div class="q-head"><span class="qid">Q10</span>
+      <span class="q-text"><span class="badge">GOTCHA</span>You use a Transformer encoder. Name the exact attention, the head count, the role of \(\sqrt{d_k}\), and how position enters. What is it <em>not</em>?</span>
+      <span class="chev">▶</span></div>
+    <div class="answer"><div class="answer-inner"><span class="label">Answer</span>
+      <p>It is the standard <b>scaled dot-product multi-head self-attention</b> of Vaswani et&nbsp;al. (2017):</p>
+      \[ \operatorname{Attention}(Q,K,V)=\operatorname{softmax}\!\Big(\frac{QK^\top}{\sqrt{d_k}}\Big)V. \]
+      <ul>
+        <li><b>Heads:</b> 4, each attending in its own subspace (for the 64-d group encoder that is \(16\)-d per head), concatenated afterwards.</li>
+        <li><b>The \(\sqrt{d_k}\):</b> for large \(d_k\) the dot products \(q\cdot k\) have variance \(\sim d_k\); left unscaled they push the softmax into saturated regions where gradients vanish. Dividing by \(\sqrt{d_k}\) restores unit-scale logits so attention stays trainable.</li>
+        <li><b>Position:</b> attention is permutation-invariant, so order is injected by adding a <em>fixed sinusoidal</em> positional encoding to the input.</li>
+      </ul>
+      <span class="eg"><b>What it is NOT:</b> not learned/relative position, not rotary (RoPE), not ALiBi, not sparse/local attention, not FlashAttention. Plain global self-attention with sinusoidal PE. (Baseline projects to 128-d; each group encoder to 64-d.)</span>
+    </div></div>
+  </div>
+
+  <div class="q">
+    <div class="q-head"><span class="qid">Q11</span>
+      <span class="q-text">Every group is encoded to 64-d — gaze has 8 input dims, face landmarks 340. Why the same capacity? What would scaling width with input size have confounded?</span>
+      <span class="chev">▶</span></div>
+    <div class="answer"><div class="answer-inner"><span class="label">Answer</span>
+      <p>Uniform width is a deliberate control. The ablation's whole point is to isolate encoder <em>type</em> and group <em>identity</em>; if width scaled with input dimension, a difference between groups would confound "this behavioural group carries more engagement signal" with "this group simply got a bigger encoder."</p>
+      <span class="eg"><b>Example of the confound avoided:</b> at proportional width the 340-d face stream would get a far larger model than the 8-d gaze stream, so face "winning" would be unsurprising and uninformative. Fixing 64-d for all five groups removes that.</span>
+      <p>64 is chosen as comfortably above the smallest input (8-d gaze isn't bottlenecked below its own dimensionality) and is a standard small width. The acknowledged downside: face landmarks \(340\to64\) is a \(\sim5\times\) compression that may lose detail — per-group width is a fair future ablation.</p>
+    </div></div>
+  </div>
+
+  <div class="q">
+    <div class="q-head"><span class="qid">Q12</span>
+      <span class="q-text">Each group encoder ends with temporal mean-pooling then LayerNorm. Why mean-pool rather than the LSTM last state or a [CLS] token? What is discarded, and why is that acceptable here?</span>
+      <span class="chev">▶</span></div>
+    <div class="answer"><div class="answer-inner"><span class="label">Answer</span>
+      <p>Mean-pool is the one readout that is defined <em>identically</em> for all three encoder families. A last-hidden-state readout is natural only for the LSTM; a [CLS] token only for the Transformer; the TCN has neither. Using either would bias the encoder-family comparison toward the family it suits. A global average pool is neutral, so the comparison stays fair.</p>
+      <p><b>What it discards:</b> temporal order and the precise location of events — after averaging, the model knows <em>what</em> happened in the clip but not exactly <em>when</em>.</p>
+      <span class="eg"><b>Why that's acceptable:</b> the supervision is a single clip-level ordinal label, not a per-frame signal. Whether a head-nod occurs at second 1 or second 9 does not change the clip's engagement label, so order-invariance is benign for this task.</span>
+    </div></div>
+  </div>
+
+  <div class="q">
+    <div class="q-head"><span class="qid">Q13</span>
+      <span class="q-text">TCN with kernel 3 and dilations 1, 2, 4. What is the exact receptive field, and is causality even necessary for an offline clip-level classifier?</span>
+      <span class="chev">▶</span></div>
+    <div class="answer"><div class="answer-inner"><span class="label">Answer</span>
+      <p><b>Receptive field.</b> Each dilated layer with kernel 3 adds \(2d\) to the field, so along one block path</p>
+      \[ \text{RF}=1+2\sum_l d_l=1+2(1+2+4)=15\ \text{frames}, \]
+      <p>and stacking blocks grows it as \(\mathcal{O}(2^L)\). At the multimodal 75-frame length, 15 frames covers \(\sim20\%\) of the clip.</p>
+      <p><b>Causality.</b> Causal padding means output at time \(t\) sees only inputs \(\le t\). For an <em>offline</em> clip the whole sequence is available, so a non-causal / bidirectional convolution that also looks at future frames would be perfectly legitimate and could only help.</p>
+      <span class="eg"><b>Honest answer:</b> causality is inherited from the standard TCN formulation, not required by my task. Keeping it is a conservative default (and would let the same code run online), but I should not claim it is necessary here.</span>
+    </div></div>
+  </div>
+
+  <div class="section-title">B4 — Data &amp; protocol (the strongest authorship traps)</div>
+
+  <div class="q gotcha">
+    <div class="q-head"><span class="qid">Q14</span>
+      <span class="q-text"><span class="badge">GOTCHA</span>You use the CMOSE "unlabel" split (2,193 clips) as the validation set for early stopping on validation <em>loss</em>. A split named "unlabel" — does it have labels? If not, how do you compute a loss on it?</span>
+      <span class="chev">▶</span></div>
+    <div class="answer"><div class="answer-inner"><span class="label">Answer</span>
+      <p>Despite the name, the split <em>does</em> carry engagement labels. The name comes from CMOSE's own <b>semi-supervised</b> benchmark: in <em>that</em> protocol this pool is the data you are meant to train on <em>without</em> using its labels. The released feature files nonetheless include the labels.</p>
+      <p>I repurpose those labels strictly for validation — early stopping and checkpoint selection on validation loss — and never put them in the training loss, so the fitted weights never see them as supervision.</p>
+      <span class="eg"><b>The clinching point:</b> the very fact that I can compute a validation <em>loss</em> on it proves it is labelled — a loss needs targets. If it were truly unlabelled, no val loss would exist. And there is no test leakage because the validation split is disjoint from the test split.</span>
+    </div></div>
+  </div>
+
+  <div class="q gotcha">
+    <div class="q-head"><span class="qid">Q15</span>
+      <span class="q-text"><span class="badge">GOTCHA</span>The text says the I3D stream "mean-pools the I3D clip feature to a 1024-d vector," and elsewhere "the I3D feature is a single 1024-d vector per clip … the stream mean-pools it to that vector." You cannot mean-pool a single vector into itself. What is actually pooled?</span>
+      <span class="chev">▶</span></div>
+    <div class="answer"><div class="answer-inner"><span class="label">Answer</span>
+      <p>Nothing meaningful is pooled — the I3D stream is fed a <b>single 1024-d vector</b>. CMOSE/DAiSEE ship exactly one 1024-d embedding per clip (the dataset's <code>embeds</code> field, already pooled over space and time at the source), and the stream just encodes that vector with an MLP.</p>
+      <p>The "mean-pool" wording was an <em>implementation artifact</em>, not part of the model design: to share the batched \((B,T,F)\) tensor layout of the OpenFace streams, the data loader duplicates the single vector across \(T\) time steps, and a mean-pool then collapses those identical copies back to the one vector — a no-op round-trip. It has nothing to do with the method.</p>
+      <span class="eg"><b>Resolved in the thesis:</b> because the mean-pool is just a plumbing workaround for a duplicated feature, the wording has been removed. §3.2 now reads simply "the I3D feature is a single 1024-dimensional vector per clip … encoded by an MLP," and the <code>i3d_mlp</code> baseline "classifies the single 1024-d I3D clip vector with an MLP."</span>
+    </div></div>
+  </div>
+
+  <div class="q">
+    <div class="q-head"><span class="qid">Q16</span>
+      <span class="q-text">OpenFace is resampled to 300 frames (single dataset), 150 (Combined), but 75 in the multimodal variant. Why does adding I3D force OpenFace down to 75? Doesn't that confound the I3D ablation?</span>
+      <span class="chev">▶</span></div>
+    <div class="answer"><div class="answer-inner"><span class="label">Answer</span>
+      <p>It is a GPU-memory budget: six group streams plus the I3D MLP co-resident in one batch force a shorter sequence, so OpenFace drops to 75 frames in the multimodal setting.</p>
+      <p><b>The paired ablation is still fair</b> because each \(\pm\)I3D comparison is length-matched — both twins run at 75 frames, so any difference is attributable to I3D, not length. That is why I report the I3D effect from the paired ablation.</p>
+      <span class="eg"><b>What is NOT length-matched, and I should say so:</b> the headline best hybrid (QWK 0.605, fused, 75 frames) vs the best baseline (0.537, OpenFace-only, 300 frames). That single comparison mixes architecture <em>and</em> sequence length, so the clean evidence for I3D is the matched paired ablation, not this number.</span>
+    </div></div>
+  </div>
+
+  <div class="q">
+    <div class="q-head"><span class="qid">Q17</span>
+      <span class="q-text">z-score statistics are "fit on the training split only." For the Combined model, whose mean/std do you use? Since CMOSE and DAiSEE differ, doesn't a pooled z-score distort each?</span>
+      <span class="chev">▶</span></div>
+    <div class="answer"><div class="answer-inner"><span class="label">Answer</span>
+      <p>Per-feature \(\mu,\sigma\) computed on the <em>Combined training split</em> only; the test sets are never used to fit them (that is the leakage guard). Yes, pooling partly blends the two distributions — and that is consistent with <em>why</em> Combined transfers better.</p>
+      <span class="eg"><b>Example:</b> OpenFace head-pose translation \(T_x\) centres differently for CMOSE (laptop cameras looking up) than DAiSEE; the pooled \(\mu\) sits between them, so neither dataset is perfectly standardised, but the model is forced to cope with a wider feature range and a less corpus-specific normalisation — exactly the robustness that helps on the unseen private set.</span>
+    </div></div>
+  </div>
+
+  <div class="q">
+    <div class="q-head"><span class="qid">Q18</span>
+      <span class="q-text">DAiSEE has four official engagement levels (0–3); you map them onto HD/DE/EG/HE. Did you verify the ordinal direction matches CMOSE? A flipped mapping would silently destroy cross-dataset QWK.</span>
+      <span class="chev">▶</span></div>
+    <div class="answer"><div class="answer-inner"><span class="label">Answer</span>
+      <p>Yes, verified. DAiSEE levels \(0,1,2,3\) (Very Low → Very High engagement) map to HD, DE, EG, HE; CMOSE's HD&lt;DE&lt;EG&lt;HE is also ascending. Both put index 0 at "least engaged," so the axes are aligned.</p>
+      <span class="eg"><b>Why I checked it explicitly:</b> the entire cross-dataset collapse claim depends on aligned label axes. If the mapping were reversed, a model that actually transfers well would show <em>catastrophic negative</em> off-diagonal QWK, and I'd wrongly report a transfer failure. I sanity-checked by confirming the high-engagement DAiSEE classes dominate as the dataset paper documents.</span>
+    </div></div>
+  </div>
+
+  <div class="section-title">B5 — Numbers that must reconcile (counting)</div>
+
+  <div class="q gotcha">
+    <div class="q-head"><span class="qid">Q19</span>
+      <span class="q-text"><span class="badge">GOTCHA</span>The oracle 97.6% (best single 77.3%) is over "the fifteen" configs in §4.4, but §6.2 calls it "a perfect picker over the thirty baseline configurations." Fifteen or thirty?</span>
+      <span class="chev">▶</span></div>
+    <div class="answer"><div class="answer-inner"><span class="label">Answer</span>
+      <p><b>Fifteen</b> is correct. The in-domain CMOSE oracle is over the 15 baseline configurations evaluated on the CMOSE test split:</p>
+      \[ 5\ \text{architectures}\times 3\ \text{losses}=15. \]
+      <p>"Thirty" in the Conclusions is an error — it conflates the 15 with a second training source (it looks like \(15\times2\)). Both chapters quote the identical numbers (97.6% oracle, 77.3% best single), so they must cite the same pool size.</p>
+      <span class="eg"><b>Resolved:</b> the Conclusions sentence now reads "fifteen," matching §4.4. (This is the kind of slip a committee catches by reading two chapters side by side.)</span>
+    </div></div>
+  </div>
+
+  <div class="q gotcha">
+    <div class="q-head"><span class="qid">Q20</span>
+      <span class="q-text"><span class="badge">GOTCHA</span>The I3D ablation reports "94% of the 972 pairs" on seen-target cells, the scatter overlays "972 trained hybrid models," yet you also cite 243 configs and 486 with/without I3D. Reconcile 243, 486, 729, 972.</span>
+      <span class="chev">▶</span></div>
+    <div class="answer"><div class="answer-inner"><span class="label">Answer</span>
+      <ul>
+        <li>\(243=3^5\) ways to assign one of {TCN, LSTM, Transformer} to each of the 5 groups.</li>
+        <li>\(243\times2\ (\pm\text{I3D})=486\) hybrid configs per training source.</li>
+        <li><b>Seen-target cells</b> = the four (train, test) cells where the test dataset appears in training: CMOSE→CMOSE, DAiSEE→DAiSEE, Combined→CMOSE, Combined→DAiSEE.</li>
+        <li>The paired I3D ablation pairs each of the 243 OpenFace-only configs with its +I3D twin across those 4 cells: \(243\times4=\mathbf{972}\) pairs.</li>
+      </ul>
+      <span class="eg"><b>The subtlety / why 729 is the trap:</b> a naïve count says "3 training sources × 243 = 729." That forgets the <em>Combined</em> model has <em>two</em> seen targets (both CMOSE-test and DAiSEE-test), so it contributes twice. Counting seen <em>cells</em> (4), not training <em>sources</em> (3), is what gives 972.</span>
+    </div></div>
+  </div>
+
+  <div class="q">
+    <div class="q-head"><span class="qid">Q21</span>
+      <span class="q-text">"Roughly 1,500 trained runs." Itemise it exactly.</span>
+      <span class="chev">▶</span></div>
+    <div class="answer"><div class="answer-inner"><span class="label">Answer</span>
+      <ul>
+        <li><b>Baselines:</b> \(5\ \text{architectures}\times 3\ \text{losses}\times 3\ \text{sources}=45.\)</li>
+        <li><b>Hybrids:</b> \(243\ \text{assignments}\times 2\ (\pm\text{I3D})\times 3\ \text{sources}=1{,}458.\)</li>
+        <li><b>Total:</b> \(45+1{,}458=\mathbf{1{,}503}\approx1{,}500.\)</li>
+      </ul>
+      <span class="eg">Validation and test passes are not counted as "training runs"; this is the count of independently fitted models.</span>
+    </div></div>
+  </div>
+
+  <div class="q">
+    <div class="q-head"><span class="qid">Q22</span>
+      <span class="q-text">Private set: 366 clips, 2.7% Highly-Disengage, and "all ten private HD clips are misread." Confirm the arithmetic and explain why a 10-clip class makes HD recall meaningless.</span>
+      <span class="chev">▶</span></div>
+    <div class="answer"><div class="answer-inner"><span class="label">Answer</span>
+      <p>\(0.027\times366\approx9.9\approx10\) HD clips — consistent. With only ten positives, recall moves in \(10\)-percentage-point jumps: getting one right takes HD recall from \(0\%\) to \(10\%\).</p>
+      <span class="eg"><b>Why it's uninformative:</b> a 95% confidence interval on a proportion estimated from \(n=10\) spans roughly \(\pm30\) points, so HD recall on the private set is essentially a coin-flip-level statistic. One annotation error or one lucky clip swings it wildly.</span>
+      <p>That is exactly why I report the private-set HD result as a stated limitation alongside the class count, rather than as a reliable per-class measurement.</p>
+    </div></div>
+  </div>
+
+  <div class="section-title">B6 — Claims &amp; reasoning</div>
+
+  <div class="q">
+    <div class="q-head"><span class="qid">Q23</span>
+      <span class="q-text">You select on QWK alone, yet train development with cross-entropy "because it maximises QWK." Isn't choosing the loss by the selection metric circular?</span>
+      <span class="chev">▶</span></div>
+    <div class="answer"><div class="answer-inner"><span class="label">Answer</span>
+      <p>No — loss and architecture are separate axes, and the loss is fixed <em>once</em>, before model selection. The non-circular justification is robustness under shift: the ordering CE &gt; WCE &gt; ordinal in QWK is the one that <em>survives</em> cross-dataset transfer, not merely in-domain. I lead with that shift-stability; "CE also maximises in-domain QWK" is corroboration, not the sole reason.</p>
+      <span class="eg"><b>Analogy:</b> deciding to measure races in metres (the metric) is independent of which runner is fastest (the model). Circularity would only bite if I tuned a <em>different</em> loss per model to maximise each model's own QWK — I don't; one fixed loss is used for every model.</span>
+    </div></div>
+  </div>
+
+  <div class="q gotcha">
+    <div class="q-head"><span class="qid">Q24</span>
+      <span class="q-text"><span class="badge">GOTCHA</span>Figure 5.6 (in-domain vs transfer): how is the population defined, and is the Spearman \(\rho\) computed on a single population or on pooled training sources?</span>
+      <span class="chev">▶</span></div>
+    <div class="answer"><div class="answer-inner"><span class="label">Answer</span>
+      <p>An earlier version of this figure was <em>methodologically flawed</em>: it pooled the cmose-trained and daisee-trained models — two distinct populations — into one scatter and computed a single \(\rho=-0.31\). Mixing two populations can flip the sign of a correlation (a Simpson's-paradox effect), so that negative value was an artifact, not a finding.</p>
+      <p><b>The corrected figure makes each configuration one point</b> that pairs two of its own runs: \(x\) = in-domain QWK (trained <em>and</em> tested on CMOSE), \(y\) = transfer QWK (trained on Combined, tested on the held-out private set). No two training populations are pooled. On this:</p>
+      <ul>
+        <li>Hybrids (\(n=486\)): \(\rho=0.27\), \(p\approx2\times10^{-9}\) — significant only because \(n\) is large; the effect is <em>weak</em>.</li>
+        <li>Baselines (\(n=15\)): \(\rho=0.31\) (\(p=0.25\), not significant) — also weak.</li>
+      </ul>
+      <p>The companion baseline analysis in §4.5.3 uses the same axes (the old "thirty configurations" that pooled cmose- and daisee-trained models is gone): the 15 baselines give \(\rho=0.31\).</p>
+      <span class="eg"><b>What this lets me claim, honestly:</b> a configuration's pure CMOSE in-domain ability is, at most, a <em>weak</em> predictor of its private-set transfer (\(\rho\approx0.3\) for both families) — so in-domain score cannot pick a deployment model on its own. The architecture's benefit is position, not slope: the hybrid cloud lies above and to the right of the baselines (higher on both axes), and combined training is the lever that reaches that region.</span>
+    </div></div>
+  </div>
+
+  <div class="q gotcha">
+    <div class="q-head"><span class="qid">Q25</span>
+      <span class="q-text"><span class="badge">GOTCHA</span>Four of five groups are insensitive to encoder choice (spread ≤0.006 QWK); only head pose prefers TCN. If the per-group encoder barely matters, what causes the +0.068 gain — decomposition, auxiliary heads, or I3D fusion? Which did you ablate to separate them?</span>
+      <span class="chev">▶</span></div>
+    <div class="answer"><div class="answer-inner"><span class="label">Answer</span>
+      <ul>
+        <li><b>I3D fusion</b> — ablated directly by the paired \(\pm\)I3D comparison.</li>
+        <li><b>Decomposition vs single encoder</b> — captured by the baseline-vs-hybrid contrast.</li>
+        <li><b>Auxiliary heads (deep supervision)</b> — <em>not</em> independently ablated.</li>
+      </ul>
+      <p>So I cannot currently separate "split-and-fuse" from "deep supervision" — both are present in every hybrid. This is the cleanest attack on the contribution, and I concede it rather than over-claim that the decomposition alone earns the \(+0.068\).</p>
+      <span class="eg"><b>The exact missing run:</b> a hybrid with \(\lambda_{\text{aux}}=0\) (decomposition + fusion, no per-stream supervision). Comparing it to the full hybrid would isolate the auxiliary-head contribution. I flag it as future work.</span>
+    </div></div>
+  </div>
+
+  <div class="q">
+    <div class="q-head"><span class="qid">Q26</span>
+      <span class="q-text">You argue head pose "prefers TCN because head motion is temporally local," yet you mean-pool away time and the TCN receptive field is 15 of 75–300 frames. Is the story supported or post-hoc?</span>
+      <span class="chev">▶</span></div>
+    <div class="answer"><div class="answer-inner"><span class="label">Answer</span>
+      <p>It is an interpretation <em>consistent with</em> the data, not a proven mechanism. The evidence in its favour: the head-pose→TCN preference is the <em>only</em> group preference that survives domain shift, which argues it is signal, not a single-split fluke.</p>
+      <span class="eg"><b>The honest caveat:</b> with order-agnostic mean-pooling and a 15-frame receptive field, I cannot demonstrate the causal "local motion" story — so I phrase it as "consistent with the idea that head motion is temporally local," not as a demonstrated mechanism. Proving it would need, e.g., a receptive-field sweep or an attention/timing analysis I did not run.</span>
+    </div></div>
+  </div>
+
+  <footer>
+    Defense preparation aid · answers are the expected on-the-spot responses, not thesis text · ⚑ marks internal inconsistencies or imprecise claims to rehearse cold.
+  </footer>
+</main>
+
+<script>
+  const main = document.getElementById('main');
+  const qs = () => Array.from(document.querySelectorAll('.q'));
+
+  qs().forEach(q => {
+    q.querySelector('.q-head').addEventListener('click', () => q.classList.toggle('open'));
+  });
+
+  document.getElementById('expandAll').onclick   = () => qs().forEach(q => q.classList.add('open'));
+  document.getElementById('collapseAll').onclick = () => qs().forEach(q => q.classList.remove('open'));
+  document.getElementById('showAll').onclick = () => qs().forEach(q => q.classList.add('open'));
+  document.getElementById('hideAll').onclick = () => qs().forEach(q => q.classList.remove('open'));
+
+  document.getElementById('gotchaOnly').addEventListener('change', e => {
+    const on = e.target.checked;
+    qs().forEach(q => { q.style.display = (on && !q.classList.contains('gotcha')) ? 'none' : ''; });
+    document.querySelectorAll('.section-title').forEach(s => s.style.display = on ? 'none' : '');
+  });
+</script>
+</body>
+</html>

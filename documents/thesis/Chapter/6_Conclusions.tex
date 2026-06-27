@@ -41,11 +41,11 @@ The thesis makes two kinds of contribution: it builds a feature-group hybrid and
 In-domain the feature-group decomposition is a small but clear improvement: the I3D-fused family scores higher than the baseline but the best configuration exceeds it by only $+0.068$ QWK, and most of the 243-cell design space is not affected by which encoder it gets.
 On its own, that is a small result.
 What makes it worth building is that the same decomposition gives the biggest gain exactly where it is hardest: on the unseen private set the gap over the baseline grows to $+0.094$, and it adds to dataset combination rather than fighting it.
-So the contribution is less a new in-domain state of the art than a representation that breaks down more slowly under distribution shift, which, for a problem whose only real test is deployment, is the property that matters.
+So the contribution is less a new in-domain state of the art than a representation that breaks down more slowly under distribution shift, which, for a problem whose only test is deployment, is what matters.
 
 \textbf{The fusion was measured before it was built.}
 The choice to combine the OpenFace and I3D families did not rest on a hunch: the clip-level agreement analysis of Chapter~4 showed that the best OpenFace model and the I3D baseline disagree more with each other than OpenFace models do among themselves, and that each family gets clips right that the other cannot, evidence of different errors that the paired I3D ablation of Chapter~5 then confirmed in-domain.
-The same analysis also measured unused room to improve: a perfect picker over the thirty baseline configurations would reach 97.6\% of clips against 77.3\% for the best single model, which both motivates fusion and marks ensemble selection as a direction the thesis left aside on purpose.
+The same analysis also measured unused room to improve: a perfect picker over the fifteen baseline configurations would reach 97.6\% of clips against 77.3\% for the best single model, which both motivates fusion and marks ensemble selection as a direction the thesis left aside on purpose.
 
 \textbf{The flat design space is itself the message.}
 Four of five behavioural groups are not affected by their encoder, and only head pose prefers a TCN. This marks the limit of the contribution clearly: the gain comes from splitting and fusing the features, not from a clever search over per-group encoders.
@@ -68,7 +68,7 @@ Encoding the five behavioural groups separately and fusing them outperforms enco
 \textbf{RQ2 (encoder assignment).}
 Only head pose matters.
 Four of the five groups are basically not affected by whether their encoder is a TCN, a Transformer, or an LSTM (spread $\le0.006$ QWK); head pose alone shows a clear preference for a TCN.
-The practical point is that the design space is mostly flat and that a TCN is a safe default for every group, with head pose the one place the choice is worth making on purpose.
+The practical point is that the design space is flat and that a TCN is a safe default for every group, with head pose the one place the choice is worth making on purpose.
 
 \textbf{RQ3 (motion fusion).}
 Yes in-domain, with a caveat under shift.
@@ -79,7 +79,7 @@ So the fusion is recommended, but its gain should be claimed only for the settin
 \textbf{RQ4 (generalisation and losses).}
 Generalisation is poor and the metric choice is the key.
 Models do not transfer across datasets; off-diagonal ordinal agreement collapses while accuracy stays high and misleading.
-The in-domain score is also a poor predictor of transfer: the correlation between in-domain and unseen-target QWK is weak for the baselines ($\rho=0.28$) and slightly negative across the hybrid grid ($\rho=-0.31$), so a model cannot be picked for deployment from its in-domain score alone.
+The in-domain score is at best a weak predictor of transfer: pairing each configuration's CMOSE in-domain QWK with its Combined-trained private-set QWK gives only $\rho=0.31$ for the baselines and $\rho=0.27$ for the hybrids, so a model cannot be picked for deployment from its in-domain score alone.
 Among losses there is no overall winner (cross-entropy gives the best ordinal agreement, QWK, while weighted and ordinal losses recover minority recall and balanced ordinal error), so the loss is a trade-off; notably, the cross-entropy-first order is the one in-domain preference that stays the same on every unseen target, which confirms, after the fact, the choice to establish it before development.
 QWK together with macro-accuracy and macro-MAE must be the main measure, and training on the combined datasets is the most useful tool for an unknown target.
 
