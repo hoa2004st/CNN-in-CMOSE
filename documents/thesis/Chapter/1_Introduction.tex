@@ -24,7 +24,7 @@ Although it looks like ordinary video classification, engagement recognition is 
   The four classes lie on a line: \mbox{HD $<$ DE $<$ EG $<$ HE}.
   Predicting Highly\nobreakdash-Engage for a Highly\nobreakdash-Disengage student is a serious error, while predicting Engage for a Highly\nobreakdash-Engage student is almost right.
   Plain accuracy ignores this order, treating both mistakes as equally wrong.
-  So accuracy is the wrong training goal and the wrong evaluation metric; the size of an error must be weighted by how far apart the true and predicted classes are on the scale.
+  So accuracy is the wrong training goal and the wrong evaluation metric. The size of an error must be weighted by how far apart the true and predicted classes are on the scale.
 
   \item \textbf{The labels are severely imbalanced.}
   Real classes are mostly attentive, so engagement datasets are dominated by the middle and upper levels.

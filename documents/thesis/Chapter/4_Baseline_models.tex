@@ -26,7 +26,7 @@ On first principles, accuracy is the wrong metric for this task, and the in-doma
 
 First, the leaderboard winner depends on the metric.
 Table~\ref{tab:T4_1_per_metric_winner} reports which of the fifteen baseline configurations (five architectures $\times$ three losses) each of the six metrics declares best in-domain on CMOSE, and no two camps agree: QWK picks the OpenFace TCN under cross-entropy (0.537), both macro metrics pick the I3D MLP under the ordinal loss (macro-accuracy 0.635, macro-MAE 0.458), and accuracy, micro-MAE, and Cohen's kappa all pick the I3D MLP under cross-entropy (0.773, 0.244, 0.436).
-The choice of metric clearly changes the result, so it must be argued rather than left to default.
+The choice of metric changes the result, so it must be argued rather than left to default.
 \input{Table/T4_1_per_metric_winner}
 
 Second, the six metrics form two blocks, bridged only by QWK.
@@ -75,7 +75,7 @@ QWK is generally highest under cross-entropy.}
 \end{figure}
 
 \textbf{Protocol.}
-The strongest ordinal agreement of the whole grid is obtained under cross-entropy (best-architecture QWK by loss: CE 0.537, weighted CE 0.500, ordinal 0.487), so cross-entropy is the development loss: it maximises QWK, the selection metric, and isolates the effect of the architecture from the confound of the loss; the hybrid of Chapter~5 is consequently trained with it.
+The strongest ordinal agreement of the whole grid is obtained under cross-entropy (best-architecture QWK by loss: CE 0.537, weighted CE 0.500, ordinal 0.487), so cross-entropy is the development loss: it maximises QWK, the selection metric, and isolates the effect of the architecture from the confound of the loss. The hybrid of Chapter~5 is consequently trained with it.
 Deferred evidence: Section~\ref{sec:closing-loop} shows this CE $>$ weighted CE $>$ ordinal ranking is preserved intact under domain shift, which after the fact makes cross-entropy the reliable choice, not merely the convenient one.
 The training and validation loss curves of every configuration converge stably and early-stop well before the epoch cap (Section~\ref{sec:training}), so the differences reported in this chapter are architectural rather than optimisation artefacts.
 
@@ -203,8 +203,8 @@ Chapter~5 re-examines the same relationship on the 486-configuration hybrid popu
 \section{Chapter Summary}
 \label{sec:baseline-summary}
 
-The evaluation protocol established QWK as the single primary metric that selects the best model (with macro-accuracy, macro-MAE, accuracy, micro-MAE, and Cohen's kappa kept as secondary, reported but never selecting), CMOSE as the development dataset, and cross-entropy as the development loss; under it, the strongest baseline is the OpenFace TCN at QWK 0.537, the reference level the hybrid must exceed.
-The prediction-level analysis showed the configurations agree far less than their scores suggest (oracle 97.6\%) and that the OpenFace and I3D families fail on different clips, the direct motivation for fusing them; the cross-dataset study showed baselines do not transfer to a new dataset, confirmed the metric and loss choices, and made dataset combination the most effective simple fix.
+The evaluation protocol established QWK as the single primary metric that selects the best model (with macro-accuracy, macro-MAE, accuracy, micro-MAE, and Cohen's kappa kept as secondary, reported but never selecting), CMOSE as the development dataset, and cross-entropy as the development loss. Under it, the strongest baseline is the OpenFace TCN at QWK 0.537, the reference level the hybrid must exceed.
+The prediction-level analysis showed the configurations agree far less than their scores suggest (oracle 97.6\%) and that the OpenFace and I3D families fail on different clips, the direct motivation for fusing them. The cross-dataset study showed baselines do not transfer to a new dataset, confirmed the metric and loss choices, and made dataset combination the most effective simple fix.
 Chapter~5 now asks whether learning to fuse the complementary streams outperforms these baselines, and whether the architecture gain and dataset combination reinforce each other on unseen data.
 
 \end{document}

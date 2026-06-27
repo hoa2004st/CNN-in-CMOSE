@@ -15,7 +15,7 @@ The evidence supports five conclusions.
 \begin{enumerate}
   \item \textbf{The I3D-fused hybrid is the best in-domain model and, as a family, outperforms the strongest single-encoder baseline.}
   The I3D-fused family is centred above the baseline QWK of 0.537 (median 0.553, with 82\% of its 243 configurations clearing the baseline), and the best configuration reaches QWK 0.605 with a mixed TCN/Transformer/LSTM assignment (\texttt{TCN\_T\_TCN\_LSTM\_T}).
-  The gain over the best baseline is real but small ($+0.068$ QWK); the value lies in the framework and the full evidence, not in a jump in state of the art.
+  The gain over the best baseline is real but small ($+0.068$ QWK). The value lies in the framework and the full evidence, not in a jump in state of the art.
   \item \textbf{Most groups are not affected by which encoder they get; only head pose shows a clear preference, for a TCN} (a 0.022 QWK spread across the three encoders, against $\le0.006$ for the other four groups).
   This is a simple design rule that reflects the short, local nature of head motion.
   \item \textbf{Engagement models do not generalise across datasets.}
@@ -28,7 +28,7 @@ The evidence supports five conclusions.
   It is around 2--3\% of the data, is traded away rather than solved by the hybrid in-domain, and drops to zero recall under distribution shift.
 \end{enumerate}
 
-A note on scope: the architecture ablation is based on CMOSE because DAiSEE's in-domain ordinal signal is too weak (QWK 0.166) to tell architecture differences apart from label noise; CMOSE is therefore used for development and the private set for the deciding check.
+A note on scope: the architecture ablation is based on CMOSE because DAiSEE's in-domain ordinal signal is too weak (QWK 0.166) to tell architecture differences apart from label noise. CMOSE is therefore used for development and the private set for the deciding check.
 
 \FloatBarrier
 \section{Synthesis}
@@ -48,11 +48,11 @@ The choice to combine the OpenFace and I3D families did not rest on a hunch: the
 The same analysis also measured unused room to improve: a perfect picker over the fifteen baseline configurations would reach 97.6\% of clips against 77.3\% for the best single model, which both motivates fusion and marks ensemble selection as a direction the thesis left aside on purpose.
 
 \textbf{The flat design space is itself the message.}
-Four of five behavioural groups are not affected by their encoder, and only head pose prefers a TCN. This marks the limit of the contribution clearly: the gain comes from splitting and fusing the features, not from a clever search over per-group encoders.
+Four of five behavioural groups are not affected by their encoder, and only head pose prefers a TCN. This marks the limit of the contribution: the gain comes from splitting and fusing the features, not from a clever search over per-group encoders.
 This is a more transferable design rule than a single tuned configuration, and it is why the family-level effect, rather than any one cell, is reported as the result.
 
 \textbf{The negative results are contributions, not side notes.}
-The near-total collapse of cross-dataset transfer, the way plain accuracy hides it, and the steady failure on the rarest disengaged class are not minor limits of these particular models; they are aspects of the problem that the field leaves unmeasured by staying in-domain and reporting accuracy.
+The near-total collapse of cross-dataset transfer, the way plain accuracy hides it, and the steady failure on the rarest disengaged class are not minor limits of these particular models. They are aspects of the problem that the field leaves unmeasured by staying in-domain and reporting accuracy.
 Showing them with numbers, and showing that QWK, macro-accuracy, and macro-MAE make them visible, changes engagement recognition from ``beat the benchmark'' to ``report ordinal agreement and watch rare-class failure,'' which is the practice the rest of this chapter recommends.
 
 \FloatBarrier
@@ -72,7 +72,7 @@ The practical point is that the design space is flat and that a TCN is a safe de
 
 \textbf{RQ3 (motion fusion).}
 Yes in-domain, with a caveat under shift.
-When the model is tested on data like its training data, adding the clip-level I3D embedding clearly helps: the paired comparison over the seen-target cells shows a mean gain of $+0.060$ QWK with 94\% of pairs improving, and the fused family gives both the best in-domain model and the best private-set model.
+When the model is tested on data like its training data, adding the clip-level I3D embedding helps: the paired comparison over the seen-target cells shows a mean gain of $+0.060$ QWK with 94\% of pairs improving, and the fused family gives both the best in-domain model and the best private-set model.
 Under cross-dataset shift, however, the same stream is neutral or slightly harmful on average (mean $-0.021$ on cross-public cells, $+0.005$ on the private set): the I3D stream carries information that is useful but specific to each dataset.
 So the fusion is recommended, but its gain should be claimed only for the setting where it holds.
 
@@ -80,7 +80,7 @@ So the fusion is recommended, but its gain should be claimed only for the settin
 Generalisation is poor and the metric choice is the key.
 Models do not transfer across datasets; off-diagonal ordinal agreement collapses while accuracy stays high and misleading.
 The in-domain score is at best a weak predictor of transfer: pairing each configuration's CMOSE in-domain QWK with its Combined-trained private-set QWK gives only $\rho=0.31$ for the baselines and $\rho=0.27$ for the hybrids, so a model cannot be picked for deployment from its in-domain score alone.
-Among losses there is no overall winner (cross-entropy gives the best ordinal agreement, QWK, while weighted and ordinal losses recover minority recall and balanced ordinal error), so the loss is a trade-off; notably, the cross-entropy-first order is the one in-domain preference that stays the same on every unseen target, which confirms, after the fact, the choice to establish it before development.
+Among losses there is no overall winner (cross-entropy gives the best ordinal agreement, QWK, while weighted and ordinal losses recover minority recall and balanced ordinal error), so the loss is a trade-off. The cross-entropy-first order is the one in-domain preference that stays the same on every unseen target, which confirms, after the fact, the choice to establish it before development.
 QWK together with macro-accuracy and macro-MAE must be the main measure, and training on the combined datasets is the most useful tool for an unknown target.
 
 \FloatBarrier
@@ -121,7 +121,7 @@ Third, anticipate and monitor rare-class failure: the most important class, High
   Combine the architecture with fixes aimed at the imbalance (ordinal losses tuned for Highly\nobreakdash-Disengage, minority oversampling such as SMOTE~\cite{smote}, or cost-sensitive decision thresholds) to recover HD recall without trading away Highly\nobreakdash-Engage.
   Because HD is so rare, even small gains here would change the practical value of the system more than further QWK gains on the common classes.
   \item \textbf{Domain adaptation.}
-  The cross-dataset gap calls for explicit unsupervised domain adaptation or domain-invariant representation learning, rather than the plain dataset combination that already helps; a small amount of labelled target data could be used to calibrate the model before deployment.
+  The cross-dataset gap calls for explicit unsupervised domain adaptation or domain-invariant representation learning, rather than the plain dataset combination that already helps. A small amount of labelled target data could be used to calibrate the model before deployment.
   \item \textbf{Learned, not listed, group encoders.}
   Replace the discrete 243-configuration search with a differentiable architecture search or a gating mechanism that picks per-group temporal operators end-to-end, so the model finds which encoder suits which group on its own instead of trying them all by hand.
   \item \textbf{Stronger and richer motion features.}
