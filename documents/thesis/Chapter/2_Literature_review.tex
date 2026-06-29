@@ -25,7 +25,7 @@ Finally, the thesis works with OpenFace and I3D features at the descriptor level
 \textbf{Engagement datasets and benchmarks.}
 DAiSEE~\cite{daisee} is the most widely used in-the-wild benchmark for engagement recognition.
 It provides short webcam clips annotated with four ordinal engagement levels and is recorded under varied, uncontrolled conditions, which makes it realistic but noisy.
-CMOSE~\cite{cmose} is a more recent, larger, expert-labelled multimodal dataset, also collected in the wild from online sessions but annotated by experts, that ships precomputed OpenFace and I3D features (the only one of the three datasets used here to do so), and reports strong inter-rater reliability; its scale and label quality make it the thesis's primary dataset.
+CMOSE~\cite{cmose} is a more recent, larger dataset, also collected in the wild from online sessions but annotated by experts, that ships precomputed OpenFace and I3D features, and reports strong inter-rater reliability; its scale and label quality make it the thesis's primary dataset.
 A systematic review of computer-vision engagement detection~\cite{review_engagement_cv} surveys the common pipelines and names the two recurring open problems in the field, severe class imbalance and the subjectivity of engagement labels. This matches the motivation in Chapter~1.
 
 \textbf{Feature-based approaches.}
@@ -41,8 +41,8 @@ These models can capture appearance and motion cues that landmark-based descript
 
 \textbf{Research Gap.}
 Two gaps persist across both families and define the contribution of this thesis.
-First, the facial features are mixed but are encoded as one block rather than per behavioural subsystem, even though their signals (gaze, eye and face geometry, head pose, action units) have very different timing.
-Second, studies mostly use accuracy to evaluate and do not have reliable evaluation for generalisation: in-domain accuracy dominates the literature, yet on imbalanced data a high accuracy score can hide a model that does not transfer at all.
+First, the mixed facial features are passed through a single encoder rather than encoded per behavioural subsystem, even though their signals (gaze, eye and face geometry, head pose, action units) have very different timing.
+Second, studies rely on accuracy as the primary evaluation metric and lack a reliable evaluation of generalisation: in-domain accuracy dominates the literature, yet on imbalanced data a high accuracy score can hide a model that does not transfer at all.
 The feature-group hybrid proposed in Chapter~3 targets the first gap, and the 3$\times$3 cross-dataset protocol of Chapter~5 targets the second.
 
 \FloatBarrier
@@ -55,7 +55,7 @@ OpenFace 2.0~\cite{openface2} is an open-source facial-behaviour analysis toolki
 Each frame is also tagged with a tracking-confidence and success flag, which downstream pipelines use to discard poorly tracked frames.
 
 In CMOSE the per-frame descriptor used in this thesis is 709-dimensional.
-These 709 numbers are not homogeneous. By the meaning of their columns they split into five behavioural groups, gaze (8 dimensions), eye landmarks (280), face landmarks (340), head pose (46), and action units (35), and the thesis exploits this split throughout.
+These 709 numbers are not homogeneous. By the meaning of their columns they split into five feature groups, gaze (8 dimensions), eye landmarks (280), face landmarks (340), head pose (46), and action units (35), and the thesis exploits this split throughout.
 These groups are physically distinct subsystems, each with its own dynamics: gaze and eye landmarks change rapidly and noisily; head pose drifts slowly and smoothly; action units fire in short, sparse bursts.
 Section~\ref{sec:groups} formalises this decomposition and Section~\ref{sec:hybrid} turns it into an architecture.
 
@@ -88,7 +88,7 @@ The result is a strong inductive bias for short, local temporal motifs at multip
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\linewidth]{openface_tcn_block.png}
-\caption{The residual TemporalBlock used in every TCN of this thesis: two weight-normalised dilated causal 1-D convolutions, each followed by a ReLU and dropout, summed with a residual connection (kernel size~3).}
+\caption{Residual TemporalBlock}
 \label{fig:tcn_block}
 \end{figure}
 
@@ -111,7 +111,7 @@ The cost is that the sequential recurrence is harder to parallelise than convolu
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\linewidth]{openface_lstm_cell.png}
-\caption{A single LSTM cell at time step $t$: the forget, input, and output gates regulate how the cell state $C_t$ and hidden state $h_t$ are updated from the previous states $C_{t-1}$, $h_{t-1}$ and the input $x_t$.}
+\caption{LSTM cell at time step $t$}
 \label{fig:lstm_cell}
 \end{figure}
 
@@ -130,7 +130,7 @@ The Transformer has the weakest temporal prior of the three families, since it c
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\linewidth]{openface_transformer_encoder_layer.png}
-\caption{A single Transformer encoder layer used in this thesis: multi-head self-attention over the sinusoidally position-encoded input, followed by a position-wise feed-forward network, each sub-layer wrapped in a residual connection and layer normalisation.}
+\caption{Transformer encoder layer}
 \label{fig:transformer_encoder_layer}
 \end{figure}
 
@@ -269,7 +269,7 @@ A large gap between the best single model, the majority vote, and the oracle ind
 \label{sec:lit-summary}
 
 This chapter scoped the thesis to ordinal engagement recognition from a webcam and analysed the two main approaches in the literature, identifying their shared limits: mixed facial descriptors are encoded as one block, and transfer across datasets is rarely measured with metrics that resist majority-class inflation.
-It then laid the technical foundations the rest of the thesis depends on: the OpenFace 709-dimensional descriptor and its five behavioural groups, the clip-level I3D embedding, the three families of temporal architecture (TCN, LSTM, Transformer) and their different temporal biases, the three loss families for imbalance and ordinality, the six metrics with QWK as the primary metric and macro-accuracy and macro-MAE as secondary metrics, and the rank-correlation (Spearman $\rho$, Kendall $\tau$) and prediction-agreement statistics used to analyse the results.
+It then laid the technical foundations the rest of the thesis depends on: the OpenFace 709-dimensional descriptor and its five feature groups, the clip-level I3D embedding, the three families of temporal architecture (TCN, LSTM, Transformer) and their different temporal biases, the three loss families for imbalance and ordinality, the six metrics with QWK as the primary metric and macro-accuracy and macro-MAE as secondary metrics, and the rank-correlation (Spearman $\rho$, Kendall $\tau$) and prediction-agreement statistics used to analyse the results.
 Chapter~3 combines these foundations into a concrete methodology: it turns the five-group decomposition into the proposed feature-group hybrid, specifies the baselines and the exact loss forms, and defines the training and 3$\times$3 cross-dataset protocols.
 
 \end{document}

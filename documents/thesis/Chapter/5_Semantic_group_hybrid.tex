@@ -7,7 +7,7 @@
 
 Chapter~4 established the evaluation frame (QWK as the single primary metric that selects the best model, with macro-accuracy and macro-MAE among the secondary metrics; CMOSE as development dataset; cross-entropy as development loss; the OpenFace TCN at QWK 0.537 as the reference level) and supplied the design motivation: the baseline configurations, and the OpenFace and I3D families in particular, fail on different clips.
 This chapter evaluates the proposed feature-group hybrid (Section~\ref{sec:hybrid}) against that frame: all $3^{5}=243$ per-group encoder configurations, each with and without the I3D stream, trained with cross-entropy.
-Section~\ref{sec:ablation} first re-validates the Chapter~4 frame on this 486-configuration population (RQ1 in part); Section~\ref{sec:group-marginal} isolates which behavioural group's encoder choice matters (RQ2); Section~\ref{sec:i3d-effect} measures the effect of I3D fusion with a paired ablation (RQ3); Section~\ref{sec:error} pins down the headline in-domain comparison (RQ1); and Section~\ref{sec:private} takes the hybrid out of domain, establishing that it generalises better than the baselines in every cell of the matrix, and most of all on the decisive private set I collected, where the architecture and dataset combination reinforce each other (RQ4).
+Section~\ref{sec:ablation} first re-validates the Chapter~4 frame on this 486-configuration population (RQ1 in part); Section~\ref{sec:group-marginal} isolates which feature group's encoder choice matters (RQ2); Section~\ref{sec:i3d-effect} measures the effect of I3D fusion with a paired ablation (RQ3); Section~\ref{sec:error} pins down the headline in-domain comparison (RQ1); and Section~\ref{sec:private} takes the hybrid out of domain, establishing that it generalises better than the baselines in every cell of the matrix, and most of all on the decisive private set I collected, where the architecture and dataset combination reinforce each other (RQ4).
 Section~\ref{sec:gen-discussion} discusses why.
 As in Chapter~4, family-level claims are reported as means and distributions and headline comparisons as the tuned maximum of QWK, the single selection metric (Section~\ref{sec:baseline-overview}).
 
@@ -24,8 +24,7 @@ Three findings of Chapter~4 reproduce.
 \includegraphics[width=\linewidth]{hybrid_ablation_all_metrics.png}
 \caption{Hybrid ablation across all 243 per-group encoder configurations, with and
 without I3D, on all six metrics (in-domain CMOSE). The dashed line in every panel is the
-same model (the single QWK-selected baseline: OpenFace TCN, cross-entropy) read on
-that panel's metric, not a per-metric champion.}
+best baseline selected using QWK metric (OpenFace TCN, cross-entropy), not per-metric champions.}
 \label{fig:hybrid_ablation_all_metrics}
 \end{figure}
 
@@ -51,7 +50,7 @@ The 243-configuration grid varies five group$\rightarrow$encoder choices at once
 Table~\ref{tab:T5_1_group_marginal_combined} reports the marginal in both regimes.
 In-domain, only head pose shows a clear preference: TCN (mean QWK 0.545), ahead of LSTM (0.541) and Transformer (0.523), a spread of 0.022; macro-MAE agrees, lowest (best) under the TCN.
 The other four groups are insensitive to the encoder (QWK spread $\le0.006$).
-Under shift (the same marginal over the unseen-target cells), head pose again has the largest spread (0.010) and again prefers the TCN, while the other groups' spreads (0.002--0.004) flip winners arbitrarily, which is just noise.
+Under shift (the same marginal over the unseen-target cells), head pose again has the largest spread (0.010) and again prefers the TCN, while the other groups' spreads (0.002-0.004) flip winners arbitrarily, which is just noise.
 \input{Table/T5_1_group_marginal_combined}
 
 The consistency across regimes shows the head-pose rule is not a tuning accident but reflects the signal itself: head dynamics such as nodding and turning away are temporally local and suit convolution (RQ2).
@@ -91,7 +90,7 @@ Relative to the best baseline, the hybrid improves recall on the ordinal extreme
 The rarest class Highly\nobreakdash-Disengage, however, stays unsolved and is slightly traded away (recall $0.40\to0.37$): the model reallocates capacity toward the more frequent extreme.
 The per-class figure is reserved for the decisive private set (Figure~\ref{fig:private_per_class_f1}, Section~\ref{sec:private-results}), where the same uneven signature recurs in sharper form.
 
-The in-domain improvement is therefore real but uneven: the hybrid clears the baseline on QWK and on the balanced secondary metrics by strengthening the well-populated upper-engagement region and the middle disengaged class, while the $\sim$2--3\%-frequency Highly\nobreakdash-Disengage class remains the main open challenge (RQ1).
+The in-domain improvement is therefore real but uneven: the hybrid clears the baseline on QWK and on the balanced secondary metrics by strengthening the well-populated upper-engagement region and the middle disengaged class, while the $\sim$2-3\%-frequency Highly\nobreakdash-Disengage class remains the main open challenge (RQ1).
 The next section shows the picture becomes more severe still out of domain, and that the architecture's advantage over the baseline widens there.
 
 \FloatBarrier
@@ -202,7 +201,7 @@ in-domain QWK and private-set transfer.}
 \label{sec:gen-discussion}
 
 \textbf{Why the levers work.}
-Combining datasets works through prior coverage: CMOSE and DAiSEE are imbalanced in opposite directions (Section~\ref{sec:data}), so their combination spans a wider range of label priors and an unseen target is closer to the combined dataset than to either single source.
+Combining datasets improves generalization by exposing models to a more diverse set of data distributions, reducing their tendency to overfit to either individual dataset.
 The hybrid's margin widens off-domain for the reason it was designed: each behavioural channel is encoded separately and forced to be discriminative through its auxiliary head, so that the representation is less dependent on the distinctive features of any dataset.
 The two feature families diverge under shift because the OpenFace descriptors live in subject-centred physical units that mean the same thing in any setup, whereas the I3D embedding encodes global appearance, what changes between datasets, so fusion adds signal only where the test statistics are represented in training.
 

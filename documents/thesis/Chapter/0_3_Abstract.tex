@@ -13,7 +13,7 @@ I identify two limits of current approaches: the use of a single encoder for all
 % approach
 In this thesis I keep the structure of the facial signal instead of flattening it, because gaze, landmarks, head pose, and action units move on different timescales. Additionally, I judge every model by quadratic-weighted kappa (QWK) rather than accuracy, because only an ordinal, imbalance-aware metric reflects real deployment conditions.
 % solution
-My solution is a feature-group hybrid that decomposes the 709 OpenFace features into five behavioural groups, matches each group with its own temporal encoder (Temporal Convolutional Network, LSTM, or Transformer), and optionally adds a global I3D motion stream. Each stream has a small auxiliary head and their embeddings are recomposed to make the final prediction.
+My solution is a feature-group hybrid that decomposes the 709 OpenFace features into five groups, matches each group with its own temporal encoder (Temporal Convolutional Network, LSTM, or Transformer), and optionally adds a global I3D motion stream. Each stream has a small auxiliary head and their embeddings are recomposed to make the final prediction.
 %contribution
 I make three contributions.
 First, I ran an ablation across all 243 encoder assignments. It shows that the best configuration reaches a QWK of 0.605 on CMOSE against 0.537 for the best single-encoder baseline.

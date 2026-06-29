@@ -110,7 +110,7 @@ Each follows the standard approach: a single encoder consumes the full feature s
 A sixth model, \texttt{openface\_tcn\_i3d\_fusion} (a shared-fusion TCN over both modalities), exists in the codebase but is excluded from the assessment so that the comparison isolates the feature-group hypothesis rather than modality fusion.
 
 The five baseline architectures are shown in Figure~\ref{fig:baselines}.
-The four OpenFace baselines (a--d) encode the full $T\times709$ sequence with a single encoder, while \texttt{i3d\_mlp} (e) classifies the pooled 1024-d I3D clip vector.
+The four OpenFace baselines (a-d) encode the full $T\times709$ sequence with a single encoder, while \texttt{i3d\_mlp} (e) classifies the pooled 1024-d I3D clip vector.
 Forcing one encoder, and therefore one temporal bias, onto all 709 mixed features at once is the design decision the proposed model revisits in Sections~\ref{sec:groups} and~\ref{sec:hybrid}.
 
 \begin{figure}[htbp]

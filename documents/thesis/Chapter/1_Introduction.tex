@@ -7,11 +7,11 @@
 
 Online and hybrid education has become a permanent part of modern teaching.
 Lectures, tutorials, and exams are now usually given through video calls and learning platforms. 
-Much learning happens with a webcam as the only link between the student and the teacher.
+Much learning happens with the webcam as the main link between student and teacher.
 This change brings both an opportunity and a problem.
 The webcam stream reveals how well a student is following the material, but unlike in a physical classroom, the teacher cannot perceive the overall state of the class.
 A teacher facing dozens of simultaneous video tiles has no reliable way to notice if one student lost focus several minutes earlier.
-Automatic engagement recognition aims to solve this problem: it turns a short video of one student into an estimation of how engaged that student is, so that teachers and learning platforms can step in and change the pace of a lesson accordingly.
+Automatic engagement recognition aims to solve this problem by classifying a short webcam clip of one student into one of four ordinal levels, from Highly\nobreakdash-Disengage to Highly\nobreakdash-Engage, so that teachers and learning platforms can step in and change the pace of a lesson accordingly.
 
 This thesis studies the form of this problem used by other researchers and by the datasets I build on.
 The input is a short video clip of one student, about ten seconds long, recorded from a front webcam.
@@ -62,13 +62,13 @@ A systematic review of computer-vision engagement detection~\cite{review_engagem
 
 Two specific limits of the existing work motivate this thesis.
 
-\textbf{First, facial-behaviour features are mixed but are encoded as one block.}
+\textbf{First, the mixed facial-behaviour features are passed through a single encoder.}
 A single OpenFace frame in CMOSE is a 709-dimensional vector that bundles together signals of very different physical kinds: a few gaze direction values, hundreds of eye- and face-landmark coordinates, head-pose shifts and rotations, and action-unit strengths.
 These parts move at different speeds: the eyes flick fast and noisily, head turns are slow and smooth, and action units fire in short bursts.
 The usual practice of joining all 709 numbers and pushing them through one sequence encoder forces a single temporal model onto signals that do not share a single timescale.
 It also makes the model harder to read, because the role of each behavioural channel is no longer separate.
 
-\textbf{Second, studies mostly use accuracy to evaluate, and do not have reliable evaluation for generalisation.}
+\textbf{Second, studies rely on accuracy as the primary evaluation metric, and lack a reliable evaluation of generalisation.}
 Almost every engagement study reports plain accuracy as its headline number, and almost always in-domain, meaning train and test on the same dataset.
 Yet the only deployment that matters is on data the model has never seen, recorded with different cameras, viewpoints, and lighting than the training dataset.
 Because engagement labels are subjective and the class balance differs sharply between datasets (CMOSE is Engage-dominated while DAiSEE is split between Engage and Highly\nobreakdash-Engage), it is reasonable to expect that models transfer poorly, but without measuring it across datasets this remains an assumption.
@@ -85,24 +85,24 @@ The goal of this thesis is to improve, and to describe accurately, how engagemen
 I do this through one architecture idea and one set of evaluation rules, written as four research questions.
 
 \begin{enumerate}
-  \item \textbf{RQ1 --- Decomposition.}
+  \item \textbf{RQ1: Decomposition.}
   Does splitting the OpenFace features into groups, each with its own temporal encoder, improve engagement classification over single-encoder baselines that encode all 709 features together?
-  \item \textbf{RQ2 --- Encoder assignment.}
+  \item \textbf{RQ2: Encoder assignment.}
   If splitting helps, which group$\rightarrow$encoder choices actually matter?
   Is there a behavioural channel whose timing prefers one encoder family (convolutional, recurrent, or attention-based) over another?
-  \item \textbf{RQ3 --- Motion fusion.}
+  \item \textbf{RQ3: Motion fusion.}
   Does adding a global I3D motion stream to the split model help, and does any gain hold across many configurations rather than arise from a single favourable one?
-  \item \textbf{RQ4 --- Generalisation and losses.}
+  \item \textbf{RQ4: Generalisation and losses.}
   How well do these models generalise across datasets, and how does the loss trade ordinal agreement against recall on the minority classes and balanced ordinal error?
 \end{enumerate}
 
 \textbf{Conceptual framework.}
-The shared idea behind RQ1--RQ3, shown by the hybrid architecture in Chapter~3 (Figure~\ref{fig:hybrid}), is to treat a clip as several streams in time rather than one sequence.
+The shared idea behind RQ1-RQ3, shown by the hybrid architecture in Chapter~3 (Figure~\ref{fig:hybrid}), is to treat a clip as several streams in time rather than one sequence.
 The OpenFace features are split into five meaningful groups (gaze, eye landmarks, face landmarks, head pose, and action units), and each group is encoded on its own into an embedding of fixed length by an encoder chosen to suit its timing.
 A global I3D clip embedding can be added as a sixth stream.
 The embeddings are joined and classified, and every stream also gets its own small head so that each behavioural channel has to be useful on its own.
-I call this ``divide the face, then fuse'' design the feature-group hybrid, and it is the main object tested in this thesis against single-encoder baselines, across datasets, and across loss functions.
-The rule behind RQ4 is to select and rank every model on one metric, ordinal agreement (quadratic-weighted kappa, QWK), reporting balanced accuracy and balanced ordinal error (macro-MAE) only as secondary checks and never using plain accuracy to choose a model. Every model is tested not only in-domain but on two unseen datasets, one of which I collected myself.
+I call this design the feature-group hybrid, and it is the main object tested in this thesis against single-encoder baselines, across datasets, and across loss functions.
+The rule behind RQ4 is to select and rank every model on one metric, ordinal agreement (quadratic-weighted kappa, QWK), reporting balanced accuracy and balanced ordinal error (macro-MAE) only as secondary checks and never using plain accuracy to choose a model. Every model is tested not only in-domain but on three different datasets, one of which I collected myself.
 
 \FloatBarrier
 \section{Contributions}
@@ -111,16 +111,16 @@ The rule behind RQ4 is to select and rank every model on one metric, ordinal agr
 This thesis makes three contributions.
 
 \begin{enumerate}
-  \item \textbf{Architecture --- a feature-group hybrid that divides the face, then fuses.}
-  I propose a temporal architecture that splits the 709 OpenFace features into five behavioural groups, encodes each group with its own chosen Temporal Convolutional Network (TCN), Transformer, or LSTM, optionally adds a global motion stream from I3D, and trains every stream with a small head (Section~\ref{sec:hybrid}).
+  \item \textbf{Architecture: a feature-group hybrid that divides the face, then fuses.}
+  I propose a temporal architecture that splits the 709 OpenFace features into five groups, encodes each group with its own chosen Temporal Convolutional Network (TCN), Transformer, or LSTM, optionally adds a global motion stream from I3D, and every stream has an auxiliary head during training phase (Section~\ref{sec:hybrid}).
   Trying all 243 ways to assign encoders to groups, with and without the I3D stream, shows that the I3D hybrid family scores higher than the strongest baseline (median QWK 0.553 against 0.537, best 0.605), that the gain belongs to the family rather than to a single favourable configuration, and that head pose is the only group with a clear encoder preference, preferring a TCN, a preference that also holds when the data shifts (Section~\ref{sec:ablation}).
 
-  \item \textbf{Dataset --- a new, self-collected private test set.}
-  I collect 366 webcam clips, cut to a fixed length, filtered for tracking quality, labelled by hand by me through a purpose-built interface, and made with the same OpenFace/I3D pipeline as the public datasets.
-  It is used only to test, never in training, how well a model works on real students recorded on their own webcams, where camera angles and conditions differ from those of the public datasets (Section~\ref{sec:data}).
+  \item \textbf{Dataset: a new, self-collected private test set.}
+  I collected 366 webcam clips, cut them to a fixed length, filtered for tracking quality, labelled by hand through a temporary interface, and extracted features with the same OpenFace/I3D pipeline as the public datasets.
+  It is used only for evaluating how well a model works on real students recorded on their own webcams, where camera angles and conditions differ from those of the public datasets (Section~\ref{sec:data}).
 
-  \item \textbf{Generalisation --- a cross-dataset study measured by QWK, not accuracy.}
-  I run a 3$\times$3 cross-dataset study (training on CMOSE, DAiSEE, or both together; testing on each public test set plus the private set) showing that engagement models do not transfer to a new dataset, that accuracy hides this collapse while QWK shows it, and that training on the combined datasets is the simplest fix that works best.
+  \item \textbf{Generalisation: a cross-dataset study measured by QWK, not accuracy.}
+  I run a 3$\times$3 cross-dataset study (training on CMOSE, DAiSEE, or combination of them; testing on each public test set plus the private set) showing that engagement models do not transfer to a new dataset, that accuracy hides this collapse while QWK shows it, and that training on the combined datasets is the simplest fix that works best.
   On the private set the architecture and the combined-training strategy reinforce each other: the hybrid trained on both datasets is the best model (QWK 0.379 against 0.285 for the best baseline, a bigger gap than in-domain), which shows the practical value of all three contributions together (Sections~\ref{sec:crossdomain} and~\ref{sec:private}).
 \end{enumerate}
 

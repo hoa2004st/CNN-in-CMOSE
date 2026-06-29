@@ -30,8 +30,8 @@ The choice of metric changes the result, so it must be argued rather than left t
 \input{Table/T4_1_per_metric_winner}
 
 Second, the six metrics form two blocks, bridged only by QWK.
-Figure~\ref{fig:metric_correlation_base} reports the Kendall rank correlation between every pair of metrics over the fifteen configurations: a micro block (accuracy and micro-MAE, $\tau=0.98$, dominated by the majority class) and a macro block (macro-accuracy and macro-MAE, $\tau=0.89$) that are almost unrelated to each other (cross-block $\tau\approx0.01$--$0.10$).
-QWK is the only metric with moderate-to-strong agreement with both blocks ($\tau=0.49$--$0.60$): the compromise metric, sensitive to ordinal distance without being dominated by the majority class.
+Figure~\ref{fig:metric_correlation_base} reports the Kendall rank correlation between every pair of metrics over the fifteen configurations: a micro block (accuracy and micro-MAE, $\tau=0.98$, dominated by the majority class) and a macro block (macro-accuracy and macro-MAE, $\tau=0.89$) that are almost unrelated to each other (cross-block $\tau\approx0.01$-$0.10$).
+QWK is the only metric with moderate-to-strong agreement with both blocks ($\tau=0.49$-$0.60$): the compromise metric, sensitive to ordinal distance without being dominated by the majority class.
 
 \begin{figure}[ht]
 \centering
@@ -113,7 +113,7 @@ This section descends to individual predictions on the 1{,}221 in-domain CMOSE t
 \label{sec:agreement-configs}
 
 Figure~\ref{fig:agreement_base_models} reports the pairwise Cohen's kappa between the predictions of every pair of configurations.
-Mean pairwise agreement is only $\kappa=0.27$--$0.39$, far below what the clustered scores of Figure~\ref{fig:base_models_all_metrics} suggest, and sharing the architecture ($\kappa=0.391$) or the loss ($\kappa=0.374$) raises it only mildly over sharing neither ($\kappa=0.273$): the fifteen configurations are different hypotheses about the data, not reparametrisations of one another.
+Mean pairwise agreement is only $\kappa=0.27$-$0.39$, far below what the clustered scores of Figure~\ref{fig:base_models_all_metrics} suggest, and sharing the architecture ($\kappa=0.391$) or the loss ($\kappa=0.374$) raises it only mildly over sharing neither ($\kappa=0.273$): the fifteen configurations are different hypotheses about the data, not reparametrisations of one another.
 
 \begin{figure}[ht]
 \centering
