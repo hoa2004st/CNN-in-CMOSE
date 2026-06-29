@@ -1,7 +1,14 @@
-PWD c:\HOA\1.HUST\Thesis\CNN-in-CMOSE\documents\thesis
+PWD c:\HOA\1.HUST\Thesis\CNN-in-CMOSE\documents\thesis\Chapter
 INPUT C:\Users\NC PC\AppData\Local\MiKTeX\miktex\data\le\pdftex\pdflatex.fmt
-INPUT c:\HOA\1.HUST\Thesis\CNN-in-CMOSE\documents\thesis\main.tex
-OUTPUT main.log
+INPUT c:\HOA\1.HUST\Thesis\CNN-in-CMOSE\documents\thesis\Chapter\0_3_Abstract.tex
+OUTPUT 0_3_Abstract.log
+INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\subfiles\subfiles.cls
+INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\subfiles\subfiles.cls
+INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\import\import.sty
+INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\import\import.sty
+INPUT ..\main.tex
+INPUT ..\main.tex
+INPUT ..\main.tex
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\base\report.cls
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\base\report.cls
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\base\size10.clo
@@ -131,8 +138,6 @@ INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\enumitem\enumitem.s
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\enumitem\enumitem.sty
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\subfiles\subfiles.sty
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\subfiles\subfiles.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\import\import.sty
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\import\import.sty
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\titlesec\titlesec.sty
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\titlesec\titlesec.sty
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\titlesec\titletoc.sty
@@ -300,16 +305,16 @@ INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\blx-case-e
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\biblatex\blx-case-expl3.sty
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\l3packages\xparse\xparse.sty
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\l3packages\xparse\xparse.sty
-INPUT .\lstlisting.tex
-INPUT .\lstlisting.tex
-INPUT .\lstlisting.tex
-INPUT .\lstlisting.tex
-INPUT lstlisting.tex
-INPUT .\glossary.tex
-INPUT .\glossary.tex
-INPUT .\glossary.tex
-INPUT .\glossary.tex
-INPUT glossary.tex
+INPUT ..\lstlisting.tex
+INPUT ..\lstlisting.tex
+INPUT ..\lstlisting.tex
+INPUT ..\lstlisting.tex
+INPUT ..\lstlisting.tex
+INPUT ..\glossary.tex
+INPUT ..\glossary.tex
+INPUT ..\glossary.tex
+INPUT ..\glossary.tex
+INPUT ..\glossary.tex
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\hyperref\hyperref.sty
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\hyperref\hyperref.sty
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\generic\kvdefinekeys\kvdefinekeys.sty
@@ -353,10 +358,10 @@ INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5ptm.fd
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5ptm.fd
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5ptm.fd
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
-INPUT .\main.aux
-INPUT .\main.aux
-INPUT main.aux
-OUTPUT main.aux
+INPUT .\0_3_Abstract.aux
+INPUT .\0_3_Abstract.aux
+INPUT 0_3_Abstract.aux
+OUTPUT 0_3_Abstract.aux
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\context\base\mkii\supp-pdf.mkii
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\context\base\mkii\supp-pdf.mkii
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\context\base\mkii\supp-pdf.mkii
@@ -372,32 +377,17 @@ INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\microtype\mt-ptm.cf
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\microtype\mt-ptm.cfg
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\caption\ltcaption.sty
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\caption\ltcaption.sty
-OUTPUT main-blx.bib
-INPUT main.bbl
-INPUT .\main.bbl
-INPUT .\main.bbl
-INPUT .\main.bbl
-INPUT main.bbl
-INPUT .\main.out
-INPUT .\main.out
-INPUT main.out
-INPUT main.out
-OUTPUT main.pdf
-INPUT .\main.out
-INPUT .\main.out
-OUTPUT main.out
-INPUT .\Cover.tex
-INPUT .\Cover.tex
-INPUT Cover.tex
-INPUT .\Cover.tex
-INPUT .\Cover.tex
-INPUT Cover.tex
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmb8v.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmb8v.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmb8v.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmb8v.tfm
+OUTPUT 0_3_Abstract-blx.bib
+INPUT .\0_3_Abstract.out
+INPUT .\0_3_Abstract.out
+INPUT 0_3_Abstract.out
+INPUT 0_3_Abstract.out
+INPUT .\0_3_Abstract.out
+INPUT .\0_3_Abstract.out
+OUTPUT 0_3_Abstract.out
+OUTPUT 0_3_Abstract.pdf
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\microtype\mt-cmr.cfg
+INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmb8v.tfm
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\microtype\mt-cmr.cfg
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\microtype\mt-cmr.cfg
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\microtype\mt-cmr.cfg
@@ -415,16 +405,13 @@ INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cme
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\base\ulasy.fd
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\base\ulasy.fd
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\base\ulasy.fd
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\base\ulasy.fd
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\latex-fonts\lasy10.tfm
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\latex-fonts\lasy9.tfm
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\latex-fonts\lasy6.tfm
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\amsfonts\umsa.fd
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\amsfonts\umsa.fd
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\amsfonts\umsa.fd
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\amsfonts\umsa.fd
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msam10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\microtype\mt-msa.cfg
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\microtype\mt-msa.cfg
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\microtype\mt-msa.cfg
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\microtype\mt-msa.cfg
@@ -433,374 +420,23 @@ INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\sym
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\amsfonts\umsb.fd
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\amsfonts\umsb.fd
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\amsfonts\umsb.fd
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\amsfonts\umsb.fd
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\microtype\mt-msb.cfg
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\microtype\mt-msb.cfg
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\microtype\mt-msb.cfg
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\microtype\mt-msb.cfg
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm10.tfm
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm7.tfm
+INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmb8v.tfm
+INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmri8v.tfm
 INPUT C:\Users\NC PC\AppData\Local\MiKTeX\fonts\map\pdftex\pdftex.map
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\enc\dvips\vntex\t5.enc
-INPUT .\Cover2.tex
-INPUT .\Cover2.tex
-INPUT Cover2.tex
-INPUT .\Cover2.tex
-INPUT .\Cover2.tex
-INPUT Cover2.tex
-INPUT .\Chapter\0_2_Acknowledgment.tex
-INPUT Chapter\0_2_Acknowledgment.tex
-INPUT .\Chapter\0_2_Acknowledgment.tex
-INPUT Chapter\0_2_Acknowledgment.tex
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
-INPUT .\Chapter\0_3_Abstract.tex
-INPUT Chapter\0_3_Abstract.tex
-INPUT .\Chapter\0_3_Abstract.tex
-INPUT Chapter\0_3_Abstract.tex
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmri8v.tfm
-INPUT .\main.toc
-INPUT .\main.toc
-INPUT main.toc
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmbc8v.tfm
-OUTPUT main.toc
-INPUT .\main.lof
-INPUT .\main.lof
-INPUT main.lof
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
-OUTPUT main.lof
-INPUT .\main.lot
-INPUT .\main.lot
-INPUT main.lot
-OUTPUT main.lot
-INPUT .\Chapter\1_Introduction.tex
-INPUT .\Chapter\1_Introduction.tex
-INPUT Chapter\1_Introduction.tex
-INPUT .\Chapter\1_Introduction.tex
-INPUT .\Chapter\1_Introduction.tex
-INPUT Chapter\1_Introduction.tex
-INPUT .\Chapter\2_Literature_review.tex
-INPUT .\Chapter\2_Literature_review.tex
-INPUT Chapter\2_Literature_review.tex
-INPUT .\Chapter\2_Literature_review.tex
-INPUT .\Chapter\2_Literature_review.tex
-INPUT Chapter\2_Literature_review.tex
-INPUT .\Figure\openface_tcn_block.png
-INPUT Figure\openface_tcn_block.png
-INPUT .\Figure\openface_tcn_block.png
-INPUT .\Figure\openface_tcn_block.png
-INPUT .\Figure\openface_tcn_block.png
-INPUT .\Figure\openface_tcn_block.png
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmb8v.tfm
-INPUT .\Figure\openface_lstm_cell.png
-INPUT Figure\openface_lstm_cell.png
-INPUT .\Figure\openface_lstm_cell.png
-INPUT .\Figure\openface_lstm_cell.png
-INPUT .\Figure\openface_lstm_cell.png
-INPUT .\Figure\openface_lstm_cell.png
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmr8.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmmi8.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmsy8.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmex10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmex8.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmex7.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\latex-fonts\lasy8.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msam10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msam10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msam5.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm5.tfm
-INPUT .\Figure\openface_transformer_encoder_layer.png
-INPUT Figure\openface_transformer_encoder_layer.png
-INPUT .\Figure\openface_transformer_encoder_layer.png
-INPUT .\Figure\openface_transformer_encoder_layer.png
-INPUT .\Figure\openface_transformer_encoder_layer.png
-INPUT .\Figure\openface_transformer_encoder_layer.png
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmbx12.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmbx9.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmbx6.tfm
-INPUT .\Chapter\3_Methodology.tex
-INPUT .\Chapter\3_Methodology.tex
-INPUT Chapter\3_Methodology.tex
-INPUT .\Chapter\3_Methodology.tex
-INPUT .\Chapter\3_Methodology.tex
-INPUT Chapter\3_Methodology.tex
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5pcr.fd
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5pcr.fd
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5pcr.fd
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5pcr.fd
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\ucrr8v.tfm
-INPUT .\Table\T3_1_dataset_stats.tex
-INPUT .\Table\T3_1_dataset_stats.tex
-INPUT Table\T3_1_dataset_stats.tex
-INPUT .\Table\T3_1_dataset_stats.tex
-INPUT .\Table\T3_1_dataset_stats.tex
-INPUT Table\T3_1_dataset_stats.tex
-INPUT .\Figure\dataset_class_distribution_overall.png
-INPUT Figure\dataset_class_distribution_overall.png
-INPUT .\Figure\dataset_class_distribution_overall.png
-INPUT .\Figure\dataset_class_distribution_overall.png
-INPUT .\Figure\dataset_class_distribution_overall.png
-INPUT .\Figure\dataset_class_distribution_overall.png
-INPUT .\Figure\openface_mlp.png
-INPUT Figure\openface_mlp.png
-INPUT .\Figure\openface_mlp.png
-INPUT .\Figure\openface_mlp.png
-INPUT .\Figure\openface_mlp.png
-INPUT .\Figure\openface_mlp.png
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmb8v.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\ucrr8v.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmr10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmmi10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmsy10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmex10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmex8.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmex7.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmbx10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmbx8.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmbx5.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\latex-fonts\lasy10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\latex-fonts\lasy5.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msam10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msam7.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msam5.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm7.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm5.tfm
-INPUT .\Figure\openface_tcn.png
-INPUT Figure\openface_tcn.png
-INPUT .\Figure\openface_tcn.png
-INPUT .\Figure\openface_tcn.png
-INPUT .\Figure\openface_tcn.png
-INPUT .\Figure\openface_tcn.png
-INPUT .\Figure\openface_lstm.png
-INPUT Figure\openface_lstm.png
-INPUT .\Figure\openface_lstm.png
-INPUT .\Figure\openface_lstm.png
-INPUT .\Figure\openface_lstm.png
-INPUT .\Figure\openface_lstm.png
-INPUT .\Figure\openface_transformer.png
-INPUT Figure\openface_transformer.png
-INPUT .\Figure\openface_transformer.png
-INPUT .\Figure\openface_transformer.png
-INPUT .\Figure\openface_transformer.png
-INPUT .\Figure\openface_transformer.png
-INPUT .\Figure\i3d_mlp.png
-INPUT Figure\i3d_mlp.png
-INPUT .\Figure\i3d_mlp.png
-INPUT .\Figure\i3d_mlp.png
-INPUT .\Figure\i3d_mlp.png
-INPUT .\Figure\i3d_mlp.png
-INPUT .\Figure\hybrid.png
-INPUT Figure\hybrid.png
-INPUT .\Figure\hybrid.png
-INPUT .\Figure\hybrid.png
-INPUT .\Figure\hybrid.png
-INPUT .\Figure\hybrid.png
-INPUT .\Figure\hybrid_tcn_encoder.png
-INPUT Figure\hybrid_tcn_encoder.png
-INPUT .\Figure\hybrid_tcn_encoder.png
-INPUT .\Figure\hybrid_tcn_encoder.png
-INPUT .\Figure\hybrid_tcn_encoder.png
-INPUT .\Figure\hybrid_tcn_encoder.png
-INPUT .\Figure\hybrid_transformer_encoder.png
-INPUT Figure\hybrid_transformer_encoder.png
-INPUT .\Figure\hybrid_transformer_encoder.png
-INPUT .\Figure\hybrid_transformer_encoder.png
-INPUT .\Figure\hybrid_transformer_encoder.png
-INPUT .\Figure\hybrid_transformer_encoder.png
-INPUT .\Figure\hybrid_lstm_encoder.png
-INPUT Figure\hybrid_lstm_encoder.png
-INPUT .\Figure\hybrid_lstm_encoder.png
-INPUT .\Figure\hybrid_lstm_encoder.png
-INPUT .\Figure\hybrid_lstm_encoder.png
-INPUT .\Figure\hybrid_lstm_encoder.png
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\ucrr8v.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\ucrr8v.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\ucrb8v.tfm
-INPUT .\Chapter\4_Baseline_models.tex
-INPUT .\Chapter\4_Baseline_models.tex
-INPUT Chapter\4_Baseline_models.tex
-INPUT .\Chapter\4_Baseline_models.tex
-INPUT .\Chapter\4_Baseline_models.tex
-INPUT Chapter\4_Baseline_models.tex
-INPUT .\Table\T4_1_per_metric_winner.tex
-INPUT .\Table\T4_1_per_metric_winner.tex
-INPUT Table\T4_1_per_metric_winner.tex
-INPUT .\Table\T4_1_per_metric_winner.tex
-INPUT .\Table\T4_1_per_metric_winner.tex
-INPUT Table\T4_1_per_metric_winner.tex
-INPUT .\Figure\metric_correlation_base.png
-INPUT Figure\metric_correlation_base.png
-INPUT .\Figure\metric_correlation_base.png
-INPUT .\Figure\metric_correlation_base.png
-INPUT .\Figure\metric_correlation_base.png
-INPUT .\Figure\metric_correlation_base.png
-INPUT .\Table\T4_2_indomain_datasets.tex
-INPUT .\Table\T4_2_indomain_datasets.tex
-INPUT Table\T4_2_indomain_datasets.tex
-INPUT .\Table\T4_2_indomain_datasets.tex
-INPUT .\Table\T4_2_indomain_datasets.tex
-INPUT Table\T4_2_indomain_datasets.tex
-INPUT .\Figure\loss_metric_tradeoff.png
-INPUT Figure\loss_metric_tradeoff.png
-INPUT .\Figure\loss_metric_tradeoff.png
-INPUT .\Figure\loss_metric_tradeoff.png
-INPUT .\Figure\loss_metric_tradeoff.png
-INPUT .\Figure\loss_metric_tradeoff.png
-INPUT .\Figure\base_models_all_metrics.png
-INPUT Figure\base_models_all_metrics.png
-INPUT .\Figure\base_models_all_metrics.png
-INPUT .\Figure\base_models_all_metrics.png
-INPUT .\Figure\base_models_all_metrics.png
-INPUT .\Figure\base_models_all_metrics.png
-INPUT .\Figure\agreement_base_models.png
-INPUT Figure\agreement_base_models.png
-INPUT .\Figure\agreement_base_models.png
-INPUT .\Figure\agreement_base_models.png
-INPUT .\Figure\agreement_base_models.png
-INPUT .\Figure\agreement_base_models.png
-INPUT .\Table\T4_3_openface_vs_i3d.tex
-INPUT .\Table\T4_3_openface_vs_i3d.tex
-INPUT Table\T4_3_openface_vs_i3d.tex
-INPUT .\Table\T4_3_openface_vs_i3d.tex
-INPUT .\Table\T4_3_openface_vs_i3d.tex
-INPUT Table\T4_3_openface_vs_i3d.tex
-INPUT .\Figure\crossdomain_base.png
-INPUT Figure\crossdomain_base.png
-INPUT .\Figure\crossdomain_base.png
-INPUT .\Figure\crossdomain_base.png
-INPUT .\Figure\crossdomain_base.png
-INPUT .\Figure\crossdomain_base.png
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmmib10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmmib9.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmmib6.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmbsy10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmbsy9.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmbsy6.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\latex-fonts\lasyb10.tfm
-INPUT .\Chapter\5_Semantic_group_hybrid.tex
-INPUT .\Chapter\5_Semantic_group_hybrid.tex
-INPUT Chapter\5_Semantic_group_hybrid.tex
-INPUT .\Chapter\5_Semantic_group_hybrid.tex
-INPUT .\Chapter\5_Semantic_group_hybrid.tex
-INPUT Chapter\5_Semantic_group_hybrid.tex
-INPUT .\Figure\hybrid_ablation_all_metrics.png
-INPUT Figure\hybrid_ablation_all_metrics.png
-INPUT .\Figure\hybrid_ablation_all_metrics.png
-INPUT .\Figure\hybrid_ablation_all_metrics.png
-INPUT .\Figure\hybrid_ablation_all_metrics.png
-INPUT .\Figure\hybrid_ablation_all_metrics.png
-INPUT .\Table\T5_1_group_marginal_combined.tex
-INPUT .\Table\T5_1_group_marginal_combined.tex
-INPUT Table\T5_1_group_marginal_combined.tex
-INPUT .\Table\T5_1_group_marginal_combined.tex
-INPUT .\Table\T5_1_group_marginal_combined.tex
-INPUT Table\T5_1_group_marginal_combined.tex
-INPUT .\Table\T5_2_i3d_fusion_effect.tex
-INPUT .\Table\T5_2_i3d_fusion_effect.tex
-INPUT Table\T5_2_i3d_fusion_effect.tex
-INPUT .\Table\T5_2_i3d_fusion_effect.tex
-INPUT .\Table\T5_2_i3d_fusion_effect.tex
-INPUT Table\T5_2_i3d_fusion_effect.tex
-INPUT .\Table\T5_3_hybrid_topk.tex
-INPUT .\Table\T5_3_hybrid_topk.tex
-INPUT Table\T5_3_hybrid_topk.tex
-INPUT .\Table\T5_3_hybrid_topk.tex
-INPUT .\Table\T5_3_hybrid_topk.tex
-INPUT Table\T5_3_hybrid_topk.tex
-INPUT .\Figure\crossdomain_hybrid.png
-INPUT Figure\crossdomain_hybrid.png
-INPUT .\Figure\crossdomain_hybrid.png
-INPUT .\Figure\crossdomain_hybrid.png
-INPUT .\Figure\crossdomain_hybrid.png
-INPUT .\Figure\crossdomain_hybrid.png
-INPUT .\Figure\crossdomain_delta.png
-INPUT Figure\crossdomain_delta.png
-INPUT .\Figure\crossdomain_delta.png
-INPUT .\Figure\crossdomain_delta.png
-INPUT .\Figure\crossdomain_delta.png
-INPUT .\Figure\crossdomain_delta.png
-INPUT .\Table\T5_4_private_by_source.tex
-INPUT .\Table\T5_4_private_by_source.tex
-INPUT Table\T5_4_private_by_source.tex
-INPUT .\Table\T5_4_private_by_source.tex
-INPUT .\Table\T5_4_private_by_source.tex
-INPUT Table\T5_4_private_by_source.tex
-INPUT .\Figure\private_confusion_combined.png
-INPUT Figure\private_confusion_combined.png
-INPUT .\Figure\private_confusion_combined.png
-INPUT .\Figure\private_confusion_combined.png
-INPUT .\Figure\private_confusion_combined.png
-INPUT .\Figure\private_confusion_combined.png
-INPUT .\Figure\private_per_class_f1.png
-INPUT Figure\private_per_class_f1.png
-INPUT .\Figure\private_per_class_f1.png
-INPUT .\Figure\private_per_class_f1.png
-INPUT .\Figure\private_per_class_f1.png
-INPUT .\Figure\private_per_class_f1.png
-INPUT .\Figure\indomain_vs_generalization_hybrid.png
-INPUT Figure\indomain_vs_generalization_hybrid.png
-INPUT .\Figure\indomain_vs_generalization_hybrid.png
-INPUT .\Figure\indomain_vs_generalization_hybrid.png
-INPUT .\Figure\indomain_vs_generalization_hybrid.png
-INPUT .\Figure\indomain_vs_generalization_hybrid.png
-INPUT .\Chapter\6_Conclusions.tex
-INPUT .\Chapter\6_Conclusions.tex
-INPUT Chapter\6_Conclusions.tex
-INPUT .\Chapter\6_Conclusions.tex
-INPUT .\Chapter\6_Conclusions.tex
-INPUT Chapter\6_Conclusions.tex
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmrc8v.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\vf\vntex\urwvn\utmrc8v.vf
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
-INPUT main.aux
-INPUT .\main.out
-INPUT .\main.out
-INPUT main.run.xml
-OUTPUT main.run.xml
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmbx12.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmbx12.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmex10.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmex10.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi10.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi10.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi12.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi12.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi6.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi6.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi8.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi8.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi9.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi9.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmib10.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmib10.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmr10.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmr10.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmr12.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmr12.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmr8.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmr8.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmr9.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmr9.pfb
+INPUT 0_3_Abstract.aux
+INPUT .\0_3_Abstract.out
+INPUT .\0_3_Abstract.out
+INPUT 0_3_Abstract.run.xml
+OUTPUT 0_3_Abstract.run.xml
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmsy10.pfb
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmsy10.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmsy8.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmsy8.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmsy9.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmsy9.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\symbols\msbm10.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\symbols\msbm10.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\vntex\urwvn\ucrb8v.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\vntex\urwvn\ucrb8v.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\vntex\urwvn\ucrr8v.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\vntex\urwvn\ucrr8v.pfb
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\vntex\urwvn\utmb8v.pfb
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\vntex\urwvn\utmb8v.pfb
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\vntex\urwvn\utmr8v.pfb

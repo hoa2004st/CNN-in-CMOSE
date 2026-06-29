@@ -6,16 +6,17 @@
 \label{sec:problem}
 
 Online and hybrid education has become a permanent part of modern teaching.
-Lectures, tutorials, and exams are now usually given through video calls and learning platforms, and much learning happens with a webcam as the only link between the student and the teacher.
+Lectures, tutorials, and exams are now usually given through video calls and learning platforms. 
+Much learning happens with a webcam as the only link between the student and the teacher.
 This change brings both an opportunity and a problem.
-The webcam stream reveals a great deal about how a student is following the material, but unlike in a physical classroom, the teacher cannot perceive the overall state of the class.
-A teacher facing dozens of simultaneous video tiles has no reliable way of noticing that one student lost focus several minutes earlier.
-Automatic engagement recognition aims to close this gap: it turns a short video of one student into an estimate of how engaged that student is, so that teachers, tutoring systems, and learning platforms can step in, change the pace of a lesson, or tell whether students are following along, on a scale that is unrealistic for teachers to do manually.
+The webcam stream reveals how well a student is following the material, but unlike in a physical classroom, the teacher cannot perceive the overall state of the class.
+A teacher facing dozens of simultaneous video tiles has no reliable way to notice if one student lost focus several minutes earlier.
+Automatic engagement recognition aims to solve this problem: it turns a short video of one student into an estimation of how engaged that student is, so that teachers and learning platforms can step in and change the pace of a lesson accordingly.
 
-This thesis studies the exact form of that problem used by the research community and by the datasets I build on.
+This thesis studies the form of this problem used by other researchers and by the datasets I build on.
 The input is a short video clip of one student, about ten seconds long, recorded from a front webcam.
 The output is one of four ordinal levels: Highly\nobreakdash-Disengage (HD), Disengage (DE), Engage (EG), and Highly\nobreakdash-Engage (HE).
-These four levels form a scale from full withdrawal to active, focused participation, so the task is ordinal classification over four classes, not an unordered, nominal one.
+These four levels form a scale from full withdrawal to active.
 
 Although it looks like ordinary video classification, engagement recognition is harder than a typical image- or action-recognition task for three reasons that shape the design choices in this thesis.
 
@@ -56,7 +57,7 @@ This is why the thesis treats a self-collected, never-trained-on test set and a 
 Research on vision-based engagement recognition has, broadly, taken two routes.
 The first encodes each video frame with a facial-behaviour toolkit (most often OpenFace~\cite{openface2}, which estimates gaze direction, head pose, facial landmarks, and action-unit intensities) and feeds the feature sequence to a classical classifier or a recurrent network, for example an OpenFace$+$BiLSTM pipeline~\cite{openface_bilstm} or classical models such as logistic regression, support vector machines, and gradient boosting on summary features~\cite{classical_ml_engagement}.
 The second route learns straight from pixels with deep video models, for instance an EfficientNetV2 backbone followed by an LSTM~\cite{efficientnet_lstm_engagement}, or borrows context- and relationship-modelling ideas from affect recognition~\cite{context_aware_emotion_3d}.
-This thesis builds on two large datasets: CMOSE~\cite{cmose} is a recent, large, expert-labelled multimodal dataset and the only one of my sources that comes with ready OpenFace and I3D features, and DAiSEE~\cite{daisee} is a widely used public dataset recorded ``in the wild'' that gives only raw video, from which I make the same features myself.
+This thesis builds on two large datasets: CMOSE~\cite{cmose} is a recent, large, expert-labelled multimodal dataset and the only one of my sources that comes with ready OpenFace and I3D features, and DAiSEE~\cite{daisee} is a widely used public dataset that gives only raw video, from which I make the same features myself. Both are recorded ``in the wild'', on real student webcams rather than in a controlled laboratory.
 A systematic review of computer-vision engagement detection~\cite{review_engagement_cv} lists these pipelines and confirms that class imbalance and subjective labels are common, unsolved problems across the field.
 
 Two specific limits of the existing work motivate this thesis.
@@ -116,7 +117,7 @@ This thesis makes three contributions.
 
   \item \textbf{Dataset --- a new, self-collected private test set.}
   I collect 366 webcam clips, cut to a fixed length, filtered for tracking quality, labelled by hand by me through a purpose-built interface, and made with the same OpenFace/I3D pipeline as the public datasets.
-  It is used only to test, never in training, how well a model works on real students recorded on their own webcams, where camera angles and conditions are unlike the curated public datasets (Section~\ref{sec:data}).
+  It is used only to test, never in training, how well a model works on real students recorded on their own webcams, where camera angles and conditions differ from those of the public datasets (Section~\ref{sec:data}).
 
   \item \textbf{Generalisation --- a cross-dataset study measured by QWK, not accuracy.}
   I run a 3$\times$3 cross-dataset study (training on CMOSE, DAiSEE, or both together; testing on each public test set plus the private set) showing that engagement models do not transfer to a new dataset, that accuracy hides this collapse while QWK shows it, and that training on the combined datasets is the simplest fix that works best.

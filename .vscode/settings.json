@@ -51,5 +51,6 @@
     "latex-workshop.latex.clean.subfolder.enabled": false,
     "latex-workshop.view.pdf.viewer": "tab",
     "latex-workshop.message.error.show": true,
-    "latex-workshop.message.warning.show": false
+    "latex-workshop.message.warning.show": false,
+    "C_Cpp.errorSquiggles": "disabled"
 }

@@ -1,14 +1,14 @@
 # Fdb version 4
-["bibtex Cover2"] 1782475728.18037 "Cover2.aux" "Cover2.bbl" "Cover2" 1782475930.62195 0
-  "./Cover2-blx.bib" 1782475929 343 eecd58be191eac03682f8fda492bb690 ""
-  "./reference.bib" 1782181843 8326 fe1c7f58a9070614bdb8ef03e134f132 ""
+["bibtex Cover2"] 1782710787.98564 "Cover2.aux" "Cover2.bbl" "Cover2" 1782710815.64709 0
+  "./Cover2-blx.bib" 1782710814 343 eecd58be191eac03682f8fda492bb690 ""
+  "./reference.bib" 1782520995 8699 55e7978caf1cf172d4990b3f7c05d333 ""
   "C:/Users/NC PC/AppData/Local/Programs/MiKTeX/bibtex/bst/biblatex/biblatex.bst" 1752408733 65510 9a2a51799b543ff279b8ea2dd91ec499 ""
-  "Cover2.aux" 1782475929 703 74170db7f29075a057be48ed8f4c7f79 "pdflatex"
+  "Cover2.aux" 1782710814 703 74170db7f29075a057be48ed8f4c7f79 "pdflatex"
   (generated)
   "Cover2.bbl"
   "Cover2.blg"
   (rewritten before read)
-["pdflatex"] 1782475928.04205 "c:/HOA/1.HUST/Thesis/CNN-in-CMOSE/documents/thesis/Cover2.tex" "Cover2.pdf" "Cover2" 1782475930.62264 0
+["pdflatex"] 1782710813.18309 "c:/HOA/1.HUST/Thesis/CNN-in-CMOSE/documents/thesis/Cover2.tex" "Cover2.pdf" "Cover2" 1782710815.64779 0
   "C:/Users/NC PC/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1782439361 89969 e95579120a3aa0ebc21d2737ca2ba701 ""
   "C:/Users/NC PC/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1781088614 13333523 726ba0580ecf1fb5237723d6322b873a ""
   "C:/Users/NC PC/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/vntex/t5.enc" 1368738347 7824 21ade6c3c7fd67cb4ace8dbc91c53118 ""
@@ -117,8 +117,8 @@
   "C:/Users/NC PC/AppData/Local/Programs/MiKTeX/tex/latex/glossaries/styles/glossary-hypernav.sty" 1777026159 7346 6fc35eb21d2df0760d33d7e4588b59d4 ""
   "C:/Users/NC PC/AppData/Local/Programs/MiKTeX/tex/latex/glossaries/styles/glossary-list.sty" 1777026159 7740 015b7fbd859d19a5f19abab438138f41 ""
   "C:/Users/NC PC/AppData/Local/Programs/MiKTeX/tex/latex/glossaries/styles/glossary-long.sty" 1777026159 9620 485de4319e3980bbe648ab9a4d7939a2 ""
+  "C:/Users/NC PC/AppData/Local/Programs/MiKTeX/tex/latex/glossaries/styles/glossary-longragged.sty" 1777026159 9525 0321a62bb05773093a9f35f1fc7f50e1 ""
   "C:/Users/NC PC/AppData/Local/Programs/MiKTeX/tex/latex/glossaries/styles/glossary-super.sty" 1777026159 10639 3d278585b4258278dcaf6df819d69e04 ""
-  "C:/Users/NC PC/AppData/Local/Programs/MiKTeX/tex/latex/glossaries/styles/glossary-superragged.sty" 1777026159 10117 a496f4abc08b5f8cb6066e43908c0fcb ""
   "C:/Users/NC PC/AppData/Local/Programs/MiKTeX/tex/latex/glossaries/styles/glossary-tree.sty" 1777026159 96815 e14a51b2e123b6d3e4f75994be8be78f ""
   "C:/Users/NC PC/AppData/Local/Programs/MiKTeX/tex/latex/graphics-cfg/color.cfg" 1465894292 1213 620bba36b25224fa9b7e1ccb4ecb76fd ""
   "C:/Users/NC PC/AppData/Local/Programs/MiKTeX/tex/latex/graphics-cfg/graphics.cfg" 1465894292 1224 978390e9c2234eab29404bc21b268d1e ""
@@ -200,15 +200,15 @@
   "C:/Users/NC PC/AppData/Local/Programs/MiKTeX/tex/latex/xfor/xfor.sty" 1233849756 2689 44855b72da58344b1c1d9b3087bce6ca ""
   "C:/Users/NC PC/AppData/Local/Programs/MiKTeX/tex/latex/xkeyval/xkeyval.sty" 1656236919 4937 4ce600ce9bd4ec84d0250eb6892fcf4f ""
   "C:/Users/NC PC/AppData/Local/Programs/MiKTeX/tex/latex/xurl/xurl.sty" 1641733940 4675 e4b8c405820368c2dfb03526e16d725a ""
-  "Cover2.aux" 1782475929 703 74170db7f29075a057be48ed8f4c7f79 "pdflatex"
-  "Cover2.bbl" 1782475728 540 47390d0fec917a8062f60a58a9b6d248 "bibtex Cover2"
-  "Cover2.out" 1782475929 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
-  "Cover2.run.xml" 1782475929 2605 35fd15d78c63b2ae578082d77851f086 "pdflatex"
-  "Cover2.tex" 1782475927 1343 d7c9b659f6b91138c2bc910e5a192de7 ""
-  "c:/HOA/1.HUST/Thesis/CNN-in-CMOSE/documents/thesis/Cover2.tex" 1782475927 1343 d7c9b659f6b91138c2bc910e5a192de7 ""
-  "glossary.tex" 1780914780 3159 a07117404d455471c27f0dae092aa2f1 ""
+  "Cover2.aux" 1782710814 703 74170db7f29075a057be48ed8f4c7f79 "pdflatex"
+  "Cover2.bbl" 1782710788 540 47390d0fec917a8062f60a58a9b6d248 "bibtex Cover2"
+  "Cover2.out" 1782710814 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "Cover2.run.xml" 1782710814 2605 35fd15d78c63b2ae578082d77851f086 "pdflatex"
+  "Cover2.tex" 1782710812 1362 b4e4275cddb283f5db138dcc9dd6c53e ""
+  "c:/HOA/1.HUST/Thesis/CNN-in-CMOSE/documents/thesis/Cover2.tex" 1782710812 1362 b4e4275cddb283f5db138dcc9dd6c53e ""
+  "glossary.tex" 1782521014 2395 816fef548186f4f80215d73c8d640b32 ""
   "lstlisting.tex" 1780668408 847 536b960931d61baf21a55c6b49c009bc ""
-  "main.tex" 1782474696 7618 100ef59ac29c8296579c871d4e065f2c ""
+  "main.tex" 1782709843 7616 f482545bbfada89e4669e7dbf11fc0a4 ""
   (generated)
   "Cover2-blx.bib"
   "Cover2.aux"
