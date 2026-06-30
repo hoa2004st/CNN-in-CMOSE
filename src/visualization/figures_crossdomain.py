@@ -44,8 +44,7 @@ def _heatmap(ax, pivot, title: str, *, vmin, vmax, cmap="RdYlGn", fmt="{:.3f}",
         for j in range(data.shape[1]):
             val = data[i, j]
             ax.text(j, i, fmt.format(val), ha="center", va="center",
-                    color="black", fontsize=12,
-                    fontweight="bold" if i == j or (pivot.index[i] == "combined") else "normal")
+                    color="black", fontsize=12)
     return im
 
 
@@ -95,17 +94,10 @@ def fig_crossdomain_delta(directory: Path | None = None) -> Path:
     ax.set_xlabel("Tested on")
     ax.set_ylabel("Trained on")
     ax.grid(False)
-    # Bold the two cells the old per-figure comparisons isolated: the in-domain CMOSE
-    # diagonal (the headline in-domain gain) and the whole Private column (the unseen,
-    # self-collected target).
-    private_col = list(delta.columns).index("private")
     for i in range(data.shape[0]):
         for j in range(data.shape[1]):
-            highlight = (j == private_col) or (delta.index[i] == "cmose"
-                                               and delta.columns[j] == "cmose_test")
             ax.text(j, i, f"{data[i, j]:+.3f}", ha="center", va="center",
-                    color="black", fontsize=13,
-                    fontweight="bold" if highlight else "normal")
+                    color="black", fontsize=13)
     fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04, label="$\\Delta$QWK (hybrid $-$ base)")
     fig.suptitle("Hybrid advantage per cell: best hybrid $-$ best base (QWK)",
                  fontweight="bold")
@@ -174,6 +166,81 @@ def fig_crossdomain_delta_full(directory: Path | None = None) -> Path:
     fig.suptitle("Hybrid advantage per cell: best hybrid $-$ best base",
                  fontweight="bold")
     return save(fig, "crossdomain_delta_full", directory=directory)
+
+
+def _architecture_ranking(frame) -> pd.DataFrame:
+    """Per-architecture in-domain QWK vs mean QWK over the unseen-target cells.
+
+    In-domain is the development cell (trained and tested on CMOSE), best over loss.
+    Unseen is the mean over the five unseen-target cells (best over loss within each cell),
+    i.e. the genuine generalization regime ``ag.UNSEEN_TARGET_CELLS``. Returned indexed by
+    model key in ``MODEL_ORDER``, with columns ``in_domain`` and ``unseen``.
+    """
+    indomain = (frame[(frame["train_group"] == "cmose") & (frame["test_set"] == "cmose_test")]
+                .groupby("model")[_METRIC].max())
+    unseen_cells = frame[ag.unseen_target_mask(frame)]
+    best_per_cell = (unseen_cells
+                     .groupby(["model", "train_group", "test_set"])[_METRIC].max()
+                     .reset_index())
+    unseen = best_per_cell.groupby("model")[_METRIC].mean()
+    table = pd.DataFrame({"in_domain": indomain, "unseen": unseen})
+    return table.reindex([m for m in MODEL_ORDER if m in table.index])
+
+
+def fig_architecture_ranking_shift(directory: Path | None = None) -> Path:
+    """Slopegraph: the architecture QWK ranking is reshuffled out of domain.
+
+    Left column is in-domain QWK (trained and tested on CMOSE); right column is the mean
+    QWK over the five unseen-target cells. One coloured line per architecture; the crossings
+    are the reshuffle. The I3D MLP is the headline: second in-domain, it drops to fourth on
+    unseen targets, while the OpenFace TCN and Transformer hold the top. Ranks (1 = best) are
+    annotated at each end so the order change is legible despite the out-of-domain collapse.
+    """
+    table = _architecture_ranking(ag.load_matrix())
+    x_in, x_out = 0.0, 1.0
+    in_rank = table["in_domain"].rank(ascending=False, method="first").astype(int)
+    out_rank = table["unseen"].rank(ascending=False, method="first").astype(int)
+    y_top = max(table["in_domain"]) * 1.08
+
+    def _declutter(values: pd.Series, gap: float) -> dict:
+        """Nudge label y-positions apart (top-down) so close lines' labels don't overlap;
+        the markers stay at the true value, only the text moves."""
+        placed = {}
+        prev = None
+        for model, y in values.sort_values(ascending=False).items():
+            y = min(y, prev - gap) if prev is not None else y
+            placed[model] = y
+            prev = y
+        return placed
+
+    gap = 0.028 * y_top
+    in_label_y = _declutter(table["in_domain"], gap)
+    out_label_y = _declutter(table["unseen"], gap)
+
+    fig, ax = new_fig(figsize=(7.4, 5.6))
+    for model, row in table.iterrows():
+        color = model_color(model)
+        ax.plot([x_in, x_out], [row["in_domain"], row["unseen"]], "-o",
+                color=color, linewidth=2.2, markersize=7, zorder=3)
+        ax.annotate(f"{display_model_name(model)}  ({in_rank[model]})",
+                    xy=(x_in, in_label_y[model]), xytext=(-10, 0),
+                    textcoords="offset points", ha="right",
+                    va="center", color=color, fontsize=9, fontweight="bold")
+        ax.annotate(f"({out_rank[model]})  {display_model_name(model)}",
+                    xy=(x_out, out_label_y[model]), xytext=(10, 0),
+                    textcoords="offset points", ha="left",
+                    va="center", color=color, fontsize=9, fontweight="bold")
+
+    ax.set_xticks([x_in, x_out])
+    ax.set_xticklabels(["In-domain\n(CMOSE)", "Unseen targets\n(mean of 5 cells)"])
+    ax.set_xlim(-0.55, 1.55)
+    ax.set_ylim(0, max(table["in_domain"]) * 1.08)
+    ax.set_ylabel("QWK")
+    ax.set_title("The architecture ranking is reshuffled out of domain")
+    ax.grid(True, axis="y", alpha=0.25)
+    ax.grid(False, axis="x")
+    fig.tight_layout()
+    return save(fig, "architecture_ranking_shift", directory=directory)
 
 
 def _scatter_points_indomain_transfer(frame, keys: list[str]):
@@ -245,6 +312,7 @@ def make_all(directory: Path | None = None) -> list[Path]:
                         "Cross-domain generalization — best base model per cell", directory),
         fig_crossdomain(hybrid, "crossdomain_hybrid",
                         "Cross-domain generalization — best hybrid config per cell", directory),
+        fig_architecture_ranking_shift(directory),
         fig_crossdomain_delta(directory),
         fig_crossdomain_delta_full(directory),
         fig_indomain_vs_generalization(True, directory),

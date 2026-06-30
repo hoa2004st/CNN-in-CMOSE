@@ -52,8 +52,8 @@
 \contentsline {section}{\numberline {4.5}Cross-Dataset Generalisation}{34}{section.4.5}%
 \contentsline {subsection}{\numberline {4.5.1}The 3$\times $3 Matrix}{34}{subsection.4.5.1}%
 \contentsline {subsection}{\numberline {4.5.2}Closing the Loop: Metric and Loss Reliability}{36}{subsection.4.5.2}%
-\contentsline {subsection}{\numberline {4.5.3}In-Domain versus Transfer}{36}{subsection.4.5.3}%
-\contentsline {section}{\numberline {4.6}Chapter Summary}{36}{section.4.6}%
+\contentsline {subsection}{\numberline {4.5.3}In-Domain versus Transfer}{37}{subsection.4.5.3}%
+\contentsline {section}{\numberline {4.6}Chapter Summary}{37}{section.4.6}%
 \contentsline {chapter}{\numberline {5}FEATURE-GROUP HYBRID}{38}{chapter.5}%
 \contentsline {section}{\numberline {5.1}Overview}{38}{section.5.1}%
 \contentsline {section}{\numberline {5.2}Consistency with the Baseline Frame}{38}{section.5.2}%
@@ -74,5 +74,5 @@
 \contentsline {section}{\numberline {6.5}Practical Recommendations}{52}{section.6.5}%
 \contentsline {section}{\numberline {6.6}Suggestion for Future Works}{52}{section.6.6}%
 \contentsline {section}{\numberline {6.7}Closing Remarks}{53}{section.6.7}%
-\contentsline {chapter}{REFERENCE}{55}{section*.36}%
+\contentsline {chapter}{REFERENCE}{55}{section*.37}%
 \contentsfinish 
