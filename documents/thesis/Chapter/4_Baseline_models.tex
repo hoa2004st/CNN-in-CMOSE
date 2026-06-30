@@ -166,13 +166,13 @@ exactly the off-diagonal cells where every chance-corrected metric collapses.}
 \label{fig:crossdomain_base}
 \end{figure}
 
-\textbf{The collapse.}
+\textbf{The cross-dataset collapse.}
 The 3$\times$3 heatmaps of Figure~\ref{fig:crossdomain_base} are the central generalisation result for the baselines.
 On the diagonal (train and test on the same dataset) QWK is healthy (CMOSE 0.54), macro-accuracy is well above chance (CMOSE 0.64), and ordinal error is low (CMOSE macro-MAE 0.46).
 Off the diagonal all three collapse together: CMOSE$\rightarrow$DAiSEE QWK $=0.02$ and DAiSEE$\rightarrow$CMOSE $=0.05$ (chance-level agreement), macro-accuracy falls toward the 0.25 chance floor, and macro-MAE inflates toward a full class.
 The collapse is roughly symmetric (neither public dataset transfers to the other), which rules out one dataset being a superset of the other and points to a real shift in both label priors and recording conditions.
 
-\textbf{The architecture ranking is reshuffled.}
+\textbf{The architecture ranking changes out of domain.}
 Comparing, per architecture, the in-domain QWK with the mean QWK over the unseen-target cells (the cells whose test dataset contributed no training data: the two cross-dataset cells and the private column), the in-domain order TCN 0.537 $>$ I3D 0.519 $>$ Transformer 0.443 $>$ MLP 0.399 $>$ LSTM 0.387 becomes TCN $\approx$ Transformer $>$ LSTM $>$ I3D $>$ MLP on unseen targets (Figure~\ref{fig:architecture_ranking_shift}).
 The I3D MLP falls from second place to fourth: its global appearance features bind to the dataset, while the OpenFace behaviour descriptors carry more signal that holds across datasets.
 
@@ -188,7 +188,7 @@ the training dataset, whereas the OpenFace behaviour descriptors carry signal th
 \label{fig:architecture_ranking_shift}
 \end{figure}
 
-\textbf{The fix: combine the source datasets.}
+\textbf{Mitigation: combining the source datasets.}
 The most useful cell is the unseen Private column: training on the Combined dataset gives the best private-set QWK (0.285), exceeding DAiSEE-only (0.256) and CMOSE-only (0.190), while keeping near-in-domain CMOSE performance (0.477, the Combined$\rightarrow$CMOSE cell of Figure~\ref{fig:crossdomain_base}).
 The combination of CMOSE and DAiSEE is more diverse than either dataset alone, covering a wider range of label priors and recording conditions, so a model trained on this training set generalises better and transfers better to an unseen target such as the private set.
 This is the most effective design choice for an unknown target, and Chapter~5 combines it with the architecture contribution on the decisive private set (RQ4).
@@ -196,7 +196,7 @@ This is the most effective design choice for an unknown target, and Chapter~5 co
 \subsection{Closing the Loop: Metric and Loss Reliability}
 \label{sec:closing-loop}
 
-\textbf{Accuracy cannot see the collapse (completes Section~\ref{sec:protocol-metrics}).}
+\textbf{Accuracy does not detect the collapse (completes Section~\ref{sec:protocol-metrics}).}
 In the accuracy panel of Figure~\ref{fig:crossdomain_base}, CMOSE$\rightarrow$DAiSEE shows a deceptively reasonable 0.49 and DAiSEE$\rightarrow$CMOSE 0.69, in the same cells where the QWK panel reads 0.02 and 0.05, because predicting near the majority class scores well on any imbalanced target.
 A metric that appears normal while the ordinal signal is gone is misleading rather than reassuring: accuracy is the least reliable metric here and QWK (the only metric that bridges both blocks, and the one that detects the collapse) the most.
 

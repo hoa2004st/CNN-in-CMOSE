@@ -32,7 +32,7 @@ Although it looks like ordinary video classification, engagement recognition is 
   In the CMOSE dataset about 69\% of clips are labelled Engage and fewer than 3\% are Highly\nobreakdash-Disengage (Section~\ref{sec:data}, Table~\ref{tab:T3_1_dataset_stats}).
   So a model can reach high accuracy by always guessing the majority class and never predicting disengagement at all, which is the rare but important case that a monitoring system needs to catch.
 
-  \item \textbf{The camera angle is never fixed.}
+  \item \textbf{The camera angle is not fixed.}
   Engagement is read from facial behaviour, but the camera geometry behind that behaviour changes from learner to learner: a laptop camera looks up from the desk, a built-in monitor camera sits near eye level, a phone is propped off to the side, so the same expression reaches the model at a different viewpoint, framing, and head pose every time.
   This matters because the OpenFace gaze, head-pose, and landmark features are all measured in the image geometry, so a change of camera angle moves the features even when the underlying engagement is identical.
   Each dataset is recorded with its own narrow range of setups, so a model trained on one dataset meets unfamiliar viewpoints the moment it is deployed.
@@ -111,7 +111,7 @@ The rule behind RQ4 is to select and rank every model on one metric, ordinal agr
 This thesis makes three contributions.
 
 \begin{enumerate}
-  \item \textbf{Architecture: a feature-group hybrid that divides the face, then fuses.}
+  \item \textbf{Architecture: a feature-group hybrid that decomposes the facial features before fusing them.}
   I propose a temporal architecture that splits the 709 OpenFace features into five groups, encodes each group with its own chosen Temporal Convolutional Network (TCN), Transformer, or LSTM, optionally adds a global motion stream from I3D, and every stream has an auxiliary head during training phase (Section~\ref{sec:hybrid}).
   Trying all 243 ways to assign encoders to groups, with and without the I3D stream, shows that the I3D hybrid family scores higher than the strongest baseline (median QWK 0.553 against 0.537, best 0.605), that the gain belongs to the family rather than to a single favourable configuration, and that head pose is the only group with a clear encoder preference, preferring a TCN, a preference that also holds when the data shifts (Section~\ref{sec:ablation}).
 

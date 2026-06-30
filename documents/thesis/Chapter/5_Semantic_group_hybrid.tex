@@ -69,7 +69,7 @@ In-domain on CMOSE the complementarity of Section~\ref{sec:openface-vs-i3d} prod
 The gain belongs to the whole family, not to a single favourable configuration (RQ3).
 \input{Table/T5_2_i3d_fusion_effect}
 
-\textbf{Beyond the training datasets, the gain evaporates.}
+\textbf{Beyond the training datasets, the gain disappears.}
 Cross-dataset the mean paired effect is $-0.021$ QWK with only 26\% of pairs improving; on the private set it is +0.005 with 52\% improving and high variance across configurations (Table~\ref{tab:T5_2_i3d_fusion_effect}).
 I3D's global appearance features carry dataset bias along, the same mechanism behind the I3D MLP's fall from second to fourth in the ranking under shift (Section~\ref{sec:crossdomain-matrix}).
 The rule (RQ3): fuse I3D when the target domain is represented in training; rely on the OpenFace groups otherwise, a rule about the family average (the best single private-set model does carry I3D, but it is one tail of a wide, zero-centred distribution).
@@ -84,7 +84,7 @@ On QWK, the single selection metric, the best hybrid improves on the best baseli
 The selection metric and the secondary metrics move in the same direction, so the gain is real but modest. It is the CMOSE diagonal cell of the cell-by-cell comparison in Section~\ref{sec:hybrid-crossdomain} (Figure~\ref{fig:crossdomain_delta}).
 \input{Table/T5_3_hybrid_topk}
 
-\textbf{Where does the gain land?}
+\textbf{Localisation of the gain.}
 The per-class scores localise it.
 Relative to the best baseline, the hybrid improves recall on the ordinal extreme Highly\nobreakdash-Engage ($0.38\to0.51$) and on Disengage ($0.45\to0.55$), while keeping Engage near 0.90.
 The rarest class Highly\nobreakdash-Disengage, however, stays unsolved and is slightly traded away (recall $0.40\to0.37$): the model reallocates capacity toward the more frequent extreme.
@@ -161,7 +161,7 @@ As in-domain, the rare disengaged classes are the failure mode: hybrid Disengage
 \label{fig:private_confusion_combined}
 \end{figure}
 
-\textbf{Where the private-set gain lands.}
+\textbf{Localisation of the private-set gain.}
 The per-class F1 scores (Figure~\ref{fig:private_per_class_f1}) localise the $+0.094$ QWK gain, and the signature is the same as in-domain (Section~\ref{sec:error}) but sharper.
 The hybrid lifts F1 on the well-populated Engage ($0.52\to0.70$) and Highly\nobreakdash-Engage ($0.49\to0.56$) classes, and, where the base model is all but flat, gives the middle Disengage class real mass ($0.09\to0.28$).
 The rarest Highly\nobreakdash-Disengage class, by contrast, is traded all the way to zero ($0.07\to0.00$): out of domain the model concentrates its limited capacity on the engaged region even more sharply, and the rare disengaged extreme remains the thesis's open failure mode (RQ4).
@@ -200,12 +200,12 @@ in-domain QWK and private-set transfer.}
 \section{Discussion}
 \label{sec:gen-discussion}
 
-\textbf{Why the levers work.}
+\textbf{Why the design choices work.}
 Combining datasets improves generalization by exposing models to a more diverse set of data distributions, reducing their tendency to overfit to either individual dataset.
 The hybrid's margin widens off-domain for the reason it was designed: each behavioural channel is encoded separately and forced to be discriminative through its auxiliary head, so that the representation is less dependent on the distinctive features of any dataset.
 The two feature families diverge under shift because the OpenFace descriptors live in subject-centred physical units that mean the same thing in any setup, whereas the I3D embedding encodes global appearance, what changes between datasets, so fusion adds signal only where the test statistics are represented in training.
 
-\textbf{What the headline number means.}
+\textbf{Interpreting the main result.}
 QWK 0.379 is a clear improvement over chance, every single-source model, and the best baseline ($+0.094$), but in absolute terms moderate: with macro-MAE 0.877 the model captures the broad engaged-versus-disengaged trend yet is unreliable at fine distinctions, and the rarest class Highly\nobreakdash-Disengage fails in both regimes.
 It is usable as an aggregate, classroom-level signal but not to flag an individual disengaged learner without human confirmation. The open problem is one of data and objective (no encoder assignment can recover a class the training distribution barely contains), which is why the remedies for imbalance in Chapter~6 are the natural next step.
 
