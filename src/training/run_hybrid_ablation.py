@@ -26,7 +26,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from main import build_parser, run_experiment
+from src.main import build_parser, run_experiment
 from src.feature_extraction.extract_openface import OPENFACE_GROUP_ORDER
 from src.output_paths import model_output_name
 

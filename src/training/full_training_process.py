@@ -11,7 +11,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from main import build_parser, run_experiment
+from src.main import build_parser, run_experiment
 from src.output_paths import TRAINING_LOG_DIR, loss_slug, model_output_name
 
 

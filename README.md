@@ -1,125 +1,71 @@
 # CNN-in-CMOSE
 
-Train the narrowed CMOSE engagement-classification comparison using OpenFace and I3D features.
+Engagement classification on the CMOSE dataset, comparing several models built on
+OpenFace and I3D features. Models: `openface_mlp`, `temporal_cnn`, `lstm`,
+`transformer`, `i3d_mlp`, and the `openface_tcn_i3d_fusion` hybrid.
 
-The repo now focuses on these models:
+Each sample is split into `train` / `unlabel` / `test`: the model fits on `train`,
+early-stops on `unlabel`, and is reported on `test`.
 
-- `openface_mlp`
-- `temporal_cnn`
-- `lstm`
-- `transformer`
-- `i3d_mlp`
-- `openface_tcn_i3d_fusion`
-
-The dataset uses three source split keys: `train`, `unlabel`, and `test`. The pipeline fits on `train`, uses `unlabel` for checkpointing and early stopping, and uses `test` only for final reporting.
-
-## Dataset layout
+## Layout
 
 ```text
-data/CMOSE/
-    final_data_1.json
-    labels.csv
-    features/
-        openface/
-            <sample_id>.csv
-        i3d/
-            <sample_id>.npy
+src/        Python package (run modules with: python -m src.<module>)
+    main.py            pipeline entry point
+    data_prep/         build datasets and labels (CMOSE + DAiSEE)
+    feature_extraction/OpenFace + I3D extraction
+    models/            model architectures
+    training/          training loop and full comparison sweep
+    evaluation/        metrics and evaluation matrices
+    analysis/          prediction tables and thesis artifacts
+    visualization/     figures and dataset charts
+scripts/    PowerShell (.ps1) helpers for setup, extraction, and training
 ```
 
-`sample_id` is a CMOSE person-track key such as `video10_100_person0`.
+## Install
 
-## Installation
-
-Requires Python 3.10+ (developed on 3.12 / 3.13). Create a virtual environment and
-install the dependencies from `requirements.txt`:
+Requires Python 3.10+.
 
 ```bash
-# Create and activate a virtual environment
 python -m venv .venv
-# Windows (PowerShell):
-.venv\Scripts\Activate.ps1
-# Linux / macOS:
-# source .venv/bin/activate
-
-# Upgrade pip, then install all dependencies
+.venv\Scripts\Activate.ps1        # Windows; on Linux/macOS: source .venv/bin/activate
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
-This installs the CPU build of PyTorch. For GPU (CUDA) training and the I3D
-feature-extraction pipeline, install the matching PyTorch wheels instead, e.g.:
+This installs the CPU build of PyTorch. For GPU training, install the matching CUDA wheels:
 
 ```bash
 python -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 ```
 
-`umap-learn`, `torchvision`, and `torchaudio` are listed as optional extras in
-`requirements.txt`; uncomment them there if you need those workflows.
-
 ## Usage
 
-Run a single model:
+Train one model:
 
 ```bash
-python main.py --model temporal_cnn
-python main.py --model openface_mlp
-python main.py --model lstm
-python main.py --model transformer
-python main.py --model i3d_mlp
-python main.py --model openface_tcn_i3d_fusion
+python -m src.main --model temporal_cnn
 ```
 
-Run the comparison suite:
+Train every model across all losses in one run:
 
 ```bash
-python src/training/full_training_process.py
+python -m src.training.full_training_process
 ```
 
-By default, the batch script writes model/loss runs under `outputs/training_log/`,
-then regenerates per-run training curves and epoch-count overviews under `outputs/training_log/`.
+On Windows the same sweeps are wrapped as scripts:
 
-Key options:
-
-```text
---model                  openface_mlp | temporal_cnn | lstm | transformer | i3d_mlp | openface_tcn_i3d_fusion
---target_frames          Frames per OpenFace sample after resampling         (default: 300)
---fusion_frames          Frames per I3D/fusion sample after resampling       (default: 75)
---epochs                 Maximum training epochs                             (default: 800)
---batch_size             Mini-batch size                                     (default: 128)
---lr                     Learning rate                                       (default: 1e-4)
---output_dir             Where to save artefacts                             (default: outputs/training_log/<model>/<loss>)
---seed                   Random seed                                         (default: 42)
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\full_training_process.ps1   # training only
+powershell -ExecutionPolicy Bypass -File scripts\run_all.ps1                 # training + predictions
 ```
 
-`openface_mlp`, `temporal_cnn`, `lstm`, and `transformer` use normalized OpenFace tensors only. `i3d_mlp` uses normalized I3D tensors only. `openface_tcn_i3d_fusion` uses both modalities.
+Common options: `--model`, `--epochs`, `--batch_size`, `--lr`, `--output_dir`, `--seed`.
+See `python -m src.main --help` for the full list.
 
 ## Outputs
 
-The generated artifact tree is organized by question:
-
-```text
-outputs/
-    training_log/
-        openface_mlp/
-        tcn/
-        lstm/
-        transformer/
-        i3d_mlp/
-        openface_tcn_i3d_fusion/
-            ce/
-            weighted_ce/
-            ordinal/
-    model_assessment/
-        naive/          # CMOSE test-set predictions + full_matrix CSVs
-        comparison/     # combined per-clip predictions (all groups)
-        hybrid/         # hybrid full-matrix evaluation
-```
-
-The `dataset_analysis/` charts and the per-chart `model_assessment/` subdirectories are
-produced by the analysis/visualization layer that is currently being rebuilt for the new
-thesis scope, so they are not generated by the current code.
-
-Training files written under each `outputs/training_log/<model>/<loss>/` run:
+Each run writes to `outputs/training_log/<model>/<loss>/`:
 
 | File | Description |
 |---|---|
@@ -127,82 +73,23 @@ Training files written under each `outputs/training_log/<model>/<loss>/` run:
 | `metrics.json` | Final metrics and run config |
 | `selection_summary.json` | Split usage and run assumptions |
 | `preprocessing_summary.json` | Normalization and tensor-shape summary |
-| `smote_summary.json` | Train/evaluation/test class counts; SMOTE is disabled |
 
-Cross-model analysis and visualization are being rebuilt for the current thesis scope; the
-charting scripts previously under `src/visualization/` and `src/analysis/` were removed
-pending that rework. Per-run training artifacts (`metrics.json`, checkpoints, summaries)
-are still written during training as listed above.
-
-The per-clip CMOSE-test predictions table consumed by the thesis clip browser is generated with:
+The per-clip CMOSE-test prediction table is generated with:
 
 ```bash
 python -m src.analysis.prediction_generator
 ```
 
-Key prediction files:
-
-| File | Description |
-|---|---|
-| `outputs/model_assessment/naive/predictions_by_clip.csv` | CMOSE test predictions: one row per clip, with each model/loss run's `predicted_label__`/`predicted_id__`/`confidence__` columns |
-
 ## DAiSEE dataset
 
-The same OpenFace + I3D extraction can be run on the public
-[DAiSEE](https://www.kaggle.com/datasets/olgaparfenova/daisee) engagement
-dataset and used in place of CMOSE. `scripts/daisee_extract_vast.sh` drives the
-whole thing on a vast.ai Ubuntu GPU box: it downloads DAiSEE from Kaggle,
-extracts features in the CMOSE format, builds the engagement labels, commits the
-small label files here, and uploads the large feature files to a private Kaggle
-dataset.
+The pipeline also runs on the public
+[DAiSEE](https://www.kaggle.com/datasets/olgaparfenova/daisee) dataset. Prepare it with
+the `scripts/*_daisee.ps1` extraction scripts and the `src.data_prep` modules
+(`build_daisee_labels`, `daisee_convert_i3d`), then train by pointing at the new paths:
 
 ```bash
-export GITHUB_TOKEN=... GIT_USER_EMAIL=you@example.com GIT_USER_NAME="You"
-export KAGGLE_USERNAME=... KAGGLE_KEY=...
-bash scripts/daisee_extract_vast.sh                 # full run
-STAGES="openface i3d" bash scripts/daisee_extract_vast.sh   # rerun a subset
-```
-
-Mappings used: engagement `0/1/2/3` -> `Highly Disengage/Disengage/Engage/Highly
-Engage`; split `Train/Validation/Test` -> `train/unlabel/test`. Each clip id gets
-a `_person0` suffix so the CMOSE loader works unchanged. Produced files:
-
-```text
-data/DaiSEE/
-    final_data_1.json   # committed to git
-    labels.csv          # committed to git
-    features/
-        openface/<clipid>_person0.csv   # 709 features, pushed to Kaggle
-        i3d/<clipid>_person0.npy        # 1024-dim,    pushed to Kaggle
-```
-
-Train on DAiSEE by pointing the existing pipeline at the new paths:
-
-```bash
-python main.py --model openface_tcn_i3d_fusion \
+python -m src.main --model openface_tcn_i3d_fusion \
   --labels_json     data/DaiSEE/final_data_1.json \
   --feature_dir     data/DaiSEE/features/openface \
   --i3d_feature_dir data/DaiSEE/features/i3d
-```
-
-## Pipeline summary
-
-```text
-CMOSE OpenFace CSVs + final_data_1.json
-    ->
-src/features/extract_openface.py + src/features/extract_i3d.py
-    ->
-OpenFace tensors (target_frames x 709)
-and/or
-I3D tensors (fusion_frames x i3d_dim)
-    ->
-train split + evaluation split from `unlabel` + final test split
-    ->
-src/training/train.py (normalization helpers)
-    ->
-selected model
-    ->
-src/training/train.py
-    ->
-metrics.json
 ```
