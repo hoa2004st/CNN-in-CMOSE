@@ -18,8 +18,8 @@ from dataclasses import dataclass
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from typing import Any
-from urllib.parse import unquote, urlparse
+from typing import Any, Iterator
+from urllib.parse import parse_qs, unquote, urlparse
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
@@ -27,16 +27,20 @@ if str(REPO_ROOT) not in sys.path:
 
 from src.visualization.style import CLASS_COLORS, CLASS_LABELS
 from src.output_paths import (
-    MODEL_COMPARISON_ASSESSMENT_DIR,
     NAIVE_ASSESSMENT_DIR,
+    HYBRID_ASSESSMENT_DIR,
     MANUAL_LABELS_CSV,
 )
 
-# Combined per-clip CSV (naive + hybrid runs) written by
-# src/evaluation/generate_hybrid_clip_predictions.py. Falls back to the naive-only CSV
-# when the combined file has not been generated yet.
-COMBINED_PREDICTIONS_CSV = MODEL_COMPARISON_ASSESSMENT_DIR / "predictions_by_clip_all_groups.csv"
-NAIVE_PREDICTIONS_CSV = NAIVE_ASSESSMENT_DIR / "predictions_by_clip.csv"
+# Long-format prediction matrices (one row per model x clip), filtered at load
+# time to a single (train_group, test_set) slice. The naive file holds the simple
+# per-modality baseline models; the hybrid file enumerates many fusion
+# architectures, which are all kept and ranked by QWK so the UI shows one per
+# hybrid family (defaulting to the best QWK arch) and can switch it on the spot.
+NAIVE_MATRIX_CSV = NAIVE_ASSESSMENT_DIR / "full_matrix_predictions.csv"
+HYBRID_MATRIX_CSV = HYBRID_ASSESSMENT_DIR / "hybrid_matrix_predictions.csv"
+
+ALL_LOSSES = ("ce", "ordinal", "weighted_ce")
 
 LABELS = [
     {"id": index, "name": label, "color": CLASS_COLORS[label]}
@@ -48,22 +52,11 @@ THESIS_TAGS = ["easy", "hard", "cross_group", "interesting"]
 
 OUTPUT_COLUMNS = ["clip_id", "thesis_tag", "thesis_notes", "agreement_rate", "majority_label"]
 
-# Naive model prefixes (run keys starting with these belong to the Naive group)
-_NAIVE_PREFIXES = (
-    "openface_mlp",
-    "tcn",
-    "temporal_cnn",
-    "lstm",
-    "transformer",
-    "i3d_mlp",
-    "openface_tcn_i3d_fusion",
-)
 
-
-def _model_group(run_key: str) -> str:
-    if "openface_temporal_i3d_hybrid" in run_key:
+def _model_group(model: str) -> str:
+    if "openface_temporal_i3d_hybrid" in model:
         return "OF+I3D-Hybrid"
-    if "openface_temporal_hybrid" in run_key:
+    if "openface_temporal_hybrid" in model:
         return "OF-Hybrid"
     return "Naive"
 
@@ -75,10 +68,14 @@ def _group_css_class(group: str) -> str:
 @dataclass(frozen=True)
 class Config:
     repo_root: Path
-    predictions_csv: Path
+    naive_csv: Path
+    hybrid_csv: Path
     accepted_csv: Path
     manual_labels_csv: Path
     output_csv: Path
+    train_group: str
+    test_set: str
+    losses: tuple[str, ...]
     host: str
     port: int
 
@@ -89,13 +86,29 @@ def build_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
-        "--predictions_csv",
-        default=str(COMBINED_PREDICTIONS_CSV),
-        help=(
-            "Wide per-clip predictions CSV (predicted_label__<run> columns). "
-            "Defaults to the combined naive+hybrid CSV, falling back to the "
-            "naive-only CSV when the combined file is absent."
-        ),
+        "--naive_csv",
+        default=str(NAIVE_MATRIX_CSV),
+        help="Long-format naive predictions matrix (train_group,test_set,model,loss,clip_id,...).",
+    )
+    parser.add_argument(
+        "--hybrid_csv",
+        default=str(HYBRID_MATRIX_CSV),
+        help="Long-format hybrid predictions matrix (adds model_type,arch_key columns).",
+    )
+    parser.add_argument(
+        "--train_group",
+        default="combined",
+        help="Training regime to show (train_group column): e.g. combined, cmose, daisee.",
+    )
+    parser.add_argument(
+        "--test_set",
+        default="private",
+        help="Test set whose clips to browse (test_set column): private, cmose_test, daisee_test.",
+    )
+    parser.add_argument(
+        "--losses",
+        default="ce",
+        help="Comma-separated loss names to include (ce,ordinal,weighted_ce), or 'all'.",
     )
     parser.add_argument("--accepted_csv", default="data/private/accepted.csv")
     parser.add_argument("--manual_labels_csv", default=str(MANUAL_LABELS_CSV))
@@ -145,18 +158,6 @@ def _to_int(v: str | None, default: int = 0) -> int:
         return int(float(v)) if v not in (None, "") else default
     except ValueError:
         return default
-
-
-def _detect_runs(row: dict[str, str]) -> list[str]:
-    seen: set[str] = set()
-    keys: list[str] = []
-    for col in row:
-        if col.startswith("predicted_label__"):
-            k = col[len("predicted_label__"):]
-            if k not in seen:
-                seen.add(k)
-                keys.append(k)
-    return keys
 
 
 def _agreement(votes: list[int]) -> tuple[float, int, int]:
@@ -210,16 +211,159 @@ def _upsert_tag(config: Config, payload: dict[str, Any]) -> dict[str, str]:
     return row
 
 
-def _build_clips(config: Config) -> dict[str, Any]:
-    pred_rows = _read_csv(config.predictions_csv)
-    if not pred_rows:
-        return {"labels": LABELS, "clips": [], "groups": [], "predictions_csv": str(config.predictions_csv), "output_csv": str(config.output_csv)}
+# The two hybrid families the browser shows one architecture from, plus the stable
+# query-param key each arch selector uses. The baseline (Naive) group is always
+# shown in full and has no architecture choice.
+HYBRID_GROUPS = ("OF-Hybrid", "OF+I3D-Hybrid")
+GROUP_PARAM = {"OF-Hybrid": "arch_ofhybrid", "OF+I3D-Hybrid": "arch_ofi3d"}
 
-    run_keys = _detect_runs(pred_rows[0])
-    if not run_keys:
-        raise ValueError(f"No predicted_label__ columns in {config.predictions_csv}")
 
-    group_map = {rk: _model_group(rk) for rk in run_keys}
+def _iter_matrix_rows(path: Path, prefix: str) -> Iterator[list[str]]:
+    # These matrices contain no quoted or comma-bearing fields, so a plain split is
+    # both correct and much faster than csv.reader across millions of rows. The raw
+    # `prefix` (train_group,test_set,) is matched before splitting so the vast
+    # majority of the multi-million-row hybrid file is skipped cheaply.
+    with path.open("r", encoding="utf-8-sig", newline="") as f:
+        if not f.readline():  # skip header
+            return
+        for line in f:
+            if not line.startswith(prefix):
+                continue
+            line = line.rstrip("\r\n")
+            if line:
+                yield line.split(",")
+
+
+def _qwk(mat: list[list[int]], k: int = 4) -> float | None:
+    """Quadratic weighted kappa from a k x k confusion matrix (rows=true, cols=pred)."""
+    n = sum(sum(row) for row in mat)
+    if n == 0:
+        return None
+    row_tot = [sum(mat[i]) for i in range(k)]
+    col_tot = [sum(mat[i][j] for i in range(k)) for j in range(k)]
+    num = den = 0.0
+    denom_w = (k - 1) ** 2
+    for i in range(k):
+        for j in range(k):
+            w = (i - j) ** 2 / denom_w
+            num += w * mat[i][j]
+            den += w * (row_tot[i] * col_tot[j] / n)
+    if den == 0:
+        return 1.0
+    return 1.0 - num / den
+
+
+@dataclass
+class SliceData:
+    clip_true: dict[str, int | None]                        # clip_id -> true class id or None
+    order: list[str]                                        # clip ids, first-seen order
+    baseline: dict[str, list[dict[str, Any]]]               # clip_id -> naive pred dicts
+    hybrid: dict[str, dict[str, dict[str, list[tuple]]]]    # group -> arch -> clip -> [(loss,pid,conf,model)]
+    qwk: dict[str, dict[str, float | None]]                 # group -> arch -> qwk
+    archs_ranked: dict[str, list[str]]                      # group -> archs sorted by qwk desc
+    best_arch: dict[str, str]                               # group -> best-QWK arch
+
+
+# Cache the parsed slice so the multi-million-row hybrid matrix is scanned once per
+# (files + slice), not on every /api/data request or arch switch.
+_SLICE_CACHE: dict[tuple, SliceData] = {}
+
+
+def _pred_dict(run: str, model: str, pred_id: int, conf: float) -> dict[str, Any]:
+    group = _model_group(model)
+    return {
+        "run": run,
+        "group": group,
+        "group_css": _group_css_class(group),
+        "label": LABEL_BY_ID.get(pred_id, ""),
+        "label_id": pred_id,
+        "confidence": conf,
+    }
+
+
+def _load_slice(config: Config) -> SliceData:
+    """Filter both matrices to one (train_group, test_set) slice, keeping every
+    hybrid architecture in memory and ranking them by QWK so the UI can switch
+    architecture on the spot."""
+    key = (str(config.naive_csv), str(config.hybrid_csv),
+           config.train_group, config.test_set, config.losses)
+    cached = _SLICE_CACHE.get(key)
+    if cached is not None:
+        return cached
+
+    losses = set(config.losses)
+    primary_loss = config.losses[0] if config.losses else "ce"
+    prefix = f"{config.train_group},{config.test_set},"
+
+    clip_true: dict[str, int | None] = {}
+    order: list[str] = []
+    baseline: dict[str, list[dict[str, Any]]] = {}
+    hybrid: dict[str, dict[str, dict[str, list[tuple]]]] = {g: {} for g in HYBRID_GROUPS}
+    conf: dict[str, dict[str, list[list[int]]]] = {g: {} for g in HYBRID_GROUPS}
+
+    def _note(clip_id: str, true_raw: str) -> None:
+        if clip_id not in clip_true:
+            clip_true[clip_id] = _to_int(true_raw) if true_raw not in ("", None) else None
+            order.append(clip_id)
+
+    # Naive: train_group,test_set,model,loss,clip_id,true_id,predicted_id,is_correct,confidence,...
+    if config.naive_csv.exists():
+        for r in _iter_matrix_rows(config.naive_csv, prefix):
+            if len(r) < 9:
+                continue
+            model, loss, clip_id = r[2], r[3], r[4]
+            if not clip_id or loss not in losses:
+                continue
+            _note(clip_id, r[5])
+            baseline.setdefault(clip_id, []).append(
+                _pred_dict(f"{model}/{loss}", model, _to_int(r[6]), _to_float(r[8]))
+            )
+
+    # Hybrid: train_group,test_set,model,model_type,loss,arch_key,clip_id,true_id,predicted_id,is_correct,confidence,...
+    if config.hybrid_csv.exists():
+        for r in _iter_matrix_rows(config.hybrid_csv, prefix):
+            if len(r) < 11:
+                continue
+            model, loss, arch, clip_id = r[2], r[4], r[5], r[6]
+            if not clip_id or loss not in losses:
+                continue
+            group = _model_group(model)
+            if group not in hybrid:
+                continue
+            _note(clip_id, r[7])
+            pid, c = _to_int(r[8]), _to_float(r[10])
+            hybrid[group].setdefault(arch, {}).setdefault(clip_id, []).append((loss, pid, c, model))
+            if loss == primary_loss:
+                t = clip_true.get(clip_id)
+                if t is not None and 0 <= t < 4 and 0 <= pid < 4:
+                    mat = conf[group].setdefault(arch, [[0] * 4 for _ in range(4)])
+                    mat[t][pid] += 1
+
+    qwk = {g: {a: _qwk(conf[g].get(a, [[0] * 4 for _ in range(4)])) for a in hybrid[g]}
+           for g in HYBRID_GROUPS}
+    archs_ranked: dict[str, list[str]] = {}
+    best_arch: dict[str, str] = {}
+    for g in HYBRID_GROUPS:
+        archs = sorted(
+            hybrid[g].keys(),
+            key=lambda a: (-(qwk[g][a] if qwk[g][a] is not None else float("-inf")), a),
+        )
+        archs_ranked[g] = archs
+        best_arch[g] = archs[0] if archs else ""
+
+    data = SliceData(clip_true, order, baseline, hybrid, qwk, archs_ranked, best_arch)
+    _SLICE_CACHE[key] = data
+    return data
+
+
+def _build_clips(config: Config, selected: dict[str, str] | None = None) -> dict[str, Any]:
+    s = _load_slice(config)
+    selected = selected or {}
+    # Resolve the arch shown for each hybrid group: caller's choice if valid, else best QWK.
+    chosen: dict[str, str] = {}
+    for g in HYBRID_GROUPS:
+        a = selected.get(g)
+        chosen[g] = a if a in s.hybrid[g] else s.best_arch[g]
 
     video_paths: dict[str, str] = {}
     if config.accepted_csv.exists():
@@ -238,15 +382,18 @@ def _build_clips(config: Config) -> dict[str, Any]:
     saved_tags = _load_tags(config.output_csv)
 
     clips: list[dict[str, Any]] = []
-    for row in pred_rows:
-        clip_id = row.get("clip_id", "")
-        if not clip_id:
+    for clip_id in s.order:
+        # Baseline (all naive models) + the chosen architecture from each hybrid group.
+        preds: list[dict[str, Any]] = list(s.baseline.get(clip_id, []))
+        for g in HYBRID_GROUPS:
+            for loss, pid, conf, model in s.hybrid[g].get(chosen[g], {}).get(clip_id, ()):
+                preds.append(_pred_dict(f"{model}/{loss}", model, pid, conf))
+        if not preds:
             continue
 
-        # Dataset true label (available for CMOSE/DAiSEE splits, not for private)
-        true_id_str = row.get("true_id", "")
-        true_id = _to_int(true_id_str) if true_id_str else None
-        true_label = row.get("true_label", "") or (LABEL_BY_ID.get(true_id, "") if true_id is not None else "")
+        # Dataset true label (now populated for private clips too)
+        true_id = s.clip_true.get(clip_id)
+        true_label = LABEL_BY_ID.get(true_id, "") if true_id is not None else ""
 
         man = manual.get(clip_id)
         manual_id = _to_int(man.get("manual_label_id")) if man else None
@@ -256,23 +403,6 @@ def _build_clips(config: Config) -> dict[str, Any]:
         gt_id = manual_id if manual_id is not None else true_id
         gt_label = manual_label or true_label
         gt_source = "manual" if manual_id is not None else ("dataset" if true_id is not None else "")
-
-        # Per-model predictions
-        preds: list[dict[str, Any]] = []
-        for rk in run_keys:
-            pred_lbl = row.get(f"predicted_label__{rk}", "")
-            if not pred_lbl:
-                continue
-            preds.append({
-                "run": rk,
-                "group": group_map[rk],
-                "group_css": _group_css_class(group_map[rk]),
-                "label": pred_lbl,
-                "label_id": _to_int(row.get(f"predicted_id__{rk}")),
-                "confidence": _to_float(row.get(f"confidence__{rk}")),
-            })
-        if not preds:
-            continue
 
         votes = [p["label_id"] for p in preds]
         agreement_rate, majority_id, majority_count = _agreement(votes)
@@ -344,15 +474,25 @@ def _build_clips(config: Config) -> dict[str, Any]:
     # Tagged clips first, then by clip_id
     clips.sort(key=lambda c: (not c["thesis_tag"], c["clip_id"]))
 
-    groups = sorted({group_map[rk] for rk in run_keys})
+    groups = sorted({p["group"] for c in clips for p in c["predictions"]})
     tagged = sum(1 for c in clips if c["thesis_tag"])
+    # Per-hybrid-group architecture menus (ranked by QWK) for the on-the-spot selectors.
+    hybrids: dict[str, Any] = {}
+    for g in HYBRID_GROUPS:
+        hybrids[GROUP_PARAM[g]] = {
+            "group": g,
+            "selected": chosen[g],
+            "archs": [{"arch": a, "qwk": s.qwk[g][a]} for a in s.archs_ranked[g]],
+        }
     return {
         "labels": LABELS,
         "clips": clips,
         "groups": groups,
+        "hybrids": hybrids,
         "tagged_count": tagged,
         "total_count": len(clips),
-        "predictions_csv": str(config.predictions_csv),
+        "slice": f"{config.train_group} / {config.test_set}",
+        "predictions_csv": f"{config.naive_csv.name} + {config.hybrid_csv.name}",
         "output_csv": str(config.output_csv),
     }
 
@@ -454,6 +594,10 @@ HTML = r"""<!doctype html>
     .actions button { height:32px; border-radius:5px; border:1px solid var(--line); background:#fff; padding:0 10px; cursor:pointer; font-size:12px; }
     .actions button.primary { background:var(--accent); color:#fff; border-color:var(--accent); font-weight:700; }
     .msg { font-size:11px; color:var(--muted); }
+    .arch-selectors { display:flex; flex-direction:column; gap:7px; }
+    .arch-row { display:flex; flex-direction:column; gap:2px; }
+    .arch-row label { font-size:10px; color:var(--muted); font-weight:700; text-transform:uppercase; letter-spacing:.03em; }
+    .arch-row select { width:100%; height:28px; border:1px solid var(--line); border-radius:5px; font-size:11px; padding:0 4px; background:#fff; }
     @media (max-width:1000px) { main { grid-template-columns:240px 1fr; } .info-panel { display:none; } }
   </style>
 </head>
@@ -496,6 +640,11 @@ HTML = r"""<!doctype html>
     </div>
 
     <div class="card">
+      <h3>Hybrid Architecture</h3>
+      <div id="archSelectors" class="arch-selectors"></div>
+    </div>
+
+    <div class="card">
       <h3>Predictions by Group</h3>
       <div id="groupsContent"></div>
       <div class="group-split-warn" id="groupWarn" style="display:none">Groups disagree</div>
@@ -526,6 +675,8 @@ HTML = r"""<!doctype html>
   let activeIndex = 0;
   let activeFilter = 'all';
   let selectedTag = null;
+  let archSel = {};          // param -> chosen arch_key (persists across reloads)
+  let currentClipId = null;  // preserved across arch switches
   const GROUP_ORDER = ['Naive', 'OF-Hybrid', 'OF+I3D-Hybrid'];
   const GROUP_CSS = {'Naive':'g-naive', 'OF-Hybrid':'g-of-hybrid', 'OF+I3D-Hybrid':'g-of-i3d-hybrid'};
   let openGroups = new Set();  // model groups expanded to per-model rows
@@ -545,16 +696,44 @@ HTML = r"""<!doctype html>
 
   const BADGE_CATS = ['all_correct','easy','hard','all_wrong','majority_wrong','all_agree','cross_group','high_disagree','split'];
 
-  async function loadData() {
-    const r = await fetch('/api/data');
+  function apiUrl() {
+    const p = new URLSearchParams();
+    for (const k in archSel) if (archSel[k]) p.set(k, archSel[k]);
+    const qs = p.toString();
+    return '/api/data' + (qs ? ('?' + qs) : '');
+  }
+
+  async function loadData(preserveId, keepFilter) {
+    const r = await fetch(apiUrl());
     data = await r.json();
+    if (data.hybrids) for (const k in data.hybrids) if (!archSel[k]) archSel[k] = data.hybrids[k].selected;
+    renderArchSelectors();
     renderFilters();
-    applyFilter('all');
+    applyFilter(keepFilter ? activeFilter : 'all', preserveId);
     updateStatus();
   }
 
+  function renderArchSelectors() {
+    const host = el('archSelectors');
+    if (!data.hybrids) { host.innerHTML = ''; return; }
+    host.innerHTML = Object.keys(data.hybrids).map(k => {
+      const h = data.hybrids[k];
+      const cur = archSel[k] || h.selected;
+      const opts = h.archs.map(a => {
+        const q = (a.qwk === null || a.qwk === undefined) ? '—' : Number(a.qwk).toFixed(3);
+        return `<option value="${a.arch}"${a.arch === cur ? ' selected' : ''}>${a.arch} · QWK ${q}</option>`;
+      }).join('');
+      return `<div class="arch-row"><label>${h.group}</label><select data-param="${k}">${opts}</select></div>`;
+    }).join('');
+    host.querySelectorAll('select').forEach(sel => sel.addEventListener('change', () => {
+      archSel[sel.dataset.param] = sel.value;
+      loadData(currentClipId, true);
+    }));
+  }
+
   function updateStatus() {
-    el('status').textContent = `${data.tagged_count||0}/${data.total_count||0} tagged → ${data.output_csv}`;
+    const slice = data.slice ? `${data.slice} · ` : '';
+    el('status').textContent = `${slice}${data.tagged_count||0}/${data.total_count||0} tagged → ${data.output_csv}`;
   }
 
   function catCounts() {
@@ -576,7 +755,7 @@ HTML = r"""<!doctype html>
     el('catChips').querySelectorAll('button').forEach(b => b.addEventListener('click', () => applyFilter(b.dataset.f)));
   }
 
-  function applyFilter(filter) {
+  function applyFilter(filter, preserveId) {
     activeFilter = filter;
     const q = el('search').value.trim().toLowerCase();
     filtered = data.clips.filter(clip => {
@@ -586,9 +765,11 @@ HTML = r"""<!doctype html>
       if (filter === 'tagged') return !!clip.thesis_tag;
       return clip.categories.includes(filter);
     });
-    activeIndex = 0;
+    let idx = 0;
+    if (preserveId) { const i = filtered.findIndex(c => c.clip_id === preserveId); if (i >= 0) idx = i; }
+    activeIndex = idx;
     renderList();
-    showClip(0);
+    showClip(idx);
     renderFilters();
   }
 
@@ -612,6 +793,7 @@ HTML = r"""<!doctype html>
     if (!filtered.length) return;
     activeIndex = Math.max(0, Math.min(index, filtered.length-1));
     const clip = filtered[activeIndex];
+    currentClipId = clip.clip_id;
     selectedTag = clip.thesis_tag || null;
     el('clipTitle').textContent = clip.clip_id;
 
@@ -796,7 +978,13 @@ class Handler(BaseHTTPRequestHandler):
             if path == "/":
                 return self._text(HTML, ct="text/html")
             if path == "/api/data":
-                return self._json(_build_clips(self.server.config))
+                qs = parse_qs(urlparse(self.path).query)
+                selected = {
+                    g: qs[param][0]
+                    for g, param in GROUP_PARAM.items()
+                    if qs.get(param)
+                }
+                return self._json(_build_clips(self.server.config, selected))
             if path.startswith("/media/"):
                 return self._serve_media(path[len("/media/"):])
             self.send_error(HTTPStatus.NOT_FOUND)
@@ -867,59 +1055,50 @@ class ThesisClipServer(ThreadingHTTPServer):
 
 def _build_config(args: argparse.Namespace) -> Config:
     root = _resolve_root()
-    predictions_csv = _resolve(root, args.predictions_csv)
-    # When the default combined CSV is missing, fall back to the naive-only CSV
-    # (which the generator below can create). A user-specified path is left as-is.
-    is_default = _resolve(root, str(COMBINED_PREDICTIONS_CSV)) == predictions_csv
-    if is_default and not predictions_csv.exists():
-        naive = _resolve(root, str(NAIVE_PREDICTIONS_CSV))
-        print(f"Combined predictions CSV not found; using naive-only: {naive}")
-        predictions_csv = naive
+    if args.losses.strip().lower() == "all":
+        losses: tuple[str, ...] = ALL_LOSSES
+    else:
+        losses = tuple(x.strip() for x in args.losses.split(",") if x.strip())
     return Config(
         repo_root=root,
-        predictions_csv=predictions_csv,
+        naive_csv=_resolve(root, args.naive_csv),
+        hybrid_csv=_resolve(root, args.hybrid_csv),
         accepted_csv=_resolve(root, args.accepted_csv),
         manual_labels_csv=_resolve(root, args.manual_labels_csv),
         output_csv=_resolve(root, args.output_csv),
+        train_group=args.train_group,
+        test_set=args.test_set,
+        losses=losses,
         host=args.host,
         port=args.port,
     )
 
 
-def _generate_predictions(config: Config) -> None:
-    import subprocess
-    print(f"Predictions file not found: {config.predictions_csv}")
-    print("Generating predictions — this may take several minutes...")
-    result = subprocess.run(
-        [sys.executable, "-m", "src.analysis.prediction_generator"],
-        cwd=str(config.repo_root),
-    )
-    if result.returncode != 0:
-        print(
-            f"Generation failed (exit {result.returncode}).\n"
-            f"Run manually: python -m src.analysis.prediction_generator"
-        )
-        sys.exit(1)
-    if not config.predictions_csv.exists():
-        print(
-            f"Generation succeeded but {config.predictions_csv} was not created.\n"
-            f"Check --predictions_csv path or re-run: python -m src.analysis.prediction_generator"
-        )
-        sys.exit(1)
-    print(f"Predictions ready: {config.predictions_csv}")
-
-
 def main(argv: list[str] | None = None) -> None:
     args = build_parser().parse_args(argv)
     config = _build_config(args)
-    if not config.predictions_csv.exists():
-        _generate_predictions(config)
-    _build_clips(config)   # fail fast if predictions CSV is malformed
+    if not config.naive_csv.exists() and not config.hybrid_csv.exists():
+        print("No prediction matrices found:")
+        print(f"  naive:  {config.naive_csv}")
+        print(f"  hybrid: {config.hybrid_csv}")
+        sys.exit(1)
+    print(
+        f"Loading slice train_group={config.train_group} test_set={config.test_set} "
+        f"losses={','.join(config.losses)} ..."
+    )
+    data = _build_clips(config)   # warms the cache / fails fast on malformed CSVs
+    print(f"  {data['total_count']} clips; groups: {', '.join(data['groups']) or '(none)'}")
+    for meta in data["hybrids"].values():
+        qwk = next((a["qwk"] for a in meta["archs"] if a["arch"] == meta["selected"]), None)
+        qwk_s = f"{qwk:.3f}" if isinstance(qwk, float) else "n/a"
+        print(f"  {meta['group']}: default arch {meta['selected'] or '(none)'} (QWK {qwk_s}), "
+              f"{len(meta['archs'])} archs available")
     server = ThesisClipServer((config.host, config.port), config)
     url = f"http://{config.host}:{config.port}/"
     print(f"Thesis clip browser: {url}")
-    print(f"Predictions CSV:     {config.predictions_csv}")
-    print(f"Output CSV:          {config.output_csv}")
+    print(f"Naive CSV:  {config.naive_csv}")
+    print(f"Hybrid CSV: {config.hybrid_csv}")
+    print(f"Output CSV: {config.output_csv}")
     print("Press Ctrl+C to stop.")
     try:
         server.serve_forever()
