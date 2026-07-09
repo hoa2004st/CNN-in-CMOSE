@@ -42,6 +42,10 @@ HYBRID_MATRIX_CSV = HYBRID_ASSESSMENT_DIR / "hybrid_matrix_predictions.csv"
 
 ALL_LOSSES = ("ce", "ordinal", "weighted_ce")
 
+# Of the naive baseline models only this one run is shown (TCN with CE loss); the
+# other four baselines are hidden. Matches the "run" field, which is "<model>/<loss>".
+BASELINE_RUN = "tcn/ce"
+
 LABELS = [
     {"id": index, "name": label, "color": CLASS_COLORS[label]}
     for index, label in enumerate(CLASS_LABELS)
@@ -365,11 +369,18 @@ def _build_clips(config: Config, selected: dict[str, str] | None = None) -> dict
         a = selected.get(g)
         chosen[g] = a if a in s.hybrid[g] else s.best_arch[g]
 
+    # Only clips present (and accepted) in accepted.csv are shown; it is the
+    # allowlist. A clip missing from this file is excluded even if the prediction
+    # matrices contain rows for it.
+    accepted: set[str] = set()
     video_paths: dict[str, str] = {}
     if config.accepted_csv.exists():
         for row in _read_csv(config.accepted_csv):
             cid, cp = row.get("clip_id", ""), row.get("clip_path", "")
-            if cid and cp:
+            if not cid or _to_int(row.get("is_accepted"), 1) != 1:
+                continue
+            accepted.add(cid)
+            if cp:
                 video_paths[cid] = Path(cp).as_posix()
 
     manual: dict[str, dict[str, str]] = {}
@@ -381,10 +392,17 @@ def _build_clips(config: Config, selected: dict[str, str] | None = None) -> dict
 
     saved_tags = _load_tags(config.output_csv)
 
+    allowlist_active = config.accepted_csv.exists()
+
     clips: list[dict[str, Any]] = []
     for clip_id in s.order:
-        # Baseline (all naive models) + the chosen architecture from each hybrid group.
-        preds: list[dict[str, Any]] = list(s.baseline.get(clip_id, []))
+        if allowlist_active and clip_id not in accepted:
+            continue
+        # Baseline: only TCN/CE (the other four naive models are hidden) + the
+        # chosen architecture from each hybrid group.
+        preds: list[dict[str, Any]] = [
+            p for p in s.baseline.get(clip_id, ()) if p["run"] == BASELINE_RUN
+        ]
         for g in HYBRID_GROUPS:
             for loss, pid, conf, model in s.hybrid[g].get(chosen[g], {}).get(clip_id, ()):
                 preds.append(_pred_dict(f"{model}/{loss}", model, pid, conf))
@@ -523,6 +541,10 @@ HTML = r"""<!doctype html>
     .cat-chips { display:flex; flex-wrap:wrap; gap:3px; }
     .cat-chip { border:1px solid var(--line); background:#fff; border-radius:10px; padding:2px 7px; font-size:10.5px; cursor:pointer; white-space:nowrap; color:var(--ink); }
     .cat-chip.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+    .class-chips { display:flex; flex-wrap:wrap; gap:3px; margin-bottom:6px; }
+    .class-chip { display:inline-flex; align-items:center; gap:4px; border:1px solid var(--line); background:#fff; border-radius:10px; padding:2px 8px; font-size:10.5px; cursor:pointer; white-space:nowrap; color:var(--ink); }
+    .class-chip .dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+    .class-chip.active { border-color:var(--accent); box-shadow:inset 0 0 0 1px var(--accent); font-weight:700; }
     .clip-scroll { overflow-y:auto; flex:1; }
     .clip-item { display:block; width:100%; text-align:left; border:0; border-bottom:1px solid #edf0f4; background:transparent; padding:8px 10px; cursor:pointer; }
     .clip-item:hover,.clip-item.active { background:#eef5fb; }
@@ -611,6 +633,7 @@ HTML = r"""<!doctype html>
   <aside class="sidebar">
     <div class="filter-wrap">
       <input id="search" type="search" placeholder="Search clip id…">
+      <div class="class-chips" id="classChips"></div>
       <div class="cat-chips" id="catChips"></div>
     </div>
     <div class="clip-scroll"><div id="clipList"></div></div>
@@ -624,16 +647,6 @@ HTML = r"""<!doctype html>
 
   <!-- Right: predictions + tagging -->
   <div class="info-panel">
-    <div class="card">
-      <h3>Statistics</h3>
-      <div class="stat-row">
-        <div class="stat-box"><span>Agreement</span><strong id="sAgreement">—</strong></div>
-        <div class="stat-box"><span>Entropy</span><strong id="sEntropy">—</strong></div>
-        <div class="stat-box"><span>Majority</span><strong id="sMajority">—</strong></div>
-        <div class="stat-box"><span>Models</span><strong id="sModels">—</strong></div>
-      </div>
-    </div>
-
     <div class="card" id="gtCard">
       <h3>Ground Truth</h3>
       <div id="gtContent"><span style="color:var(--muted)">No label</span></div>
@@ -649,24 +662,6 @@ HTML = r"""<!doctype html>
       <div id="groupsContent"></div>
       <div class="group-split-warn" id="groupWarn" style="display:none">Groups disagree</div>
     </div>
-
-    <div class="card">
-      <h3>Thesis Tag</h3>
-      <div class="tag-buttons" id="tagButtons">
-        <button class="tag-btn" data-tag="easy">Easy</button>
-        <button class="tag-btn" data-tag="hard">Hard</button>
-        <button class="tag-btn" data-tag="cross_group">Cross-group</button>
-        <button class="tag-btn" data-tag="interesting">Interesting</button>
-        <button class="tag-btn clear-btn" data-tag="">Clear tag</button>
-      </div>
-      <textarea id="thesisNotes" placeholder="Notes for thesis…"></textarea>
-      <div class="actions">
-        <button class="primary" id="btnSave">Save</button>
-        <button id="btnPrev">Prev</button>
-        <button id="btnNext">Next</button>
-        <span class="msg" id="msg"></span>
-      </div>
-    </div>
   </div>
 </main>
 <script>
@@ -674,7 +669,7 @@ HTML = r"""<!doctype html>
   let filtered = [];
   let activeIndex = 0;
   let activeFilter = 'all';
-  let selectedTag = null;
+  let activeClass = null;     // ground-truth class id to filter on; null = all classes
   let archSel = {};          // param -> chosen arch_key (persists across reloads)
   let currentClipId = null;  // preserved across arch switches
   const GROUP_ORDER = ['Naive', 'OF-Hybrid', 'OF+I3D-Hybrid'];
@@ -753,6 +748,23 @@ HTML = r"""<!doctype html>
       .map(f => `<button class="cat-chip${f===activeFilter?' active':''}" data-f="${f}">${CAT_DISPLAY[f]||f} (${c[f]||0})</button>`)
       .join('');
     el('catChips').querySelectorAll('button').forEach(b => b.addEventListener('click', () => applyFilter(b.dataset.f)));
+    renderClassChips();
+  }
+
+  function renderClassChips() {
+    // Count clips per ground-truth class so each class chip shows its size.
+    const counts = {};
+    for (const clip of data.clips) if (clip.gt_id !== null && clip.gt_id !== undefined) counts[clip.gt_id] = (counts[clip.gt_id]||0)+1;
+    const allChip = `<button class="class-chip${activeClass===null?' active':''}" data-cls="">All classes (${data.clips.length})</button>`;
+    const classChips = data.labels.map(l =>
+      `<button class="class-chip${activeClass===l.id?' active':''}" data-cls="${l.id}">
+        <span class="dot" style="background:${l.color}"></span>${l.name} (${counts[l.id]||0})
+      </button>`).join('');
+    el('classChips').innerHTML = allChip + classChips;
+    el('classChips').querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+      activeClass = b.dataset.cls === '' ? null : Number(b.dataset.cls);
+      applyFilter(activeFilter, currentClipId);
+    }));
   }
 
   function applyFilter(filter, preserveId) {
@@ -760,6 +772,7 @@ HTML = r"""<!doctype html>
     const q = el('search').value.trim().toLowerCase();
     filtered = data.clips.filter(clip => {
       if (q && !clip.clip_id.toLowerCase().includes(q)) return false;
+      if (activeClass !== null && clip.gt_id !== activeClass) return false;
       if (filter === 'all') return true;
       if (filter === 'untagged') return !clip.thesis_tag;
       if (filter === 'tagged') return !!clip.thesis_tag;
@@ -794,7 +807,6 @@ HTML = r"""<!doctype html>
     activeIndex = Math.max(0, Math.min(index, filtered.length-1));
     const clip = filtered[activeIndex];
     currentClipId = clip.clip_id;
-    selectedTag = clip.thesis_tag || null;
     el('clipTitle').textContent = clip.clip_id;
 
     // Video
@@ -802,13 +814,7 @@ HTML = r"""<!doctype html>
       ? `<video controls loop preload="metadata" src="${clip.video_url}"></video>`
       : `<div class="no-video">No video for this clip</div>`;
 
-    // Stats
     const cm = colorMap();
-    el('sAgreement').textContent = pct(clip.agreement_rate);
-    el('sEntropy').textContent = num(clip.prediction_entropy);
-    el('sMajority').textContent = clip.majority_label || '—';
-    el('sMajority').style.color = cm[clip.majority_label] || '';
-    el('sModels').textContent = String(clip.num_models);
 
     // Ground truth
     if (clip.gt_label) {
@@ -823,10 +829,7 @@ HTML = r"""<!doctype html>
     // Predictions grouped by model group (summary bar + expandable rows)
     renderGroups(clip, cm);
 
-    el('thesisNotes').value = clip.thesis_notes || '';
-    paintTag();
     renderList();
-    el('msg').textContent = '';
   }
 
   function renderGroups(clip, cm) {
@@ -890,53 +893,11 @@ HTML = r"""<!doctype html>
     el('groupWarn').style.display = disagree ? '' : 'none';
   }
 
-  function paintTag() {
-    el('tagButtons').querySelectorAll('button').forEach(b => {
-      b.classList.toggle('sel', b.dataset.tag !== '' && b.dataset.tag === selectedTag);
-    });
-  }
-
-  async function saveTag() {
-    const clip = filtered[activeIndex];
-    if (!clip) return;
-    const payload = {
-      clip_id: clip.clip_id,
-      thesis_tag: selectedTag || '',
-      thesis_notes: el('thesisNotes').value,
-      agreement_rate: clip.agreement_rate,
-      majority_label: clip.majority_label,
-    };
-    const r = await fetch('/api/tag', {
-      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)
-    });
-    if (!r.ok) { el('msg').textContent = await r.text(); return; }
-    clip.thesis_tag = selectedTag || '';
-    clip.thesis_notes = payload.thesis_notes;
-    data.tagged_count = data.clips.filter(c => c.thesis_tag).length;
-    updateStatus();
-    renderList();
-    renderFilters();
-    el('msg').textContent = 'Saved.';
-  }
-
   el('search').addEventListener('input', () => applyFilter(activeFilter));
-  el('tagButtons').querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
-    selectedTag = b.dataset.tag === '' ? null : (selectedTag === b.dataset.tag ? null : b.dataset.tag);
-    paintTag();
-  }));
-  el('btnSave').addEventListener('click', saveTag);
-  el('btnPrev').addEventListener('click', () => showClip(activeIndex-1));
-  el('btnNext').addEventListener('click', () => showClip(activeIndex+1));
   document.addEventListener('keydown', e => {
     if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
     if (e.key === 'ArrowLeft') showClip(activeIndex-1);
     if (e.key === 'ArrowRight') showClip(activeIndex+1);
-    if (e.key.toLowerCase() === 's') saveTag();
-    if (e.key === '1') { selectedTag = 'easy'; paintTag(); }
-    if (e.key === '2') { selectedTag = 'hard'; paintTag(); }
-    if (e.key === '3') { selectedTag = 'cross_group'; paintTag(); }
-    if (e.key === '4') { selectedTag = 'interesting'; paintTag(); }
-    if (e.key === '0') { selectedTag = null; paintTag(); }
   });
 
   loadData().catch(err => { el('status').textContent = String(err); });
