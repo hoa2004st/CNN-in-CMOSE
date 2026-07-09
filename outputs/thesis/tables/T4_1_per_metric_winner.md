@@ -1,4 +1,4 @@
-**The winning base configuration according to each metric (in-domain CMOSE).**
+**Winning baseline configuration by metric (in-domain CMOSE).**
 
 | Metric | Best model | Loss | Value |
 | --- | --- | --- | --- |

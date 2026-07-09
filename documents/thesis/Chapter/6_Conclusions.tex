@@ -5,82 +5,54 @@
 \section{Summary}
 \label{sec:summary}
 
-This thesis studied ordinal recognition of student engagement on a four-level scale, using the features OpenFace extracts from each frame and the features I3D extracts from the whole clip.
-It set out to improve recognition over standard single-encoder models and to describe the problem accurately, in particular its strong, uneven class imbalance and its behaviour under distribution shift.
+This thesis studied ordinal recognition of student engagement on a four-level scale, using the features OpenFace extracts from each frame and the features I3D extracts from the whole clip. It set out to improve recognition over standard single-encoder models and to describe the problem accurately, in particular its strong, uneven class imbalance and its behaviour under distribution shift.
 
-For the method, the thesis built a complete and reproducible pipeline: feature extraction and leak-free preprocessing; a feature-group hybrid that splits the 709-dimensional OpenFace features into five groups (gaze, eye landmarks, face landmarks, head pose, action units), encodes each group with its own temporal encoder, and optionally adds a global I3D motion stream while training every stream with a small auxiliary head; five single-encoder baselines; three loss functions; and a 3$\times$3 cross-dataset evaluation protocol.
-The central idea was tested by training and evaluating all $3^5=243$ per-group encoder choices, with and without I3D, and by a self-collected, test-only private set of 366 hand-labelled clips that serves as the deciding deployment test.
+The method is a complete, reproducible pipeline: feature extraction and leak-free preprocessing; the proposed hybrid model, which splits the 709-dimensional OpenFace features into five groups (gaze, eye landmarks, face landmarks, head pose, action units), encodes each group with its own temporal encoder, and optionally adds a global I3D motion stream while training every stream with a small auxiliary head; five single-encoder baselines; three loss functions; and a 3$\times$3 cross-dataset evaluation protocol. The central idea was tested by training all $3^5=243$ per-group encoder choices, with the I3D stream enabled and disabled, and by a self-collected, test-only private set of 366 hand-labelled clips that serves as the deciding deployment test.
 
 The evidence supports five conclusions.
 \begin{enumerate}
-  \item \textbf{The I3D-fused hybrid is the best in-domain model and, as a family, outperforms the strongest single-encoder baseline.}
-  The I3D-fused family is centred above the baseline QWK of 0.537 (median 0.553, with 82\% of its 243 configurations clearing the baseline), and the best configuration reaches QWK 0.605 with a mixed TCN/Transformer/LSTM assignment (\texttt{TCN\_T\_TCN\_LSTM\_T}).
-  The gain over the best baseline is real but small ($+0.068$ QWK). The value lies in the framework and the full evidence, not in a jump in state of the art.
-  \item \textbf{Most groups are not affected by which encoder they get; only head pose shows a clear preference, for a TCN} (a 0.022 QWK spread across the three encoders, against $\le0.006$ for the other four groups).
-  This is a simple design rule that reflects the short, local nature of head motion.
+  \item \textbf{The proposed hybrid model with the I3D stream enabled is the best in-domain model and, as a family, outperforms the strongest baseline.}
+  The I3D-stream-enabled configurations are centred above the baseline QWK of 0.537 (median 0.553, 82\% of the 243 clearing the baseline), and the best configuration reaches QWK 0.605 with a mixed TCN/Transformer/LSTM assignment (\texttt{TCN\_T\_TCN\_LSTM\_T}). The gain over the best baseline is real but small ($+0.068$ QWK), and the value lies in the framework and the full evidence, not in a jump in state of the art.
+  \item \textbf{Most groups are not affected by which encoder they get; only head pose shows a clear preference, for a TCN} (a 0.022 QWK spread across the three encoders, against $\le0.006$ for the other four groups). This simple design rule reflects the short, local nature of head motion.
   \item \textbf{Engagement models do not generalise across datasets.}
   Off-diagonal QWK drops to near zero (CMOSE$\rightarrow$DAiSEE 0.02) even when accuracy appears acceptable, so ordinal agreement metrics, not accuracy, must be reported on imbalanced engagement data.
-  \item \textbf{On the self-collected, hand-labelled private set (test-only, in-the-wild), the three contributions combine.}
-  The hybrid's advantage is not limited to one comparison: it outperforms the best baseline in all nine train$\times$test cells of the cross-dataset matrix.
-  Because the private set is test-only, the only choice left is the training data; training on both datasets together with the feature-group hybrid gives the best result (QWK 0.379), outperforming the best baseline by $+0.094$ (against $+0.068$ in-domain) and surpassing every single-dataset hybrid.
-  This is the thesis's main practical result.
-  \item \textbf{The rare Highly\nobreakdash-Disengage class is still the main open problem.}
-  It is around 2-3\% of the data, is traded away rather than solved by the hybrid in-domain, and drops to zero recall under distribution shift.
+  \item \textbf{On the self-collected, test-only, in-the-wild private set, the three contributions combine.}
+  The proposed model outperforms the best baseline in all nine train$\times$test cells of the cross-dataset matrix. Because the private set is test-only, the only choice left is the training data; training on both datasets together with the proposed hybrid model gives the best result (QWK 0.379), outperforming the best baseline by $+0.094$ (against $+0.068$ in-domain) and surpassing every single-dataset-trained proposed model. This is the thesis's main practical result.
+  \item \textbf{The rare E0 (Highly\nobreakdash-Disengage) class is still the main open problem.}
+  It is around 2--3\% of the data, is traded away rather than solved by the proposed model in-domain, and drops to zero recall under distribution shift.
 \end{enumerate}
 
-A note on scope: the architecture ablation is based on CMOSE because DAiSEE's in-domain ordinal signal is too weak (QWK 0.166) to tell architecture differences apart from label noise. CMOSE is therefore used for development and the private set for the deciding check.
+The architecture ablation rests on CMOSE because DAiSEE's in-domain ordinal signal is too weak (QWK 0.166) to tell architecture differences from label noise. CMOSE is therefore used for development and the private set for the deciding check.
 
 \FloatBarrier
 \section{Synthesis}
 \label{sec:synthesis}
 
-Read together, the two results chapters tell a single story whose lesson is not the one a benchmark paper usually reports.
-The three contributions set out in Section~\ref{sec:contributions} (the architecture, the private dataset, and the cross-dataset study) are best read not as separate results but as one finding: each is modest on its own, and they reinforce one another most exactly where deployment is hardest.
+Read together, the two results chapters tell a single story whose lesson is not the one a benchmark paper usually reports. The three contributions of Section~\ref{sec:contributions} (the architecture, the private dataset, and the cross-dataset study) are best read not as separate results but as one finding: each is modest on its own, and they reinforce one another where deployment is hardest.
 
-\textbf{Architecture: the feature-group hybrid.}
-In-domain the feature-group decomposition is a small but clear improvement: the I3D-fused family scores higher than the baseline, but the best configuration exceeds it by only $+0.068$ QWK, and most of the 243-cell design space is not affected by which encoder it gets.
-On its own, that is a small result, and two things make it worth building.
-First, the fusion was measured before it was built: the clip-level agreement analysis of Chapter~4 showed that the best OpenFace model and the I3D baseline disagree more with each other than OpenFace models do among themselves, and that each family gets clips right that the other cannot, evidence of different errors that the paired I3D ablation of Chapter~5 then confirmed in-domain.
-Second, four of five feature groups are not affected by their encoder and only head pose prefers a TCN, so the gain comes from splitting and fusing the features rather than a search over per-group encoders, a more transferable design rule than a single tuned configuration.
-This is why the family-level effect, rather than any one cell, is reported as the result.
+The architecture is a small but clear in-domain improvement. The proposed hybrid model with the I3D stream enabled scores higher than the baseline, but the best configuration exceeds it by only $+0.068$ QWK, and most of the design space is not affected by which encoder it gets. Two things make it worth building. First, the fusion was measured before it was built: the clip-level agreement analysis of Chapter~4 showed that the best OpenFace model and the I3D baseline disagree more with each other than OpenFace models do among themselves, and that each family gets clips right that the other cannot, which the paired I3D ablation of Chapter~5 then confirmed in-domain. Second, four of five feature groups are not affected by their encoder and only head pose prefers a TCN, so the gain comes from splitting and fusing rather than a per-group encoder search, a more transferable design rule than a single tuned configuration. This is why the family-level effect, not any one cell, is reported as the result.
 
-\textbf{Dataset: the self-collected private set.}
-The private set is the contribution that turns the other two from in-domain claims into a deployment test.
-The in-domain leaderboard predicts transfer only weakly ($\rho=0.31$ for the baselines, $0.27$ for the hybrids), so a model cannot be chosen for deployment from its in-domain score; a test-only, in-the-wild set recorded on real student webcams is the only place the combined claim can be settled.
-It is also where the architecture pays off most: the gap over the baseline grows from $+0.068$ in-domain to $+0.094$ on the private set, so the same decomposition that is a small in-domain gain becomes a representation that breaks down more slowly under distribution shift, which, for a problem whose only real test is deployment, is what matters.
+The private set turns the other two contributions from in-domain claims into a deployment test. The in-domain leaderboard predicts transfer only weakly ($\rho=0.31$ for the baselines, 0.27 for the proposed model), so a model cannot be chosen for deployment from its in-domain score; a test-only, in-the-wild set recorded on real student webcams is the only place the combined claim can be settled. It is also where the architecture pays off most: the gap over the baseline grows from $+0.068$ in-domain to $+0.094$ on the private set, so the same decomposition that is a small in-domain gain becomes a representation that degrades more slowly under distribution shift, which, for a problem whose only real test is deployment, is what matters.
 
-\textbf{Generalisation: the cross-dataset study, measured by QWK.}
-The negative results here are contributions, not side notes.
-The near-total collapse of cross-dataset transfer, the way plain accuracy hides it, and the steady failure on the rarest disengaged class are not minor limits of these particular models; they are aspects of the problem that the field leaves unmeasured by staying in-domain and reporting accuracy.
-Showing them with numbers, and showing that QWK, macro-accuracy, and macro-MAE make them visible, changes engagement recognition from ``beat the benchmark'' to ``report ordinal agreement and watch rare-class failure,'' which is the practice the rest of this chapter recommends.
+The cross-dataset study contributes negative results that are not side notes. The near-total collapse of cross-dataset transfer, the way accuracy hides it, and the steady failure on the rarest disengaged class are not minor limits of these particular models; they are aspects of the problem that the field leaves unmeasured by staying in-domain and reporting accuracy. Showing them with numbers, and showing that QWK, macro-accuracy, and macro-MAE make them visible, changes engagement recognition from beating a benchmark to reporting ordinal agreement and watching rare-class failure, which is the practice the rest of this chapter recommends.
 
 \FloatBarrier
 \section{Revisiting the Research Questions}
 \label{sec:rq-revisit}
 
-The four research questions posed in Section~\ref{sec:objectives} can now be answered directly.
+The four research questions of Section~\ref{sec:objectives} can now be answered directly.
 
 \textbf{RQ1 (decomposition).}
-Yes, decomposition helps.
-Encoding the five feature groups separately and fusing them outperforms encoding all 709 features with a single encoder: as a family the hybrid scores higher than the best baseline, and the effect holds across many configurations rather than arising from a single favourable configuration, with most of the I3D-fused configurations exceeding the baseline.
+Decomposition helps. Encoding the five feature groups separately and fusing them outperforms encoding all 709 features with a single encoder: as a family the proposed model scores higher than the best baseline, and the effect holds across many configurations rather than one favourable configuration, with most of the I3D-stream-enabled configurations exceeding the baseline.
 
 \textbf{RQ2 (encoder assignment).}
-Only head pose matters.
-Four of the five groups are basically not affected by whether their encoder is a TCN, a Transformer, or an LSTM (spread $\le0.006$ QWK); head pose alone shows a clear preference for a TCN.
-The practical point is that the design space is flat and that a TCN is a safe default for every group, with head pose the one place the choice is worth making on purpose.
+Only head pose matters. Four of the five groups are not affected by whether their encoder is a TCN, a Transformer, or an LSTM (spread $\le0.006$ QWK); head pose alone shows a clear preference for a TCN. The design space is flat and a TCN is a safe default for every group, with head pose the one place the choice is worth making on purpose.
 
 \textbf{RQ3 (motion fusion).}
-Yes in-domain, with a caveat under shift.
-When the model is tested on data like its training data, adding the clip-level I3D embedding helps: the paired comparison over the seen-target cells shows a mean gain of $+0.060$ QWK with 94\% of pairs improving, and the fused family gives both the best in-domain model and the best private-set model.
-Under cross-dataset shift, however, the same stream is neutral or slightly harmful on average (mean $-0.021$ on cross-public cells, $+0.005$ on the private set): the I3D stream carries information that is useful but specific to each dataset.
-So the fusion is recommended, but its gain should be claimed only for the setting where it holds.
+Yes in-domain, with a caveat under shift. When the model is tested on data like its training data, adding the clip-level I3D embedding helps: the paired comparison over the seen-target cells shows a mean gain of $+0.060$ QWK with 94\% of pairs improving, and the I3D-stream-enabled configurations give both the best in-domain model and the best private-set model. Under cross-dataset shift the same stream is neutral or slightly harmful on average (mean $-0.021$ on cross-public cells, $+0.005$ on the private set), because the I3D stream carries information useful but specific to each dataset. The fusion is recommended, but its gain should be claimed only for the setting where it holds.
 
 \textbf{RQ4 (generalisation and losses).}
-Generalisation is poor and the metric choice is the key.
-Models do not transfer across datasets; off-diagonal ordinal agreement collapses while accuracy stays high and misleading.
-The in-domain score is at best a weak predictor of transfer: pairing each configuration's CMOSE in-domain QWK with its Combined-trained private-set QWK gives only $\rho=0.31$ for the baselines and $\rho=0.27$ for the hybrids, so a model cannot be picked for deployment from its in-domain score alone.
-Among losses there is no overall winner (cross-entropy gives the best ordinal agreement, QWK, while weighted and ordinal losses recover minority recall and balanced ordinal error), so the loss is a trade-off. The cross-entropy-first order is the one in-domain preference that stays the same on every unseen target, which confirms, after the fact, the choice to establish it before development.
-QWK together with macro-accuracy and macro-MAE must be the main measure, and training on the combined datasets is the most useful tool for an unknown target.
+Generalisation is poor and the metric choice is the key. Models do not transfer across datasets; off-diagonal ordinal agreement collapses while accuracy stays high and misleading. The in-domain score is at best a weak predictor of transfer ($\rho=0.31$ for the baselines, 0.27 for the proposed model), so a model cannot be picked for deployment from its in-domain score alone. Among losses there is no overall winner (cross-entropy gives the best ordinal agreement while weighted and ordinal losses recover minority recall and balanced ordinal error), so the loss is a trade-off, but the cross-entropy-first order is the one in-domain preference that holds on every unseen target, which confirms, after the fact, the choice to establish it before development. QWK together with macro-accuracy and macro-MAE must be the main measure, and training on the combined datasets is the most useful tool for an unknown target.
 
 \FloatBarrier
 \section{Limitations}
@@ -89,13 +61,11 @@ QWK together with macro-accuracy and macro-MAE must be the main measure, and tra
 The findings should be read against several limits, each of which also motivates the future work below.
 \begin{enumerate}
   \item \textbf{Single-annotator private labels.}
-  The private set was labelled by one annotator (myself) under the public-dataset rubric.
-  Although the model suggestions shown during labelling were optional, the lack of a second annotator means no agreement between annotators can be reported for this set, and the 366-clip size limits how reliable the private-set conclusions are, especially for the ten Highly\nobreakdash-Disengage clips, where a single wrong clip strongly affects the recall.
+  The private set was labelled by a single annotator under the public-dataset rubric. Although the model suggestions shown during labelling were optional, the lack of a second annotator means no inter-annotator agreement can be reported, and the 366-clip size limits how reliable the private-set conclusions are, especially for the ten E0 clips, where a single wrong clip strongly affects the recall.
   \item \textbf{Clip-level I3D features.}
-  The I3D features are a single pooled 1024-dimensional vector per clip (shipped ready by CMOSE and extracted by me from the raw video for DAiSEE and the private set), so the I3D ``stream'' is an MLP over that global motion/appearance summary rather than a temporal encoder; a per-window I3D sequence might add more and would let an I3D temporal encoder model real dynamics.
+  The I3D features are a single pooled 1024-dimensional vector per clip, so the I3D stream is an MLP over a global motion/appearance summary rather than a temporal encoder; a per-window I3D sequence might add more and would let an I3D temporal encoder model real dynamics.
   \item \textbf{Small in-domain gain and a flat design space.}
-  Most of the 243-configuration grid is not affected by which encoder it gets, and the best in-domain gain over the baseline is small ($+0.068$ QWK).
-  The decomposition is a sound, interpretable framework rather than a large jump in performance.
+  Most of the 243-configuration grid is not affected by which encoder it gets, and the best in-domain gain over the baseline is small ($+0.068$ QWK). The decomposition is a sound, interpretable framework rather than a large jump in performance.
   \item \textbf{Weak DAiSEE signal.}
   The very low in-domain QWK on DAiSEE meant it could not be used for architecture development, so the cross-dataset conclusions rest mainly on CMOSE and the private set.
   \item \textbf{Fixed training recipe.}
@@ -106,10 +76,7 @@ The findings should be read against several limits, each of which also motivates
 \section{Practical Recommendations}
 \label{sec:recommendations}
 
-For practitioners building engagement-monitoring systems, the study gives three concrete recommendations that do not depend on the specific architecture.
-First, select and optimise on ordinal agreement: make QWK the single metric that chooses models, report macro-accuracy and macro-MAE as secondary balanced checks, and treat plain accuracy as no more than a comparability number, because on these imbalanced ordinal labels accuracy can look healthy while the model has learned nothing useful about disengagement.
-Second, train on the combined datasets when the deployment data is unknown; combining datasets was the simplest tool that worked best for the unseen private set and needs no change to the model.
-Third, anticipate and monitor rare-class failure: the most important class, Highly\nobreakdash-Disengage, is also the rarest and the hardest to detect, so a deployed system should treat low-confidence disengagement predictions with care and, where possible, leave the call to a human.
+For practitioners building engagement-monitoring systems, the study gives three recommendations that do not depend on the specific architecture. First, select and optimise on ordinal agreement: make QWK the single metric that chooses models, report macro-accuracy and macro-MAE as secondary balanced checks, and treat accuracy as no more than a comparability number, because on these imbalanced ordinal labels accuracy can look healthy while the model has learned nothing useful about disengagement. Second, train on the combined datasets when the deployment data is unknown, which was the simplest tool that worked best for the private set and needs no change to the model. Third, anticipate and monitor rare-class failure: the most important class, E0, is also the rarest and hardest to detect, so a deployed system should treat low-confidence disengagement predictions with care and, where possible, leave the call to a human.
 
 \FloatBarrier
 \section{Suggestion for Future Works}
@@ -117,27 +84,23 @@ Third, anticipate and monitor rare-class failure: the most important class, High
 
 \begin{enumerate}
   \item \textbf{Targeting the rarest class.}
-  Combine the architecture with fixes aimed at the imbalance (ordinal losses tuned for Highly\nobreakdash-Disengage, minority oversampling such as SMOTE~\cite{smote}, or cost-sensitive decision thresholds) to recover HD recall without trading away Highly\nobreakdash-Engage.
-  Because HD is so rare, even small gains here would change the practical value of the system more than further QWK gains on the common classes.
+  Combine the architecture with fixes aimed at the imbalance (ordinal losses tuned for E0, minority oversampling such as SMOTE~\cite{smote}, or cost-sensitive decision thresholds) to recover E0 recall without trading away E3. Because E0 is so rare, even small gains here would change the practical value of the system more than further QWK gains on the common classes.
   \item \textbf{Domain adaptation.}
-  The cross-dataset gap calls for explicit unsupervised domain adaptation or domain-invariant representation learning, rather than the plain dataset combination that already helps. A small amount of labelled target data could be used to calibrate the model before deployment.
+  The cross-dataset gap calls for explicit unsupervised domain adaptation or domain-invariant representation learning, rather than the plain dataset combination that already helps. A small amount of labelled target data could calibrate the model before deployment.
   \item \textbf{Learned, not listed, group encoders.}
-  Replace the discrete 243-configuration search with a differentiable architecture search or a gating mechanism that picks per-group temporal operators end-to-end, so the model finds which encoder suits which group on its own instead of trying them all by hand.
+  Replace the discrete 243-configuration search with a differentiable architecture search or a gating mechanism that picks per-group temporal operators end-to-end, so the model finds which encoder suits which group on its own.
   \item \textbf{Stronger and richer motion features.}
   Re-extract per-window I3D (or a modern video backbone) so the motion stream carries timing, and add audio/speech features, which CMOSE also provides, as extra feature groups within the same split-then-fuse framework.
   \item \textbf{Frequency-domain analysis of engagement (exploratory).}
-  A natural extra direction, not done in this thesis and left strictly as future work, is to study the temporal frequency of facial signals, under the idea that engaged behaviour is low-frequency and steady while disengaged behaviour is higher-frequency and restless, for example through short-time-Fourier-transform features or convolutions over the frequency axis.
+  A natural extra direction, left strictly as future work, is to study the temporal frequency of facial signals, under the idea that engaged behaviour is low-frequency and steady while disengaged behaviour is higher-frequency and restless, for example through short-time-Fourier-transform features or convolutions over the frequency axis.
   \item \textbf{Stronger evaluation.}
-  Multi-annotator labelling of a larger private set, with reported agreement between annotators, and multi-seed training with confidence intervals would tighten every gap reported here and turn point estimates into statistically grounded claims.
+  Multi-annotator labelling of a larger private set, with reported inter-annotator agreement, and multi-seed training with confidence intervals would tighten every gap reported here and turn point estimates into statistically grounded claims.
 \end{enumerate}
 
 \FloatBarrier
 \section{Closing Remarks}
 \label{sec:closing}
 
-Automatic engagement recognition is appealing exactly because online learning makes the webcam the main link between student and teacher, but the same setting makes the problem difficult: the labels are ordinal, severely imbalanced, subjective, and specific to each dataset.
-This thesis showed that keeping the structure of the facial features, by splitting them into feature groups and encoding each on its own terms, gives a sound, interpretable model that, combined with a motion stream and trained on combined datasets, generalises best to unseen, in-the-wild data.
-It also showed that the field's usual reliance on accuracy hides a near-total failure to transfer across datasets, and that ordinal agreement metrics show it.
-Detecting the rarest, most important disengaged behaviour under distribution shift is still open, and remains the most important next step.
+Automatic engagement recognition is appealing exactly because online learning makes the webcam the main link between student and teacher, but the same setting makes the problem difficult: the labels are ordinal, severely imbalanced, subjective, and specific to each dataset. This thesis showed that keeping the structure of the facial features, by splitting them into feature groups and encoding each on its own terms, gives a sound, interpretable model that, combined with a motion stream and trained on combined datasets, generalises best to unseen, in-the-wild data. It also showed that the field's usual reliance on accuracy hides a near-total failure to transfer across datasets, which ordinal agreement metrics reveal. Detecting the rarest, most important disengaged behaviour under distribution shift remains open, and is the most important next step.
 
 \end{document}

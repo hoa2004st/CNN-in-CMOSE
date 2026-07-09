@@ -8,10 +8,10 @@ from matplotlib import colors as mcolors
 
 CLASS_LABELS = ["Highly Disengage", "Disengage", "Engage", "Highly Engage"]
 CLASS_LABEL_SHORT = {
-    "Highly Disengage": "HD",
-    "Disengage": "DE",
-    "Engage": "EG",
-    "Highly Engage": "HE",
+    "Highly Disengage": "E0",
+    "Disengage": "E1",
+    "Engage": "E2",
+    "Highly Engage": "E3",
 }
 CLASS_COLORS = {
     "Highly Disengage": "#0072B2",

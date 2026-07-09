@@ -145,7 +145,7 @@ def load_hybrid_matrix(path: str | Path | None = None) -> pd.DataFrame:
             (frame[f"arch_{g}"] == token).astype(int) for g in OPENFACE_GROUP_ORDER
         )
     frame["has_i3d"] = frame["model_type"] == "openface_temporal_i3d_hybrid"
-    frame["variant"] = frame["has_i3d"].map({True: "Hybrid + I3D", False: "Hybrid (OpenFace only)"})
+    frame["variant"] = frame["has_i3d"].map({True: "I3D stream enabled", False: "I3D stream disabled"})
     frame["loss_display"] = frame["loss"].map(loss_display_name)
     frame["train_display"] = frame["train_group"].map(TRAIN_GROUP_DISPLAY).fillna(frame["train_group"])
     frame["test_display"] = frame["test_set"].map(TEST_SET_DISPLAY).fillna(frame["test_set"])

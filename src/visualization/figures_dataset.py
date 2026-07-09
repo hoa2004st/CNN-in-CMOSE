@@ -9,7 +9,7 @@ import pandas as pd
 
 from src.analysis import aggregate as ag
 from src.visualization.figbase import new_fig, save
-from src.visualization.style import CLASS_LABELS, class_color
+from src.visualization.style import CLASS_LABELS, CLASS_LABEL_SHORT, class_color
 
 _DATASET_ORDER = ["CMOSE", "DAiSEE", "Combined"]
 _SPLIT_DISPLAY = {"train": "Train", "unlabel": "Val", "test": "Test"}
@@ -23,7 +23,8 @@ def _stacked(ax, frame: pd.DataFrame, group_col: str, group_order, value_col: st
             float(frame[(frame[group_col] == g) & (frame["class_label"] == label)][value_col].sum())
             for g in groups
         ]
-        ax.bar(range(len(groups)), heights, bottom=bottoms, label=label, color=class_color(label))
+        ax.bar(range(len(groups)), heights, bottom=bottoms,
+               label=CLASS_LABEL_SHORT.get(label, label), color=class_color(label))
         bottoms += np.asarray(heights)
     ax.set_xticks(range(len(groups)))
     ax.set_xticklabels([_SPLIT_DISPLAY.get(g, g) for g in groups])

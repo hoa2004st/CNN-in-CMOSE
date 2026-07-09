@@ -5,13 +5,9 @@
 \section{Overview}
 \label{sec:baseline-overview}
 
-This chapter studies the single-encoder baselines (a feature sequence pushed through a single temporal encoder, Section~\ref{sec:baselines}) and establishes the methodological frame the rest of the thesis depends on.
-Section~\ref{sec:protocol} establishes the evaluation protocol: the metrics, the development dataset, and the development loss; the two arguments that require out-of-domain evidence (that accuracy cannot detect cross-dataset collapse, and that the loss ranking is stable under shift) are stated there as claims and proved in Section~\ref{sec:closing-loop}.
-Under the established protocol, Section~\ref{sec:baseline-results} ranks the five baselines and sets the reference level the proposed architecture must exceed; Section~\ref{sec:agreement} moves from scores to individual predictions and asks whether models with similar scores give the same answers, the analysis that motivates the hybrid design of Chapter~5; and Section~\ref{sec:crossdomain} takes the baselines out of domain with the 3$\times$3 cross-dataset matrix.
+This chapter studies the single-encoder baselines (a feature sequence pushed through one temporal encoder, Section~\ref{sec:baselines}) and establishes the frame the rest of the thesis depends on. Section~\ref{sec:protocol} establishes the evaluation protocol: the metrics, the development dataset, and the development loss. Two arguments there require out-of-domain evidence, that accuracy cannot detect cross-dataset collapse and that the loss ranking is stable under shift; they are stated as claims and proved in Section~\ref{sec:closing-loop}. Under the established protocol, Section~\ref{sec:baseline-results} ranks the five baselines and sets the reference level the proposed architecture must exceed, Section~\ref{sec:agreement} asks whether models with similar scores give the same answers (the analysis that motivates the proposed hybrid model of Chapter~5), and Section~\ref{sec:crossdomain} takes the baselines out of domain in the 3$\times$3 matrix.
 
-\textbf{How results are aggregated.}
-Two conventions hold in both results chapters. A winner is the single configuration that attains the highest QWK over the tunable axis (the loss, and in Chapter~5 the per-group encoder assignment): QWK is the only selection metric, so a reported ``best'' model never depends on any other number, and ties are broken stable-first with no secondary metric consulted. A claim about a family of configurations is instead reported as means and distributions.
-Every configuration is trained once with a fixed seed (Section~\ref{sec:training}), so a reported mean is a mean over the design grid: robustness to design choices, not a noise estimate across seeds.
+Two aggregation conventions hold in both results chapters. A winner is the single configuration with the highest QWK over the tunable axis (the loss, and in Chapter~5 the per-group encoder assignment): QWK is the only selection metric, so a reported ``best'' model never depends on any other number, and ties are broken stable-first. A claim about a family of configurations is instead reported as means and distributions. Every configuration is trained once with a fixed seed (Section~\ref{sec:training}), so a reported mean is a mean over the design grid: robustness to design choices, not a noise estimate across seeds.
 
 \FloatBarrier
 \section{Evaluation Protocol}
@@ -20,138 +16,97 @@ Every configuration is trained once with a fixed seed (Section~\ref{sec:training
 \subsection{Metrics}
 \label{sec:protocol-metrics}
 
-Engagement is an ordinal, severely imbalanced four-class problem: the levels lie on a line, and 69.4\% of CMOSE is the single class Engage (Table~\ref{tab:T3_1_dataset_stats}).
-Raw accuracy ignores both properties (it rewards majority-class collapse and counts a one-level miss the same as a three-level miss), whereas QWK is chance-corrected and weights every error by the squared distance between predicted and true levels (Section~\ref{sec:metrics-lit}).
-On first principles, accuracy is the wrong metric for this task, and the in-domain data confirm this in two ways.
+Engagement is an ordinal, severely imbalanced four-class problem: the levels lie on a line, and 69.4\% of CMOSE is the single class E2 (Engage) (Table~\ref{tab:T3_1_dataset_stats}). Accuracy ignores both properties, since it rewards majority-class collapse and counts a one-level miss the same as a three-level miss, whereas QWK is chance-corrected and weights every error by the squared distance between predicted and true levels (Section~\ref{sec:metrics-lit}). On first principles accuracy is the wrong metric for this task, and the in-domain data confirm this in two ways.
 
-First, the leaderboard winner depends on the metric.
-Table~\ref{tab:T4_1_per_metric_winner} reports which of the fifteen baseline configurations (five architectures $\times$ three losses) each of the six metrics declares best in-domain on CMOSE, and no two camps agree: QWK picks the OpenFace TCN under cross-entropy (0.537), both macro metrics pick the I3D MLP under the ordinal loss (macro-accuracy 0.635, macro-MAE 0.458), and accuracy, micro-MAE, and Cohen's kappa all pick the I3D MLP under cross-entropy (0.773, 0.244, 0.436).
-The choice of metric changes the result, so it must be argued rather than left to default.
+First, the leaderboard winner depends on the metric. Table~\ref{tab:T4_1_per_metric_winner} reports which of the fifteen baseline configurations (five architectures $\times$ three losses) each metric declares best in-domain on CMOSE, and no two camps agree: QWK picks the OpenFace TCN under cross-entropy (0.537), both macro metrics pick the I3D MLP under the ordinal loss (macro-accuracy 0.635, macro-MAE 0.458), and accuracy, micro-MAE, and Cohen's kappa all pick the I3D MLP under cross-entropy (0.773, 0.244, 0.436). The choice of metric changes the result, so it must be argued rather than left to default.
 \input{Table/T4_1_per_metric_winner}
 
-Second, the six metrics form two blocks, bridged only by QWK.
-Figure~\ref{fig:metric_correlation_base} reports the Kendall rank correlation between every pair of metrics over the fifteen configurations: a micro block (accuracy and micro-MAE, $\tau=0.98$, dominated by the majority class) and a macro block (macro-accuracy and macro-MAE, $\tau=0.89$) that are almost unrelated to each other (cross-block $\tau\approx0.01$-$0.10$).
-QWK is the only metric with moderate-to-strong agreement with both blocks ($\tau=0.49$-$0.60$): the compromise metric, sensitive to ordinal distance without being dominated by the majority class.
+Second, the six metrics form two blocks bridged only by QWK. Figure~\ref{fig:metric_correlation_base} reports the Kendall rank correlation between every pair of metrics over the fifteen configurations: a micro block (accuracy and micro-MAE, $\tau=0.98$, dominated by the majority class) and a macro block (macro-accuracy and macro-MAE, $\tau=0.89$) that are almost unrelated to each other (cross-block $\tau\approx0.01$--$0.10$). QWK is the only metric with moderate-to-strong agreement with both blocks ($\tau=0.49$--$0.60$): a compromise metric, sensitive to ordinal distance without being dominated by the majority class.
 
 \begin{figure}[ht]
 \centering
 \includegraphics[width=0.62\linewidth]{metric_correlation_base.png}
 \caption{Rank agreement (Kendall $\tau$) between the six metrics over the fifteen
 baseline configurations, in-domain on CMOSE (MAE metrics sign-flipped so positive $\tau$
-means agreement). The metrics form a micro block and a macro block that barely agree;
-QWK is the only metric correlated with both.}
+means agreement).}
 \label{fig:metric_correlation_base}
 \end{figure}
 
-\textbf{Protocol.}
-The thesis therefore adopts QWK as its single primary metric, the only criterion that selects the best model: the winner is the argmax of QWK, and a tie on QWK is broken stable-first, with no second metric ever consulted.
-The remaining five metrics (macro-accuracy, macro-MAE, accuracy, micro-MAE, and Cohen's kappa) are secondary: they are reported alongside every result to describe it (the macro pair tracks class balance and ordinal error, accuracy and micro-MAE allow comparison with the literature), but none of them ever selects a model.
-Deferred evidence: the decisive argument against accuracy (that it cannot even detect the collapse of a model's ordinal signal under distribution shift) is delivered in Section~\ref{sec:closing-loop}.
+The thesis therefore adopts QWK as its single primary metric, the only criterion that selects the best model: the winner is the argmax of QWK, and a tie is broken stable-first, with no second metric consulted. The remaining five (macro-accuracy, macro-MAE, accuracy, micro-MAE, Cohen's kappa) are secondary, reported alongside every result to describe it but never to select a model. The decisive argument against accuracy, that it cannot even detect the collapse of a model's ordinal signal under distribution shift, is deferred to Section~\ref{sec:closing-loop}.
 
 \subsection{Development Corpus}
 \label{sec:cmose-anchor}
 
-Table~\ref{tab:T4_2_indomain_datasets} compares the two in-domain cells of the evaluation matrix: the best in-domain model reaches QWK 0.537 on CMOSE but only 0.166 on DAiSEE (macro-accuracy 0.535 versus 0.289, macro-MAE 0.547 versus 1.226, more than twice the ordinal error), while DAiSEE's raw accuracy of 0.548 hides the failure, a first sign of how misleading accuracy can be.
-A dataset on which no model rises meaningfully above chance cannot separate good architectures from bad ones: whatever ranking it produces is dominated by label noise.
-CMOSE is therefore the development dataset; DAiSEE re-enters as a transfer source and target in Section~\ref{sec:crossdomain} and in Chapter~5, where its difficulty is informative rather than obstructive.
+CMOSE is the development dataset because it is the only one on which models rise meaningfully above chance. Table~\ref{tab:T4_2_indomain_datasets} compares the two in-domain cells: the best in-domain model reaches QWK 0.537 on CMOSE but only 0.166 on DAiSEE (macro-accuracy 0.535 versus 0.289, macro-MAE 0.547 versus 1.226), while DAiSEE's raw accuracy of 0.548 hides the failure, a first sign of how misleading accuracy can be. A dataset on which no model rises above chance cannot separate good architectures from bad ones, since its ranking is dominated by label noise. DAiSEE re-enters as a transfer source and target in Section~\ref{sec:crossdomain} and in Chapter~5, where its difficulty is informative rather than obstructive.
 \input{Table/T4_2_indomain_datasets}
 
 \subsection{Development Loss}
 \label{sec:loss-tradeoff}
 
-In-domain, the loss axis trades the primary metric against the balanced secondary ones.
-Figure~\ref{fig:loss_metric_tradeoff} shows, for every baseline, that rebalancing the loss from cross-entropy through weighted cross-entropy to the ordinal loss raises macro-accuracy and improves macro-MAE while QWK falls for four of the five baselines: the balanced losses buy minority-class recall at the cost of chance-corrected agreement.
-The trade is Pareto: no loss is best on QWK and on the balanced secondary metrics at once.
-For the I3D MLP, for instance, switching from cross-entropy to the ordinal loss lifts macro-accuracy from 0.526 to 0.635 and improves macro-MAE from 0.585 to 0.458 (the best balanced figures of any baseline) while QWK falls from 0.519 to 0.487.
+In-domain, the loss axis trades the primary metric against the balanced secondary ones. Figure~\ref{fig:loss_metric_tradeoff} shows, for every baseline, that rebalancing the loss from cross-entropy through weighted cross-entropy to the ordinal loss raises macro-accuracy and improves macro-MAE while QWK falls for four of the five baselines: the balanced losses buy minority-class recall at the cost of chance-corrected agreement. The trade is Pareto, since no loss is best on QWK and on the balanced metrics at once. For the I3D MLP, switching from cross-entropy to the ordinal loss lifts macro-accuracy from 0.526 to 0.635 and improves macro-MAE from 0.585 to 0.458 (the best balanced figures of any baseline) while QWK falls from 0.519 to 0.487.
 
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\linewidth]{loss_metric_tradeoff.png}
-\caption{What each loss trades: QWK (the selection metric) against the balanced secondary
-metrics (macro-accuracy and macro-MAE) for every baseline across the three losses,
-in-domain on CMOSE. Macro-accuracy and macro-MAE improve as the loss is rebalanced, while
-QWK is generally highest under cross-entropy.}
+\caption{QWK against the balanced secondary metrics (macro-accuracy and macro-MAE) for
+every baseline across the three losses, in-domain on CMOSE.}
 \label{fig:loss_metric_tradeoff}
 \end{figure}
 
-\textbf{Protocol.}
-The strongest ordinal agreement of the whole grid is obtained under cross-entropy (best-architecture QWK by loss: CE 0.537, weighted CE 0.500, ordinal 0.487), so cross-entropy is the development loss: it maximises QWK, the selection metric, and isolates the effect of the architecture from the confound of the loss. The hybrid of Chapter~5 is consequently trained with it.
-Deferred evidence: Section~\ref{sec:closing-loop} shows this CE $>$ weighted CE $>$ ordinal ranking is preserved intact under domain shift, which after the fact makes cross-entropy the reliable choice, not merely the convenient one.
-The training and validation loss curves of every configuration converge stably and early-stop well before the epoch cap (Section~\ref{sec:training}), so the differences reported in this chapter are architectural rather than optimisation artefacts.
+Cross-entropy is the development loss because it maximises QWK, the selection metric, and isolates the effect of the architecture from that of the loss (best-architecture QWK by loss: CE 0.537, weighted CE 0.500, ordinal 0.487). The proposed hybrid model of Chapter~5 is consequently trained with it. Section~\ref{sec:closing-loop} shows this CE $>$ weighted CE $>$ ordinal ranking is preserved under domain shift, which after the fact makes cross-entropy the reliable choice, not merely the convenient one. The loss curves of every configuration converge stably and early-stop well before the epoch cap (Section~\ref{sec:training}), so the differences reported here are architectural rather than optimisation artefacts.
 
 \FloatBarrier
 \section{In-Domain Results}
 \label{sec:baseline-results}
 
-Five single-encoder baselines are trained and tested in-domain on CMOSE under each of the three losses (four on the OpenFace descriptor: an MLP, a TCN, an LSTM, and a Transformer; and one on the I3D clip vector, the I3D MLP); Figure~\ref{fig:base_models_all_metrics} reports the complete grid on all six metrics.
-On QWK, the selection metric, the strongest baseline is the OpenFace TCN under cross-entropy at QWK 0.537 (max-over-loss, per Section~\ref{sec:baseline-overview}): the reference level the proposed architecture must exceed.
+Five single-encoder baselines are trained and tested in-domain on CMOSE under each of the three losses (four on the OpenFace descriptor: an MLP, a TCN, an LSTM, and a Transformer; and one on the I3D clip vector, the I3D MLP); Figure~\ref{fig:base_models_all_metrics} reports the complete grid on all six metrics. On QWK, the selection metric, the strongest baseline is the OpenFace TCN under cross-entropy at QWK 0.537, the reference level the proposed architecture must exceed.
 
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\linewidth]{base_models_all_metrics.png}
-\caption{The five base models under the three losses on all six metrics, in-domain on
-CMOSE. The metrics disagree on the winner: accuracy, MAE, and Cohen's kappa favour the
-I3D MLP under cross-entropy, QWK favours the OpenFace TCN, and the macro metrics peak
-under the balanced losses.}
+\caption{The five baseline models under the three losses on all six metrics, in-domain on
+CMOSE.}
 \label{fig:base_models_all_metrics}
 \end{figure}
 
-The grid adds two structural observations.
-First, the loss axis determines on which metric family a model is strongest: cross-entropy is strongest on the micro and agreement metrics, while only the rebalanced losses recover the rare disengaged classes that macro averaging weights equally, a direct symptom of the class imbalance.
-Second, the architecture axis determines which kind of feature is strongest: the OpenFace TCN's per-frame facial dynamics carry the cues (a head turning away, gaze drifting off-screen) that separate the rarer disengaged levels and rank highest on QWK, while the I3D MLP, over a single pooled appearance vector, aligns with the majority Engage class and ranks highest on every micro metric.
-On QWK, the selection metric, the two score almost the same (0.537 versus 0.519).
-Two models this close, yet built on disjoint feature families, pose a question the score table cannot answer: are they interchangeable, or do they succeed on different clips?
+The grid adds two structural observations. The loss axis determines on which metric family a model is strongest: cross-entropy is strongest on the micro and agreement metrics, while only the rebalanced losses recover the rare disengaged classes that macro averaging weights equally, a direct symptom of the class imbalance. The architecture axis determines which kind of feature is strongest: the OpenFace TCN's per-frame facial dynamics carry the cues (a head turning away, gaze drifting off-screen) that separate the rarer disengaged levels and rank highest on QWK, while the I3D MLP, over a single pooled appearance vector, aligns with the majority E2 class and ranks highest on every micro metric. On QWK the two score almost the same (0.537 versus 0.519). Two models this close, yet built on disjoint feature families, pose a question the score table cannot answer: are they interchangeable, or do they succeed on different clips?
 
 \FloatBarrier
 \section{Prediction Agreement}
 \label{sec:agreement}
 
-Scores summarise how often a model is right; they say nothing about which clips it is right on.
-This section descends to individual predictions on the 1{,}221 in-domain CMOSE test clips, first across the whole grid, then for the two feature families.
+Scores summarise how often a model is right; they say nothing about which clips it is right on. This section descends to individual predictions on the 1{,}221 in-domain CMOSE test clips, first across the whole grid, then for the two feature families.
 
 \subsection{Agreement between Configurations}
 \label{sec:agreement-configs}
 
-Figure~\ref{fig:agreement_base_models} reports the pairwise Cohen's kappa between the predictions of every pair of configurations.
-Mean pairwise agreement is only $\kappa=0.27$-$0.39$, far below what the clustered scores of Figure~\ref{fig:base_models_all_metrics} suggest, and sharing the architecture ($\kappa=0.391$) or the loss ($\kappa=0.374$) raises it only mildly over sharing neither ($\kappa=0.273$): the fifteen configurations are different hypotheses about the data, not reparametrisations of one another.
+The fifteen configurations agree far less than their clustered scores suggest. Figure~\ref{fig:agreement_base_models} reports the pairwise Cohen's kappa between the predictions of every pair: mean pairwise agreement is only $\kappa=0.27$--$0.39$, and sharing the architecture ($\kappa=0.391$) or the loss ($\kappa=0.374$) raises it only mildly over sharing neither ($\kappa=0.273$). The configurations are different hypotheses about the data, not reparametrisations of one another.
 
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\linewidth]{agreement_base_models.png}
 \caption{Pairwise prediction agreement (Cohen's $\kappa$) between all fifteen baseline
-configurations on the in-domain CMOSE test set, in model-major blocks. The diagonal
-blocks are the same architecture under different losses; agreement is moderate at best.}
+configurations on the in-domain CMOSE test set, in model-major blocks.}
 \label{fig:agreement_base_models}
 \end{figure}
 
-The practical consequence is headroom.
-The best single configuration classifies 77.3\% of the test clips correctly, but at least one of the fifteen is correct on 97.6\% (the oracle); only 2.4\% of clips defeat every model.
-Yet plain majority voting over the fifteen lands at 73.5\%, below the best single model, because the errors are too decorrelated for unweighted voting to use.
-The headroom exists, but claiming it requires a learned combination of complementary views of the input.
-This is the design premise of the feature-group hybrid of Chapter~5, which fuses separately encoded behavioural streams instead of averaging finished predictions.
+The practical consequence is headroom. The best single configuration classifies 77.3\% of the test clips correctly, but at least one of the fifteen is correct on 97.6\% (the oracle), so only 2.4\% of clips defeat every model. Yet plain majority voting over the fifteen lands at 73.5\%, below the best single model, because the errors are too decorrelated for unweighted voting to use. The headroom exists, but claiming it requires a learned combination of complementary views of the input, which is the design premise of the proposed hybrid model of Chapter~5: it fuses separately encoded behavioural streams instead of averaging finished predictions.
 
 \subsection{OpenFace versus I3D}
 \label{sec:openface-vs-i3d}
 
-The two families scored almost the same in Section~\ref{sec:baseline-results}, yet they are different in nature: OpenFace is a per-frame, structured account of facial behaviour (gaze, eye and face landmarks, head pose, action units), while I3D is a single clip-level vector of global appearance and motion.
-Table~\ref{tab:T4_3_openface_vs_i3d} compares their best cross-entropy models: the OpenFace TCN is strongest on QWK and on both balanced secondary metrics, so by scores alone the I3D MLP appears merely redundant.
+The two families scored almost the same in Section~\ref{sec:baseline-results}, yet they are different in nature: OpenFace is a per-frame, structured account of facial behaviour (gaze, eye and face landmarks, head pose, action units), while I3D is a single clip-level vector of global appearance and motion. Table~\ref{tab:T4_3_openface_vs_i3d} compares their best cross-entropy models: the OpenFace TCN is strongest on QWK and on both balanced secondary metrics, so by scores alone the I3D MLP appears merely redundant.
 \input{Table/T4_3_openface_vs_i3d}
 
-The agreement map says otherwise.
-In Figure~\ref{fig:agreement_base_models}, the I3D MLP's row is the palest in the grid: its agreement with the OpenFace TCN is among the lowest of any pair, despite the two having the closest scores.
-Two models that score alike but agree this rarely must succeed on different clips, and the clip-level decomposition confirms it: against the OpenFace TCN, the I3D MLP has the largest exclusive-correct share of any pair in the grid (8.6\% of all test clips are clips only I3D gets right) and the smallest both-wrong share (15.3\%).
-The pair's oracle accuracy is 84.7\%, +7.4 points over the best single model and the largest pair gain in the grid.
+The agreement map says otherwise. In Figure~\ref{fig:agreement_base_models} the I3D MLP's row is the palest in the grid: its agreement with the OpenFace TCN is among the lowest of any pair, despite the two having the closest scores. Two models that score alike but agree this rarely must succeed on different clips, and the clip-level decomposition confirms it: against the OpenFace TCN, the I3D MLP has the largest exclusive-correct share of any pair in the grid (8.6\% of test clips only I3D gets right) and the smallest both-wrong share (15.3\%). The pair's oracle accuracy is 84.7\%, $+7.4$ points over the best single model and the largest pair gain in the grid.
 
-\textbf{Conclusion.}
-The behaviour descriptors and the appearance features are looking at different evidence: the families fail on different clips.
-This is the empirical motivation for fusing the two streams in the hybrid of Chapter~5, a motivation the score table alone could never supply.
+The behaviour descriptors and the appearance features look at different evidence, so the families fail on different clips. This is the empirical motivation for fusing the two streams in the proposed hybrid model of Chapter~5, a motivation the score table alone could never supply.
 
 \FloatBarrier
 \section{Cross-Dataset Generalisation}
 \label{sec:crossdomain}
 
-In-domain numbers are not the deployment question.
-This section trains on one dataset and tests on another, with three aims: measure whether any ordinal signal is preserved under a change of dataset, close the two arguments the protocol deferred, and ask whether in-domain strength predicts generalisation at all.
+In-domain numbers are not the deployment question. This section trains on one dataset and tests on another, with three aims: measure whether any ordinal signal is preserved under a change of dataset, close the two arguments the protocol deferred, and ask whether in-domain strength predicts generalisation.
 
 \subsection{The 3$\times$3 Matrix}
 \label{sec:crossdomain-matrix}
@@ -159,64 +114,42 @@ This section trains on one dataset and tests on another, with three aims: measur
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\linewidth]{crossdomain_base.png}
-\caption{Cross-domain generalisation, best base model per cell (selected by QWK), on QWK
-(the selection metric) and the balanced secondary metrics macro-accuracy and
-macro-MAE, plus raw accuracy, the misleading one: accuracy stays high in
-exactly the off-diagonal cells where every chance-corrected metric collapses.}
+\caption{Cross-domain generalisation, best baseline per cell (selected by QWK), on QWK,
+macro-accuracy, macro-MAE, and accuracy.}
 \label{fig:crossdomain_base}
 \end{figure}
 
-\textbf{The cross-dataset collapse.}
-The 3$\times$3 heatmaps of Figure~\ref{fig:crossdomain_base} are the central generalisation result for the baselines.
-On the diagonal (train and test on the same dataset) QWK is healthy (CMOSE 0.54), macro-accuracy is well above chance (CMOSE 0.64), and ordinal error is low (CMOSE macro-MAE 0.46).
-Off the diagonal all three collapse together: CMOSE$\rightarrow$DAiSEE QWK $=0.02$ and DAiSEE$\rightarrow$CMOSE $=0.05$ (chance-level agreement), macro-accuracy falls toward the 0.25 chance floor, and macro-MAE inflates toward a full class.
-The collapse is roughly symmetric (neither public dataset transfers to the other), which rules out one dataset being a superset of the other and points to a real shift in both label priors and recording conditions.
+The 3$\times$3 heatmaps of Figure~\ref{fig:crossdomain_base} are the central generalisation result for the baselines, and they show a cross-dataset collapse. On the diagonal (train and test on the same dataset) QWK is healthy (CMOSE 0.54), macro-accuracy is well above chance (CMOSE 0.64), and ordinal error is low (CMOSE macro-MAE 0.46). Off the diagonal all three collapse together: CMOSE$\rightarrow$DAiSEE QWK $=0.02$ and DAiSEE$\rightarrow$CMOSE $=0.05$ (chance-level agreement), macro-accuracy falls toward the 0.25 chance floor, and macro-MAE inflates toward a full class. The collapse is roughly symmetric, which rules out one dataset being a superset of the other and points to a real shift in both label priors and recording conditions.
 
-\textbf{The architecture ranking changes out of domain.}
-Comparing, per architecture, the in-domain QWK with the mean QWK over the unseen-target cells (the cells whose test dataset contributed no training data: the two cross-dataset cells and the private column), the in-domain order TCN 0.537 $>$ I3D 0.519 $>$ Transformer 0.443 $>$ MLP 0.399 $>$ LSTM 0.387 becomes TCN $\approx$ Transformer $>$ LSTM $>$ I3D $>$ MLP on unseen targets (Figure~\ref{fig:architecture_ranking_shift}).
-The I3D MLP falls from second place to fourth: its global appearance features bind to the dataset, while the OpenFace behaviour descriptors carry more signal that holds across datasets.
+The architecture ranking also changes out of domain. Comparing, per architecture, the in-domain QWK with the mean QWK over the unseen-target cells (the two cross-dataset cells and the private column), the in-domain order TCN 0.537 $>$ I3D 0.519 $>$ Transformer 0.443 $>$ MLP 0.399 $>$ LSTM 0.387 becomes TCN $\approx$ Transformer $>$ LSTM $>$ I3D $>$ MLP on unseen targets (Figure~\ref{fig:architecture_ranking_shift}). The I3D MLP falls from second to fourth: its global appearance features bind to the dataset, while the OpenFace behaviour descriptors carry more signal that holds across datasets.
 
 \begin{figure}[ht]
 \centering
 \includegraphics[width=0.78\linewidth]{architecture_ranking_shift.png}
-\caption{The architecture QWK ranking is reshuffled out of domain. Left: in-domain QWK
-(trained and tested on CMOSE), best over loss. Right: the mean QWK over the five
-unseen-target cells (best over loss within each cell). One line per architecture, with the
-rank (1\,=\,best) at each end. The I3D MLP drops from second in-domain to fourth on unseen
-targets, while the OpenFace TCN and Transformer hold the top: appearance features bind to
-the training dataset, whereas the OpenFace behaviour descriptors carry signal that transfers.}
+\caption{Architecture QWK ranking, in-domain (left; trained and tested on CMOSE) versus the
+mean over the five unseen-target cells (right), best over loss. One line per architecture,
+with the rank (1\,=\,best) at each end.}
 \label{fig:architecture_ranking_shift}
 \end{figure}
 
-\textbf{Mitigation: combining the source datasets.}
-The most useful cell is the unseen Private column: training on the Combined dataset gives the best private-set QWK (0.285), exceeding DAiSEE-only (0.256) and CMOSE-only (0.190), while keeping near-in-domain CMOSE performance (0.477, the Combined$\rightarrow$CMOSE cell of Figure~\ref{fig:crossdomain_base}).
-The combination of CMOSE and DAiSEE is more diverse than either dataset alone, covering a wider range of label priors and recording conditions, so a model trained on this training set generalises better and transfers better to an unseen target such as the private set.
-This is the most effective design choice for an unknown target, and Chapter~5 combines it with the architecture contribution on the decisive private set (RQ4).
+Combining the source datasets is the most effective simple fix for an unknown target. On the unseen Private column, training on the Combined dataset gives the best private-set QWK (0.285), exceeding DAiSEE-only (0.256) and CMOSE-only (0.190), while keeping near-in-domain CMOSE performance (0.477, the Combined$\rightarrow$CMOSE cell of Figure~\ref{fig:crossdomain_base}). The combined dataset is more diverse than either alone, covering a wider range of label priors and recording conditions, so a model trained on it transfers better to an unseen target. Chapter~5 combines this with the architecture contribution on the decisive private set (RQ4).
 
 \subsection{Closing the Loop: Metric and Loss Reliability}
 \label{sec:closing-loop}
 
-\textbf{Accuracy does not detect the collapse (completes Section~\ref{sec:protocol-metrics}).}
-In the accuracy panel of Figure~\ref{fig:crossdomain_base}, CMOSE$\rightarrow$DAiSEE shows a deceptively reasonable 0.49 and DAiSEE$\rightarrow$CMOSE 0.69, in the same cells where the QWK panel reads 0.02 and 0.05, because predicting near the majority class scores well on any imbalanced target.
-A metric that appears normal while the ordinal signal is gone is misleading rather than reassuring: accuracy is the least reliable metric here and QWK (the only metric that bridges both blocks, and the one that detects the collapse) the most.
+Accuracy does not detect the collapse, which completes Section~\ref{sec:protocol-metrics}. In the accuracy panel of Figure~\ref{fig:crossdomain_base}, CMOSE$\rightarrow$DAiSEE shows a deceptively reasonable 0.49 and DAiSEE$\rightarrow$CMOSE 0.69, in the same cells where the QWK panel reads 0.02 and 0.05, because predicting near the majority class scores well on any imbalanced target. A metric that appears normal while the ordinal signal is gone is misleading rather than reassuring: accuracy is the least reliable metric here and QWK, the only metric that bridges both blocks, the most.
 
-\textbf{The loss ranking is preserved under the shift (completes Section~\ref{sec:loss-tradeoff}).}
-On the unseen-target cells the best-architecture QWK by loss follows the same CE $>$ weighted CE $>$ ordinal order as in-domain.
-The loss is the only factor in the grid whose ranking transfers (the architecture ranking reshuffles): choosing cross-entropy in-domain remains the right choice out of domain, which confirms, after the fact, the choice to establish it as the development loss.
+The loss ranking is preserved under the shift, which completes Section~\ref{sec:loss-tradeoff}. On the unseen-target cells the best-architecture QWK by loss follows the same CE $>$ weighted CE $>$ ordinal order as in-domain. The loss is the only factor in the grid whose ranking transfers (the architecture ranking reshuffles), so choosing cross-entropy in-domain remains right out of domain, which confirms, after the fact, the choice to establish it as the development loss.
 
 \subsection{In-Domain versus Transfer}
 \label{sec:indomain-vs-transfer}
 
-Does in-domain strength predict transfer?
-Pairing, for each of the fifteen baseline configurations, its in-domain QWK (trained and tested on CMOSE) with its deployment transfer QWK (trained on the Combined dataset and tested on the held-out private set) gives one point per configuration on a single scatter. The Spearman rank correlation is only a non-significant $\boldsymbol{\rho=0.31}$, so a strong in-domain score is at best a weak signal of private-set transfer and the in-domain leaderboard is not a reliable basis for selecting a model for an unknown target; selection must instead rely on combining datasets.
-Chapter~5 re-examines the same relationship on the 486-configuration hybrid population, where it stays weak ($\rho=0.27$, Figure~\ref{fig:indomain_vs_generalization_hybrid}): the architecture lifts both in-domain and transfer QWK without making one a reliable predictor of the other.
+In-domain strength barely predicts transfer. Pairing, for each of the fifteen configurations, its in-domain QWK (trained and tested on CMOSE) with its deployment transfer QWK (trained on Combined, tested on the private set) gives one point per configuration; the Spearman rank correlation is only a non-significant $\boldsymbol{\rho=0.31}$. A strong in-domain score is therefore at best a weak signal of private-set transfer, and the in-domain leaderboard is not a reliable basis for selecting a model for an unknown target; selection must instead rely on combining datasets. Chapter~5 re-examines the same relationship on the 486-configuration population of the proposed hybrid model, where it stays weak ($\rho=0.27$, Figure~\ref{fig:indomain_vs_generalization_hybrid}): the architecture lifts both in-domain and transfer QWK without making one a reliable predictor of the other.
 
 \FloatBarrier
 \section{Chapter Summary}
 \label{sec:baseline-summary}
 
-The evaluation protocol established QWK as the single primary metric that selects the best model (with macro-accuracy, macro-MAE, accuracy, micro-MAE, and Cohen's kappa kept as secondary, reported but never selecting), CMOSE as the development dataset, and cross-entropy as the development loss. Under it, the strongest baseline is the OpenFace TCN at QWK 0.537, the reference level the hybrid must exceed.
-The prediction-level analysis showed the configurations agree far less than their scores suggest (oracle 97.6\%) and that the OpenFace and I3D families fail on different clips, the direct motivation for fusing them. The cross-dataset study showed baselines do not transfer to a new dataset, confirmed the metric and loss choices, and made dataset combination the most effective simple fix.
-Chapter~5 now asks whether learning to fuse the complementary streams outperforms these baselines, and whether the architecture gain and dataset combination reinforce each other on unseen data.
+The evaluation protocol established QWK as the single primary metric that selects the best model (with macro-accuracy, macro-MAE, accuracy, micro-MAE, and Cohen's kappa secondary), CMOSE as the development dataset, and cross-entropy as the development loss. Under it, the strongest baseline is the OpenFace TCN at QWK 0.537, the reference level the proposed hybrid model must exceed. The prediction-level analysis showed the configurations agree far less than their scores suggest (oracle 97.6\%) and that the OpenFace and I3D families fail on different clips, the direct motivation for fusing them. The cross-dataset study showed baselines do not transfer to a new dataset, confirmed the metric and loss choices, and made dataset combination the most effective simple fix. Chapter~5 now asks whether learning to fuse the complementary streams outperforms these baselines, and whether the architecture gain and dataset combination reinforce each other on unseen data.
 
 \end{document}

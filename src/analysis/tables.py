@@ -67,8 +67,8 @@ def table_dataset_stats() -> tuple[str, pd.DataFrame, str]:
             "Val": int(totals.loc[dataset].get("unlabel", 0)) if dataset in totals.index else 0,
             "Test": int(totals.loc[dataset].get("test", 0)) if dataset in totals.index else 0,
         }
-        for cls, short in [("Highly Disengage", "HD%"), ("Disengage", "DE%"),
-                           ("Engage", "EG%"), ("Highly Engage", "HE%")]:
+        for cls, short in [("Highly Disengage", "E0%"), ("Disengage", "E1%"),
+                           ("Engage", "E2%"), ("Highly Engage", "E3%")]:
             row[short] = round(float(sub.loc[cls, "proportion"]) * 100, 1) if cls in sub.index else 0.0
         rows.append(row)
     frame = pd.DataFrame(rows)
@@ -84,7 +84,7 @@ def table_base_indomain() -> tuple[str, pd.DataFrame, str]:
                  **{k: ag.METRIC_DISPLAY[k] for k in _REPORTED_METRICS}}
     )
     return _spec(frame, "T2_base_indomain",
-                 "Base models × losses, in-domain (CMOSE→CMOSE), sorted by QWK.")
+                 "Baseline models by loss, in-domain (CMOSE), sorted by QWK.")
 
 
 def table_hybrid_topk(k: int = 5) -> tuple[str, pd.DataFrame, str]:
@@ -97,7 +97,7 @@ def table_hybrid_topk(k: int = 5) -> tuple[str, pd.DataFrame, str]:
                  "quadratic_weighted_kappa": "QWK", "macro_accuracy": "Macro-Acc",
                  "macro_mae": "Macro-MAE", "accuracy": "Accuracy"})
     return _spec(frame, "T5_3_hybrid_topk",
-                 f"Top-{k} hybrid configs in-domain (CMOSE), sorted by QWK.")
+                 f"Top-{k} configurations of the proposed hybrid model, in-domain (CMOSE), sorted by QWK.")
 
 
 def table_i3d_fusion_effect() -> tuple[str, pd.DataFrame, str]:
@@ -136,8 +136,7 @@ def table_i3d_fusion_effect() -> tuple[str, pd.DataFrame, str]:
         })
     frame = pd.DataFrame(rows)
     return _spec(frame, "T5_2_i3d_fusion_effect",
-                 "Paired effect of adding the I3D stream on QWK, by evaluation regime "
-                 "(each OpenFace-only hybrid against its exact +I3D twin).")
+                 "Paired effect of the I3D stream on QWK, by evaluation regime.")
 
 
 def _group_marginal_frame(cell: pd.DataFrame) -> pd.DataFrame:
@@ -208,17 +207,17 @@ def table_private_by_source() -> tuple[str, pd.DataFrame, str]:
         bh = ch.loc[ch["quadratic_weighted_kappa"].idxmax()]
         rows.append({
             "Train source": ag.TRAIN_GROUP_DISPLAY[src],
-            "Best base (model/loss)": f"{display_model_name(bb['model'])}/{bb['loss']}",
-            "Base QWK": round(float(bb["quadratic_weighted_kappa"]), 3),
-            "Base macro-MAE": round(float(bb["macro_mae"]), 3),
-            "Best hybrid (arch)": f"{bh['variant']} {bh['arch_key']}",
-            "Hybrid QWK": round(float(bh["quadratic_weighted_kappa"]), 3),
-            "Hybrid macro-acc": round(float(bh["macro_accuracy"]), 3),
-            "Hybrid macro-MAE": round(float(bh["macro_mae"]), 3),
+            "Best baseline (model/loss)": f"{display_model_name(bb['model'])}/{bb['loss']}",
+            "Baseline QWK": round(float(bb["quadratic_weighted_kappa"]), 3),
+            "Baseline macro-MAE": round(float(bb["macro_mae"]), 3),
+            "Best proposed model (arch)": f"{bh['variant']}, {bh['arch_key']}",
+            "Proposed QWK": round(float(bh["quadratic_weighted_kappa"]), 3),
+            "Proposed macro-acc": round(float(bh["macro_accuracy"]), 3),
+            "Proposed macro-MAE": round(float(bh["macro_mae"]), 3),
         })
     frame = pd.DataFrame(rows)
     return _spec(frame, "T5_4_private_by_source",
-                 "Private set (test-only): best base vs best hybrid by training source.")
+                 "Private set (test-only): best baseline vs best proposed hybrid model by training source.")
 
 
 def table_indomain_cmose_vs_daisee() -> tuple[str, pd.DataFrame, str]:
@@ -262,8 +261,7 @@ def table_per_metric_winner() -> tuple[str, pd.DataFrame, str]:
         })
     frame = pd.DataFrame(rows)
     return _spec(frame, "T4_1_per_metric_winner",
-                 "The winning base configuration according to each metric "
-                 "(in-domain CMOSE).")
+                 "Winning baseline configuration by metric (in-domain CMOSE).")
 
 
 def table_agreement_stats() -> tuple[str, pd.DataFrame, str]:
@@ -297,7 +295,7 @@ def table_agreement_stats() -> tuple[str, pd.DataFrame, str]:
     ]
     frame = pd.DataFrame(rows, columns=["Statistic", "Value"])
     return _spec(frame, "T9_agreement_stats",
-                 "Prediction-level agreement and ensemble headroom of the base "
+                 "Prediction-level agreement and ensemble headroom of the baseline "
                  "configurations (in-domain CMOSE).")
 
 
@@ -326,8 +324,7 @@ def table_openface_vs_i3d() -> tuple[str, pd.DataFrame, str]:
         })
     frame = pd.DataFrame(rows)
     return _spec(frame, "T4_3_openface_vs_i3d",
-                 "Best OpenFace encoder (selected on QWK) vs the I3D MLP on QWK and the "
-                 "balanced secondary metrics (in-domain CMOSE, cross-entropy).")
+                 "Best OpenFace encoder versus the I3D MLP (in-domain CMOSE, cross-entropy).")
 
 
 def table_group_marginal_unseen() -> tuple[str, pd.DataFrame, str]:

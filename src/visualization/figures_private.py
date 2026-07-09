@@ -77,7 +77,7 @@ def _base_private_confusion():
     """(confusion, title) of the best combined-trained base model on the private set."""
     best, slc = _best_base_combined_private()
     cm = ag.confusion_from_predictions(slc).to_numpy()
-    title = (f"Best base: {display_model_name(best['model'])}/{best['loss']}\n"
+    title = (f"Best baseline: {display_model_name(best['model'])}/{best['loss']}\n"
              f"QWK={float(best[_METRIC]):.3f}, macro-MAE={float(best['macro_mae']):.3f}")
     return cm, title
 
@@ -89,7 +89,7 @@ def _hybrid_private_confusion():
         return None
     best, slc = selection
     cm = ag.confusion_from_predictions(slc).to_numpy()
-    title = (f"Best hybrid: {best['variant']} {best['arch_key']}\n"
+    title = (f"Best proposed model: {best['variant']}, {best['arch_key']}\n"
              f"QWK={float(best[_METRIC]):.3f}, macro-MAE={float(best['macro_mae']):.3f}")
     return cm, title
 
@@ -132,20 +132,20 @@ def fig_private_per_class_f1(directory: Path | None = None) -> Path:
     offset = width / 2 if selection is not None else 0.0
     b1 = ax.bar(x - offset, [base_f1.get(c, 0) for c in CLASS_LABELS], width,
                 color=FAMILY_COLORS["base"], edgecolor="black", linewidth=0.4,
-                label=f"Best base ({display_model_name(best_base['model'])})")
+                label=f"Baseline ({display_model_name(best_base['model'])})")
     ax.bar_label(b1, fmt="%.2f", fontsize=6.5, padding=1)
     if selection is not None:
         _, hyb_slc = selection
         hyb_f1 = ag.per_class_f1_from_predictions(hyb_slc)
         b2 = ax.bar(x + width / 2, [hyb_f1.get(c, 0) for c in CLASS_LABELS], width,
                     color=FAMILY_COLORS["hybrid"], edgecolor="black", linewidth=0.4,
-                    label="Best hybrid")
+                    label="Proposed model")
         ax.bar_label(b2, fmt="%.2f", fontsize=6.5, padding=1)
     ax.set_xticks(x)
     ax.set_xticklabels(_SHORT)
     ax.set_ylabel("Per-class F1")
     ax.set_ylim(0, 1)
-    ax.set_title("Per-class F1: best base vs best hybrid (private set, combined-trained)")
+    ax.set_title("Per-class F1 on the private set")
     ax.legend(loc="upper left")
     return save(fig, "private_per_class_f1", directory=directory)
 

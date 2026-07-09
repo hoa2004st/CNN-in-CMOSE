@@ -98,8 +98,8 @@ def fig_crossdomain_delta(directory: Path | None = None) -> Path:
         for j in range(data.shape[1]):
             ax.text(j, i, f"{data[i, j]:+.3f}", ha="center", va="center",
                     color="black", fontsize=13)
-    fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04, label="$\\Delta$QWK (hybrid $-$ base)")
-    fig.suptitle("Hybrid advantage per cell: best hybrid $-$ best base (QWK)",
+    fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04, label="$\\Delta$QWK (proposed $-$ baseline)")
+    fig.suptitle("Advantage per cell: best proposed model $-$ best baseline (QWK)",
                  fontweight="bold")
     fig.tight_layout()
     return save(fig, "crossdomain_delta", directory=directory)
@@ -162,8 +162,8 @@ def fig_crossdomain_delta_full(directory: Path | None = None) -> Path:
         title = ag.METRIC_DISPLAY[metric]
         ax.set_title(title)
         fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04,
-                     label="$\\Delta$ (hybrid $-$ base)")
-    fig.suptitle("Hybrid advantage per cell: best hybrid $-$ best base",
+                     label="$\\Delta$ (proposed $-$ baseline)")
+    fig.suptitle("Advantage per cell: best proposed model $-$ best baseline",
                  fontweight="bold")
     return save(fig, "crossdomain_delta_full", directory=directory)
 
@@ -281,16 +281,16 @@ def fig_indomain_vs_generalization(include_hybrid: bool = True,
             ag.load_hybrid_matrix(), ["model_type", "arch_key", "loss"])
         ax.scatter(hybrid_points["in"], hybrid_points["out"], s=12, marker="o",
                    color="#BBBBBB", alpha=0.45, linewidth=0,
-                   label=f"Hybrid configs (n={len(hybrid_points)})")
+                   label=f"Proposed-model configs (n={len(hybrid_points)})")
     ax.scatter(base_points["in"], base_points["out"], s=46, marker="o",
                c=[model_color(m) for m in base_points["model"]], edgecolor="black",
-               linewidth=0.5, label=f"Base configs (n={len(base_points)})")
+               linewidth=0.5, label=f"Baseline configs (n={len(base_points)})")
 
     rho_base = spearmanr(base_points["in"], base_points["out"]).statistic
-    note = f"Spearman $\\rho$ (base, n={len(base_points)}) = {rho_base:.2f}"
+    note = f"Spearman $\\rho$ (baseline, n={len(base_points)}) = {rho_base:.2f}"
     if hybrid_points is not None:
         rho_hybrid = spearmanr(hybrid_points["in"], hybrid_points["out"]).statistic
-        note += f"\nSpearman $\\rho$ (hybrid, n={len(hybrid_points)}) = {rho_hybrid:.2f}"
+        note += f"\nSpearman $\\rho$ (proposed model, n={len(hybrid_points)}) = {rho_hybrid:.2f}"
     ax.annotate(note, xy=(0.02, 0.98), xycoords="axes fraction", va="top", fontsize=9)
     ax.axhline(0, color="gray", lw=0.8, ls=":")
     ax.set_xlabel("In-domain QWK (trained and tested on CMOSE)")
@@ -309,9 +309,9 @@ def make_all(directory: Path | None = None) -> list[Path]:
     hybrid = ag.load_hybrid_matrix()
     return [
         fig_crossdomain(base, "crossdomain_base",
-                        "Cross-domain generalization — best base model per cell", directory),
+                        "Cross-domain generalisation — best baseline per cell", directory),
         fig_crossdomain(hybrid, "crossdomain_hybrid",
-                        "Cross-domain generalization — best hybrid config per cell", directory),
+                        "Cross-domain generalisation — best proposed-model configuration per cell", directory),
         fig_architecture_ranking_shift(directory),
         fig_crossdomain_delta(directory),
         fig_crossdomain_delta_full(directory),

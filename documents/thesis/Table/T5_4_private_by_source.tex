@@ -1,15 +1,15 @@
 \begin{table}[ht]
 \centering
-\caption{Private set (test-only): best base vs best hybrid by training source.}
+\caption{Private set (test-only): best baseline vs best proposed hybrid model by training source.}
 \label{tab:T5_4_private_by_source}
 \fittable{%
 \begin{tabular}{llrrlrrr}
 \toprule
-Train source & Best base (model/loss) & Base QWK & Base macro-MAE & Best hybrid (arch) & Hybrid QWK & Hybrid macro-acc & Hybrid macro-MAE \\
+Train source & Best baseline (model/loss) & Baseline QWK & Baseline macro-MAE & Best proposed model (arch) & Proposed QWK & Proposed macro-acc & Proposed macro-MAE \\
 \midrule
-CMOSE & openface\_transformer/ce & 0.190 & 0.750 & Hybrid (OpenFace only) TCN\_T\_LSTM\_TCN\_T & 0.309 & 0.385 & 0.914 \\
-DAiSEE & i3d\_mlp/ce & 0.256 & 1.031 & Hybrid + I3D LSTM\_LSTM\_TCN\_LSTM\_LSTM & 0.306 & 0.350 & 0.966 \\
-Combined & openface\_transformer/ce & 0.285 & 0.997 & Hybrid + I3D T\_T\_T\_LSTM\_T & 0.379 & 0.385 & 0.877 \\
+CMOSE & openface\_transformer/ce & 0.190 & 0.750 & I3D stream disabled, TCN\_T\_LSTM\_TCN\_T & 0.309 & 0.385 & 0.914 \\
+DAiSEE & i3d\_mlp/ce & 0.256 & 1.031 & I3D stream enabled, LSTM\_LSTM\_TCN\_LSTM\_LSTM & 0.306 & 0.350 & 0.966 \\
+Combined & openface\_transformer/ce & 0.285 & 0.997 & I3D stream enabled, T\_T\_T\_LSTM\_T & 0.379 & 0.385 & 0.877 \\
 \bottomrule
 \end{tabular}%
 }

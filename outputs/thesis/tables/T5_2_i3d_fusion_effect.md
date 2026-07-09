@@ -1,4 +1,4 @@
-**Paired effect of adding the I3D stream on QWK, by evaluation regime (each OpenFace-only hybrid against its exact +I3D twin).**
+**Paired effect of the I3D stream on QWK, by evaluation regime.**
 
 | Regime | Pairs (n) | Mean ΔQWK | Pairs improving (%) |
 | --- | --- | --- | --- |

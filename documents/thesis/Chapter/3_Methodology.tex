@@ -1,23 +1,69 @@
 \documentclass[../main.tex]{subfiles}
 \begin{document}
 
-This chapter specifies the methodology of the thesis.
-Section~\ref{sec:overview} gives an overview of the complete pipeline as a single diagram.
-Section~\ref{sec:data} describes the three training datasets, the private test set I collected, and the preprocessing that makes them comparable.
-Section~\ref{sec:baselines} defines the single-encoder baselines that anchor every comparison.
-Section~\ref{sec:groups} then formalises the feature-group decomposition of the OpenFace descriptor, and Section~\ref{sec:hybrid} builds the proposed feature-group hybrid on top of it, in explicit contrast to those baselines.
-Section~\ref{sec:losses-method} establishes the exact loss forms, Section~\ref{sec:training} the training protocol, and Section~\ref{sec:eval} the 3$\times$3 cross-dataset protocol and its metrics.
+This chapter specifies the methodology. Section~\ref{sec:overview} gives an overview of the pipeline with diagrams of the baseline and the proposed model. Section~\ref{sec:data} describes the three training datasets, the private test set, and the leak-free preprocessing. Section~\ref{sec:baselines} defines the single-encoder baselines, Section~\ref{sec:groups} formalises the feature-group decomposition of the OpenFace descriptor, and Section~\ref{sec:hybrid} builds the proposed hybrid model on top of it, in contrast to those baselines. Section~\ref{sec:losses-method} establishes the loss forms, Section~\ref{sec:training} the training protocol, and Section~\ref{sec:eval} the 3$\times$3 cross-dataset protocol.
 
 \FloatBarrier
 \section{Overview}
 \label{sec:overview}
 
-The task is framed as ordinal classification of a fixed-length clip into four classes.
-Per-frame OpenFace descriptors and a clip-level I3D embedding are extracted, brought to a common temporal length, and normalised.
-The single-encoder baselines (Section~\ref{sec:baselines}) follow the standard approach: a single encoder consumes the full 709-dimensional OpenFace sequence (or the pooled I3D vector) and feeds a classifier.
-The proposed model replaces that single encoder with a split-and-encode design: the OpenFace descriptor is split into five feature groups, each encoded independently into a 64-dimensional embedding by its own temporal encoder; in the multimodal variant the I3D clip vector is encoded into a 128-dimensional embedding by a small MLP.
-The embeddings are concatenated and classified by a shared multilayer perceptron, while an auxiliary head supervises every stream separately; the hybrid is shown in Figure~\ref{fig:hybrid}.
-Every model is trained and evaluated under a 3$\times$3 cross-dataset protocol and three loss functions.
+The task is ordinal classification of a fixed-length clip into four engagement levels. Per-frame OpenFace descriptors and a clip-level I3D embedding are extracted, brought to a common length, and normalised. The two model paradigms then differ in how they consume these features (Figure~\ref{fig:overview_models}).
+
+A single-encoder baseline follows the standard approach: one temporal encoder consumes the full 709-dimensional OpenFace sequence (or an MLP consumes the pooled I3D vector), and a classifier produces the prediction (Figure~\ref{fig:overview_baseline}). The proposed hybrid model replaces that single encoder with a split-and-encode design: the OpenFace descriptor is split into five feature groups, each encoded independently by its own temporal encoder, the I3D vector is encoded by an MLP, and the resulting embeddings are concatenated and classified by a shared MLP while an auxiliary head supervises every stream (Figure~\ref{fig:overview_hybrid}). Every model is trained and evaluated under the same 3$\times$3 cross-dataset protocol and three loss functions.
+
+\begin{figure}[htbp]
+\centering
+\begin{subfigure}{\linewidth}
+\centering
+\begin{tikzpicture}[font=\footnotesize,>=Latex,
+  box/.style={draw,rounded corners,align=center,minimum height=9mm,inner sep=3pt},
+  node distance=10mm]
+  \node[box] (in) {OpenFace\\ sequence\\ $T\times709$};
+  \node[box,right=of in] (enc) {Single temporal encoder\\ (TCN / LSTM / Transformer)};
+  \node[box,right=of enc] (clf) {Classifier};
+  \node[box,right=of clf] (out) {Ordinal\\ level};
+  \draw[->] (in)--(enc); \draw[->] (enc)--(clf); \draw[->] (clf)--(out);
+\end{tikzpicture}
+\caption{Single-encoder baseline.}
+\label{fig:overview_baseline}
+\end{subfigure}\\[2.5ex]
+\begin{subfigure}{\linewidth}
+\centering
+\begin{tikzpicture}[font=\footnotesize,>=Latex,
+  box/.style={draw,rounded corners,align=center,inner sep=2.5pt,minimum height=6mm},
+  grp/.style={box,fill=black!5},
+  node distance=2.6mm]
+  \node[grp] (g1) {Gaze encoder};
+  \node[grp,below=of g1] (g2) {Eye-landmark encoder};
+  \node[grp,below=of g2] (g3) {Face-landmark encoder};
+  \node[grp,below=of g3] (g4) {Head-pose encoder};
+  \node[grp,below=of g4] (g5) {Action-unit encoder};
+  \node[box,below=6mm of g5] (i3d) {I3D MLP};
+  \node[box,left=16mm of g3] (of) {OpenFace\\ $T\times709$};
+  \node[box,below=6mm of of] (iv) {I3D\\ vector};
+  \draw[->] (of.east)--(g1.west);
+  \draw[->] (of.east)--(g2.west);
+  \draw[->] (of.east)--(g3.west);
+  \draw[->] (of.east)--(g4.west);
+  \draw[->] (of.east)--(g5.west);
+  \draw[->] (iv.east)--(i3d.west);
+  \node[box,right=16mm of g3,minimum height=44mm] (cat) {Con-\\cat-\\enate};
+  \draw[->] (g1.east)--(cat.west);
+  \draw[->] (g2.east)--(cat.west);
+  \draw[->] (g3.east)--(cat.west);
+  \draw[->] (g4.east)--(cat.west);
+  \draw[->] (g5.east)--(cat.west);
+  \draw[->] (i3d.east)-|(cat.south);
+  \node[box,right=8mm of cat] (fus) {Fusion\\ MLP};
+  \node[box,right=8mm of fus] (out) {Ordinal\\ level};
+  \draw[->] (cat)--(fus); \draw[->] (fus)--(out);
+\end{tikzpicture}
+\caption{Proposed hybrid model (auxiliary heads omitted; detailed in Figure~\ref{fig:hybrid}).}
+\label{fig:overview_hybrid}
+\end{subfigure}
+\caption{The baseline and the proposed hybrid model.}
+\label{fig:overview_models}
+\end{figure}
 
 \FloatBarrier
 \section{Data and Preprocessing}
@@ -25,22 +71,16 @@ Every model is trained and evaluated under a 3$\times$3 cross-dataset protocol a
 
 \subsection{Datasets}
 
-The thesis uses three training sources and three test sets, whose sizes and class balance are reported in Table~\ref{tab:T3_1_dataset_stats}.
+The thesis uses three training sources and three test sets, whose sizes and class balance are in Table~\ref{tab:T3_1_dataset_stats}.
 
 \begin{enumerate}
-  \item \textbf{CMOSE}~\cite{cmose}: 12{,}197 clips, divided into a \texttt{train} split (8{,}783), an \texttt{unlabel} split (2{,}193) that this thesis uses as the validation set for early stopping and checkpoint selection, and a \texttt{test} split (1{,}221).
-  \item \textbf{DAiSEE}~\cite{daisee}: 8{,}571 clips, whose official \texttt{Train}/\texttt{Validation}/\texttt{Test} partitions are mapped onto the same \texttt{train}/\texttt{unlabel}/\texttt{test} roles (5{,}358 / 1{,}429 / 1{,}784).
-  \item \textbf{Combined}: the combination of CMOSE and DAiSEE (20{,}768 clips), with source-prefixed identifiers so the two datasets cannot collide.
-  All three splits are merged split-wise, giving 14{,}141 / 3{,}622 / 3{,}005 train / validation / test clips.
-  \item \textbf{Private (self-collected)}: a held-out set of 366 clips that I collected and manually labelled myself, used for testing only, never in training or model selection.
-  Its construction is described in Section~\ref{sec:private-collection}.
+  \item \textbf{CMOSE}~\cite{cmose}: 12{,}197 clips, split into \texttt{train} (8{,}783), \texttt{unlabel} (2{,}193) used here as the validation set for early stopping and checkpoint selection, and \texttt{test} (1{,}221).
+  \item \textbf{DAiSEE}~\cite{daisee}: 8{,}571 clips, whose official \texttt{Train}/\texttt{Validation}/\texttt{Test} partitions map onto the same \texttt{train}/\texttt{unlabel}/\texttt{test} roles (5{,}358 / 1{,}429 / 1{,}784).
+  \item \textbf{Combined}: the combination of CMOSE and DAiSEE (20{,}768 clips) with source-prefixed identifiers, merged split-wise into 14{,}141 / 3{,}622 / 3{,}005 train / validation / test clips.
+  \item \textbf{Private (self-collected)}: 366 clips collected and hand-labelled for this thesis, used for testing only, never in training or model selection (Section~\ref{sec:private-collection}).
 \end{enumerate}
 
-All four sets share the four ordinal labels HD/DE/EG/HE.
-Table~\ref{tab:T3_1_dataset_stats} and Figure~\ref{fig:dataset_class_distribution_overall} show that all three training datasets are heavily imbalanced toward the upper-middle classes, and imbalanced in different directions.
-CMOSE is dominated by Engage (69.4\%) with only 2.8\% Highly\nobreakdash-Disengage, whereas DAiSEE is split between Engage (50.3\%) and Highly\nobreakdash-Engage (43.8\%) with just 0.7\% Highly\nobreakdash-Disengage.
-The rare disengaged classes are precisely the ones a monitoring system must catch, yet they amount to a fraction of a percent to a few percent of the data.
-The same imbalance holds within each of the train, validation, and test partitions, so it is the nature of the problem, not created by how the data was split.
+All four sets share the four ordinal labels E0 (Highly\nobreakdash-Disengage), E1 (Disengage), E2 (Engage), and E3 (Highly\nobreakdash-Engage). Table~\ref{tab:T3_1_dataset_stats} and Figure~\ref{fig:dataset_class_distribution_overall} show that the three training datasets are heavily imbalanced toward the upper-middle classes, and imbalanced in different directions: CMOSE is dominated by E2 (69.4\%) with only 2.8\% E0, whereas DAiSEE is split between E2 (50.3\%) and E3 (43.8\%) with 0.7\% E0. The rare disengaged classes are precisely the ones a monitoring system must catch. The same imbalance holds within each split, so it is the nature of the problem, not an artefact of the partition.
 \input{Table/T3_1_dataset_stats}
 
 \begin{figure}[ht]
@@ -50,98 +90,78 @@ The same imbalance holds within each of the train, validation, and test partitio
 \label{fig:dataset_class_distribution_overall}
 \end{figure}
 
-This severe and uneven imbalance shapes three choices the thesis returns to.
-It predicts difficulty in transferring between datasets, where a model fit to one label prior meets a sharply different one at test time (Chapters~4 and~5); it motivates the imbalance-aware losses of Section~\ref{sec:losses-method}; and, because predicting the majority class alone scores well on every dataset, it rules out raw accuracy as a selection criterion in favour of quadratic-weighted kappa (QWK), the single metric on which every best model in this thesis is chosen, with macro-accuracy and macro-MAE kept only as secondary balanced checks (Section~\ref{sec:eval}).
+This uneven imbalance shapes three choices the thesis returns to. It predicts difficulty in transferring between datasets, where a model fit to one label prior meets a different one at test time (Chapters~4 and~5); it motivates the imbalance-aware losses of Section~\ref{sec:losses-method}; and, because predicting the majority class alone scores well on every dataset, it rules out accuracy as a selection criterion in favour of quadratic-weighted kappa (QWK), the single metric on which every best model is chosen, with macro-accuracy and macro-MAE kept as secondary balanced checks (Section~\ref{sec:eval}).
 
 \subsection{The private evaluation set}
 \label{sec:private-collection}
 
-The private set measures deployment rather than in-dataset behaviour; because no model is ever trained or selected on it, it is a test-only set.
-Although it is small, it is sampled in the wild, from the kind of webcam recordings the model will face in real deployment.
-It also serves a purpose specific to engagement.
-The OpenFace gaze, head-pose, and landmark features are measured in the camera's image geometry, so a model validated only on the narrow range of recording setups in a public dataset offers no guarantee on the varied webcam angles of a real deployment.
-A small, locally collected, hand-labelled test set is the most direct way to check that a model is fit for its intended setting before deployment.
-It was built in five steps.
+The private set measures deployment rather than in-dataset behaviour, and because no model is trained or selected on it, it is a test-only set. Although small, it is sampled in the wild, from the webcam recordings the model will face in deployment. It serves a purpose specific to engagement: the OpenFace gaze, head-pose, and landmark features are measured in the camera's image geometry, so a model validated only on the narrow range of setups in a public dataset offers no guarantee on the varied webcam angles of a real deployment. A small, locally collected, hand-labelled test set is the most direct way to check that a model is fit for its setting. It was built in five steps.
 
 \begin{enumerate}
   \item \textbf{Source and segmentation.}
-  Webcam recordings of online-class sessions were sampled at several points within each session and cut into fixed-length 10-second clips, each containing a single learner.
+  Webcam recordings of online-class sessions were sampled at several points and cut into fixed-length 10-second clips, each containing a single learner.
   \item \textbf{Tracking-quality filtering.}
-  Every clip was run through the same OpenFace pipeline as the public datasets; clips with too few tracked frames were rejected automatically, since a descriptor built from unreliable frames is meaningless.
+  Every clip was run through the same OpenFace pipeline as the public datasets; clips with too few tracked frames were rejected, since a descriptor from unreliable frames is meaningless.
   \item \textbf{Manual labelling.}
-  The accepted clips were labelled by me through a purpose-built local interface, one engagement label per clip; reliance on a single annotator is a limitation revisited in Section~\ref{sec:limitations}.
+  The accepted clips were labelled through a purpose-built local interface, one engagement label per clip; reliance on a single annotator is a limitation revisited in Section~\ref{sec:limitations}.
   \item \textbf{Feature extraction.}
-  Accepted clips were processed through the same OpenFace (709-d per frame) and I3D (1024-d per clip) extraction pipeline I applied to the raw DAiSEE video, identical in format to the features CMOSE ships precomputed, so the private features are distributionally comparable to the training features.
+  Accepted clips were processed through the same OpenFace (709-d per frame) and I3D (1024-d per clip) pipeline used for DAiSEE, identical in format to the features CMOSE ships precomputed, so the private features are distributionally comparable to the training features.
   \item \textbf{Final set.}
-  Of the labelled clips, the 366 with complete, aligned OpenFace and I3D features form the private evaluation set.
-  Its label prior differs again from both public datasets (58.2\% Engage, 30.6\% Highly\nobreakdash-Engage, 8.5\% Disengage, and only 2.7\% Highly\nobreakdash-Disengage), which, together with its independent recording conditions, makes it an in-the-wild measure of how the models would behave in deployment.
-  It anchors Section~\ref{sec:private}.
+  The 366 clips with complete, aligned OpenFace and I3D features form the private set. Its label prior differs again from both public datasets (58.2\% E2, 30.6\% E3, 8.5\% E1, 2.7\% E0), which, with its independent recording conditions, makes it an in-the-wild measure of deployment behaviour. It anchors Section~\ref{sec:private}.
 \end{enumerate}
 
 \subsection{Features and preprocessing}
 
-\textbf{Features.}
-Each clip is represented by per-frame OpenFace~2.0 descriptors (709-d)~\cite{openface2} and a clip-level I3D embedding (1024-d)~\cite{i3d}.
-CMOSE is the only dataset that ships these features precomputed; for DAiSEE and the private set I extract both from the raw video with the same toolkits, so all three sources share an identical feature format.
-When a single OpenFace frame contains more than one detected face, the highest-confidence row is kept; non-numeric entries are coerced to zero.
+Each clip is represented by per-frame OpenFace~2.0 descriptors (709-d)~\cite{openface2} and a clip-level I3D embedding (1024-d)~\cite{i3d}. CMOSE ships these features precomputed; for DAiSEE and the private set both are extracted from the raw video with the same toolkits, so all three sources share one feature format. When an OpenFace frame contains more than one detected face, the highest-confidence row is kept, and non-numeric entries are set to zero.
 
-\textbf{Temporal resampling.}
-OpenFace clips vary in length, so each is resampled along time to a fixed number of frames by linear interpolation per feature.
-The OpenFace sequence length is 300 frames for the single-dataset runs and is reduced to 150 for the larger Combined runs to fit memory; in the multimodal variant the OpenFace stream is resampled to 75 frames.
-The I3D feature is a single 1024-dimensional vector per clip, not a sequence, and is encoded by an MLP (Section~\ref{sec:hybrid}).
+OpenFace clips vary in length, so each is resampled along time to a fixed number of frames by per-feature linear interpolation. The OpenFace sequence length is 300 frames for the single-dataset runs, reduced to 150 for the larger Combined runs to fit memory, and to 75 frames in the multimodal variant. The I3D feature is a single 1024-dimensional vector per clip, not a sequence, encoded by an MLP (Section~\ref{sec:hybrid}).
 
-\textbf{Normalisation.}
-Every feature is standardised by a per-feature $z$-score whose mean and standard deviation are fit on the training split only; the validation, test, and private sets are transformed with those training statistics, so no target-set information leaks into preprocessing.
-OpenFace and I3D are standardised with separate statistics.
+Every feature is standardised by a per-feature $z$-score whose mean and standard deviation are fit on the training split only; the validation, test, and private sets are transformed with those training statistics, so no target-set information leaks into preprocessing. OpenFace and I3D are standardised with separate statistics.
 
 \FloatBarrier
 \section{Baseline Models}
 \label{sec:baselines}
 
-Five single-encoder baselines provide the comparison points; they form the allow-list \texttt{MODEL\_ORDER} used by the analysis.
-Each follows the standard approach: a single encoder consumes the full feature sequence and feeds a classifier.
+Five single-encoder baselines provide the comparison points and form the allow-list \texttt{MODEL\_ORDER} used by the analysis. Each applies one encoder to the full feature sequence before a classifier.
 \begin{enumerate}
-  \item \texttt{openface\_mlp}: flattens the OpenFace sequence and classifies it with a multilayer perceptron ($\to$256$\to$128$\to$4, dropout 0.3).
+  \item \texttt{openface\_mlp}: flattens the OpenFace sequence and classifies it with an MLP ($\to$256$\to$128$\to$4, dropout 0.3).
   \item \texttt{openface\_tcn}: a TCN over the 709-d sequence (residual dilated blocks of widths $256,128,128$; kernel 3; dilations $1,2,4$), adaptive average-pooling, then a $128\!\to\!128\!\to\!4$ classifier.
   \item \texttt{openface\_lstm}: a two-layer LSTM (hidden width 256) whose final hidden state feeds a $256\!\to\!128\!\to\!4$ classifier.
   \item \texttt{openface\_transformer}: a linear projection to 128 dimensions, a sinusoidal positional encoding, and two Transformer encoder layers (4 heads, feed-forward width 256), mean-pooled and classified.
   \item \texttt{i3d\_mlp}: classifies the single 1024-d I3D clip vector with an MLP ($1024\!\to\!256\!\to\!128\!\to\!4$, dropout 0.3).
 \end{enumerate}
-A sixth model, \texttt{openface\_tcn\_i3d\_fusion} (a shared-fusion TCN over both modalities), exists in the codebase but is excluded from the assessment so that the comparison isolates the feature-group hypothesis rather than modality fusion.
+A sixth model, \texttt{openface\_tcn\_i3d\_fusion} (a shared-fusion TCN over both modalities), exists in the codebase but is excluded from the assessment so the comparison isolates the feature-group hypothesis rather than modality fusion.
 
-The five baseline architectures are shown in Figure~\ref{fig:baselines}.
-The four OpenFace baselines (a-d) encode the full $T\times709$ sequence with a single encoder, while \texttt{i3d\_mlp} (e) classifies the pooled 1024-d I3D clip vector.
-Forcing one encoder, and therefore one temporal bias, onto all 709 mixed features at once is the design decision the proposed model revisits in Sections~\ref{sec:groups} and~\ref{sec:hybrid}.
+The five baseline architectures are shown in Figure~\ref{fig:baselines}. The four OpenFace baselines (a--d) encode the full $T\times709$ sequence with a single encoder, while \texttt{i3d\_mlp} (e) classifies the pooled 1024-d I3D clip vector. Forcing one encoder, and therefore one temporal bias, onto all 709 mixed features is the design decision the proposed model revisits in Sections~\ref{sec:groups} and~\ref{sec:hybrid}.
 
 \begin{figure}[htbp]
 \centering
 \begin{subfigure}{\linewidth}\centering
 \includegraphics[width=\linewidth]{openface_mlp.png}
-\caption{\texttt{openface\_mlp}: the $T\times709$ sequence is flattened and classified by an MLP.}
+\caption{\texttt{openface\_mlp}.}
 \label{fig:openface_mlp}
 \end{subfigure}\\[1.2ex]
 \begin{subfigure}{\linewidth}\centering
 \includegraphics[width=\linewidth]{openface_tcn.png}
-\caption{\texttt{openface\_tcn}: a TCN over the 709-d sequence, adaptively average-pooled and classified.}
+\caption{\texttt{openface\_tcn}.}
 \label{fig:openface_tcn}
 \end{subfigure}\\[1.2ex]
 \begin{subfigure}{\linewidth}\centering
 \includegraphics[width=\linewidth]{openface_lstm.png}
-\caption{\texttt{openface\_lstm}: a two-layer LSTM over the 709-d sequence whose final state is classified.}
+\caption{\texttt{openface\_lstm}.}
 \label{fig:openface_lstm}
 \end{subfigure}\\[1.2ex]
 \begin{subfigure}{\linewidth}\centering
 \includegraphics[width=\linewidth]{openface_transformer.png}
-\caption{\texttt{openface\_transformer}: a Transformer encoder over the 709-d sequence, mean-pooled and classified.}
+\caption{\texttt{openface\_transformer}.}
 \label{fig:openface_transformer}
 \end{subfigure}\\[1.2ex]
 \begin{subfigure}{\linewidth}\centering
 \includegraphics[width=\linewidth]{i3d_mlp.png}
-\caption{\texttt{i3d\_mlp}: the pooled 1024-d I3D clip vector is classified by an MLP.}
+\caption{\texttt{i3d\_mlp}.}
 \label{fig:i3d_mlp}
 \end{subfigure}
-\caption{The five single-encoder baselines. Each applies a single encoder to
-the full feature sequence (or pooled I3D vector) before classification.}
+\caption{The five single-encoder baselines.}
 \label{fig:baselines}
 \end{figure}
 
@@ -149,8 +169,7 @@ the full feature sequence (or pooled I3D vector) before classification.}
 \section{Grouping the Facial Features by Meaning}
 \label{sec:groups}
 
-The 709 OpenFace features are partitioned into five meaningful groups by matching the column names, in the fixed order used everywhere in the pipeline (gaze, eye, face, head, action units).
-Table~\ref{tab:groups} summarises the partition; every one of the 709 columns belongs to exactly one group.
+The 709 OpenFace features are partitioned into five meaningful groups by matching the column names, in the fixed order used everywhere in the pipeline (gaze, eye, face, head, action units). Table~\ref{tab:groups} summarises the partition; every one of the 709 columns belongs to exactly one group.
 
 \begin{table}[ht]
 \centering
@@ -171,30 +190,22 @@ Action units  & facial action-unit presence and intensity     & 35  \\
 \end{tabular}
 \end{table}
 
-This decomposition is the inductive prior of the method.
-The five subsystems have different dynamics, so each can in principle be matched to an encoder whose temporal bias suits it.
-Gaze and eye landmarks show rapid, noisy micro-saccades; head pose drifts slowly and smoothly; action units fire in brief, sparse bursts.
-Encoding all 709 features together, as the single-encoder baselines of Section~\ref{sec:baselines} do, forces a single bias on all of them at once.
+This decomposition is the inductive prior of the method. The five subsystems have different dynamics, so each can be matched to an encoder whose temporal bias suits it: gaze and eye landmarks show rapid, noisy micro-saccades; head pose drifts slowly and smoothly; action units fire in brief, sparse bursts. Encoding all 709 features together, as the single-encoder baselines of Section~\ref{sec:baselines} do, forces a single bias on all of them at once.
 
 \FloatBarrier
-\section{Hybrid Architecture (Proposed)}
+\section{Proposed Hybrid Model}
 \label{sec:hybrid}
 
-The proposed model, shown in Figure~\ref{fig:hybrid}, encodes each stream independently, fuses the resulting embeddings, and supervises every stream with its own auxiliary head.
-It is built from the same three families of encoder as the OpenFace baselines of Section~\ref{sec:baselines} (TCN, Transformer, and LSTM), but where a baseline applies one encoder to the full $T\times709$ sequence, the hybrid assigns an independently chosen encoder to each of the five feature groups of Section~\ref{sec:groups}, so any difference in performance can be attributed to the decomposition rather than to a different kind of encoder.
+The proposed hybrid model, shown in Figure~\ref{fig:hybrid}, encodes each stream independently, fuses the resulting embeddings, and supervises every stream with its own auxiliary head. It is built from the same three encoder families as the OpenFace baselines of Section~\ref{sec:baselines} (TCN, Transformer, LSTM), but where a baseline applies one encoder to the full $T\times709$ sequence, the proposed model assigns an independently chosen encoder to each of the five feature groups of Section~\ref{sec:groups}, so any difference in performance is attributable to the decomposition rather than to a different kind of encoder.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\linewidth]{hybrid.png}
-\caption{Feature-group hybrid architecture.
-Each OpenFace group is encoded independently into a 64-d embedding (group encoders are chosen per group from TCN / Transformer (T) / LSTM); the I3D clip vector is encoded by an MLP into a 128-d embedding.
-The six embeddings are concatenated (448-d) and classified by a shared MLP; each stream also feeds an auxiliary head.
-The OpenFace-only variant drops the I3D row and fuses a 320-d vector.}
+\caption{Proposed hybrid model architecture (I3D stream enabled; the I3D-stream-disabled variant drops the I3D row).}
 \label{fig:hybrid}
 \end{figure}
 
-\textbf{Per-group encoder.}
-Each group is encoded by a \texttt{GroupEncoder} that is one of three interchangeable temporal encoders (Figure~\ref{fig:group_encoders}), followed by temporal mean-pooling and a layer normalisation, producing a 64-dimensional embedding:
+Each group is encoded by a \texttt{GroupEncoder}, one of three interchangeable temporal encoders (Figure~\ref{fig:group_encoders}), followed by temporal mean-pooling and a layer normalisation, producing a 64-dimensional embedding:
 \begin{enumerate}
   \item a TCN: two residual blocks of dilated causal 1-D convolutions (channel widths $64,64$; kernel size 3; dropout 0.2);
   \item a Transformer encoder: a linear projection to 64 dimensions, a sinusoidal positional encoding, and two encoder layers (4 heads, feed-forward width 128, GELU, dropout 0.2);
@@ -221,76 +232,54 @@ Each group is encoded by a \texttt{GroupEncoder} that is one of three interchang
 \caption{LSTM group encoder.}
 \label{fig:ge_lstm}
 \end{subfigure}
-\caption{The three interchangeable per-group encoders.
-Each maps a group's $T\times D_{\text{group}}$ sequence to a 64-dimensional embedding through temporal mean-pooling and layer normalisation; one is chosen independently for each of the five groups.}
+\caption{The three interchangeable per-group encoders.}
 \label{fig:group_encoders}
 \end{figure}
 
-\textbf{Fusion and heads.}
-The five 64-d group embeddings are concatenated into a 320-d vector and passed through a two-layer MLP classifier ($320\!\to\!128\!\to\!4$, ReLU, dropout 0.3) that produces the main logits.
-Each group additionally feeds an auxiliary classification head ($\mathrm{dropout}\to\mathrm{Linear}(64\!\to\!4)$).
-The total loss is the main-head loss plus $\texttt{aux\_weight}=0.2$ times the mean of the per-group losses (Section~\ref{sec:losses-method}); the auxiliary supervision makes each stream individually~discriminative.
+The five 64-d group embeddings are concatenated into a 320-d vector and passed through a two-layer MLP classifier ($320\!\to\!128\!\to\!4$, ReLU, dropout 0.3) that produces the main logits. Each group additionally feeds an auxiliary classification head ($\mathrm{dropout}\to\mathrm{Linear}(64\!\to\!4)$). The total loss is the main-head loss plus $\texttt{aux\_weight}=0.2$ times the mean of the per-group losses (Section~\ref{sec:losses-method}); the auxiliary supervision makes each stream individually discriminative.
 
-\textbf{Multimodal variant.}
-The I3D-fused model adds a sixth stream: the single 1024-d I3D clip vector is encoded by an MLP ($1024\!\to\!256\!\to\!128$, ReLU, dropout 0.3) and layer-normalised to a 128-d embedding with its own auxiliary head.
-The fusion MLP then takes a 448-d input ($5\times64 + 128$).
-The I3D stream uses an MLP rather than a temporal encoder because the provided I3D feature is a single pooled vector, not a sequence.
+The I3D-stream-enabled variant adds a sixth stream: the single 1024-d I3D clip vector is encoded by an MLP ($1024\!\to\!256\!\to\!128$, ReLU, dropout 0.3) and layer-normalised to a 128-d embedding with its own auxiliary head, so the fusion MLP takes a 448-d input ($5\times64 + 128$). The I3D stream uses an MLP rather than a temporal encoder because the provided I3D feature is a single pooled vector, not a sequence.
 
-\textbf{Configuration and \texttt{arch\_key}.}
-A hybrid configuration is fully specified by the encoder chosen for each of the five groups, written as an \texttt{arch\_key} of five tokens in group order, for example \texttt{TCN\_T\_TCN\_LSTM\_T} (\texttt{T}~=~Transformer, \texttt{TCN}~=~TCN, \texttt{LSTM}~=~LSTM).
-With three choices per group there are $3^{5}=243$ configurations, each evaluated with and without the I3D stream (Section~\ref{sec:ablation}).
+A configuration of the proposed hybrid model is fully specified by the encoder chosen for each of the five groups, written as an \texttt{arch\_key} of five tokens in group order, for example \texttt{TCN\_T\_TCN\_LSTM\_T} (\texttt{T}~=~Transformer, \texttt{TCN}~=~TCN, \texttt{LSTM}~=~LSTM). With three choices per group there are $3^{5}=243$ configurations, each evaluated with the I3D stream enabled and disabled (Section~\ref{sec:ablation}).
 
 \FloatBarrier
 \section{Loss Functions}
 \label{sec:losses-method}
 
-The five baseline models are each trained under all three losses introduced in Section~\ref{sec:losses-lit} (cross-entropy, weighted cross-entropy, and the ordinal squared-EMD loss of Equation~\eqref{eq:emd}), so that the effect of the loss can be measured directly.
-The class weights for the weighted and ordinal variants are inverse-frequency weights computed on the training split and normalised to mean~1: for class $c$ with $n_c$ training samples and $C$ non-empty classes,
+The five baseline models are each trained under all three losses of Section~\ref{sec:losses-lit} (cross-entropy, weighted cross-entropy, and the ordinal squared-EMD loss of Equation~\eqref{eq:emd}), so the effect of the loss can be measured directly. The class weights for the weighted and ordinal variants are inverse-frequency weights computed on the training split and normalised to mean~1: for class $c$ with $n_c$ training samples and $C$ non-empty classes,
 \begin{equation}
 w_c = \frac{1}{n_c}\cdot\frac{C}{\sum_{k} \frac{1}{n_k}},
 \qquad\text{so that}\quad \frac{1}{C}\sum_c w_c = 1 .
 \end{equation}
 The ordinal loss is applied in its class-weighted form as well, multiplying each sample's CDF distance by $w_y$.
 
-For the hybrid models the objective also includes the auxiliary term.
-With main logits $z$ and per-stream auxiliary logits $\{a^{(s)}\}$, the total loss is
+For the proposed hybrid model the objective also includes the auxiliary term. With main logits $z$ and per-stream auxiliary logits $\{a^{(s)}\}$, the total loss is
 \begin{equation}
 \mathcal{L} = \mathcal{L}_{\text{main}}(z,y) \;+\; \lambda_{\text{aux}}\cdot\frac{1}{S}\sum_{s=1}^{S}
               \mathcal{L}_{\text{CE}}\!\bigl(a^{(s)},y\bigr),
 \end{equation}
-where $\mathcal{L}_{\text{main}}$ is the main-head classification loss, $\lambda_{\text{aux}}=0.2$ is the auxiliary weight, and the auxiliary heads are always trained with plain cross-entropy, over the $S$ streams (five groups, or six with I3D).
-The formulation admits any of the three losses for the main head; the 243-configuration hybrid ablation reported here fixes $\mathcal{L}_{\text{main}}$ to cross-entropy, so that its results isolate the effect of the architecture from that of the loss.
+where $\mathcal{L}_{\text{main}}$ is the main-head loss, $\lambda_{\text{aux}}=0.2$ is the auxiliary weight, and the auxiliary heads are always trained with plain cross-entropy over the $S$ streams (five groups, or six with the I3D stream enabled). The formulation admits any of the three losses for the main head; the ablation of the proposed hybrid model reported here fixes $\mathcal{L}_{\text{main}}$ to cross-entropy, so its results isolate the effect of the architecture from that of the loss.
 
 \FloatBarrier
 \section{Training Protocol}
 \label{sec:training}
 
-All models are optimised with Adam~\cite{adam} at a learning rate of $1\times10^{-4}$.
-Training uses mini-batches (128 for the baseline runs, 64 for the 243-configuration ablation) and early stopping on the validation loss (the CMOSE \texttt{unlabel} split, and its analogues for DAiSEE and Combined) with a patience of 10 epochs and an epoch cap (800 for baselines, 400 for the ablation).
-The checkpoint with the lowest validation loss is restored for testing.
-Following the convention adopted in this project, only the training and validation loss are recorded per epoch; the final metrics are evaluated exactly once, on the held-out test split.
-Runs use a fixed random seed (42) and optional automatic mixed precision on GPU, and every run converges stably and early-stops well before the cap, so the differences reported between models are architectural rather than optimisation artefacts.
+All models are optimised with Adam~\cite{adam} at a learning rate of $1\times10^{-4}$. Training uses mini-batches (128 for the baselines, 64 for the ablation) and early stopping on the validation loss (the CMOSE \texttt{unlabel} split and its analogues) with patience 10 and an epoch cap (800 for baselines, 400 for the ablation). The checkpoint with the lowest validation loss is restored for testing. Following the convention adopted in this project, only the training and validation loss are recorded per epoch; the final metrics are evaluated once, on the held-out test split. Runs use a fixed seed (42) and optional mixed precision on GPU, and every run converges stably and early-stops well before the cap, so the reported differences are architectural rather than optimisation artefacts.
 
 \FloatBarrier
 \section{Evaluation Protocol}
 \label{sec:eval}
 
-\textbf{Cross-dataset matrix.}
-Generalisation is measured with a 3$\times$3 matrix: every model and loss is trained on each of \{CMOSE, DAiSEE, Combined\} and evaluated on each of \{CMOSE-test, DAiSEE-test, Private\}.
-The diagonal cells are the in-domain results; the off-diagonal and the Private column measure transfer to unseen distributions.
+Generalisation is measured with a 3$\times$3 matrix: every model and loss is trained on each of \{CMOSE, DAiSEE, Combined\} and evaluated on each of \{CMOSE-test, DAiSEE-test, Private\}. The diagonal cells are the in-domain results; the off-diagonal cells and the Private column measure transfer to unseen distributions.
 
-\textbf{Metrics.}
-Each evaluation reports the six metrics defined in Section~\ref{sec:metrics-lit} (accuracy, macro-accuracy, MAE, macro-MAE, Cohen's kappa, and QWK), but QWK is the single primary metric: it alone selects the best model. The other five are secondary, reported for analysis and for comparability with the literature, but never used to pick a winner. The empirical justification for selecting on QWK alone is laid out in the evaluation-protocol section of Chapter~4 (Section~\ref{sec:protocol}).
-Row-normalised confusion matrices and per-class F1 scores are used for error analysis.
+Each evaluation reports the six metrics of Section~\ref{sec:metrics-lit} (accuracy, macro-accuracy, MAE, macro-MAE, Cohen's kappa, and QWK), but QWK is the single primary metric: it alone selects the best model. The other five are secondary, reported for analysis and comparability but never used to pick a winner. The empirical justification for selecting on QWK alone is in the evaluation-protocol section of Chapter~4 (Section~\ref{sec:protocol}). Row-normalised confusion matrices and per-class F1 scores are used for error analysis.
 
-\textbf{Aggregation and reproducibility.}
-The complete study comprises roughly 1{,}500 trained runs (the five baselines $\times$ three losses $\times$ three sources, and the 243 per-group hybrid configurations with and without I3D); all are aggregated programmatically, and every figure and table of Chapters~4 and~5 is produced from the aggregate by a single command.
+The study comprises roughly 1{,}500 trained runs (the five baselines $\times$ three losses $\times$ three sources, and the 243 per-group configurations of the proposed hybrid model with the I3D stream enabled and disabled); all are aggregated programmatically, and every figure and table of Chapters~4 and~5 is produced from the aggregate by a single command.
 
 \FloatBarrier
 \section{Chapter Summary}
 \label{sec:method-summary}
 
-This chapter specified the methodology end to end: the pipeline; the three training datasets and their imbalance, the test-only private set and its collection, and the leakage-free preprocessing; the five single-encoder baselines; the five-group decomposition of the OpenFace descriptor; and the feature-group hybrid (Figure~\ref{fig:hybrid}) that reuses the baselines' encoder families per group, with its fusion and auxiliary heads, I3D variant, and 243-configuration design space.
-It also established the loss forms, the training protocol, and the 3$\times$3 evaluation protocol with its single primary metric (QWK) and its secondary metrics, which Chapters~4 and~5 apply to the in-domain and generalisation results.
+This chapter specified the methodology end to end: the pipeline and its two model paradigms (Figure~\ref{fig:overview_models}); the three training datasets and their imbalance, the test-only private set and its collection, and the leak-free preprocessing; the five single-encoder baselines; the five-group decomposition of the OpenFace descriptor; and the proposed hybrid model (Figure~\ref{fig:hybrid}) that reuses the baselines' encoder families per group, with its fusion and auxiliary heads, I3D variant, and 243-configuration design space. It also established the loss forms, the training protocol, and the 3$\times$3 evaluation protocol with its single primary metric (QWK) and its secondary metrics, which Chapters~4 and~5 apply to the in-domain and generalisation results.
 
 \end{document}

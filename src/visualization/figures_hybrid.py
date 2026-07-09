@@ -19,7 +19,7 @@ from src.visualization.figures_models import ALL_METRICS_PANEL_ORDER
 from src.visualization.style import display_model_name
 
 _METRIC = ag.SELECTION_METRIC
-_VARIANT_COLOR = {"Hybrid (OpenFace only)": "#56B4E9", "Hybrid + I3D": "#D55E00"}
+_VARIANT_COLOR = {"I3D stream disabled": "#56B4E9", "I3D stream enabled": "#D55E00"}
 
 
 def _indomain_hybrid():
@@ -52,7 +52,7 @@ def _ablation_panel(ax, frame, metric: str, variants, base_row) -> None:
     base = float(base_row[metric])
     label = ag.METRIC_DISPLAY[metric]
     ax.axhline(base, ls="--", color="gray", lw=1.2,
-               label=f"QWK-selected base ({label}={base:.3f})")
+               label=f"QWK-selected baseline ({label}={base:.3f})")
     ax.set_xticks([1, 2])
     ax.set_xticklabels(variants)
     ax.set_title(label)
@@ -71,14 +71,14 @@ def fig_ablation_all_metrics(directory: Path | None = None) -> Path:
     """
     frame = _indomain_hybrid()
     base_row = _qwk_best_base_row()
-    variants = ["Hybrid (OpenFace only)", "Hybrid + I3D"]
+    variants = ["I3D stream disabled", "I3D stream enabled"]
     n_configs = max((len(frame[frame["variant"] == v]) for v in variants), default=0)
     fig, axes = new_fig(2, 3, figsize=(13.5, 8.6))
     for ax, metric in zip(axes.ravel(), ALL_METRICS_PANEL_ORDER):
         _ablation_panel(ax, frame, metric, variants, base_row)
     for row in axes:
         row[0].set_ylabel("Score (in-domain CMOSE)")
-    fig.suptitle(f"Hybrid ablation across {n_configs} configs on all six metrics (in-domain CMOSE)",
+    fig.suptitle("Proposed hybrid model on all six metrics (in-domain CMOSE)",
                  y=1.01, fontweight="bold")
     fig.tight_layout()
     return save(fig, "hybrid_ablation_all_metrics", directory=directory)

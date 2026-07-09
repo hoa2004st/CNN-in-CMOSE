@@ -5,23 +5,20 @@
 \end{center}
 \vspace{1cm}
 
-% problem
-Online and hybrid education has made the webcam the main link between student and teacher, yet a teacher facing dozens of video tiles cannot tell when a learner loses focus. Student's engagement recognition task aims to solve this problem by classifying a short webcam clip into one of four ordinal levels, from Highly-Disengage to Highly-Engage.
-The task is hard because the labels are ordinal and severely imbalanced toward the higher engagement levels. Moreover, the clips are recorded under camera angles that differ from one student to the next.
-Prior work follows two approaches, using facial-behaviour toolkits like OpenFace or training from scratch with deep convolutional models like EfficientNetV2. Datasets for this task are limited and highly imbalanced like CMOSE and DAiSEE.
-I identify two limits of current approaches: the use of a single encoder for all facial features and the reliance on accuracy as the primary evaluation metric.
-% approach
-In this thesis I keep the structure of the facial signal instead of flattening it, because gaze, landmarks, head pose, and action units move on different timescales. Additionally, I judge every model by quadratic-weighted kappa (QWK) rather than accuracy, because only an ordinal, imbalance-aware metric reflects real deployment conditions.
+% motivation and problem
+Online and hybrid education has made the webcam the main link between student and teacher, yet a teacher facing many video tiles cannot tell when a learner loses focus. Automatic engagement recognition addresses this by classifying a short webcam clip on an ordinal scale from disengaged to engaged. The task is hard because the labels are ordinal and severely imbalanced toward the engaged levels, and each student is recorded at a different camera angle.
+
+% prior work and its limits
+Prior work either encodes each frame with a facial-behaviour toolkit or learns directly from pixels, and reports accuracy on a single dataset. This thesis identifies two limits. The mixed facial features are passed through a single encoder, and accuracy is used as the primary metric, which on imbalanced data can look healthy while the model fails to generalise.
+
 % solution
-My solution is a feature-group hybrid that decomposes the 709 OpenFace features into five groups, matches each group with its own temporal encoder (Temporal Convolutional Network, LSTM, or Transformer), and optionally adds a global I3D motion stream. Each stream has a small auxiliary head and their embeddings are recomposed to make the final prediction.
-%contribution
-I make three contributions.
-First, I ran an ablation across all 243 encoder assignments. It shows that the best configuration reaches a QWK of 0.605 on CMOSE against 0.537 for the best single-encoder baseline.
-Second, I collected and manually labelled a private webcam test set built with the same pipeline and reserved for testing.
-Third, I conducted a 3$\times$3 cross-dataset study. It shows that models transfer poorly (off-diagonal QWK collapsing toward zero while accuracy remains acceptable) and the hybrid model trained on both datasets gives the best result on the unseen private set (QWK 0.379 against 0.285 for the best baseline).
+This thesis keeps the structure of the facial signal instead of flattening it, because gaze, landmarks, head pose, and action units move on different timescales. The proposed hybrid model splits the OpenFace features into feature groups, encodes each group with its own temporal encoder, and optionally adds a global I3D motion stream. Every model is judged by an ordinal, imbalance-aware measure rather than accuracy.
+
+% result
+An ablation over all encoder assignments shows the proposed hybrid model outperforms the strongest single-encoder baseline. A test-only, in-the-wild private set was collected and hand-labelled, and a cross-dataset study shows that engagement models transfer poorly and that accuracy conceals this collapse. Trained on the combined datasets, the proposed hybrid model generalises best to the unseen private set.
 
 \vspace{0.5cm}
-\noindent\textbf{Keywords:} student engagement recognition, feature-group hybrid, ordinal classification, facial-behaviour features, cross-dataset generalisation.
+\noindent\textbf{Keywords:} student engagement recognition, proposed hybrid model, feature-group temporal fusion, ordinal classification, cross-dataset generalisation.
 
 \begin{flushright}
 \begin{tabular}{@{}c@{}}

@@ -66,7 +66,7 @@ def fig_base_all_metrics(directory: Path | None = None) -> Path:
         row[0].set_ylabel("Score")
     handles, labels = axes[0][0].get_legend_handles_labels()
     fig.legend(handles, labels, title="Loss", loc="center left", bbox_to_anchor=(1.0, 0.5))
-    fig.suptitle("Base models x losses on all six metrics, in-domain (CMOSE -> CMOSE)",
+    fig.suptitle("Baseline models on all six metrics (in-domain CMOSE)",
                  y=1.01, fontweight="bold")
     fig.tight_layout()
     return save(fig, "base_models_all_metrics", directory=directory)
@@ -88,7 +88,7 @@ def fig_base_accuracy_vs_qwk(directory: Path | None = None) -> Path:
     axes[0].set_ylabel("Score")
     handles, labels = axes[0].get_legend_handles_labels()
     fig.legend(handles, labels, title="Loss", loc="center left", bbox_to_anchor=(1.0, 0.5))
-    fig.suptitle("Accuracy vs QWK, base models x losses, in-domain (CMOSE -> CMOSE)",
+    fig.suptitle("Accuracy versus QWK, baseline models (in-domain CMOSE)",
                  y=1.02, fontweight="bold")
     fig.tight_layout()
     return save(fig, "base_models_accuracy_vs_qwk", directory=directory)
