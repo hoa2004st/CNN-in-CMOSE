@@ -29,51 +29,55 @@
 \contentsline {section}{\numberline {2.4}Chapter Summary}{14}{section.2.4}%
 \contentsline {chapter}{\numberline {3}METHODOLOGY}{16}{chapter.3}%
 \contentsline {section}{\numberline {3.1}Overview}{16}{section.3.1}%
-\contentsline {section}{\numberline {3.2}Data and Preprocessing}{17}{section.3.2}%
-\contentsline {subsection}{\numberline {3.2.1}Datasets}{17}{subsection.3.2.1}%
-\contentsline {subsection}{\numberline {3.2.2}The private evaluation set}{18}{subsection.3.2.2}%
-\contentsline {subsection}{\numberline {3.2.3}Features and preprocessing}{19}{subsection.3.2.3}%
-\contentsline {section}{\numberline {3.3}Baseline Models}{20}{section.3.3}%
-\contentsline {section}{\numberline {3.4}Grouping the Facial Features by Meaning}{22}{section.3.4}%
-\contentsline {section}{\numberline {3.5}Proposed Hybrid Model}{22}{section.3.5}%
-\contentsline {section}{\numberline {3.6}Loss Functions}{25}{section.3.6}%
-\contentsline {section}{\numberline {3.7}Training Protocol}{25}{section.3.7}%
-\contentsline {section}{\numberline {3.8}Evaluation Protocol}{26}{section.3.8}%
-\contentsline {section}{\numberline {3.9}Chapter Summary}{26}{section.3.9}%
-\contentsline {chapter}{\numberline {4}BASELINE MODELS}{27}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Overview}{27}{section.4.1}%
-\contentsline {section}{\numberline {4.2}Evaluation Protocol}{27}{section.4.2}%
-\contentsline {subsection}{\numberline {4.2.1}Metrics}{27}{subsection.4.2.1}%
-\contentsline {subsection}{\numberline {4.2.2}Development Corpus}{29}{subsection.4.2.2}%
-\contentsline {subsection}{\numberline {4.2.3}Development Loss}{29}{subsection.4.2.3}%
-\contentsline {section}{\numberline {4.3}In-Domain Results}{30}{section.4.3}%
-\contentsline {section}{\numberline {4.4}Prediction Agreement}{31}{section.4.4}%
-\contentsline {subsection}{\numberline {4.4.1}Agreement between Configurations}{31}{subsection.4.4.1}%
-\contentsline {subsection}{\numberline {4.4.2}OpenFace versus I3D}{31}{subsection.4.4.2}%
-\contentsline {section}{\numberline {4.5}Cross-Dataset Generalisation}{33}{section.4.5}%
-\contentsline {subsection}{\numberline {4.5.1}The 3$\times $3 Matrix}{33}{subsection.4.5.1}%
-\contentsline {subsection}{\numberline {4.5.2}Closing the Loop: Metric and Loss Reliability}{35}{subsection.4.5.2}%
-\contentsline {subsection}{\numberline {4.5.3}In-Domain versus Transfer}{35}{subsection.4.5.3}%
-\contentsline {section}{\numberline {4.6}Chapter Summary}{35}{section.4.6}%
-\contentsline {chapter}{\numberline {5}PROPOSED HYBRID MODEL}{37}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Overview}{37}{section.5.1}%
-\contentsline {section}{\numberline {5.2}Consistency with the Baseline Frame}{37}{section.5.2}%
-\contentsline {section}{\numberline {5.3}Encoder Choice per Group}{38}{section.5.3}%
-\contentsline {section}{\numberline {5.4}Effect of I3D Fusion}{39}{section.5.4}%
-\contentsline {section}{\numberline {5.5}Comparison with Baselines}{40}{section.5.5}%
-\contentsline {section}{\numberline {5.6}Cross-Dataset Generalisation}{41}{section.5.6}%
-\contentsline {subsection}{\numberline {5.6.1}Cross-Dataset Matrix}{41}{subsection.5.6.1}%
-\contentsline {subsection}{\numberline {5.6.2}The Private Set}{42}{subsection.5.6.2}%
-\contentsline {subsection}{\numberline {5.6.3}In-Domain versus Transfer}{44}{subsection.5.6.3}%
-\contentsline {section}{\numberline {5.7}Discussion}{45}{section.5.7}%
-\contentsline {section}{\numberline {5.8}Chapter Summary}{46}{section.5.8}%
-\contentsline {chapter}{\numberline {6}CONCLUSIONS}{47}{chapter.6}%
-\contentsline {section}{\numberline {6.1}Summary}{47}{section.6.1}%
-\contentsline {section}{\numberline {6.2}Synthesis}{48}{section.6.2}%
-\contentsline {section}{\numberline {6.3}Revisiting the Research Questions}{49}{section.6.3}%
-\contentsline {section}{\numberline {6.4}Limitations}{50}{section.6.4}%
-\contentsline {section}{\numberline {6.5}Practical Recommendations}{51}{section.6.5}%
-\contentsline {section}{\numberline {6.6}Suggestion for Future Works}{51}{section.6.6}%
-\contentsline {section}{\numberline {6.7}Closing Remarks}{52}{section.6.7}%
-\contentsline {chapter}{REFERENCE}{54}{section*.38}%
+\contentsline {section}{\numberline {3.2}Data and Preprocessing}{18}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Datasets}{18}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.2.2}The private evaluation set}{19}{subsection.3.2.2}%
+\contentsline {subsection}{\numberline {3.2.3}Features and preprocessing}{21}{subsection.3.2.3}%
+\contentsline {section}{\numberline {3.3}Baseline Models}{21}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Grouping the Facial Features by Meaning}{24}{section.3.4}%
+\contentsline {section}{\numberline {3.5}Proposed Hybrid Model}{24}{section.3.5}%
+\contentsline {section}{\numberline {3.6}Chapter Summary}{27}{section.3.6}%
+\contentsline {chapter}{\numberline {4}EXPERIMENTAL RESULTS}{28}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Overview}{28}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Experimental Setup}{28}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Loss Functions}{29}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}Training Protocol}{29}{subsection.4.2.2}%
+\contentsline {subsection}{\numberline {4.2.3}Metrics and the 3$\times $3 Evaluation Matrix}{30}{subsection.4.2.3}%
+\contentsline {section}{\numberline {4.3}Evaluation Properties of the Proposed Model}{30}{section.4.3}%
+\contentsline {section}{\numberline {4.4}Encoder Choice per Group}{31}{section.4.4}%
+\contentsline {section}{\numberline {4.5}Effect of I3D Fusion}{32}{section.4.5}%
+\contentsline {section}{\numberline {4.6}Comparison with the Baseline}{33}{section.4.6}%
+\contentsline {section}{\numberline {4.7}Cross-Dataset Generalisation}{34}{section.4.7}%
+\contentsline {subsection}{\numberline {4.7.1}Cross-Dataset Matrix}{34}{subsection.4.7.1}%
+\contentsline {subsection}{\numberline {4.7.2}The Private Set}{34}{subsection.4.7.2}%
+\contentsline {subsection}{\numberline {4.7.3}In-Domain versus Transfer}{36}{subsection.4.7.3}%
+\contentsline {section}{\numberline {4.8}Discussion}{38}{section.4.8}%
+\contentsline {section}{\numberline {4.9}Chapter Summary}{39}{section.4.9}%
+\contentsline {chapter}{\numberline {5}CONCLUSIONS}{40}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Summary}{40}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Synthesis}{41}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Revisiting the Research Questions}{42}{section.5.3}%
+\contentsline {section}{\numberline {5.4}Limitations}{43}{section.5.4}%
+\contentsline {section}{\numberline {5.5}Practical Recommendations}{44}{section.5.5}%
+\contentsline {section}{\numberline {5.6}Suggestion for Future Works}{44}{section.5.6}%
+\contentsline {section}{\numberline {5.7}Closing Remarks}{45}{section.5.7}%
+\contentsline {chapter}{REFERENCE}{47}{section*.29}%
+\ttl@change@i {\@ne }{chapter}{0.0cm}{\bfseries \vspace {0.3cm}}{{\bfseries APPENDIX \thecontentslabel .\ }}{}{\titlerule *[0.3pc]{.}\contentspage }\relax 
+\ttl@change@v {chapter}{}{}{}\relax 
+\contentsline {chapter}{\numberline {A}BASELINE MODELS}{48}{appendix.A}%
+\contentsline {section}{\numberline {A.1}Overview}{48}{section.A.1}%
+\contentsline {section}{\numberline {A.2}Experimental Setup}{48}{section.A.2}%
+\contentsline {section}{\numberline {A.3}Evaluation Protocol}{49}{section.A.3}%
+\contentsline {subsection}{\numberline {A.3.1}Selecting the Primary Metric}{49}{subsection.A.3.1}%
+\contentsline {subsection}{\numberline {A.3.2}Selecting the Development Dataset}{50}{subsection.A.3.2}%
+\contentsline {subsection}{\numberline {A.3.3}Selecting the Development Loss}{51}{subsection.A.3.3}%
+\contentsline {section}{\numberline {A.4}In-Domain Results}{52}{section.A.4}%
+\contentsline {section}{\numberline {A.5}Prediction Agreement}{53}{section.A.5}%
+\contentsline {subsection}{\numberline {A.5.1}Agreement between Configurations}{53}{subsection.A.5.1}%
+\contentsline {subsection}{\numberline {A.5.2}OpenFace versus I3D}{53}{subsection.A.5.2}%
+\contentsline {section}{\numberline {A.6}Cross-Dataset Generalisation}{55}{section.A.6}%
+\contentsline {subsection}{\numberline {A.6.1}The 3$\times $3 Matrix}{55}{subsection.A.6.1}%
+\contentsline {subsection}{\numberline {A.6.2}Closing the Loop: Metric and Loss Reliability}{57}{subsection.A.6.2}%
+\contentsline {subsection}{\numberline {A.6.3}In-Domain versus Transfer}{57}{subsection.A.6.3}%
+\contentsline {section}{\numberline {A.7}Chapter Summary}{57}{section.A.7}%
 \contentsfinish 

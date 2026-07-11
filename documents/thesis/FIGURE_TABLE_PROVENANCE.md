@@ -58,8 +58,8 @@ All generated into `outputs/thesis/figures/` and auto-published to `documents/th
 | 5.2 | `crossdomain_hybrid.png` | `hybrid/hybrid_matrix.csv` | `aggregate.load_hybrid_matrix` → `cell_matrix` | `figures_crossdomain.fig_crossdomain` |
 | 5.3 | `crossdomain_delta.png` | `naive/full_matrix.csv` + `hybrid/hybrid_matrix.csv` | `aggregate.cell_matrix` on both (subtraction) | `figures_crossdomain.fig_crossdomain_delta` |
 | 5.4 | `private_confusion_combined.png` | `naive/full_matrix.csv` + `naive/full_matrix_predictions.csv` + `hybrid/hybrid_matrix.csv` + `hybrid/hybrid_matrix_predictions.csv` (LFS) | `aggregate.load_*` + `confusion_from_predictions` | `figures_private.fig_private_confusion` |
-| 5.5 | `private_per_class_f1.png` | `naive/full_matrix.csv` + `naive/full_matrix_predictions.csv` + `hybrid/hybrid_matrix.csv` + `hybrid/hybrid_matrix_predictions.csv` (LFS) | `aggregate.load_*` + `per_class_f1_from_predictions` | `figures_private.fig_private_per_class_f1` |
-| 5.6 | `indomain_vs_generalization_hybrid.png` | `naive/full_matrix.csv` + `hybrid/hybrid_matrix.csv` | `figures_crossdomain._scatter_points` + scipy `spearmanr` (Spearman ρ) | `figures_crossdomain.fig_indomain_vs_generalization` |
+| 5.5 | `indomain_vs_generalization_hybrid.png` | `naive/full_matrix.csv` + `hybrid/hybrid_matrix.csv` | `figures_crossdomain._scatter_points` + scipy `spearmanr` (Spearman ρ) | `figures_crossdomain.fig_indomain_vs_generalization` |
+| — | `private_per_class_f1.png` | `naive/full_matrix.csv` + `naive/full_matrix_predictions.csv` + `hybrid/hybrid_matrix.csv` + `hybrid/hybrid_matrix_predictions.csv` (LFS) | `aggregate.load_*` + `per_class_f1_from_predictions` | `figures_private.fig_private_per_class_f1` — still generated, no longer shown in the thesis (its per-class F1 numbers are folded into the §5.7.2 confusion-matrix discussion) |
 
 ---
 

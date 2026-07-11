@@ -21,7 +21,7 @@ One family of methods first reduces each frame to a compact descriptor with a to
 
 A second family learns directly from pixels. EfficientNetV2~\cite{efficientnetv2} backbones followed by an LSTM~\cite{efficientnet_lstm_engagement} encode appearance per frame and integrate it over time, and context-aware affect-recognition models exploit spatial relationships in the scene~\cite{context_aware_emotion_3d}. These models capture appearance and motion cues that landmark-based descriptors discard, but they are heavier to train, need the raw video, and are less interpretable, because the learned representation is not decomposed into nameable behavioural channels.
 
-Two gaps persist across both families and define the contribution of this thesis. First, the mixed facial features are passed through a single encoder rather than encoded per behavioural subsystem, even though their signals have very different timing. Second, studies rely on accuracy as the primary metric and lack a reliable evaluation of generalisation, since in-domain accuracy dominates the literature yet on imbalanced data a high accuracy can hide a model that does not transfer. The proposed hybrid model of Chapter~3 targets the first gap, and the 3$\times$3 cross-dataset protocol of Chapter~5 targets the second.
+Two gaps persist across both families and define the contribution of this thesis. First, the mixed facial features are passed through a single encoder rather than encoded per behavioural subsystem, even though their signals have very different timing. Second, studies rely on accuracy as the primary metric and lack a reliable evaluation of generalisation, since in-domain accuracy dominates the literature yet on imbalanced data a high accuracy can hide a model that does not transfer. The proposed hybrid model of Chapter~\ref{chap:method} targets the first gap, and the 3$\times$3 cross-dataset protocol of Chapter~\ref{chap:results} targets the second.
 
 \FloatBarrier
 \section{Background Knowledge}
@@ -55,7 +55,18 @@ A Temporal Convolutional Network~\cite{tcn} applies one-dimensional convolutions
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\linewidth]{openface_tcn_block.png}
+\ifhanddrawn\includegraphics[width=\linewidth]{openface_tcn_block.png}\else\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[node distance=6mm,>=Latex]
+\node[abox](n0){Input};
+\node[abox,right=of n0](n1){Conv1d\\weight-norm};
+\node[abox,right=of n1](n2){ReLU\\Dropout 0.2};
+\node[abox,right=of n2](n3){Conv1d\\weight-norm};
+\node[abox,right=of n3](n4){ReLU\\Dropout 0.2};
+\node[aop,right=7mm of n4](add){$\oplus$};
+\node[abox,right=7mm of add](n5){Output};
+\draw[->](n0)--(n1);\draw[->](n1)--(n2);\draw[->](n2)--(n3);\draw[->](n3)--(n4);\draw[->](n4)--(add);\draw[->](add)--(n5);
+\draw[->](n0.south) -- ++(0,-7mm) -| node[pos=0.25,below,font=\scriptsize]{residual} (add.south);
+\end{tikzpicture}}\fi
 \caption{Residual TemporalBlock}
 \label{fig:tcn_block}
 \end{figure}
@@ -75,7 +86,34 @@ where $\sigma$ is the logistic sigmoid and $\odot$ is the element-wise product. 
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\linewidth]{openface_lstm_cell.png}
+\ifhanddrawn\includegraphics[width=\linewidth]{openface_lstm_cell.png}\else\resizebox{0.9\linewidth}{!}{%
+\begin{tikzpicture}[>=Latex]
+% inputs
+\node[abox](xt) at (0,0.4){$x_t$};
+\node[abox](hp) at (0,-1.2){$h_{t-1}$};
+\node[abox](cp) at (0,-4.0){$C_{t-1}$};
+% gates
+\node[abox](F) at (3.2,1.2){Forget gate\\$f_t$};
+\node[abox](I) at (3.2,-0.2){Input gate\\$i_t$};
+\node[abox](G) at (3.2,-1.6){Candidate\\$\tilde c_t$};
+\node[abox](O) at (3.2,-3.0){Output gate\\$o_t$};
+% operators
+\node[aop](M1) at (6.0,-1.8){$\otimes$};
+\node[aop](M2) at (6.0,-0.9){$\otimes$};
+\node[aop](S) at (7.4,-1.35){$\oplus$};
+\node[abox](Ct) at (8.7,-1.35){$C_t$};
+\node[abox](TH) at (10.1,-1.35){$\tanh$};
+\node[aop](M3) at (11.5,-2.6){$\otimes$};
+\node[abox](Ht) at (12.9,-2.6){$h_t$};
+% input fan-out
+\foreach \d in {F,I,G,O}{\draw[->](xt)--(\d);\draw[->](hp)--(\d);}
+% cell-state path
+\draw[->](cp)--(M1);\draw[->](F)--(M1);
+\draw[->](I)--(M2);\draw[->](G)--(M2);
+\draw[->](M1)--(S);\draw[->](M2)--(S);
+\draw[->](S)--(Ct);\draw[->](Ct)--(TH);
+\draw[->](TH)--(M3);\draw[->](O)--(M3);\draw[->](M3)--(Ht);
+\end{tikzpicture}}\fi
 \caption{LSTM cell at time step $t$}
 \label{fig:lstm_cell}
 \end{figure}
@@ -90,7 +128,28 @@ so every output position is a learned weighted combination of every input positi
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\linewidth]{openface_transformer_encoder_layer.png}
+\ifhanddrawn\includegraphics[width=\linewidth]{openface_transformer_encoder_layer.png}\else\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[>=Latex]
+% row 1: self-attention sublayer
+\node[abox](in) at (0,0){Input\\$T\times d$};
+\node[abox](mha) at (2.6,0){Multi-Head\\self-attention};
+\node[abox](dr1) at (5.2,0){Dropout 0.2};
+\node[aop](a1) at (7.0,0){$\oplus$};
+\node[abox](ln1) at (8.6,0){LayerNorm};
+% row 2: feed-forward sublayer
+\node[abox](ff1) at (0,-2.6){Linear\\$d\to$FF, GELU};
+\node[abox](dr2) at (2.6,-2.6){Dropout 0.2};
+\node[abox](ff2) at (5.0,-2.6){Linear\\FF$\to d$};
+\node[abox](dr3) at (7.2,-2.6){Dropout 0.2};
+\node[aop](a2) at (9.0,-2.6){$\oplus$};
+\node[abox](ln2) at (10.6,-2.6){LayerNorm};
+\node[abox](out) at (12.4,-2.6){Output\\$T\times d$};
+\draw[->](in)--(mha);\draw[->](mha)--(dr1);\draw[->](dr1)--(a1);\draw[->](a1)--(ln1);
+\draw[->](in.north) -- ++(0,5mm) -| (a1.north) node[pos=0.25,above,font=\scriptsize]{residual};
+\draw[->](ln1.south) -- ++(0,-7mm) -| (ff1.north);
+\draw[->](ff1)--(dr2);\draw[->](dr2)--(ff2);\draw[->](ff2)--(dr3);\draw[->](dr3)--(a2);\draw[->](a2)--(ln2);\draw[->](ln2)--(out);
+\draw[->](ln1.east) -- ++(4mm,0) |- (a2.north) node[pos=0.25,right,font=\scriptsize]{residual};
+\end{tikzpicture}}\fi
 \caption{Transformer encoder layer}
 \label{fig:transformer_encoder_layer}
 \end{figure}
@@ -205,6 +264,6 @@ which upper-bounds any fixed combiner and is contrasted with the realistic major
 \section{Chapter Summary}
 \label{sec:lit-summary}
 
-This chapter scoped the thesis to ordinal engagement recognition from a webcam and analysed the two main approaches in the literature, identifying their shared limits: mixed facial descriptors are encoded as one block, and transfer across datasets is rarely measured with metrics that resist majority-class inflation. It then laid the background knowledge the rest of the thesis depends on: the OpenFace 709-dimensional descriptor and its five feature groups, the clip-level I3D embedding, the three temporal architecture families (TCN, LSTM, Transformer) and their different temporal biases, the three loss families for imbalance and ordinality, the six metrics with QWK primary and macro-accuracy and macro-MAE secondary, and the rank-correlation and prediction-agreement statistics used to analyse the results. Chapter~3 combines these foundations into a concrete methodology: it turns the five-group decomposition into the proposed hybrid model, specifies the baselines and exact loss forms, and defines the training and 3$\times$3 cross-dataset protocols.
+This chapter scoped the thesis to ordinal engagement recognition from a webcam and analysed the two main approaches in the literature, identifying their shared limits: mixed facial descriptors are encoded as one block, and transfer across datasets is rarely measured with metrics that resist majority-class inflation. It then laid the background knowledge the rest of the thesis depends on: the OpenFace 709-dimensional descriptor and its five feature groups, the clip-level I3D embedding, the three temporal architecture families (TCN, LSTM, Transformer) and their different temporal biases, the three loss families for imbalance and ordinality, the six metrics with QWK primary and macro-accuracy and macro-MAE secondary, and the rank-correlation and prediction-agreement statistics used to analyse the results. Chapter~\ref{chap:method} combines these foundations into a concrete methodology: it turns the five-group decomposition into the proposed hybrid model and specifies the single-encoder baselines it is compared against.
 
 \end{document}

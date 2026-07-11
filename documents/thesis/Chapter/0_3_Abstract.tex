@@ -5,16 +5,13 @@
 \end{center}
 \vspace{1cm}
 
-% motivation and problem
+% problem statement (What is the problem? Why is it important? Is it solved? What are the approaches? What are the limits of prior work?)
 Online and hybrid education has made the webcam the main link between student and teacher, yet a teacher facing many video tiles cannot tell when a learner loses focus. Automatic engagement recognition addresses this by classifying a short webcam clip on an ordinal scale from disengaged to engaged. The task is hard because the labels are ordinal and severely imbalanced toward the engaged levels, and each student is recorded at a different camera angle.
-
-% prior work and its limits
+% approach (What is the approach of this thesis? Why this approach is chosen?)
 Prior work either encodes each frame with a facial-behaviour toolkit or learns directly from pixels, and reports accuracy on a single dataset. This thesis identifies two limits. The mixed facial features are passed through a single encoder, and accuracy is used as the primary metric, which on imbalanced data can look healthy while the model fails to generalise.
-
-% solution
+% method - overview of the solution (How it is solved? What is the key idea? How is it implemented?)
 This thesis keeps the structure of the facial signal instead of flattening it, because gaze, landmarks, head pose, and action units move on different timescales. The proposed hybrid model splits the OpenFace features into feature groups, encodes each group with its own temporal encoder, and optionally adds a global I3D motion stream. Every model is judged by an ordinal, imbalance-aware measure rather than accuracy.
-
-% result
+% conclusion (contributions and results)
 An ablation over all encoder assignments shows the proposed hybrid model outperforms the strongest single-encoder baseline. A test-only, in-the-wild private set was collected and hand-labelled, and a cross-dataset study shows that engagement models transfer poorly and that accuracy conceals this collapse. Trained on the combined datasets, the proposed hybrid model generalises best to the unseen private set.
 
 \vspace{0.5cm}

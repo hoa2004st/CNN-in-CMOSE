@@ -635,25 +635,20 @@ INPUT Chapter\3_Methodology.tex
 INPUT .\Chapter\3_Methodology.tex
 INPUT .\Chapter\3_Methodology.tex
 INPUT Chapter\3_Methodology.tex
+INPUT .\Figure\overview_baseline.png
+INPUT Figure\overview_baseline.png
+INPUT .\Figure\overview_baseline.png
+INPUT .\Figure\overview_baseline.png
+INPUT .\Figure\overview_baseline.png
+INPUT .\Figure\overview_baseline.png
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmr10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmmi10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmsy10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmex10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmex8.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmex7.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmbx10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmbx8.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmbx5.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\latex-fonts\lasy10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\latex-fonts\lasy5.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msam10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msam7.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msam5.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm7.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm5.tfm
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmb8v.tfm
+INPUT .\Figure\overview_proposed.png
+INPUT Figure\overview_proposed.png
+INPUT .\Figure\overview_proposed.png
+INPUT .\Figure\overview_proposed.png
+INPUT .\Figure\overview_proposed.png
+INPUT .\Figure\overview_proposed.png
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5pcr.fd
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5pcr.fd
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\vntex\t5pcr.fd
@@ -671,6 +666,30 @@ INPUT .\Figure\dataset_class_distribution_overall.png
 INPUT .\Figure\dataset_class_distribution_overall.png
 INPUT .\Figure\dataset_class_distribution_overall.png
 INPUT .\Figure\dataset_class_distribution_overall.png
+INPUT .\Figure\private1.png
+INPUT Figure\private1.png
+INPUT .\Figure\private1.png
+INPUT .\Figure\private1.png
+INPUT .\Figure\private1.png
+INPUT .\Figure\private1.png
+INPUT .\Figure\private2.png
+INPUT Figure\private2.png
+INPUT .\Figure\private2.png
+INPUT .\Figure\private2.png
+INPUT .\Figure\private2.png
+INPUT .\Figure\private2.png
+INPUT .\Figure\private3.png
+INPUT Figure\private3.png
+INPUT .\Figure\private3.png
+INPUT .\Figure\private3.png
+INPUT .\Figure\private3.png
+INPUT .\Figure\private3.png
+INPUT .\Figure\private4.png
+INPUT Figure\private4.png
+INPUT .\Figure\private4.png
+INPUT .\Figure\private4.png
+INPUT .\Figure\private4.png
+INPUT .\Figure\private4.png
 INPUT .\Figure\openface_mlp.png
 INPUT Figure\openface_mlp.png
 INPUT .\Figure\openface_mlp.png
@@ -728,6 +747,76 @@ INPUT .\Figure\hybrid_lstm_encoder.png
 INPUT .\Figure\hybrid_lstm_encoder.png
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\ucrr8v.tfm
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\ucrr8v.tfm
+INPUT .\Chapter\5_Semantic_group_hybrid.tex
+INPUT .\Chapter\5_Semantic_group_hybrid.tex
+INPUT Chapter\5_Semantic_group_hybrid.tex
+INPUT .\Chapter\5_Semantic_group_hybrid.tex
+INPUT .\Chapter\5_Semantic_group_hybrid.tex
+INPUT Chapter\5_Semantic_group_hybrid.tex
+INPUT .\Figure\hybrid_ablation_all_metrics.png
+INPUT Figure\hybrid_ablation_all_metrics.png
+INPUT .\Figure\hybrid_ablation_all_metrics.png
+INPUT .\Figure\hybrid_ablation_all_metrics.png
+INPUT .\Figure\hybrid_ablation_all_metrics.png
+INPUT .\Figure\hybrid_ablation_all_metrics.png
+INPUT .\Table\T5_1_group_marginal_combined.tex
+INPUT .\Table\T5_1_group_marginal_combined.tex
+INPUT Table\T5_1_group_marginal_combined.tex
+INPUT .\Table\T5_1_group_marginal_combined.tex
+INPUT .\Table\T5_1_group_marginal_combined.tex
+INPUT Table\T5_1_group_marginal_combined.tex
+INPUT .\Table\T5_2_i3d_fusion_effect.tex
+INPUT .\Table\T5_2_i3d_fusion_effect.tex
+INPUT Table\T5_2_i3d_fusion_effect.tex
+INPUT .\Table\T5_2_i3d_fusion_effect.tex
+INPUT .\Table\T5_2_i3d_fusion_effect.tex
+INPUT Table\T5_2_i3d_fusion_effect.tex
+INPUT .\Table\T5_3_hybrid_topk.tex
+INPUT .\Table\T5_3_hybrid_topk.tex
+INPUT Table\T5_3_hybrid_topk.tex
+INPUT .\Table\T5_3_hybrid_topk.tex
+INPUT .\Table\T5_3_hybrid_topk.tex
+INPUT Table\T5_3_hybrid_topk.tex
+INPUT .\Figure\crossdomain_hybrid.png
+INPUT Figure\crossdomain_hybrid.png
+INPUT .\Figure\crossdomain_hybrid.png
+INPUT .\Figure\crossdomain_hybrid.png
+INPUT .\Figure\crossdomain_hybrid.png
+INPUT .\Figure\crossdomain_hybrid.png
+INPUT .\Figure\crossdomain_delta.png
+INPUT Figure\crossdomain_delta.png
+INPUT .\Figure\crossdomain_delta.png
+INPUT .\Figure\crossdomain_delta.png
+INPUT .\Figure\crossdomain_delta.png
+INPUT .\Figure\crossdomain_delta.png
+INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmbx8.tfm
+INPUT .\Table\T5_4_private_by_source.tex
+INPUT .\Table\T5_4_private_by_source.tex
+INPUT Table\T5_4_private_by_source.tex
+INPUT .\Table\T5_4_private_by_source.tex
+INPUT .\Table\T5_4_private_by_source.tex
+INPUT Table\T5_4_private_by_source.tex
+INPUT .\Figure\private_confusion_combined.png
+INPUT Figure\private_confusion_combined.png
+INPUT .\Figure\private_confusion_combined.png
+INPUT .\Figure\private_confusion_combined.png
+INPUT .\Figure\private_confusion_combined.png
+INPUT .\Figure\private_confusion_combined.png
+INPUT .\Figure\indomain_vs_generalization_hybrid.png
+INPUT Figure\indomain_vs_generalization_hybrid.png
+INPUT .\Figure\indomain_vs_generalization_hybrid.png
+INPUT .\Figure\indomain_vs_generalization_hybrid.png
+INPUT .\Figure\indomain_vs_generalization_hybrid.png
+INPUT .\Figure\indomain_vs_generalization_hybrid.png
+INPUT .\Chapter\6_Conclusions.tex
+INPUT .\Chapter\6_Conclusions.tex
+INPUT Chapter\6_Conclusions.tex
+INPUT .\Chapter\6_Conclusions.tex
+INPUT .\Chapter\6_Conclusions.tex
+INPUT Chapter\6_Conclusions.tex
+INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmrc8v.tfm
+INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\vf\vntex\urwvn\utmrc8v.vf
+INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
 INPUT .\Chapter\4_Baseline_models.tex
 INPUT .\Chapter\4_Baseline_models.tex
 INPUT Chapter\4_Baseline_models.tex
@@ -788,88 +877,6 @@ INPUT .\Figure\architecture_ranking_shift.png
 INPUT .\Figure\architecture_ranking_shift.png
 INPUT .\Figure\architecture_ranking_shift.png
 INPUT .\Figure\architecture_ranking_shift.png
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmmib10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmmib9.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmmib6.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmbsy10.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmbsy9.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmbsy6.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\latex-fonts\lasyb10.tfm
-INPUT .\Chapter\5_Semantic_group_hybrid.tex
-INPUT .\Chapter\5_Semantic_group_hybrid.tex
-INPUT Chapter\5_Semantic_group_hybrid.tex
-INPUT .\Chapter\5_Semantic_group_hybrid.tex
-INPUT .\Chapter\5_Semantic_group_hybrid.tex
-INPUT Chapter\5_Semantic_group_hybrid.tex
-INPUT .\Figure\hybrid_ablation_all_metrics.png
-INPUT Figure\hybrid_ablation_all_metrics.png
-INPUT .\Figure\hybrid_ablation_all_metrics.png
-INPUT .\Figure\hybrid_ablation_all_metrics.png
-INPUT .\Figure\hybrid_ablation_all_metrics.png
-INPUT .\Figure\hybrid_ablation_all_metrics.png
-INPUT .\Table\T5_1_group_marginal_combined.tex
-INPUT .\Table\T5_1_group_marginal_combined.tex
-INPUT Table\T5_1_group_marginal_combined.tex
-INPUT .\Table\T5_1_group_marginal_combined.tex
-INPUT .\Table\T5_1_group_marginal_combined.tex
-INPUT Table\T5_1_group_marginal_combined.tex
-INPUT .\Table\T5_2_i3d_fusion_effect.tex
-INPUT .\Table\T5_2_i3d_fusion_effect.tex
-INPUT Table\T5_2_i3d_fusion_effect.tex
-INPUT .\Table\T5_2_i3d_fusion_effect.tex
-INPUT .\Table\T5_2_i3d_fusion_effect.tex
-INPUT Table\T5_2_i3d_fusion_effect.tex
-INPUT .\Table\T5_3_hybrid_topk.tex
-INPUT .\Table\T5_3_hybrid_topk.tex
-INPUT Table\T5_3_hybrid_topk.tex
-INPUT .\Table\T5_3_hybrid_topk.tex
-INPUT .\Table\T5_3_hybrid_topk.tex
-INPUT Table\T5_3_hybrid_topk.tex
-INPUT .\Figure\crossdomain_hybrid.png
-INPUT Figure\crossdomain_hybrid.png
-INPUT .\Figure\crossdomain_hybrid.png
-INPUT .\Figure\crossdomain_hybrid.png
-INPUT .\Figure\crossdomain_hybrid.png
-INPUT .\Figure\crossdomain_hybrid.png
-INPUT .\Figure\crossdomain_delta.png
-INPUT Figure\crossdomain_delta.png
-INPUT .\Figure\crossdomain_delta.png
-INPUT .\Figure\crossdomain_delta.png
-INPUT .\Figure\crossdomain_delta.png
-INPUT .\Figure\crossdomain_delta.png
-INPUT .\Table\T5_4_private_by_source.tex
-INPUT .\Table\T5_4_private_by_source.tex
-INPUT Table\T5_4_private_by_source.tex
-INPUT .\Table\T5_4_private_by_source.tex
-INPUT .\Table\T5_4_private_by_source.tex
-INPUT Table\T5_4_private_by_source.tex
-INPUT .\Figure\private_confusion_combined.png
-INPUT Figure\private_confusion_combined.png
-INPUT .\Figure\private_confusion_combined.png
-INPUT .\Figure\private_confusion_combined.png
-INPUT .\Figure\private_confusion_combined.png
-INPUT .\Figure\private_confusion_combined.png
-INPUT .\Figure\private_per_class_f1.png
-INPUT Figure\private_per_class_f1.png
-INPUT .\Figure\private_per_class_f1.png
-INPUT .\Figure\private_per_class_f1.png
-INPUT .\Figure\private_per_class_f1.png
-INPUT .\Figure\private_per_class_f1.png
-INPUT .\Figure\indomain_vs_generalization_hybrid.png
-INPUT Figure\indomain_vs_generalization_hybrid.png
-INPUT .\Figure\indomain_vs_generalization_hybrid.png
-INPUT .\Figure\indomain_vs_generalization_hybrid.png
-INPUT .\Figure\indomain_vs_generalization_hybrid.png
-INPUT .\Figure\indomain_vs_generalization_hybrid.png
-INPUT .\Chapter\6_Conclusions.tex
-INPUT .\Chapter\6_Conclusions.tex
-INPUT Chapter\6_Conclusions.tex
-INPUT .\Chapter\6_Conclusions.tex
-INPUT .\Chapter\6_Conclusions.tex
-INPUT Chapter\6_Conclusions.tex
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmrc8v.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\vf\vntex\urwvn\utmrc8v.vf
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
 INPUT main.aux
 INPUT .\main.out
 INPUT .\main.out
@@ -879,18 +886,12 @@ INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\c
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmbx12.pfb
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmex10.pfb
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmex10.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi10.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi10.pfb
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi12.pfb
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi12.pfb
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi6.pfb
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi6.pfb
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi9.pfb
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmi9.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmib10.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmmib10.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmr10.pfb
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmr10.pfb
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmr12.pfb
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmr12.pfb
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmr9.pfb

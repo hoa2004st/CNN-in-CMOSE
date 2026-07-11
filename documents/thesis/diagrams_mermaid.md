@@ -32,6 +32,72 @@ encoders (0.2). Boxes are rounded; `classDef default ... rx:7px,ry:7px` rounds e
 
 ---
 
+## Diagram 0 — Overview figures (Figure 3.1)
+
+The two overview schematics that contrast the paradigms. Capture and export to:
+
+- `documents/thesis/Figure/overview_baseline.png` → Diagram 0a
+- `documents/thesis/Figure/overview_hybrid.png`   → Diagram 0b
+
+(These replace the inline TikZ currently used for Figure 3.1 in `Chapter/3_Methodology.tex`.)
+
+### 0a. Baseline (single-encoder) overview — all five baselines, both MLPs included
+
+```mermaid
+---
+config:
+  themeVariables:
+    fontSize: 20px
+  flowchart:
+    padding: 4
+    nodeSpacing: 30
+    rankSpacing: 40
+---
+flowchart LR
+    A["OpenFace sequence\nT x 709"] --> B["Single encoder over the full sequence\nMLP / TCN / LSTM / Transformer"] --> C["Classifier"] --> Z1["Ordinal level\nE0 / E1 / E2 / E3"]
+    D["I3D clip vector\n1024"] --> E["MLP"] --> F["Classifier"] --> Z2["Ordinal level\nE0 / E1 / E2 / E3"]
+    classDef default fill:#ffffff,stroke:#333,stroke-width:2px,rx:7px,ry:7px
+```
+
+Two independent pipelines, no fusion box (the contrast with 0b). Four OpenFace baselines apply one
+encoder (MLP / TCN / LSTM / Transformer) to the full 709-d sequence; the I3D baseline is an MLP on
+the pooled 1024-d vector. Both MLP baselines (`openface_mlp`, `i3d_mlp`) are shown.
+
+### 0b. Proposed hybrid overview (auxiliary heads omitted; detailed in Diagram 2a / Figure 3.4)
+
+```mermaid
+---
+config:
+  themeVariables:
+    fontSize: 20px
+  flowchart:
+    padding: 4
+    nodeSpacing: 30
+    rankSpacing: 40
+---
+flowchart LR
+    OF["OpenFace sequence\nT x 709"] --> G1["Gaze encoder\n64"]
+    OF --> G2["Eye-landmark encoder\n64"]
+    OF --> G3["Face-landmark encoder\n64"]
+    OF --> G4["Head-pose encoder\n64"]
+    OF --> G5["Action-unit encoder\n64"]
+    IV["I3D clip vector\n1024"] --> I3["I3D MLP\n128"]
+    G1 --> CAT["Concatenate\n5x64 + 128 = 448"]
+    G2 --> CAT
+    G3 --> CAT
+    G4 --> CAT
+    G5 --> CAT
+    I3 --> CAT
+    CAT --> FUS["Fusion MLP\n448 -> 128 -> 4"]
+    FUS --> Z["Ordinal level\nE0 / E1 / E2 / E3"]
+    classDef default fill:#ffffff,stroke:#333,stroke-width:2px,rx:7px,ry:7px
+```
+
+I3D-stream-disabled variant: drop the I3D row, so the concatenation is `5 x 64 = 320` and the fusion
+MLP is `320 -> 128 -> 4`.
+
+---
+
 ## Diagram 1 — Baseline (single-encoder) architectures
 
 ### 1a. OpenFace baselines (one encoder over the full `T x 709` sequence)

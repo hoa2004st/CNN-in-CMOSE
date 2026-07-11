@@ -1,7 +1,7 @@
 \documentclass[../main.tex]{subfiles}
 \begin{document}
 
-This chapter specifies the methodology. Section~\ref{sec:overview} gives an overview of the pipeline with diagrams of the baseline and the proposed model. Section~\ref{sec:data} describes the three training datasets, the private test set, and the leak-free preprocessing. Section~\ref{sec:baselines} defines the single-encoder baselines, Section~\ref{sec:groups} formalises the feature-group decomposition of the OpenFace descriptor, and Section~\ref{sec:hybrid} builds the proposed hybrid model on top of it, in contrast to those baselines. Section~\ref{sec:losses-method} establishes the loss forms, Section~\ref{sec:training} the training protocol, and Section~\ref{sec:eval} the 3$\times$3 cross-dataset protocol.
+This chapter specifies the methodology. Section~\ref{sec:overview} gives an overview of the pipeline with diagrams of the baseline and the proposed model. Section~\ref{sec:data} describes the three training datasets, the private test set, and the leak-free preprocessing. Section~\ref{sec:baselines} defines the single-encoder baselines, Section~\ref{sec:groups} formalises the feature-group decomposition of the OpenFace descriptor, and Section~\ref{sec:hybrid} builds the proposed hybrid model on top of it, in contrast to those baselines. The loss forms, training regime, and 3$\times$3 cross-dataset protocol that apply this methodology are established with the experiments that use them, in the experimental-results chapter (Chapter~\ref{chap:results}).
 
 \FloatBarrier
 \section{Overview}
@@ -9,56 +9,20 @@ This chapter specifies the methodology. Section~\ref{sec:overview} gives an over
 
 The task is ordinal classification of a fixed-length clip into four engagement levels. Per-frame OpenFace descriptors and a clip-level I3D embedding are extracted, brought to a common length, and normalised. The two model paradigms then differ in how they consume these features (Figure~\ref{fig:overview_models}).
 
-A single-encoder baseline follows the standard approach: one temporal encoder consumes the full 709-dimensional OpenFace sequence (or an MLP consumes the pooled I3D vector), and a classifier produces the prediction (Figure~\ref{fig:overview_baseline}). The proposed hybrid model replaces that single encoder with a split-and-encode design: the OpenFace descriptor is split into five feature groups, each encoded independently by its own temporal encoder, the I3D vector is encoded by an MLP, and the resulting embeddings are concatenated and classified by a shared MLP while an auxiliary head supervises every stream (Figure~\ref{fig:overview_hybrid}). Every model is trained and evaluated under the same 3$\times$3 cross-dataset protocol and three loss functions.
+A single-encoder baseline follows the standard approach: a single encoder (MLP, TCN, LSTM, or Transformer) consumes the full 709-dimensional OpenFace sequence, or an MLP consumes the pooled I3D vector, and a classifier produces the prediction (Figure~\ref{fig:overview_baseline}). The proposed hybrid model replaces that single encoder with a split-and-encode design: the OpenFace descriptor is split into five feature groups, each encoded independently by its own temporal encoder, the I3D vector is encoded by an MLP, and the resulting embeddings are concatenated and classified by a shared MLP while an auxiliary head supervises every stream (Figure~\ref{fig:overview_hybrid}). Every model is trained and evaluated under the same 3$\times$3 cross-dataset protocol and three loss functions.
 
 \begin{figure}[htbp]
 \centering
 \begin{subfigure}{\linewidth}
 \centering
-\begin{tikzpicture}[font=\footnotesize,>=Latex,
-  box/.style={draw,rounded corners,align=center,minimum height=9mm,inner sep=3pt},
-  node distance=10mm]
-  \node[box] (in) {OpenFace\\ sequence\\ $T\times709$};
-  \node[box,right=of in] (enc) {Single temporal encoder\\ (TCN / LSTM / Transformer)};
-  \node[box,right=of enc] (clf) {Classifier};
-  \node[box,right=of clf] (out) {Ordinal\\ level};
-  \draw[->] (in)--(enc); \draw[->] (enc)--(clf); \draw[->] (clf)--(out);
-\end{tikzpicture}
-\caption{Single-encoder baseline.}
+\includegraphics[width=\linewidth]{overview_baseline.png}
+\caption{Single-encoder baselines.}
 \label{fig:overview_baseline}
 \end{subfigure}\\[2.5ex]
 \begin{subfigure}{\linewidth}
 \centering
-\begin{tikzpicture}[font=\footnotesize,>=Latex,
-  box/.style={draw,rounded corners,align=center,inner sep=2.5pt,minimum height=6mm},
-  grp/.style={box,fill=black!5},
-  node distance=2.6mm]
-  \node[grp] (g1) {Gaze encoder};
-  \node[grp,below=of g1] (g2) {Eye-landmark encoder};
-  \node[grp,below=of g2] (g3) {Face-landmark encoder};
-  \node[grp,below=of g3] (g4) {Head-pose encoder};
-  \node[grp,below=of g4] (g5) {Action-unit encoder};
-  \node[box,below=6mm of g5] (i3d) {I3D MLP};
-  \node[box,left=16mm of g3] (of) {OpenFace\\ $T\times709$};
-  \node[box,below=6mm of of] (iv) {I3D\\ vector};
-  \draw[->] (of.east)--(g1.west);
-  \draw[->] (of.east)--(g2.west);
-  \draw[->] (of.east)--(g3.west);
-  \draw[->] (of.east)--(g4.west);
-  \draw[->] (of.east)--(g5.west);
-  \draw[->] (iv.east)--(i3d.west);
-  \node[box,right=16mm of g3,minimum height=44mm] (cat) {Con-\\cat-\\enate};
-  \draw[->] (g1.east)--(cat.west);
-  \draw[->] (g2.east)--(cat.west);
-  \draw[->] (g3.east)--(cat.west);
-  \draw[->] (g4.east)--(cat.west);
-  \draw[->] (g5.east)--(cat.west);
-  \draw[->] (i3d.east)-|(cat.south);
-  \node[box,right=8mm of cat] (fus) {Fusion\\ MLP};
-  \node[box,right=8mm of fus] (out) {Ordinal\\ level};
-  \draw[->] (cat)--(fus); \draw[->] (fus)--(out);
-\end{tikzpicture}
-\caption{Proposed hybrid model (auxiliary heads omitted; detailed in Figure~\ref{fig:hybrid}).}
+\includegraphics[width=\linewidth]{overview_proposed.png}
+\caption{Proposed feature-group hybrid model (detailed in Figure~\ref{fig:hybrid}).}
 \label{fig:overview_hybrid}
 \end{subfigure}
 \caption{The baseline and the proposed hybrid model.}
@@ -90,7 +54,7 @@ All four sets share the four ordinal labels E0 (Highly\nobreakdash-Disengage), E
 \label{fig:dataset_class_distribution_overall}
 \end{figure}
 
-This uneven imbalance shapes three choices the thesis returns to. It predicts difficulty in transferring between datasets, where a model fit to one label prior meets a different one at test time (Chapters~4 and~5); it motivates the imbalance-aware losses of Section~\ref{sec:losses-method}; and, because predicting the majority class alone scores well on every dataset, it rules out accuracy as a selection criterion in favour of quadratic-weighted kappa (QWK), the single metric on which every best model is chosen, with macro-accuracy and macro-MAE kept as secondary balanced checks (Section~\ref{sec:eval}).
+This uneven imbalance shapes three choices the thesis returns to. It predicts difficulty in transferring between datasets, where a model fit to one label prior meets a different one at test time (Chapter~\ref{chap:results} and Appendix~\ref{chap:baseline}); it motivates the imbalance-aware losses of Section~\ref{sec:losses-method}; and, because predicting the majority class alone scores well on every dataset, it rules out accuracy as a selection criterion in favour of quadratic-weighted kappa (QWK), the single metric on which every best model is chosen, with macro-accuracy and macro-MAE kept as secondary balanced checks (Section~\ref{sec:eval}).
 
 \subsection{The private evaluation set}
 \label{sec:private-collection}
@@ -109,6 +73,38 @@ The private set measures deployment rather than in-dataset behaviour, and becaus
   \item \textbf{Final set.}
   The 366 clips with complete, aligned OpenFace and I3D features form the private set. Its label prior differs again from both public datasets (58.2\% E2, 30.6\% E3, 8.5\% E1, 2.7\% E0), which, with its independent recording conditions, makes it an in-the-wild measure of deployment behaviour. It anchors Section~\ref{sec:private}.
 \end{enumerate}
+
+\begin{figure}[htbp]
+\centering
+\begin{subfigure}{0.48\linewidth}
+\centering
+\includegraphics[height=3.2cm]{private1.png}
+\caption{Near-eye-level, camera above the screen.}
+\label{fig:private-a}
+\end{subfigure}\hfill
+\begin{subfigure}{0.48\linewidth}
+\centering
+\includegraphics[height=3.2cm]{private2.png}
+\caption{High-angle, learner seated below a raised webcam.}
+\label{fig:private-b}
+\end{subfigure}\\[1.5ex]
+\begin{subfigure}{0.48\linewidth}
+\centering
+\includegraphics[height=3.2cm]{private3.png}
+\caption{Low-angle, camera below eye level.}
+\label{fig:private-c}
+\end{subfigure}\hfill
+\begin{subfigure}{0.48\linewidth}
+\centering
+\includegraphics[height=3.2cm]{private4.png}
+\caption{Steep low-angle, portrait-oriented phone camera.}
+\label{fig:private-d}
+\end{subfigure}
+\caption{Representative frames from the private set, illustrating the range of camera angles found in unconstrained online-class recordings.}
+\label{fig:private-angles}
+\end{figure}
+
+The four frames in Figure~\ref{fig:private-angles} illustrate why the private set is a stricter test of deployment behaviour than either public dataset. Each learner sets up their own device, so the camera sits at a different height and tilt relative to the face: roughly at eye level in Figure~\ref{fig:private-a}, mounted above the screen and looking down in Figure~\ref{fig:private-b}, below eye level and looking up in Figure~\ref{fig:private-c}, and at a steep upward tilt from a portrait-oriented phone in Figure~\ref{fig:private-d}. Framing, background, lighting, and distance to the lens vary alongside the angle. Because the OpenFace gaze, head-pose, and landmark descriptors are measured in the camera's image geometry, this spread of viewpoints shifts the very features the models consume, in ways that the more uniform studio-style setups of CMOSE and DAiSEE do not exercise. The private set therefore probes whether a model trained on constrained recordings still generalises to the varied webcam geometry of a real online class.
 
 \subsection{Features and preprocessing}
 
@@ -137,27 +133,89 @@ The five baseline architectures are shown in Figure~\ref{fig:baselines}. The fou
 \begin{figure}[htbp]
 \centering
 \begin{subfigure}{\linewidth}\centering
-\includegraphics[width=\linewidth]{openface_mlp.png}
+\ifhanddrawn\includegraphics[width=\linewidth]{openface_mlp.png}\else\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[node distance=6mm,>=Latex]
+\node[abox](n1){Input\\$T\times709$};
+\node[abox,right=of n1](n2){Flatten\\$T\cdot709$};
+\node[abox,right=of n2](n3){Linear\\256};
+\node[abox,right=of n3](n4){ReLU\\Dropout 0.3};
+\node[abox,right=of n4](n5){Linear\\128};
+\node[abox,right=of n5](n6){ReLU\\Dropout 0.3};
+\node[abox,right=of n6](n7){Linear\\4};
+\draw[->](n1)--(n2);\draw[->](n2)--(n3);\draw[->](n3)--(n4);\draw[->](n4)--(n5);\draw[->](n5)--(n6);\draw[->](n6)--(n7);
+\end{tikzpicture}}\fi
 \caption{\texttt{openface\_mlp}.}
 \label{fig:openface_mlp}
 \end{subfigure}\\[1.2ex]
 \begin{subfigure}{\linewidth}\centering
-\includegraphics[width=\linewidth]{openface_tcn.png}
+\ifhanddrawn\includegraphics[width=\linewidth]{openface_tcn.png}\else\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[node distance=6mm and 7mm,>=Latex]
+\node[abox](n1){Input\\$T\times709$};
+\node[abox,right=of n1](n2){TemporalBlock 1\\256 ch, dilation 1};
+\node[abox,right=of n2](n3){TemporalBlock 2\\128 ch, dilation 2};
+\node[abox,right=of n3](n4){TemporalBlock 3\\128 ch, dilation 4};
+\node[abox,below=12mm of n1](m1){AdaptiveAvgPool\\128};
+\node[abox,right=of m1](m2){Dropout 0.3};
+\node[abox,right=of m2](m3){Linear\\128};
+\node[abox,right=of m3](m4){ReLU\\Dropout 0.3};
+\node[abox,right=of m4](m5){Linear\\4};
+\draw[->](n1)--(n2);\draw[->](n2)--(n3);\draw[->](n3)--(n4);
+\draw[->](n4.south) -- ++(0,-6mm) -| (m1.north);
+\draw[->](m1)--(m2);\draw[->](m2)--(m3);\draw[->](m3)--(m4);\draw[->](m4)--(m5);
+\end{tikzpicture}}\fi
 \caption{\texttt{openface\_tcn}.}
 \label{fig:openface_tcn}
 \end{subfigure}\\[1.2ex]
 \begin{subfigure}{\linewidth}\centering
-\includegraphics[width=\linewidth]{openface_lstm.png}
+\ifhanddrawn\includegraphics[width=\linewidth]{openface_lstm.png}\else\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[node distance=6mm and 7mm,>=Latex]
+\node[abox](n1){Input\\$T\times709$};
+\node[abox,right=of n1](n2){LSTM layer 1\\hidden 256};
+\node[abox,right=of n2](n3){Dropout 0.3};
+\node[abox,right=of n3](n4){LSTM layer 2\\hidden 256};
+\node[abox,below=12mm of n1](m1){Dropout 0.3};
+\node[abox,right=of m1](m2){Linear\\128};
+\node[abox,right=of m2](m3){ReLU\\Dropout 0.3};
+\node[abox,right=of m3](m4){Linear\\4};
+\draw[->](n1)--(n2);\draw[->](n2)--(n3);\draw[->](n3)--(n4);
+\draw[->](n4.south) -- ++(0,-6mm) -| (m1.north);
+\draw[->](m1)--(m2);\draw[->](m2)--(m3);\draw[->](m3)--(m4);
+\end{tikzpicture}}\fi
 \caption{\texttt{openface\_lstm}.}
 \label{fig:openface_lstm}
 \end{subfigure}\\[1.2ex]
 \begin{subfigure}{\linewidth}\centering
-\includegraphics[width=\linewidth]{openface_transformer.png}
+\ifhanddrawn\includegraphics[width=\linewidth]{openface_transformer.png}\else\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[node distance=6mm and 7mm,>=Latex]
+\node[abox](n1){Input\\$T\times709$};
+\node[abox,right=of n1](n2){Input projection\\Linear 128};
+\node[aop,right=7mm of n2](add){$\oplus$};
+\node[abox,above=5mm of add](pe){Positional encoding\\sinusoidal 128};
+\node[abox,right=7mm of add](d1){EncoderLayer 1\\d 128, heads 4, FF 256};
+\node[abox,right=of d1](d2){EncoderLayer 2\\d 128, heads 4, FF 256};
+\node[abox,below=12mm of n1](m1){Mean-pool over $T$\\128};
+\node[abox,right=of m1](m2){LayerNorm 128\\Dropout 0.3};
+\node[abox,right=of m2](m3){Linear\\128};
+\node[abox,right=of m3](m4){ReLU\\Dropout 0.3};
+\node[abox,right=of m4](m5){Linear\\4};
+\draw[->](n1)--(n2);\draw[->](n2)--(add);\draw[->](pe)--(add);\draw[->](add)--(d1);\draw[->](d1)--(d2);
+\draw[->](d2.south) -- ++(0,-6mm) -| (m1.north);
+\draw[->](m1)--(m2);\draw[->](m2)--(m3);\draw[->](m3)--(m4);\draw[->](m4)--(m5);
+\end{tikzpicture}}\fi
 \caption{\texttt{openface\_transformer}.}
 \label{fig:openface_transformer}
 \end{subfigure}\\[1.2ex]
 \begin{subfigure}{\linewidth}\centering
-\includegraphics[width=\linewidth]{i3d_mlp.png}
+\ifhanddrawn\includegraphics[width=\linewidth]{i3d_mlp.png}\else\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[node distance=6mm,>=Latex]
+\node[abox](n1){Input\\I3D clip 1024-d};
+\node[abox,right=of n1](n2){Linear\\$1024\to256$};
+\node[abox,right=of n2](n3){ReLU\\Dropout 0.3};
+\node[abox,right=of n3](n4){Linear\\$256\to128$};
+\node[abox,right=of n4](n5){ReLU\\Dropout 0.3};
+\node[abox,right=of n5](n6){Linear\\$128\to4$};
+\draw[->](n1)--(n2);\draw[->](n2)--(n3);\draw[->](n3)--(n4);\draw[->](n4)--(n5);\draw[->](n5)--(n6);
+\end{tikzpicture}}\fi
 \caption{\texttt{i3d\_mlp}.}
 \label{fig:i3d_mlp}
 \end{subfigure}
@@ -200,7 +258,40 @@ The proposed hybrid model, shown in Figure~\ref{fig:hybrid}, encodes each stream
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\linewidth]{hybrid.png}
+\ifhanddrawn\includegraphics[width=\linewidth]{hybrid.png}\else\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[>=Latex]
+% inputs
+\node[abox](gz){gaze\\$T\times8$};
+\node[abox,below=3mm of gz](ey){eye\\$T\times280$};
+\node[abox,below=3mm of ey](fc){face\\$T\times340$};
+\node[abox,below=3mm of fc](hp){head pose\\$T\times46$};
+\node[abox,below=3mm of hp](au){action units\\$T\times35$};
+\node[abox,below=7mm of au](i3){I3D\\1024};
+% encoders
+\node[agrp,right=12mm of gz](gze){Group encoder\\64};
+\node[agrp,right=12mm of ey](eye){Group encoder\\64};
+\node[agrp,right=12mm of fc](fce){Group encoder\\64};
+\node[agrp,right=12mm of hp](hpe){Group encoder\\64};
+\node[agrp,right=12mm of au](aue){Group encoder\\64};
+\node[abox,right=12mm of i3](i3e){Linear 128\\LayerNorm};
+\draw[->](gz)--(gze);\draw[->](ey)--(eye);\draw[->](fc)--(fce);\draw[->](hp)--(hpe);\draw[->](au)--(aue);\draw[->](i3)--(i3e);
+% concatenate (tall)
+\node[abox,right=14mm of fce,minimum height=50mm,text width=16mm](cat){Concatenate\\$5\times64$\\$+\,128$\\$=448$};
+\draw[->](gze.east)--(cat.west);\draw[->](eye.east)--(cat.west);\draw[->](fce.east)--(cat.west);
+\draw[->](hpe.east)--(cat.west);\draw[->](aue.east)--(cat.west);\draw[->](i3e.east)-|(cat.south);
+% fusion + output
+\node[abox,right=10mm of cat](f1){Linear\\128};
+\node[abox,right=6mm of f1](f2){ReLU\\Dropout 0.3};
+\node[abox,right=6mm of f2](f3){Linear\\4};
+\node[abox,right=6mm of f3](out){Ordinal level\\E0 / E1 / E2 / E3};
+\draw[->](cat)--(f1);\draw[->](f1)--(f2);\draw[->](f2)--(f3);\draw[->](f3)--(out);
+% auxiliary heads (one per stream)
+\node[abox,above=9mm of cat](aux){Aux head per stream\\Linear 4};
+\begin{scope}[on background layer]
+\node[draw,dotted,rounded corners,fit=(gze)(eye)(fce)(hpe)(aue)(i3e),inner sep=2mm](encfit){};
+\end{scope}
+\draw[->,dashed](encfit.north)--(aux);
+\end{tikzpicture}}\fi
 \caption{Proposed hybrid model architecture (I3D stream enabled; the I3D-stream-disabled variant drops the I3D row).}
 \label{fig:hybrid}
 \end{figure}
@@ -216,19 +307,47 @@ Each group is encoded by a \texttt{GroupEncoder}, one of three interchangeable t
 \centering
 \begin{subfigure}{\linewidth}
 \centering
-\includegraphics[width=\linewidth]{hybrid_tcn_encoder.png}
+\ifhanddrawn\includegraphics[width=\linewidth]{hybrid_tcn_encoder.png}\else\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[node distance=6mm,>=Latex]
+\node[abox](n1){Input\\$T\times D_{\text{group}}$};
+\node[abox,right=of n1](n2){TemporalBlock 1\\64 ch, dilation 1};
+\node[abox,right=of n2](n3){TemporalBlock 2\\64 ch, dilation 2};
+\node[abox,right=of n3](n4){Mean-pool\\64};
+\node[abox,right=of n4](n5){LayerNorm\\64};
+\draw[->](n1)--(n2);\draw[->](n2)--(n3);\draw[->](n3)--(n4);\draw[->](n4)--(n5);
+\end{tikzpicture}}\fi
 \caption{TCN group encoder.}
 \label{fig:ge_tcn}
 \end{subfigure}\\[2ex]
 \begin{subfigure}{\linewidth}
 \centering
-\includegraphics[width=\linewidth]{hybrid_transformer_encoder.png}
+\ifhanddrawn\includegraphics[width=\linewidth]{hybrid_transformer_encoder.png}\else\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[node distance=6mm and 7mm,>=Latex]
+\node[abox](n1){Input\\$T\times D_{\text{group}}$};
+\node[abox,right=of n1](n2){Input projection\\Linear $D_{\text{group}}\to64$};
+\node[aop,right=7mm of n2](add){$\oplus$};
+\node[abox,above=5mm of add](pe){Positional encoding\\sinusoidal 64-d};
+\node[abox,right=7mm of add](d1){EncoderLayer 1\\d 64, heads 4, FF 128};
+\node[abox,right=of d1](d2){EncoderLayer 2\\d 64, heads 4, FF 128};
+\node[abox,right=of d2](p){Mean-pool over $T$\\64};
+\node[abox,right=of p](ln){LayerNorm\\64};
+\draw[->](n1)--(n2);\draw[->](n2)--(add);\draw[->](pe)--(add);\draw[->](add)--(d1);\draw[->](d1)--(d2);\draw[->](d2)--(p);\draw[->](p)--(ln);
+\end{tikzpicture}}\fi
 \caption{Transformer group encoder.}
 \label{fig:ge_transformer}
 \end{subfigure}\\[2ex]
 \begin{subfigure}{\linewidth}
 \centering
-\includegraphics[width=\linewidth]{hybrid_lstm_encoder.png}
+\ifhanddrawn\includegraphics[width=\linewidth]{hybrid_lstm_encoder.png}\else\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[node distance=6mm,>=Latex]
+\node[abox](n1){Input\\$T\times D_{\text{group}}$};
+\node[abox,right=of n1](n2){LSTM layer 1\\hidden 64};
+\node[abox,right=of n2](n3){Dropout 0.2};
+\node[abox,right=of n3](n4){LSTM layer 2\\hidden 64};
+\node[abox,right=of n4](n5){Mean-pool over $T$\\64};
+\node[abox,right=of n5](n6){LayerNorm\\64};
+\draw[->](n1)--(n2);\draw[->](n2)--(n3);\draw[->](n3)--(n4);\draw[->](n4)--(n5);\draw[->](n5)--(n6);
+\end{tikzpicture}}\fi
 \caption{LSTM group encoder.}
 \label{fig:ge_lstm}
 \end{subfigure}
@@ -243,43 +362,9 @@ The I3D-stream-enabled variant adds a sixth stream: the single 1024-d I3D clip v
 A configuration of the proposed hybrid model is fully specified by the encoder chosen for each of the five groups, written as an \texttt{arch\_key} of five tokens in group order, for example \texttt{TCN\_T\_TCN\_LSTM\_T} (\texttt{T}~=~Transformer, \texttt{TCN}~=~TCN, \texttt{LSTM}~=~LSTM). With three choices per group there are $3^{5}=243$ configurations, each evaluated with the I3D stream enabled and disabled (Section~\ref{sec:ablation}).
 
 \FloatBarrier
-\section{Loss Functions}
-\label{sec:losses-method}
-
-The five baseline models are each trained under all three losses of Section~\ref{sec:losses-lit} (cross-entropy, weighted cross-entropy, and the ordinal squared-EMD loss of Equation~\eqref{eq:emd}), so the effect of the loss can be measured directly. The class weights for the weighted and ordinal variants are inverse-frequency weights computed on the training split and normalised to mean~1: for class $c$ with $n_c$ training samples and $C$ non-empty classes,
-\begin{equation}
-w_c = \frac{1}{n_c}\cdot\frac{C}{\sum_{k} \frac{1}{n_k}},
-\qquad\text{so that}\quad \frac{1}{C}\sum_c w_c = 1 .
-\end{equation}
-The ordinal loss is applied in its class-weighted form as well, multiplying each sample's CDF distance by $w_y$.
-
-For the proposed hybrid model the objective also includes the auxiliary term. With main logits $z$ and per-stream auxiliary logits $\{a^{(s)}\}$, the total loss is
-\begin{equation}
-\mathcal{L} = \mathcal{L}_{\text{main}}(z,y) \;+\; \lambda_{\text{aux}}\cdot\frac{1}{S}\sum_{s=1}^{S}
-              \mathcal{L}_{\text{CE}}\!\bigl(a^{(s)},y\bigr),
-\end{equation}
-where $\mathcal{L}_{\text{main}}$ is the main-head loss, $\lambda_{\text{aux}}=0.2$ is the auxiliary weight, and the auxiliary heads are always trained with plain cross-entropy over the $S$ streams (five groups, or six with the I3D stream enabled). The formulation admits any of the three losses for the main head; the ablation of the proposed hybrid model reported here fixes $\mathcal{L}_{\text{main}}$ to cross-entropy, so its results isolate the effect of the architecture from that of the loss.
-
-\FloatBarrier
-\section{Training Protocol}
-\label{sec:training}
-
-All models are optimised with Adam~\cite{adam} at a learning rate of $1\times10^{-4}$. Training uses mini-batches (128 for the baselines, 64 for the ablation) and early stopping on the validation loss (the CMOSE \texttt{unlabel} split and its analogues) with patience 10 and an epoch cap (800 for baselines, 400 for the ablation). The checkpoint with the lowest validation loss is restored for testing. Following the convention adopted in this project, only the training and validation loss are recorded per epoch; the final metrics are evaluated once, on the held-out test split. Runs use a fixed seed (42) and optional mixed precision on GPU, and every run converges stably and early-stops well before the cap, so the reported differences are architectural rather than optimisation artefacts.
-
-\FloatBarrier
-\section{Evaluation Protocol}
-\label{sec:eval}
-
-Generalisation is measured with a 3$\times$3 matrix: every model and loss is trained on each of \{CMOSE, DAiSEE, Combined\} and evaluated on each of \{CMOSE-test, DAiSEE-test, Private\}. The diagonal cells are the in-domain results; the off-diagonal cells and the Private column measure transfer to unseen distributions.
-
-Each evaluation reports the six metrics of Section~\ref{sec:metrics-lit} (accuracy, macro-accuracy, MAE, macro-MAE, Cohen's kappa, and QWK), but QWK is the single primary metric: it alone selects the best model. The other five are secondary, reported for analysis and comparability but never used to pick a winner. The empirical justification for selecting on QWK alone is in the evaluation-protocol section of Chapter~4 (Section~\ref{sec:protocol}). Row-normalised confusion matrices and per-class F1 scores are used for error analysis.
-
-The study comprises roughly 1{,}500 trained runs (the five baselines $\times$ three losses $\times$ three sources, and the 243 per-group configurations of the proposed hybrid model with the I3D stream enabled and disabled); all are aggregated programmatically, and every figure and table of Chapters~4 and~5 is produced from the aggregate by a single command.
-
-\FloatBarrier
 \section{Chapter Summary}
 \label{sec:method-summary}
 
-This chapter specified the methodology end to end: the pipeline and its two model paradigms (Figure~\ref{fig:overview_models}); the three training datasets and their imbalance, the test-only private set and its collection, and the leak-free preprocessing; the five single-encoder baselines; the five-group decomposition of the OpenFace descriptor; and the proposed hybrid model (Figure~\ref{fig:hybrid}) that reuses the baselines' encoder families per group, with its fusion and auxiliary heads, I3D variant, and 243-configuration design space. It also established the loss forms, the training protocol, and the 3$\times$3 evaluation protocol with its single primary metric (QWK) and its secondary metrics, which Chapters~4 and~5 apply to the in-domain and generalisation results.
+This chapter specified the methodology end to end: the pipeline and its two model paradigms (Figure~\ref{fig:overview_models}); the three training datasets and their imbalance, the test-only private set and its collection, and the leak-free preprocessing; the five single-encoder baselines; the five-group decomposition of the OpenFace descriptor; and the proposed hybrid model (Figure~\ref{fig:hybrid}) that reuses the baselines' encoder families per group, with its fusion and auxiliary heads, I3D variant, and 243-configuration design space. The experimental apparatus that applies this methodology, its loss forms, training regime, and 3$\times$3 evaluation protocol with its single primary metric (QWK) and secondary metrics, is set out in the experimental-results chapter (Chapter~\ref{chap:results}); the supporting single-encoder baseline study is given in Appendix~\ref{chap:baseline}.
 
 \end{document}

@@ -11,6 +11,15 @@
 \usepackage{graphicx} % Insert images
 \usepackage{tikz} % Schematic diagrams (methodology overview)
 \usetikzlibrary{positioning,arrows.meta,fit,backgrounds,calc}
+% --- Architecture diagrams: TikZ (default) with one-switch revert to the original hand-drawn PNGs.
+%     Flip \handdrawnfalse -> \handdrawntrue to restore every \includegraphics version at once. ---
+\newif\ifhanddrawn
+\handdrawntrue
+\tikzset{
+  abox/.style={draw,rounded corners=2pt,fill=white,align=center,font=\footnotesize,inner sep=3pt,minimum height=8mm},
+  agrp/.style={abox,fill=black!4},
+  aop/.style={inner sep=1pt,font=\large},
+}
 \usepackage{fancybox} % Boxes
 \usepackage{indentfirst} % Indent the first line of every paragraph
 \usepackage{amsthm}
@@ -237,27 +246,23 @@
 \fancyhead[RE, LO]{\leftmark}
 \fancyfoot[RE, LO]{\thepage}
 
-\chapter{INTRODUCTION}
+\chapter{INTRODUCTION}\label{chap:intro}
 \subfile{Chapter/1_Introduction}
 
 \newpage
-\chapter{LITERATURE REVIEW}
+\chapter{LITERATURE REVIEW}\label{chap:litreview}
 \subfile{Chapter/2_Literature_review}
 
 \newpage
-\chapter{METHODOLOGY}
+\chapter{METHODOLOGY}\label{chap:method}
 \subfile{Chapter/3_Methodology}
 
 \newpage
-\chapter{BASELINE MODELS}
-\subfile{Chapter/4_Baseline_models}
-
-\newpage
-\chapter{PROPOSED HYBRID MODEL}
+\chapter{EXPERIMENTAL RESULTS}\label{chap:results}
 \subfile{Chapter/5_Semantic_group_hybrid}
 
 \newpage
-\chapter{CONCLUSIONS}
+\chapter{CONCLUSIONS}\label{chap:conclusions}
 \subfile{Chapter/6_Conclusions}
 
 % ===================================================
@@ -265,5 +270,22 @@
 \renewcommand\bibname{REFERENCE}
 \printbibliography
 \phantomsection\addcontentsline{toc}{chapter}{REFERENCE}
+
+% =========================== APPENDIX ==============
+% The single-encoder baseline study is a supporting deep-dive, relegated here.
+\newpage
+\appendix
+\renewcommand{\chaptername}{APPENDIX}
+% Appendix chapters read "APPENDIX A." rather than "CHAPTER A." in both the heading
+% and the table of contents (the body uses a custom \titleformat for chapters).
+\titleformat{\chapter}[hang]{\centering\bfseries}{APPENDIX \thechapter.\ }{0pt}{}[]
+\titlecontents{chapter}
+    [0.0cm]
+    {\bfseries\vspace{0.3cm}}
+    {{\bfseries APPENDIX \thecontentslabel.\ }}
+    {}
+    {\titlerule*[0.3pc]{.}\contentspage}
+\chapter{BASELINE MODELS}\label{chap:baseline}
+\subfile{Chapter/4_Baseline_models}
 
 \end{document}
