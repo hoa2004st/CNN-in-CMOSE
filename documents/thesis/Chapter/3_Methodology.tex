@@ -1,21 +1,15 @@
 \documentclass[../main.tex]{subfiles}
 \begin{document}
 
-This chapter specifies the methodology. Section~\ref{sec:overview} gives an overview of the pipeline with diagrams of the baseline and the proposed model. Section~\ref{sec:data} describes the three training datasets, the private test set, and the leak-free preprocessing. Section~\ref{sec:baselines} defines the single-encoder baselines, Section~\ref{sec:groups} formalises the feature-group decomposition of the OpenFace descriptor, and Section~\ref{sec:hybrid} builds the proposed hybrid model on top of it, in contrast to those baselines. The loss forms, training regime, and 3$\times$3 cross-dataset protocol that apply this methodology are established with the experiments that use them, in the experimental-results chapter (Chapter~\ref{chap:results}).
-
 \FloatBarrier
 \section{Overview}
 \label{sec:overview}
 
-The task is ordinal classification of a fixed-length clip into four engagement levels. Per-frame OpenFace descriptors and a clip-level I3D embedding are extracted, brought to a common length, and normalised. The two model paradigms then differ in how they consume these features (Figure~\ref{fig:overview_models}).
-
-A single-encoder baseline follows the standard approach: a single encoder (MLP, TCN, LSTM, or Transformer) consumes the full 709-dimensional OpenFace sequence, or an MLP consumes the pooled I3D vector, and a classifier produces the prediction (Figure~\ref{fig:overview_baseline}). The proposed hybrid model replaces that single encoder with a split-and-encode design: the OpenFace descriptor is split into five feature groups, each encoded independently by its own temporal encoder, the I3D vector is encoded by an MLP, and the resulting embeddings are concatenated and classified by a shared MLP while an auxiliary head supervises every stream (Figure~\ref{fig:overview_hybrid}). Every model is trained and evaluated under the same 3$\times$3 cross-dataset protocol and three loss functions.
-
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \begin{subfigure}{\linewidth}
 \centering
-\includegraphics[width=\linewidth]{overview_baseline.png}
+\includegraphics[width=0.7\linewidth]{overview_baseline.png}
 \caption{Single-encoder baselines.}
 \label{fig:overview_baseline}
 \end{subfigure}\\[2.5ex]
@@ -29,90 +23,65 @@ A single-encoder baseline follows the standard approach: a single encoder (MLP, 
 \label{fig:overview_models}
 \end{figure}
 
+Two public datasets form the training data, while a self-collected set recorded on real webcams serves as an in-the-wild test set (Section~\ref{sec:data}). Every clip carries one of four ordinal engagement levels, from highly disengaged to highly engaged. Each clip is represented by per-frame OpenFace descriptors and a clip-level I3D embedding extracted from the raw video, then resampled to a common length and standardised with training-set statistics so that no target information leaks into preprocessing.
+
+Two model paradigms are compared, contrasted in Figure~\ref{fig:overview_models}. The single-encoder baselines follow the standard approach, in which one encoder, an MLP, TCN, LSTM, or Transformer, consumes the full 709-dimensional OpenFace sequence, or an MLP consumes the pooled I3D vector, before a classifier produces the prediction (Section~\ref{sec:baselines}).
+
+The proposed hybrid model replaces that single encoder with a split-and-encode design: the OpenFace descriptor is split into five meaning-based feature groups, each encoded independently by its own temporal encoder, the I3D vector is encoded by an MLP, and the resulting embeddings are concatenated and classified by a shared MLP while an auxiliary head supervises every stream (Section~\ref{sec:hybrid}). The loss functions, training regime, and 3$\times$3 cross-dataset protocol under which every model is trained and evaluated are established with the experiments that use them in Chapter~\ref{chap:results}.
+
 \FloatBarrier
 \section{Data and Preprocessing}
 \label{sec:data}
 
-\subsection{Datasets}
+\subsection{Public datasets}
 
-The thesis uses three training sources and three test sets, whose sizes and class balance are in Table~\ref{tab:T3_1_dataset_stats}.
-
-\begin{enumerate}
-  \item \textbf{CMOSE}~\cite{cmose}: 12{,}197 clips, split into \texttt{train} (8{,}783), \texttt{unlabel} (2{,}193) used here as the validation set for early stopping and checkpoint selection, and \texttt{test} (1{,}221).
-  \item \textbf{DAiSEE}~\cite{daisee}: 8{,}571 clips, whose official \texttt{Train}/\texttt{Validation}/\texttt{Test} partitions map onto the same \texttt{train}/\texttt{unlabel}/\texttt{test} roles (5{,}358 / 1{,}429 / 1{,}784).
-  \item \textbf{Combined}: the combination of CMOSE and DAiSEE (20{,}768 clips) with source-prefixed identifiers, merged split-wise into 14{,}141 / 3{,}622 / 3{,}005 train / validation / test clips.
-  \item \textbf{Private (self-collected)}: 366 clips collected and hand-labelled for this thesis, used for testing only, never in training or model selection (Section~\ref{sec:private-collection}).
-\end{enumerate}
-
-All four sets share the four ordinal labels E0 (Highly\nobreakdash-Disengage), E1 (Disengage), E2 (Engage), and E3 (Highly\nobreakdash-Engage). Table~\ref{tab:T3_1_dataset_stats} and Figure~\ref{fig:dataset_class_distribution_overall} show that the three training datasets are heavily imbalanced toward the upper-middle classes, and imbalanced in different directions: CMOSE is dominated by E2 (69.4\%) with only 2.8\% E0, whereas DAiSEE is split between E2 (50.3\%) and E3 (43.8\%) with 0.7\% E0. The rare disengaged classes are precisely the ones a monitoring system must catch. The same imbalance holds within each split, so it is the nature of the problem, not an artefact of the partition.
+Two public datasets supply the labelled training data. DAiSEE~\cite{daisee} is a widely used in-the-wild engagement dataset of short frontal webcam clips, each showing a single learner under uncontrolled conditions and annotated on a four-level ordinal engagement scale, which makes it realistic but noisy; it ships official Train, Validation, and Test partitions used here directly for training, early-stopping validation, and testing. CMOSE~\cite{cmose} is a more recent and larger dataset, likewise collected in the wild but annotated by experts and reporting strong inter-rater agreement, and it ships precomputed OpenFace and I3D features; it is divided into a labelled training split, an \texttt{unlabel} split repurposed as the validation set for early stopping and checkpoint selection, and a test split. Both label every clip on the same four ordinal levels used throughout the thesis, E0 (Highly\nobreakdash-Disengage), E1 (Disengage), E2 (Engage), and E3 (Highly\nobreakdash-Engage), so that CMOSE, with its greater scale and label quality, serves as the primary source and DAiSEE as an independent second source.
 \input{Table/T3_1_dataset_stats}
 
-\begin{figure}[ht]
-\centering
-\includegraphics[width=0.85\linewidth]{dataset_class_distribution_overall.png}
-\caption{Engagement class distribution by dataset.}
-\label{fig:dataset_class_distribution_overall}
-\end{figure}
+Table~\ref{tab:T3_1_dataset_stats} shows that both datasets are heavily imbalanced toward the upper-middle engagement levels, and imbalanced in different directions: CMOSE concentrates on the single Engage level, whereas DAiSEE divides more evenly between Engage and Highly\nobreakdash-Engage. The disengaged levels are rare in both, yet they are precisely the responses a monitoring system must catch. The same skew holds within each individual split, so it reflects the nature of the task rather than an artefact of how either dataset was partitioned.
 
-This uneven imbalance shapes three choices the thesis returns to. It predicts difficulty in transferring between datasets, where a model fit to one label prior meets a different one at test time (Chapter~\ref{chap:results} and Appendix~\ref{chap:baseline}); it motivates the imbalance-aware losses of Section~\ref{sec:losses-method}; and, because predicting the majority class alone scores well on every dataset, it rules out accuracy as a selection criterion in favour of quadratic-weighted kappa (QWK), the single metric on which every best model is chosen, with macro-accuracy and macro-MAE kept as secondary balanced checks (Section~\ref{sec:eval}).
-
-\subsection{The private evaluation set}
+\subsection{Private dataset}
 \label{sec:private-collection}
 
-The private set measures deployment rather than in-dataset behaviour, and because no model is trained or selected on it, it is a test-only set. Although small, it is sampled in the wild, from the webcam recordings the model will face in deployment. It serves a purpose specific to engagement: the OpenFace gaze, head-pose, and landmark features are measured in the camera's image geometry, so a model validated only on the narrow range of setups in a public dataset offers no guarantee on the varied webcam angles of a real deployment. A small, locally collected, hand-labelled test set is the most direct way to check that a model is fit for its setting. It was built in five steps.
-
-\begin{enumerate}
-  \item \textbf{Source and segmentation.}
-  Webcam recordings of online-class sessions were sampled at several points and cut into fixed-length 10-second clips, each containing a single learner.
-  \item \textbf{Tracking-quality filtering.}
-  Every clip was run through the same OpenFace pipeline as the public datasets; clips with too few tracked frames were rejected, since a descriptor from unreliable frames is meaningless.
-  \item \textbf{Manual labelling.}
-  The accepted clips were labelled through a purpose-built local interface, one engagement label per clip; reliance on a single annotator is a limitation revisited in Section~\ref{sec:limitations}.
-  \item \textbf{Feature extraction.}
-  Accepted clips were processed through the same OpenFace (709-d per frame) and I3D (1024-d per clip) pipeline used for DAiSEE, identical in format to the features CMOSE ships precomputed, so the private features are distributionally comparable to the training features.
-  \item \textbf{Final set.}
-  The 366 clips with complete, aligned OpenFace and I3D features form the private set. Its label prior differs again from both public datasets (58.2\% E2, 30.6\% E3, 8.5\% E1, 2.7\% E0), which, with its independent recording conditions, makes it an in-the-wild measure of deployment behaviour. It anchors Section~\ref{sec:private}.
-\end{enumerate}
+The private set exists to measure deployment behaviour rather than in-dataset behaviour. No model is trained or selected on it, so it is a test-only set, and it is sampled from the webcam recordings a deployed model would actually face, so it probes a condition the public datasets leave untested. The reason this matters is geometric: the OpenFace gaze, head-pose, and landmark features are read from the camera's view of the face, so the same behaviour recorded from a different camera angle produces different feature values. Figure~\ref{fig:private-angles} shows private clips that differ along several axes: the camera's height and distance relative to the student's eye level, its position relative to the screen, its orientation, whether vertical or horizontal, and the background behind the learner, whether the real room, blurred, or a green screen. CMOSE and DAiSEE were recorded under far more uniform setups and so cannot exercise this variation, which makes a small, locally collected, hand-labelled set drawn from realistic online-class recordings the most direct way to check that a model stays fit once the camera geometry changes.
 
 \begin{figure}[htbp]
 \centering
 \begin{subfigure}{0.48\linewidth}
 \centering
 \includegraphics[height=3.2cm]{private1.png}
-\caption{Near-eye-level, camera above the screen.}
+\caption{}
 \label{fig:private-a}
 \end{subfigure}\hfill
 \begin{subfigure}{0.48\linewidth}
 \centering
 \includegraphics[height=3.2cm]{private2.png}
-\caption{High-angle, learner seated below a raised webcam.}
+\caption{}
 \label{fig:private-b}
 \end{subfigure}\\[1.5ex]
 \begin{subfigure}{0.48\linewidth}
 \centering
 \includegraphics[height=3.2cm]{private3.png}
-\caption{Low-angle, camera below eye level.}
+\caption{}
 \label{fig:private-c}
 \end{subfigure}\hfill
 \begin{subfigure}{0.48\linewidth}
 \centering
 \includegraphics[height=3.2cm]{private4.png}
-\caption{Steep low-angle, portrait-oriented phone camera.}
+\caption{}
 \label{fig:private-d}
 \end{subfigure}
 \caption{Representative frames from the private set, illustrating the range of camera angles found in unconstrained online-class recordings.}
 \label{fig:private-angles}
 \end{figure}
 
-The four frames in Figure~\ref{fig:private-angles} illustrate why the private set is a stricter test of deployment behaviour than either public dataset. Each learner sets up their own device, so the camera sits at a different height and tilt relative to the face: roughly at eye level in Figure~\ref{fig:private-a}, mounted above the screen and looking down in Figure~\ref{fig:private-b}, below eye level and looking up in Figure~\ref{fig:private-c}, and at a steep upward tilt from a portrait-oriented phone in Figure~\ref{fig:private-d}. Framing, background, lighting, and distance to the lens vary alongside the angle. Because the OpenFace gaze, head-pose, and landmark descriptors are measured in the camera's image geometry, this spread of viewpoints shifts the very features the models consume, in ways that the more uniform studio-style setups of CMOSE and DAiSEE do not exercise. The private set therefore probes whether a model trained on constrained recordings still generalises to the varied webcam geometry of a real online class.
+The set was built with the same feature pipeline as the public data. Webcam recordings of online-class sessions were sampled at several points and cut into fixed-length ten-second clips, each containing a single learner, and every clip was run through the OpenFace pipeline used for the public datasets, with clips that retained too few tracked frames discarded as unreliable. The accepted clips were then labelled through a purpose-built local interface, one engagement level per clip and by a single annotator, a reliance revisited as a limitation in Section~\ref{sec:limitations}. Finally, the same OpenFace (709-d per frame) and I3D (1024-d per clip) extractors used for DAiSEE were applied, so the private features share the format of the precomputed CMOSE features and are distributionally comparable to the training data, and the 366 clips with complete, aligned OpenFace and I3D features form the final set. Its label prior differs again from both public datasets and, together with its independent recording conditions, makes it an in-the-wild measure of deployment behaviour that anchors Section~\ref{sec:private}.
 
-\subsection{Features and preprocessing}
+\subsection{Preprocessing}
 
-Each clip is represented by per-frame OpenFace~2.0 descriptors (709-d)~\cite{openface2} and a clip-level I3D embedding (1024-d)~\cite{i3d}. CMOSE ships these features precomputed; for DAiSEE and the private set both are extracted from the raw video with the same toolkits, so all three sources share one feature format. When an OpenFace frame contains more than one detected face, the highest-confidence row is kept, and non-numeric entries are set to zero.
+Each clip is represented by two feature streams. OpenFace~2.0~\cite{openface2} produces a 709-dimensional descriptor for every frame, and I3D~\cite{i3d} produces a single 1024-dimensional embedding pooled over the whole clip. CMOSE ships both precomputed; for DAiSEE and the private set they are extracted from the raw video with the same toolkits, so all three sources share one feature format. When an OpenFace frame reports more than one detected face the highest-confidence row is kept, and any non-numeric entry is set to zero. Because clips differ in length, each OpenFace sequence is resampled along time to a fixed number of frames by per-feature linear interpolation, 300 frames by default, reduced to 150 for the largest training runs to fit memory and to 75 in the multimodal variant, while the I3D stream, being a single vector per clip, needs no temporal resampling and is encoded by an MLP (Section~\ref{sec:hybrid}).
 
-OpenFace clips vary in length, so each is resampled along time to a fixed number of frames by per-feature linear interpolation. The OpenFace sequence length is 300 frames for the single-dataset runs, reduced to 150 for the larger Combined runs to fit memory, and to 75 frames in the multimodal variant. The I3D feature is a single 1024-dimensional vector per clip, not a sequence, encoded by an MLP (Section~\ref{sec:hybrid}).
-
-Every feature is standardised by a per-feature $z$-score whose mean and standard deviation are fit on the training split only; the validation, test, and private sets are transformed with those training statistics, so no target-set information leaks into preprocessing. OpenFace and I3D are standardised with separate statistics.
+Every feature is then standardised by a per-feature $z$-score. The mean and standard deviation are fit on the training split alone, and the validation, test, and private sets are transformed with those training statistics, so no target-set information leaks into preprocessing. The OpenFace and I3D streams are standardised with separate statistics.
 
 \FloatBarrier
 \section{Baseline Models}
@@ -126,9 +95,7 @@ Five single-encoder baselines provide the comparison points and form the allow-l
   \item \texttt{openface\_transformer}: a linear projection to 128 dimensions, a sinusoidal positional encoding, and two Transformer encoder layers (4 heads, feed-forward width 256), mean-pooled and classified.
   \item \texttt{i3d\_mlp}: classifies the single 1024-d I3D clip vector with an MLP ($1024\!\to\!256\!\to\!128\!\to\!4$, dropout 0.3).
 \end{enumerate}
-A sixth model, \texttt{openface\_tcn\_i3d\_fusion} (a shared-fusion TCN over both modalities), exists in the codebase but is excluded from the assessment so the comparison isolates the feature-group hypothesis rather than modality fusion.
-
-The five baseline architectures are shown in Figure~\ref{fig:baselines}. The four OpenFace baselines (a--d) encode the full $T\times709$ sequence with a single encoder, while \texttt{i3d\_mlp} (e) classifies the pooled 1024-d I3D clip vector. Forcing one encoder, and therefore one temporal bias, onto all 709 mixed features is the design decision the proposed model revisits in Sections~\ref{sec:groups} and~\ref{sec:hybrid}.
+The five baseline architectures are shown in Figure~\ref{fig:baselines}. The four OpenFace baselines (a--d) encode the full $T\times709$ sequence with a single encoder, while \texttt{i3d\_mlp} (e) classifies the pooled 1024-d I3D clip vector. Forcing one encoder, and therefore one temporal bias, onto all 709 mixed features is the design decision the proposed model revisits in Section~\ref{sec:hybrid}.
 
 \begin{figure}[htbp]
 \centering
@@ -183,7 +150,13 @@ The five baseline architectures are shown in Figure~\ref{fig:baselines}. The fou
 \end{tikzpicture}}\fi
 \caption{\texttt{openface\_lstm}.}
 \label{fig:openface_lstm}
-\end{subfigure}\\[1.2ex]
+\end{subfigure}
+\caption{The five single-encoder baselines.}
+\label{fig:baselines}
+\end{figure}
+
+\begin{figure}[htbp]\ContinuedFloat
+\centering
 \begin{subfigure}{\linewidth}\centering
 \ifhanddrawn\includegraphics[width=\linewidth]{openface_transformer.png}\else\resizebox{\linewidth}{!}{%
 \begin{tikzpicture}[node distance=6mm and 7mm,>=Latex]
@@ -219,12 +192,14 @@ The five baseline architectures are shown in Figure~\ref{fig:baselines}. The fou
 \caption{\texttt{i3d\_mlp}.}
 \label{fig:i3d_mlp}
 \end{subfigure}
-\caption{The five single-encoder baselines.}
-\label{fig:baselines}
+\caption{The five single-encoder baselines (continued).}
 \end{figure}
 
 \FloatBarrier
-\section{Grouping the Facial Features by Meaning}
+\section{Proposed Hybrid Model}
+\label{sec:hybrid}
+
+\subsection{Grouping the facial features by meaning}
 \label{sec:groups}
 
 The 709 OpenFace features are partitioned into five meaningful groups by matching the column names, in the fixed order used everywhere in the pipeline (gaze, eye, face, head, action units). Table~\ref{tab:groups} summarises the partition; every one of the 709 columns belongs to exactly one group.
@@ -251,10 +226,9 @@ Action units  & facial action-unit presence and intensity     & 35  \\
 This decomposition is the inductive prior of the method. The five subsystems have different dynamics, so each can be matched to an encoder whose temporal bias suits it: gaze and eye landmarks show rapid, noisy micro-saccades; head pose drifts slowly and smoothly; action units fire in brief, sparse bursts. Encoding all 709 features together, as the single-encoder baselines of Section~\ref{sec:baselines} do, forces a single bias on all of them at once.
 
 \FloatBarrier
-\section{Proposed Hybrid Model}
-\label{sec:hybrid}
+\subsection{Model architecture}
 
-The proposed hybrid model, shown in Figure~\ref{fig:hybrid}, encodes each stream independently, fuses the resulting embeddings, and supervises every stream with its own auxiliary head. It is built from the same three encoder families as the OpenFace baselines of Section~\ref{sec:baselines} (TCN, Transformer, LSTM), but where a baseline applies one encoder to the full $T\times709$ sequence, the proposed model assigns an independently chosen encoder to each of the five feature groups of Section~\ref{sec:groups}, so any difference in performance is attributable to the decomposition rather than to a different kind of encoder.
+The proposed hybrid model, shown in Figure~\ref{fig:hybrid}, encodes each stream independently, fuses the resulting embeddings, and supervises every stream with its own auxiliary head. It is built from the same three encoder families as the OpenFace baselines of Section~\ref{sec:baselines} (TCN, Transformer, LSTM), but where a baseline applies one encoder to the full $T\times709$ sequence, the proposed model assigns an independently chosen encoder to each of the five feature groups defined above, so any difference in performance is attributable to the decomposition rather than to a different kind of encoder.
 
 \begin{figure}[htbp]
 \centering

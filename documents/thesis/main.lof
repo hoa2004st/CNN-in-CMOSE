@@ -5,25 +5,25 @@
 \contentsline {figure}{\numberline {2.2}{\ignorespaces LSTM cell at time step $t$}}{10}{figure.caption.9}%
 \contentsline {figure}{\numberline {2.3}{\ignorespaces Transformer encoder layer}}{10}{figure.caption.10}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {3.1}{\ignorespaces The baseline and the proposed hybrid model.}}{17}{figure.caption.11}%
-\contentsline {figure}{\numberline {3.2}{\ignorespaces Engagement class distribution by dataset.}}{19}{figure.caption.13}%
-\contentsline {figure}{\numberline {3.3}{\ignorespaces Representative frames from the private set, illustrating the range of camera angles found in unconstrained online-class recordings.}}{20}{figure.caption.14}%
-\contentsline {figure}{\numberline {3.4}{\ignorespaces The five single-encoder baselines.}}{23}{figure.caption.15}%
-\contentsline {figure}{\numberline {3.5}{\ignorespaces Proposed hybrid model architecture (I3D stream enabled; the I3D-stream-disabled variant drops the I3D row).}}{25}{figure.caption.17}%
-\contentsline {figure}{\numberline {3.6}{\ignorespaces The three interchangeable per-group encoders.}}{26}{figure.caption.18}%
+\contentsline {figure}{\numberline {3.1}{\ignorespaces The baseline and the proposed hybrid model.}}{16}{figure.caption.11}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Representative frames from the private set, illustrating the range of camera angles found in unconstrained online-class recordings.}}{18}{figure.caption.13}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces The five single-encoder baselines.}}{20}{figure.caption.14}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces The five single-encoder baselines (continued).}}{21}{figure.caption.15}%
+\contentsline {figure}{\numberline {3.4}{\ignorespaces Proposed hybrid model architecture (I3D stream enabled; the I3D-stream-disabled variant drops the I3D row).}}{22}{figure.caption.17}%
+\contentsline {figure}{\numberline {3.5}{\ignorespaces The three interchangeable per-group encoders.}}{23}{figure.caption.18}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {4.1}{\ignorespaces Ablation of the proposed hybrid model across all 243 per-group encoder configurations, with the I3D stream enabled and disabled, on all six metrics (in-domain CMOSE). The dashed line is the QWK-selected baseline (OpenFace TCN, cross-entropy).}}{31}{figure.caption.19}%
-\contentsline {figure}{\numberline {4.2}{\ignorespaces Cross-domain generalisation, best proposed-model configuration per cell (selected by QWK), on QWK, macro-accuracy, macro-MAE, and accuracy.}}{35}{figure.caption.23}%
-\contentsline {figure}{\numberline {4.3}{\ignorespaces Cell-by-cell advantage of the proposed model: best proposed-model minus best baseline QWK over the 3$\times $3 train$\times $test matrix (Figure~\ref {fig:crossdomain_hybrid} minus Figure~\ref {fig:crossdomain_base}).}}{36}{figure.caption.24}%
-\contentsline {figure}{\numberline {4.4}{\ignorespaces Private-set confusion of the combined-trained best baseline versus best proposed-model configuration (row-normalised).}}{37}{figure.caption.26}%
-\contentsline {figure}{\numberline {4.5}{\ignorespaces In-domain QWK (trained and tested on CMOSE) versus transfer QWK (trained on Combined, tested on the held-out private set); each configuration is one point pairing its own two runs. Spearman $\rho =0.27$ for the 486 proposed-model configurations and $0.31$ for the 15 baselines.}}{38}{figure.caption.27}%
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Ablation of the proposed hybrid model across all 243 per-group encoder configurations, with the I3D stream enabled and disabled, on all six metrics (in-domain CMOSE). The dashed line is the QWK-selected baseline (OpenFace TCN, cross-entropy).}}{28}{figure.caption.19}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Cross-domain generalisation, best proposed-model configuration per cell (selected by QWK), on QWK, macro-accuracy, macro-MAE, and accuracy.}}{32}{figure.caption.23}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Cell-by-cell advantage of the proposed model: best proposed-model minus best baseline QWK over the 3$\times $3 train$\times $test matrix (Figure~\ref {fig:crossdomain_hybrid} minus Figure~\ref {fig:crossdomain_base}).}}{33}{figure.caption.24}%
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Private-set confusion of the combined-trained best baseline versus best proposed-model configuration (row-normalised).}}{34}{figure.caption.26}%
+\contentsline {figure}{\numberline {4.5}{\ignorespaces In-domain QWK (trained and tested on CMOSE) versus transfer QWK (trained on Combined, tested on the held-out private set); each configuration is one point pairing its own two runs. Spearman $\rho =0.27$ for the 486 proposed-model configurations and $0.31$ for the 15 baselines.}}{35}{figure.caption.27}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {A.1}{\ignorespaces Rank agreement (Kendall $\tau $) between the six metrics over the fifteen baseline configurations, in-domain on CMOSE (MAE metrics sign-flipped so positive $\tau $ means agreement).}}{50}{figure.caption.31}%
-\contentsline {figure}{\numberline {A.2}{\ignorespaces QWK against the balanced secondary metrics (macro-accuracy and macro-MAE) for every baseline across the three losses, in-domain on CMOSE.}}{51}{figure.caption.33}%
-\contentsline {figure}{\numberline {A.3}{\ignorespaces The five baseline models under the three losses on all six metrics, in-domain on CMOSE.}}{52}{figure.caption.34}%
-\contentsline {figure}{\numberline {A.4}{\ignorespaces Pairwise prediction agreement (Cohen's $\kappa $) between all fifteen baseline configurations on the in-domain CMOSE test set, in model-major blocks.}}{54}{figure.caption.35}%
-\contentsline {figure}{\numberline {A.5}{\ignorespaces Cross-domain generalisation, best baseline per cell (selected by QWK), on QWK, macro-accuracy, macro-MAE, and accuracy.}}{55}{figure.caption.37}%
-\contentsline {figure}{\numberline {A.6}{\ignorespaces Architecture QWK ranking, in-domain (left; trained and tested on CMOSE) versus the mean over the five unseen-target cells (right), best over loss. One line per architecture, with the rank (1\,=\,best) at each end.}}{56}{figure.caption.38}%
+\contentsline {figure}{\numberline {A.1}{\ignorespaces Rank agreement (Kendall $\tau $) between the six metrics over the fifteen baseline configurations, in-domain on CMOSE (MAE metrics sign-flipped so positive $\tau $ means agreement).}}{47}{figure.caption.31}%
+\contentsline {figure}{\numberline {A.2}{\ignorespaces QWK against the balanced secondary metrics (macro-accuracy and macro-MAE) for every baseline across the three losses, in-domain on CMOSE.}}{48}{figure.caption.33}%
+\contentsline {figure}{\numberline {A.3}{\ignorespaces The five baseline models under the three losses on all six metrics, in-domain on CMOSE.}}{49}{figure.caption.34}%
+\contentsline {figure}{\numberline {A.4}{\ignorespaces Pairwise prediction agreement (Cohen's $\kappa $) between all fifteen baseline configurations on the in-domain CMOSE test set, in model-major blocks.}}{50}{figure.caption.35}%
+\contentsline {figure}{\numberline {A.5}{\ignorespaces Cross-domain generalisation, best baseline per cell (selected by QWK), on QWK, macro-accuracy, macro-MAE, and accuracy.}}{52}{figure.caption.37}%
+\contentsline {figure}{\numberline {A.6}{\ignorespaces Architecture QWK ranking, in-domain (left; trained and tested on CMOSE) versus the mean over the five unseen-target cells (right), best over loss. One line per architecture, with the rank (1\,=\,best) at each end.}}{53}{figure.caption.38}%
 \contentsfinish 
 \contentsfinish 

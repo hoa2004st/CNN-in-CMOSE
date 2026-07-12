@@ -2,14 +2,6 @@
 \begin{document}
 
 \FloatBarrier
-\section{Overview}
-\label{sec:baseline-overview}
-
-This appendix studies the five single-encoder baselines (a feature sequence pushed through one temporal encoder, Section~\ref{sec:baselines}) and, in doing so, establishes the evaluation frame the rest of the thesis depends on. A comparison needs two things the baselines supply: a reference level that the proposed architecture must exceed, and a defensible protocol for deciding what ``better'' means on an ordinal, imbalanced task.
-
-The appendix proceeds as a sequence of experiments, each stating its aim, its setting, its result, and the conclusion that leads to the next. Section~\ref{sec:setup-baseline} states how the experiments are conducted. Section~\ref{sec:protocol} then establishes the evaluation protocol through three experiments that fix, in turn, the primary metric, the development dataset, and the development loss. Under that protocol, Section~\ref{sec:baseline-results} ranks the baselines and sets the reference level, Section~\ref{sec:agreement} asks whether models with similar scores agree on individual clips (the analysis that motivates the proposed hybrid model of Chapter~\ref{chap:results}), and Section~\ref{sec:crossdomain} takes the baselines out of domain in the 3$\times$3 matrix and closes two arguments the protocol leaves open. Section~\ref{sec:baseline-summary} draws the frame together.
-
-\FloatBarrier
 \section{Experimental Setup}
 \label{sec:setup-baseline}
 
