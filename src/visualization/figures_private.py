@@ -14,7 +14,7 @@ from pathlib import Path
 import numpy as np
 
 from src.analysis import aggregate as ag
-from src.visualization.figbase import new_fig, save
+from src.visualization.figbase import autosize_cell_text, mark_cell_texts, new_fig, save
 from src.visualization.style import (
     CLASS_LABEL_SHORT,
     CLASS_LABELS,
@@ -65,10 +65,12 @@ def _plot_private_cm(ax, cm, title: str):
     ax.set_yticks(range(len(_SHORT))); ax.set_yticklabels(_SHORT)
     ax.set_xlabel("Predicted"); ax.set_ylabel("True")
     ax.grid(False)
+    texts = []
     for i in range(cm.shape[0]):
         for j in range(cm.shape[1]):
-            ax.text(j, i, f"{cm[i, j]:.3f}", ha="center", va="center", fontsize=12,
-                    color="white" if cm[i, j] > 0.5 else "black")
+            texts.append(ax.text(j, i, f"{cm[i, j]:.3f}", ha="center", va="center",
+                                 fontsize=12, color="white" if cm[i, j] > 0.5 else "black"))
+    mark_cell_texts(ax, texts)
     ax.set_title(title, fontsize=9)
     return im
 
@@ -111,7 +113,7 @@ def fig_private_confusion(directory: Path | None = None) -> Path:
     for ax, (cm, title) in zip(axes, panels):
         im = _plot_private_cm(ax, cm, title)
     fig.colorbar(im, ax=list(axes), fraction=0.046, pad=0.04, label="Row-normalized")
-    fig.suptitle("Private set (combined-trained, row-normalized)", y=1.04, fontweight="bold")
+    autosize_cell_text(fig)
     return save(fig, "private_confusion_combined", directory=directory)
 
 
@@ -145,7 +147,6 @@ def fig_private_per_class_f1(directory: Path | None = None) -> Path:
     ax.set_xticklabels(_SHORT)
     ax.set_ylabel("Per-class F1")
     ax.set_ylim(0, 1)
-    ax.set_title("Per-class F1 on the private set")
     ax.legend(loc="upper left")
     return save(fig, "private_per_class_f1", directory=directory)
 

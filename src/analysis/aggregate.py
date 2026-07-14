@@ -174,6 +174,20 @@ def cell_matrix(frame: pd.DataFrame, metric: str = SELECTION_METRIC) -> pd.DataF
     return pivot.reindex(index=TRAIN_GROUPS, columns=TEST_SETS)
 
 
+def qwk_selected_cell_matrix(frame: pd.DataFrame, metric: str) -> pd.DataFrame:
+    """3x3 train x test matrix of ``metric`` for the single QWK-best config in each cell.
+
+    Unlike :func:`cell_matrix`, which picks the config that is best *on the requested metric*
+    in each cell (so different panels of a six-metric figure can show different configs), this
+    selects one config per cell by the primary metric (QWK) and reports that same config's value
+    on ``metric``. Every panel of a six-metric figure then shows the metric profile of the one
+    model that would actually be deployed in that cell — the honest reading of "the best model".
+    """
+    best = best_per_cell(frame, SELECTION_METRIC)
+    pivot = best.pivot(index="train_group", columns="test_set", values=metric)
+    return pivot.reindex(index=TRAIN_GROUPS, columns=TEST_SETS)
+
+
 # --------------------------------------------------------------------------------------
 # Training histories (loss curves + confusion + per-class report)
 # --------------------------------------------------------------------------------------

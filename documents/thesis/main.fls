@@ -1,6 +1,6 @@
-PWD C:\HOA\1.HUST\Thesis\CNN-in-CMOSE\documents\thesis
+PWD c:\HOA\1.HUST\Thesis\CNN-in-CMOSE\documents\thesis
 INPUT C:\Users\NC PC\AppData\Local\MiKTeX\miktex\data\le\pdftex\pdflatex.fmt
-INPUT main.tex
+INPUT c:\HOA\1.HUST\Thesis\CNN-in-CMOSE\documents\thesis\main.tex
 OUTPUT main.log
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\base\report.cls
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\tex\latex\base\report.cls
@@ -739,14 +739,12 @@ INPUT .\Figure\hybrid_lstm_encoder.png
 INPUT .\Figure\hybrid_lstm_encoder.png
 INPUT .\Figure\hybrid_lstm_encoder.png
 INPUT .\Figure\hybrid_lstm_encoder.png
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\ucrr8v.tfm
-INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\ucrr8v.tfm
-INPUT .\Chapter\5_Semantic_group_hybrid.tex
-INPUT .\Chapter\5_Semantic_group_hybrid.tex
-INPUT Chapter\5_Semantic_group_hybrid.tex
-INPUT .\Chapter\5_Semantic_group_hybrid.tex
-INPUT .\Chapter\5_Semantic_group_hybrid.tex
-INPUT Chapter\5_Semantic_group_hybrid.tex
+INPUT .\Chapter\4_Experimental_results.tex
+INPUT .\Chapter\4_Experimental_results.tex
+INPUT Chapter\4_Experimental_results.tex
+INPUT .\Chapter\4_Experimental_results.tex
+INPUT .\Chapter\4_Experimental_results.tex
+INPUT Chapter\4_Experimental_results.tex
 INPUT .\Figure\hybrid_ablation_all_metrics.png
 INPUT Figure\hybrid_ablation_all_metrics.png
 INPUT .\Figure\hybrid_ablation_all_metrics.png
@@ -759,12 +757,6 @@ INPUT Table\T5_1_group_marginal_combined.tex
 INPUT .\Table\T5_1_group_marginal_combined.tex
 INPUT .\Table\T5_1_group_marginal_combined.tex
 INPUT Table\T5_1_group_marginal_combined.tex
-INPUT .\Table\T5_2_i3d_fusion_effect.tex
-INPUT .\Table\T5_2_i3d_fusion_effect.tex
-INPUT Table\T5_2_i3d_fusion_effect.tex
-INPUT .\Table\T5_2_i3d_fusion_effect.tex
-INPUT .\Table\T5_2_i3d_fusion_effect.tex
-INPUT Table\T5_2_i3d_fusion_effect.tex
 INPUT .\Table\T5_3_hybrid_topk.tex
 INPUT .\Table\T5_3_hybrid_topk.tex
 INPUT Table\T5_3_hybrid_topk.tex
@@ -784,39 +776,41 @@ INPUT .\Figure\crossdomain_delta.png
 INPUT .\Figure\crossdomain_delta.png
 INPUT .\Figure\crossdomain_delta.png
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmbx8.tfm
-INPUT .\Table\T5_4_private_by_source.tex
-INPUT .\Table\T5_4_private_by_source.tex
-INPUT Table\T5_4_private_by_source.tex
-INPUT .\Table\T5_4_private_by_source.tex
-INPUT .\Table\T5_4_private_by_source.tex
-INPUT Table\T5_4_private_by_source.tex
-INPUT .\Figure\private_confusion_combined.png
-INPUT Figure\private_confusion_combined.png
-INPUT .\Figure\private_confusion_combined.png
-INPUT .\Figure\private_confusion_combined.png
-INPUT .\Figure\private_confusion_combined.png
-INPUT .\Figure\private_confusion_combined.png
+INPUT .\Table\T5_2_i3d_fusion_effect.tex
+INPUT .\Table\T5_2_i3d_fusion_effect.tex
+INPUT Table\T5_2_i3d_fusion_effect.tex
+INPUT .\Table\T5_2_i3d_fusion_effect.tex
+INPUT .\Table\T5_2_i3d_fusion_effect.tex
+INPUT Table\T5_2_i3d_fusion_effect.tex
+INPUT .\Figure\private_per_class_f1.png
+INPUT Figure\private_per_class_f1.png
+INPUT .\Figure\private_per_class_f1.png
+INPUT .\Figure\private_per_class_f1.png
+INPUT .\Figure\private_per_class_f1.png
+INPUT .\Figure\private_per_class_f1.png
 INPUT .\Figure\indomain_vs_generalization_hybrid.png
 INPUT Figure\indomain_vs_generalization_hybrid.png
 INPUT .\Figure\indomain_vs_generalization_hybrid.png
 INPUT .\Figure\indomain_vs_generalization_hybrid.png
 INPUT .\Figure\indomain_vs_generalization_hybrid.png
 INPUT .\Figure\indomain_vs_generalization_hybrid.png
-INPUT .\Chapter\6_Conclusions.tex
-INPUT .\Chapter\6_Conclusions.tex
-INPUT Chapter\6_Conclusions.tex
-INPUT .\Chapter\6_Conclusions.tex
-INPUT .\Chapter\6_Conclusions.tex
-INPUT Chapter\6_Conclusions.tex
+INPUT .\Chapter\5_Conclusions.tex
+INPUT .\Chapter\5_Conclusions.tex
+INPUT Chapter\5_Conclusions.tex
+INPUT .\Chapter\5_Conclusions.tex
+INPUT .\Chapter\5_Conclusions.tex
+INPUT Chapter\5_Conclusions.tex
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmrc8v.tfm
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\vf\vntex\urwvn\utmrc8v.vf
 INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
-INPUT .\Chapter\4_Baseline_models.tex
-INPUT .\Chapter\4_Baseline_models.tex
-INPUT Chapter\4_Baseline_models.tex
-INPUT .\Chapter\4_Baseline_models.tex
-INPUT .\Chapter\4_Baseline_models.tex
-INPUT Chapter\4_Baseline_models.tex
+INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmr8v.tfm
+INPUT C:\Users\NC PC\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\urwvn\utmb8v.tfm
+INPUT .\Chapter\A_Baseline_models.tex
+INPUT .\Chapter\A_Baseline_models.tex
+INPUT Chapter\A_Baseline_models.tex
+INPUT .\Chapter\A_Baseline_models.tex
+INPUT .\Chapter\A_Baseline_models.tex
+INPUT Chapter\A_Baseline_models.tex
 INPUT .\Table\T4_1_per_metric_winner.tex
 INPUT .\Table\T4_1_per_metric_winner.tex
 INPUT Table\T4_1_per_metric_winner.tex
@@ -829,12 +823,6 @@ INPUT .\Figure\metric_correlation_base.png
 INPUT .\Figure\metric_correlation_base.png
 INPUT .\Figure\metric_correlation_base.png
 INPUT .\Figure\metric_correlation_base.png
-INPUT .\Table\T4_2_indomain_datasets.tex
-INPUT .\Table\T4_2_indomain_datasets.tex
-INPUT Table\T4_2_indomain_datasets.tex
-INPUT .\Table\T4_2_indomain_datasets.tex
-INPUT .\Table\T4_2_indomain_datasets.tex
-INPUT Table\T4_2_indomain_datasets.tex
 INPUT .\Figure\loss_metric_tradeoff.png
 INPUT Figure\loss_metric_tradeoff.png
 INPUT .\Figure\loss_metric_tradeoff.png
@@ -853,24 +841,12 @@ INPUT .\Figure\agreement_base_models.png
 INPUT .\Figure\agreement_base_models.png
 INPUT .\Figure\agreement_base_models.png
 INPUT .\Figure\agreement_base_models.png
-INPUT .\Table\T4_3_openface_vs_i3d.tex
-INPUT .\Table\T4_3_openface_vs_i3d.tex
-INPUT Table\T4_3_openface_vs_i3d.tex
-INPUT .\Table\T4_3_openface_vs_i3d.tex
-INPUT .\Table\T4_3_openface_vs_i3d.tex
-INPUT Table\T4_3_openface_vs_i3d.tex
 INPUT .\Figure\crossdomain_base.png
 INPUT Figure\crossdomain_base.png
 INPUT .\Figure\crossdomain_base.png
 INPUT .\Figure\crossdomain_base.png
 INPUT .\Figure\crossdomain_base.png
 INPUT .\Figure\crossdomain_base.png
-INPUT .\Figure\architecture_ranking_shift.png
-INPUT Figure\architecture_ranking_shift.png
-INPUT .\Figure\architecture_ranking_shift.png
-INPUT .\Figure\architecture_ranking_shift.png
-INPUT .\Figure\architecture_ranking_shift.png
-INPUT .\Figure\architecture_ranking_shift.png
 INPUT main.aux
 INPUT .\main.out
 INPUT .\main.out

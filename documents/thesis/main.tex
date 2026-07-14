@@ -157,6 +157,8 @@
 \setlength{\emergencystretch}{4em} % last resort: stretch lines instead of overflowing the margin
 \widowpenalty=10000   % forbid a paragraph's last line alone at the top of a page
 \clubpenalty=10000    % forbid a paragraph's first line alone at the bottom of a page
+\displaywidowpenalty=10000 % same, for the lines around a displayed equation
+\brokenpenalty=10000  % never break a page just after a hyphenated line
 % Turn off end-of-line hyphenation: spread the words with extra space instead of breaking them
 \hyphenpenalty=10000  % never hyphenate a normal word at line end
 \exhyphenpenalty=10000 % never break at an existing hyphen either
@@ -259,11 +261,11 @@
 
 \newpage
 \chapter{EXPERIMENTAL RESULTS}\label{chap:results}
-\subfile{Chapter/5_Semantic_group_hybrid}
+\subfile{Chapter/4_Experimental_results}
 
 \newpage
 \chapter{CONCLUSIONS}\label{chap:conclusions}
-\subfile{Chapter/6_Conclusions}
+\subfile{Chapter/5_Conclusions}
 
 % ===================================================
 \newpage
@@ -274,7 +276,9 @@
 % =========================== APPENDIX ==============
 % The single-encoder baseline study is a supporting deep-dive, relegated here.
 \newpage
+\appendixpage        % standalone "APPENDIX" divider page (as in the HUST template)
 \appendix
+\addappheadtotoc     % add an "APPENDIX" heading to the table of contents
 \renewcommand{\chaptername}{APPENDIX}
 % Appendix chapters read "APPENDIX A." rather than "CHAPTER A." in both the heading
 % and the table of contents (the body uses a custom \titleformat for chapters).
@@ -286,6 +290,6 @@
     {}
     {\titlerule*[0.3pc]{.}\contentspage}
 \chapter{BASELINE MODELS}\label{chap:baseline}
-\subfile{Chapter/4_Baseline_models}
+\subfile{Chapter/A_Baseline_models}
 
 \end{document}

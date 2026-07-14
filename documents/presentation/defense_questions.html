@@ -111,15 +111,15 @@
       <span class="chev">▶</span></div>
     <div class="answer"><div class="answer-inner"><span class="label">Answer</span>
       <p>The division by \((C-1)^2\) rescales the penalty matrix so its entries run from \(0\) (correct) to \(1\) (worst possible ordinal error), independent of how many classes \(C\) there are. The largest distance is \(|i-j|=C-1\), so the divisor maps that worst case to exactly \(1\).</p>
-      <p>With \(C=4\) and class indices \(0,1,2,3\) (HD, DE, EG, HE), the weight grid is:</p>
+      <p>With \(C=4\) and class indices \(0,1,2,3\) (E0 Highly-Disengage, E1 Disengage, E2 Engage, E3 Highly-Engage), the weight grid is:</p>
       <ul>
         <li>\(|i-j|=0\) (correct): \(0/9=0\)</li>
-        <li>\(|i-j|=1\) (e.g. EG↔HE): \(1/9\approx0.111\)</li>
-        <li>\(|i-j|=2\) (e.g. DE↔HE): \(4/9\approx0.444\)</li>
-        <li>\(|i-j|=3\) (HD↔HE): \(9/9=1\)</li>
+        <li>\(|i-j|=1\) (e.g. E2↔E3): \(1/9\approx0.111\)</li>
+        <li>\(|i-j|=2\) (e.g. E1↔E3): \(4/9\approx0.444\)</li>
+        <li>\(|i-j|=3\) (E0↔E3): \(9/9=1\)</li>
       </ul>
       <span class="eg"><b>Worth being precise:</b> because the same \((C-1)^2\) multiplies both the numerator and denominator of \(\text{QWK}=1-\frac{\sum w_{ij}O_{ij}}{\sum w_{ij}E_{ij}}\), it <em>cancels</em> and does not change the QWK value. Its real job is to give a standard, \(C\)-independent weight scale so the penalty reads as "fraction of the worst error." The \([-1,1]\) range of QWK comes from the chance-correction in kappa, not from this divisor.</span>
-      <p>Using the <em>square</em> (not \(|i-j|\)) is the substantive choice: a 3-step error costs \(9\times\) a 1-step error, so QWK punishes HD↔HE confusions far harder than neighbour confusions — exactly what an ordinal task wants.</p>
+      <p>Using the <em>square</em> (not \(|i-j|\)) is the substantive choice: a 3-step error costs \(9\times\) a 1-step error, so QWK punishes E0↔E3 confusions far harder than neighbour confusions — exactly what an ordinal task wants.</p>
     </div></div>
   </div>
 
@@ -192,14 +192,14 @@
       <span class="chev">▶</span></div>
     <div class="answer"><div class="answer-inner"><span class="label">Answer</span>
       <p>It is the <em>squared</em>-EMD (CDF-MSE). The exact 1-D Earth Mover's / 1-Wasserstein distance is the \(L_1\) sum \(\sum_k\big|\,\mathrm{CDF}_{\hat y}(k)-\mathrm{CDF}_{y}(k)\,\big|\); mine squares each term. Both are \(0\) only when the distributions match and both grow with how far probability mass must travel across the ordered classes. I square because (a) \(L_1\) has a non-differentiable kink at \(0\) whereas the square is smooth everywhere (better gradients), and (b) squaring penalises a far miss super-linearly.</p>
-      <p><b>Worked example.</b> True class = HD, so the target CDF is \([1,1,1,1]\).</p>
+      <p><b>Worked example.</b> True class = E0 (Highly-Disengage), so the target CDF is \([1,1,1,1]\).</p>
       <ul>
-        <li>Predict all mass on HE → \(\mathrm{CDF}=[0,0,0,1]\), diffs \([1,1,1,0]\): \(L_1=3\), squared \(=3\).</li>
-        <li>Predict all mass on DE (one step off) → \(\mathrm{CDF}=[0,1,1,1]\), diffs \([1,0,0,0]\): \(L_1=1\), squared \(=1\).</li>
-        <li>Predict spread \([0.5\,\text{HD},0,0,0.5\,\text{HE}]\) → \(\mathrm{CDF}=[.5,.5,.5,1]\), diffs \([.5,.5,.5,0]\): \(L_1=1.5\), squared \(=0.75\).</li>
+        <li>Predict all mass on E3 → \(\mathrm{CDF}=[0,0,0,1]\), diffs \([1,1,1,0]\): \(L_1=3\), squared \(=3\).</li>
+        <li>Predict all mass on E1 (one step off) → \(\mathrm{CDF}=[0,1,1,1]\), diffs \([1,0,0,0]\): \(L_1=1\), squared \(=1\).</li>
+        <li>Predict spread \([0.5\,\text{E0},0,0,0.5\,\text{E3}]\) → \(\mathrm{CDF}=[.5,.5,.5,1]\), diffs \([.5,.5,.5,0]\): \(L_1=1.5\), squared \(=0.75\).</li>
       </ul>
       <span class="eg">The third case is where the two diverge: \(L_1=1.5\) vs squared \(=0.75\) — squaring rewards getting <em>half</em> the mass onto the correct extreme more than \(L_1\) does.</span>
-      <p><b>Resolved in the thesis:</b> the loss is now named the "ordinal squared-EMD (CDF-MSE) loss" and cited to Hou et&nbsp;al. (2016); §2.5 states explicitly that this is the <em>squared</em> EMD, not the exact Earth Mover's / 1-Wasserstein distance (which is the unsquared \(L_1\) CDF distance).</p>
+      <p><b>Resolved in the thesis:</b> the loss is named the "ordinal squared-EMD (CDF-MSE) loss" and cited to Hou et&nbsp;al. (2016); the Literature Review's loss-functions section (§2.3, Background Knowledge) states explicitly that this is the <em>squared</em> EMD, not the exact Earth Mover's / 1-Wasserstein distance (which is the unsquared \(L_1\) CDF distance).</p>
     </div></div>
   </div>
 
@@ -211,7 +211,7 @@
       <p><b>Proof of mean-1.</b></p>
       \[ \frac1C\sum_{c} w_c=\frac1C\sum_c\frac{1}{n_c}\cdot\frac{C}{\sum_k 1/n_k}=\frac{\sum_c 1/n_c}{\sum_k 1/n_k}=1. \]
       <p>The \(\sum_k 1/n_k\) in the denominator cancels the \(\sum_c 1/n_c\) in the numerator, so the weights average to exactly 1 by construction.</p>
-      <span class="eg"><b>Numeric example</b> (illustrative CMOSE-like counts \(n=[\text{HD }350,\text{DE }1500,\text{EG }8400,\text{HE }1900]\)): \(\sum 1/n_k\approx0.00417\), so \(C/\sum=4/0.00417\approx959\). Then \(w_{\text{HD}}\approx959/350\approx2.74\), \(w_{\text{DE}}\approx0.64\), \(w_{\text{EG}}\approx0.114\), \(w_{\text{HE}}\approx0.505\) — mean \(=1.0\). The rare HD class is up-weighted \(\sim2.7\times\); the majority EG is down-weighted to \(\sim0.11\times\).</span>
+      <span class="eg"><b>Numeric example</b> (illustrative CMOSE-like counts \(n=[\text{E0 }350,\text{E1 }1500,\text{E2 }8400,\text{E3 }1900]\)): \(\sum 1/n_k\approx0.00417\), so \(C/\sum=4/0.00417\approx959\). Then \(w_{\text{E0}}\approx959/350\approx2.74\), \(w_{\text{E1}}\approx0.64\), \(w_{\text{E2}}\approx0.114\), \(w_{\text{E3}}\approx0.505\) — mean \(=1.0\). The rare E0 (Highly-Disengage) class is up-weighted \(\sim2.7\times\); the majority E2 (Engage) is down-weighted to \(\sim0.11\times\).</span>
       <p><b>Why mean-1, not plain \(1/n_c\).</b> Plain \(1/n_c\) values are tiny (\(\sim10^{-3}\)) and dataset-dependent, so they would shrink the total loss magnitude and silently change the effective learning rate — making CE, WCE and the ordinal loss no longer comparable. Rescaling to mean-1 fixes the overall gradient scale so that <em>only the relative emphasis between classes</em> differs across the three losses, which is the thing I actually want to study.</p>
     </div></div>
   </div>
@@ -235,7 +235,7 @@
       <span class="q-text">In your reported hybrid, both the main head and the auxiliary heads use cross-entropy. Why CE for the auxiliary heads — and given the class imbalance, why not a weighted or ordinal auxiliary loss?</span>
       <span class="chev">▶</span></div>
     <div class="answer"><div class="answer-inner"><span class="label">Answer</span>
-      <p>First, to be precise about what I actually run: the 243-configuration hybrid ablation fixes the <em>main</em> loss to cross-entropy (to isolate the effect of architecture from the effect of the loss, §3.6), and the auxiliary heads are always cross-entropy — so in the reported model <b>both heads are CE; they are matched</b>. The general formulation admits WCE or squared-EMD for the main head, but that is not the configuration the hybrid results are reported on.</p>
+      <p>First, to be precise about what I actually run: the 243-configuration hybrid ablation fixes the <em>main</em> loss to cross-entropy (to isolate the effect of architecture from the effect of the loss; Chapter 4, Experimental Setup), and the auxiliary heads are always cross-entropy — so in the reported model <b>both heads are CE; they are matched</b>. The general formulation admits WCE or squared-EMD for the main head, but that is not the configuration the hybrid results are reported on.</p>
       <p>Why CE for the auxiliary heads specifically: their only job is deep supervision — keeping each stream individually discriminative so the fused head cannot lean on one or two streams. CE on a 4-way head is a simple, stable signal for that. The auxiliary term is a <em>representation regulariser</em>, not the place where class imbalance or ordinality is meant to be corrected, so a weighted or ordinal auxiliary loss is not needed there.</p>
       <span class="eg"><b>Design benefit:</b> keeping the auxiliary heads fixed at CE also means that <em>if</em> the main loss is ever varied (the formulation allows it), the auxiliary path stays a constant, loss-agnostic anchor, so a main-loss change remains a clean one-variable change.</span>
     </div></div>
@@ -314,7 +314,7 @@
     <div class="answer"><div class="answer-inner"><span class="label">Answer</span>
       <p>Nothing meaningful is pooled — the I3D stream is fed a <b>single 1024-d vector</b>. CMOSE/DAiSEE ship exactly one 1024-d embedding per clip (the dataset's <code>embeds</code> field, already pooled over space and time at the source), and the stream just encodes that vector with an MLP.</p>
       <p>The "mean-pool" wording was an <em>implementation artifact</em>, not part of the model design: to share the batched \((B,T,F)\) tensor layout of the OpenFace streams, the data loader duplicates the single vector across \(T\) time steps, and a mean-pool then collapses those identical copies back to the one vector — a no-op round-trip. It has nothing to do with the method.</p>
-      <span class="eg"><b>Resolved in the thesis:</b> because the mean-pool is just a plumbing workaround for a duplicated feature, the wording has been removed. §3.2 now reads simply "the I3D feature is a single 1024-dimensional vector per clip … encoded by an MLP," and the <code>i3d_mlp</code> baseline "classifies the single 1024-d I3D clip vector with an MLP."</span>
+      <span class="eg"><b>Resolved in the thesis:</b> because the mean-pool is just a plumbing workaround for a duplicated feature, the wording has been removed. The Methodology's preprocessing section (§3.2) now reads simply "the I3D feature is a single 1024-dimensional vector per clip … encoded by an MLP," and the <code>i3d_mlp</code> baseline "classifies the single 1024-d I3D clip vector with an MLP."</span>
     </div></div>
   </div>
 
@@ -341,10 +341,10 @@
 
   <div class="q">
     <div class="q-head"><span class="qid">Q18</span>
-      <span class="q-text">DAiSEE has four official engagement levels (0–3); you map them onto HD/DE/EG/HE. Did you verify the ordinal direction matches CMOSE? A flipped mapping would silently destroy cross-dataset QWK.</span>
+      <span class="q-text">DAiSEE has four official engagement levels (0–3); you map them onto E0–E3. Did you verify the ordinal direction matches CMOSE? A flipped mapping would silently destroy cross-dataset QWK.</span>
       <span class="chev">▶</span></div>
     <div class="answer"><div class="answer-inner"><span class="label">Answer</span>
-      <p>Yes, verified. DAiSEE levels \(0,1,2,3\) (Very Low → Very High engagement) map to HD, DE, EG, HE; CMOSE's HD&lt;DE&lt;EG&lt;HE is also ascending. Both put index 0 at "least engaged," so the axes are aligned.</p>
+      <p>Yes, verified. DAiSEE levels \(0,1,2,3\) (Very Low → Very High engagement) map to E0, E1, E2, E3; CMOSE's E0&lt;E1&lt;E2&lt;E3 is also ascending. Both put E0 at "least engaged" (Highly-Disengage), so the axes are aligned.</p>
       <span class="eg"><b>Why I checked it explicitly:</b> the entire cross-dataset collapse claim depends on aligned label axes. If the mapping were reversed, a model that actually transfers well would show <em>catastrophic negative</em> off-diagonal QWK, and I'd wrongly report a transfer failure. I sanity-checked by confirming the high-engagement DAiSEE classes dominate as the dataset paper documents.</span>
     </div></div>
   </div>
@@ -353,13 +353,13 @@
 
   <div class="q gotcha">
     <div class="q-head"><span class="qid">Q19</span>
-      <span class="q-text"><span class="badge">GOTCHA</span>The oracle 97.6% (best single 77.3%) is over "the fifteen" configs in §4.4, but §6.2 calls it "a perfect picker over the thirty baseline configurations." Fifteen or thirty?</span>
+      <span class="q-text"><span class="badge">GOTCHA</span>The oracle 97.6% (best single 77.3%) — over how many configurations, and does the Conclusions figure agree with the Prediction-Agreement section?</span>
       <span class="chev">▶</span></div>
     <div class="answer"><div class="answer-inner"><span class="label">Answer</span>
-      <p><b>Fifteen</b> is correct. The in-domain CMOSE oracle is over the 15 baseline configurations evaluated on the CMOSE test split:</p>
+      <p><b>Fifteen.</b> The in-domain CMOSE oracle is over the 15 baseline configurations evaluated on the CMOSE test split:</p>
       \[ 5\ \text{architectures}\times 3\ \text{losses}=15. \]
-      <p>"Thirty" in the Conclusions is an error — it conflates the 15 with a second training source (it looks like \(15\times2\)). Both chapters quote the identical numbers (97.6% oracle, 77.3% best single), so they must cite the same pool size.</p>
-      <span class="eg"><b>Resolved:</b> the Conclusions sentence now reads "fifteen," matching §4.4. (This is the kind of slip a committee catches by reading two chapters side by side.)</span>
+      <p>In the rewrite the baseline study lives in <b>Appendix A</b> (its Prediction-Agreement section), and the Conclusions (Chapter 5) reference the same fifteen-configuration oracle — 97.6% oracle, 77.3% best single, 73.5% majority vote — so the two places cite the identical pool size.</p>
+      <span class="eg"><b>Watch for:</b> an earlier draft conflated the 15 with a second training source and wrote "thirty" — that slip is gone; both places now say fifteen. (This is the kind of slip a committee catches by reading two chapters side by side.)</span>
     </div></div>
   </div>
 
@@ -394,12 +394,12 @@
 
   <div class="q">
     <div class="q-head"><span class="qid">Q22</span>
-      <span class="q-text">Private set: 366 clips, 2.7% Highly-Disengage, and "all ten private HD clips are misread." Confirm the arithmetic and explain why a 10-clip class makes HD recall meaningless.</span>
+      <span class="q-text">Private set: 366 clips, 2.7% E0 (Highly-Disengage), and "all ten private E0 clips are misread." Confirm the arithmetic and explain why a 10-clip class makes E0 recall meaningless.</span>
       <span class="chev">▶</span></div>
     <div class="answer"><div class="answer-inner"><span class="label">Answer</span>
-      <p>\(0.027\times366\approx9.9\approx10\) HD clips — consistent. With only ten positives, recall moves in \(10\)-percentage-point jumps: getting one right takes HD recall from \(0\%\) to \(10\%\).</p>
-      <span class="eg"><b>Why it's uninformative:</b> a 95% confidence interval on a proportion estimated from \(n=10\) spans roughly \(\pm30\) points, so HD recall on the private set is essentially a coin-flip-level statistic. One annotation error or one lucky clip swings it wildly.</span>
-      <p>That is exactly why I report the private-set HD result as a stated limitation alongside the class count, rather than as a reliable per-class measurement.</p>
+      <p>\(0.027\times366\approx9.9\approx10\) E0 clips — consistent. With only ten positives, recall moves in \(10\)-percentage-point jumps: getting one right takes E0 recall from \(0\%\) to \(10\%\).</p>
+      <span class="eg"><b>Why it's uninformative:</b> a 95% confidence interval on a proportion estimated from \(n=10\) spans roughly \(\pm30\) points, so E0 recall on the private set is essentially a coin-flip-level statistic. One annotation error or one lucky clip swings it wildly.</span>
+      <p>That is exactly why I report the private-set E0 result as a stated limitation alongside the class count, rather than as a reliable per-class measurement — and the thesis reads its collapse to zero as directional, not exact.</p>
     </div></div>
   </div>
 
@@ -417,7 +417,7 @@
 
   <div class="q gotcha">
     <div class="q-head"><span class="qid">Q24</span>
-      <span class="q-text"><span class="badge">GOTCHA</span>Figure 5.6 (in-domain vs transfer): how is the population defined, and is the Spearman \(\rho\) computed on a single population or on pooled training sources?</span>
+      <span class="q-text"><span class="badge">GOTCHA</span>The in-domain-vs-transfer figure (Chapter 4, Cross-Dataset Result): how is the population defined, and is the Spearman \(\rho\) computed on a single population or on pooled training sources?</span>
       <span class="chev">▶</span></div>
     <div class="answer"><div class="answer-inner"><span class="label">Answer</span>
       <p>An earlier version of this figure was <em>methodologically flawed</em>: it pooled the cmose-trained and daisee-trained models — two distinct populations — into one scatter and computed a single \(\rho=-0.31\). Mixing two populations can flip the sign of a correlation (a Simpson's-paradox effect), so that negative value was an artifact, not a finding.</p>
@@ -426,7 +426,7 @@
         <li>Hybrids (\(n=486\)): \(\rho=0.27\), \(p\approx2\times10^{-9}\) — significant only because \(n\) is large; the effect is <em>weak</em>.</li>
         <li>Baselines (\(n=15\)): \(\rho=0.31\) (\(p=0.25\), not significant) — also weak.</li>
       </ul>
-      <p>The companion baseline analysis in §4.5.3 uses the same axes (the old "thirty configurations" that pooled cmose- and daisee-trained models is gone): the 15 baselines give \(\rho=0.31\).</p>
+      <p>The companion baseline analysis (Appendix A) uses the same axes (the old "thirty configurations" that pooled cmose- and daisee-trained models is gone): the 15 baselines give \(\rho=0.31\).</p>
       <span class="eg"><b>What this lets me claim, honestly:</b> a configuration's pure CMOSE in-domain ability is, at most, a <em>weak</em> predictor of its private-set transfer (\(\rho\approx0.3\) for both families) — so in-domain score cannot pick a deployment model on its own. The architecture's benefit is position, not slope: the hybrid cloud lies above and to the right of the baselines (higher on both axes), and combined training is the lever that reaches that region.</span>
     </div></div>
   </div>

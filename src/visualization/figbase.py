@@ -60,6 +60,47 @@ def new_fig(*args, **kwargs):
     return plt.subplots(*args, **kwargs)
 
 
+_CELL_TEXTS_ATTR = "_thesis_cell_texts"
+
+
+def mark_cell_texts(ax, texts) -> None:
+    """Register the ``ax.text`` annotations of one heatmap axes for later auto-sizing.
+
+    Called by the heatmap drawing helpers; :func:`autosize_cell_text` reads the registration
+    back once the whole figure (all panels, colorbars, titles) is assembled, so the cell
+    width it measures is the final one.
+    """
+    setattr(ax, _CELL_TEXTS_ATTR, list(texts))
+
+
+def autosize_cell_text(fig, *, frac: float = 0.55) -> None:
+    """Scale every registered heatmap annotation so the widest spans ``frac`` of a cell width.
+
+    Call once, after the figure is fully assembled and before saving. The canvas is drawn to
+    fix the final axes geometry (constrained layout has by then accounted for colorbars and
+    titles) and to obtain a renderer; for each registered axes the cell width and each label's
+    width are measured in display pixels, and a single font size is applied so the widest label
+    just reaches ``frac`` of the cell width — no label overflows and they stay uniform per axes.
+    The width ratio is invariant to the save DPI, so the fraction holds in the exported PNG, and
+    annotation font sizes do not feed back into constrained layout, so the axes do not move.
+    """
+    axes_with_text = [ax for ax in fig.axes if getattr(ax, _CELL_TEXTS_ATTR, None)]
+    if not axes_with_text:
+        return
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    for ax in axes_with_text:
+        texts = getattr(ax, _CELL_TEXTS_ATTR)
+        (x0, _), (x1, _) = ax.transData.transform([(0.0, 0.0), (1.0, 0.0)])
+        cell_w = abs(x1 - x0)
+        widest = max(t.get_window_extent(renderer=renderer).width for t in texts)
+        if cell_w <= 0 or widest <= 0:
+            continue
+        new_size = texts[0].get_fontsize() * (frac * cell_w / widest)
+        for t in texts:
+            t.set_fontsize(new_size)
+
+
 def save(fig, name: str, *, directory: Path | None = None) -> Path:
     """Save ``fig`` as ``<name>.png`` (at ``SAVE_DPI``); return the path.
 

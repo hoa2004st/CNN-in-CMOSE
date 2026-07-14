@@ -66,8 +66,6 @@ def fig_base_all_metrics(directory: Path | None = None) -> Path:
         row[0].set_ylabel("Score")
     handles, labels = axes[0][0].get_legend_handles_labels()
     fig.legend(handles, labels, title="Loss", loc="center left", bbox_to_anchor=(1.0, 0.5))
-    fig.suptitle("Baseline models on all six metrics (in-domain CMOSE)",
-                 y=1.01, fontweight="bold")
     fig.tight_layout()
     return save(fig, "base_models_all_metrics", directory=directory)
 

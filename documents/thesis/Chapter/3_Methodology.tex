@@ -35,10 +35,10 @@ The proposed hybrid model replaces that single encoder with a split-and-encode d
 
 \subsection{Public datasets}
 
-Two public datasets supply the labelled training data. DAiSEE~\cite{daisee} is a widely used in-the-wild engagement dataset of short frontal webcam clips, each showing a single learner under uncontrolled conditions and annotated on a four-level ordinal engagement scale, which makes it realistic but noisy; it ships official Train, Validation, and Test partitions used here directly for training, early-stopping validation, and testing. CMOSE~\cite{cmose} is a more recent and larger dataset, likewise collected in the wild but annotated by experts and reporting strong inter-rater agreement, and it ships precomputed OpenFace and I3D features; it is divided into a labelled training split, an \texttt{unlabel} split repurposed as the validation set for early stopping and checkpoint selection, and a test split. Both label every clip on the same four ordinal levels used throughout the thesis, E0 (Highly\nobreakdash-Disengage), E1 (Disengage), E2 (Engage), and E3 (Highly\nobreakdash-Engage), so that CMOSE, with its greater scale and label quality, serves as the primary source and DAiSEE as an independent second source.
+Two public datasets supply the labelled training data. DAiSEE~\cite{daisee} is a widely used engagement dataset of short webcam clips, recorded in the wild, each showing a single learner under uncontrolled conditions and annotated on a four-level ordinal engagement scale, which makes it realistic but noisy; it ships official Train, Validation, and Test partitions used here directly for training, early-stopping validation, and testing. CMOSE~\cite{cmose} is a more recent and larger dataset, likewise collected in the wild but annotated by experts and reporting strong inter-rater agreement, and it ships precomputed OpenFace and I3D features; it is divided into a labelled training split, an \texttt{unlabel} split repurposed as the validation set for early stopping and checkpoint selection, and a test split. Both label every clip on the same four ordinal levels used throughout the thesis, E0 (Highly\nobreakdash-Disengage), E1 (Disengage), E2 (Engage), and E3 (Highly\nobreakdash-Engage), so that CMOSE, with its greater scale and label quality, serves as the primary source and DAiSEE as an independent second source.
 \input{Table/T3_1_dataset_stats}
 
-Table~\ref{tab:T3_1_dataset_stats} shows that both datasets are heavily imbalanced toward the upper-middle engagement levels, and imbalanced in different directions: CMOSE concentrates on the single Engage level, whereas DAiSEE divides more evenly between Engage and Highly\nobreakdash-Engage. The disengaged levels are rare in both, yet they are precisely the responses a monitoring system must catch. The same skew holds within each individual split, so it reflects the nature of the task rather than an artefact of how either dataset was partitioned.
+Table~\ref{tab:T3_1_dataset_stats} shows that both public datasets are heavily imbalanced toward the upper-middle engagement levels, and imbalanced in different directions: CMOSE concentrates on the single Engage level, whereas DAiSEE divides more evenly between Engage and Highly\nobreakdash-Engage. The disengaged levels are rare in both, yet they are precisely the responses a monitoring system must catch. The same skew holds within each individual split, so it reflects the nature of the task rather than an artefact of how either dataset was partitioned. The self-collected private test set in the final row, though gathered independently, carries the same engaged-heavy imbalance, so the skew is a property of the engagement task and not of any single~collection.
 
 \subsection{Private dataset}
 \label{sec:private-collection}
@@ -75,27 +75,25 @@ The private set exists to measure deployment behaviour rather than in-dataset be
 \label{fig:private-angles}
 \end{figure}
 
-The set was built with the same feature pipeline as the public data. Webcam recordings of online-class sessions were sampled at several points and cut into fixed-length ten-second clips, each containing a single learner, and every clip was run through the OpenFace pipeline used for the public datasets, with clips that retained too few tracked frames discarded as unreliable. The accepted clips were then labelled through a purpose-built local interface, one engagement level per clip and by a single annotator, a reliance revisited as a limitation in Section~\ref{sec:limitations}. Finally, the same OpenFace (709-d per frame) and I3D (1024-d per clip) extractors used for DAiSEE were applied, so the private features share the format of the precomputed CMOSE features and are distributionally comparable to the training data, and the 366 clips with complete, aligned OpenFace and I3D features form the final set. Its label prior differs again from both public datasets and, together with its independent recording conditions, makes it an in-the-wild measure of deployment behaviour that anchors Section~\ref{sec:private}.
+The set was built with the same feature pipeline as the public data. Webcam recordings of online-class sessions were sampled at several points and cut into fixed-length ten-second clips, each containing a single learner, and every clip was run through the OpenFace pipeline used for the public datasets, with clips that retained too few tracked frames discarded as unreliable. The accepted clips were then labelled through a purpose-built local interface, one engagement level per clip and by a single annotator, a reliance revisited as a limitation in Section~\ref{sec:summary}. Finally, the same OpenFace (709-d per frame) and I3D (1024-d per clip) extractors used for DAiSEE were applied, so the private features share the format of the precomputed CMOSE features and are distributionally comparable to the training data, and the 366 clips with complete, aligned OpenFace and I3D features form the final set. Its label prior differs again from both public datasets and, together with its independent recording conditions, makes it an in-the-wild measure of deployment behaviour that anchors Section~\ref{sec:private-result}.
 
 \subsection{Preprocessing}
 
 Each clip is represented by two feature streams. OpenFace~2.0~\cite{openface2} produces a 709-dimensional descriptor for every frame, and I3D~\cite{i3d} produces a single 1024-dimensional embedding pooled over the whole clip. CMOSE ships both precomputed; for DAiSEE and the private set they are extracted from the raw video with the same toolkits, so all three sources share one feature format. When an OpenFace frame reports more than one detected face the highest-confidence row is kept, and any non-numeric entry is set to zero. Because clips differ in length, each OpenFace sequence is resampled along time to a fixed number of frames by per-feature linear interpolation, 300 frames by default, reduced to 150 for the largest training runs to fit memory and to 75 in the multimodal variant, while the I3D stream, being a single vector per clip, needs no temporal resampling and is encoded by an MLP (Section~\ref{sec:hybrid}).
 
-Every feature is then standardised by a per-feature $z$-score. The mean and standard deviation are fit on the training split alone, and the validation, test, and private sets are transformed with those training statistics, so no target-set information leaks into preprocessing. The OpenFace and I3D streams are standardised with separate statistics.
+Every feature is then standardised by a per-feature $z$-score. The mean and standard deviation are fit on the training split alone, and the validation, test, and private sets are transformed with those training statistics, so no target-set information leaks into preprocessing. The OpenFace and I3D streams are standardised with separate~statistics.
 
 \FloatBarrier
 \section{Baseline Models}
 \label{sec:baselines}
 
-Five single-encoder baselines provide the comparison points and form the allow-list \texttt{MODEL\_ORDER} used by the analysis. Each applies one encoder to the full feature sequence before a classifier.
-\begin{enumerate}
-  \item \texttt{openface\_mlp}: flattens the OpenFace sequence and classifies it with an MLP ($\to$256$\to$128$\to$4, dropout 0.3).
-  \item \texttt{openface\_tcn}: a TCN over the 709-d sequence (residual dilated blocks of widths $256,128,128$; kernel 3; dilations $1,2,4$), adaptive average-pooling, then a $128\!\to\!128\!\to\!4$ classifier.
-  \item \texttt{openface\_lstm}: a two-layer LSTM (hidden width 256) whose final hidden state feeds a $256\!\to\!128\!\to\!4$ classifier.
-  \item \texttt{openface\_transformer}: a linear projection to 128 dimensions, a sinusoidal positional encoding, and two Transformer encoder layers (4 heads, feed-forward width 256), mean-pooled and classified.
-  \item \texttt{i3d\_mlp}: classifies the single 1024-d I3D clip vector with an MLP ($1024\!\to\!256\!\to\!128\!\to\!4$, dropout 0.3).
-\end{enumerate}
-The five baseline architectures are shown in Figure~\ref{fig:baselines}. The four OpenFace baselines (a--d) encode the full $T\times709$ sequence with a single encoder, while \texttt{i3d\_mlp} (e) classifies the pooled 1024-d I3D clip vector. Forcing one encoder, and therefore one temporal bias, onto all 709 mixed features is the design decision the proposed model revisits in Section~\ref{sec:hybrid}.
+Five single-encoder baselines establish the comparison points, and their architectures are shown in Figure~\ref{fig:baselines}. Each applies a single encoder to a feature stream and classifies the result.
+
+The multilayer perceptron is the simplest of these encoders, and it serves as the first baseline for both feature streams. An MLP accepts only a fixed-length vector, so the per-frame OpenFace descriptor is flattened into one long vector before the network classifies it (\texttt{openface\_mlp}), and the I3D clip vector, already fixed in length, is passed to an MLP directly (\texttt{i3d\_mlp}). Flattening discards the order of the frames, so this baseline reads the clip as an unordered collection of measurements and marks the level that any time-aware model has to improve upon.
+
+The OpenFace descriptor is a sequence, however, and its order carries information that flattening throws away. A clip is an ordered series of frames in the same way that a sentence is an ordered series of words: engagement shows in how the face moves from one frame to the next, not in any single frame read on its own. Three encoders built to read ordered sequences are therefore applied to the raw $T\times709$ OpenFace stream --- a temporal convolutional network (\texttt{openface\_tcn}), a recurrent network (\texttt{openface\_lstm}), and a Transformer (\texttt{openface\_transformer}). Each stands for one of the main families of sequence models, and each preserves the frame order that the MLP removes.
+
+The I3D stream cannot be read in the same way. I3D already averages a whole clip into a single vector when the feature is extracted, so no per-frame sequence remains for a temporal encoder to consume. Its single fixed-length vector fits only an MLP, which is why the I3D stream supports one baseline while the OpenFace stream supports four.
 
 \begin{figure}[htbp]
 \centering
@@ -202,11 +200,13 @@ The five baseline architectures are shown in Figure~\ref{fig:baselines}. The fou
 \subsection{Grouping the facial features by meaning}
 \label{sec:groups}
 
-The 709 OpenFace features are partitioned into five meaningful groups by matching the column names, in the fixed order used everywhere in the pipeline (gaze, eye, face, head, action units). Table~\ref{tab:groups} summarises the partition; every one of the 709 columns belongs to exactly one group.
+The four OpenFace baselines share one weakness. A single encoder reads all 709 features at once, and so applies one inductive bias --- one built-in assumption about how a signal changes over time --- to every feature alike. No single assumption can fit them all, because the 709 features describe several distinct facial subsystems and those subsystems behave in very different ways: gaze and the eye landmarks shift in rapid, jittery micro-movements, head pose drifts slowly and smoothly, and the action units fire in short, sparse bursts. An encoder tuned to track quick eye movements is the wrong instrument for the slow drift of the head, so a single encoder over the whole descriptor suits a few of the features and misfits the rest.
+
+Separating the features by the subsystem they describe removes this conflict. When a group holds only features that behave alike, it can be handed to the encoder whose assumption matches that behaviour, and no encoder is asked to serve incompatible dynamics at once. The 709 OpenFace features are accordingly split into five groups by meaning, matched from the column names in the fixed order used throughout the pipeline: gaze, eye landmarks, face landmarks, head pose, and action units. Table~\ref{tab:groups} lists the grouping, in which every one of the 709 columns belongs to exactly one group. This grouping by meaning is the central idea of the proposed model.
 
 \begin{table}[ht]
 \centering
-\caption{Grouping of the 709-dimensional OpenFace descriptor into five feature groups by meaning.}
+\caption{Grouping of the 709-dimensional OpenFace descriptor into five feature groups~by~meaning.}
 \label{tab:groups}
 \begin{tabular}{llr}
 \toprule
@@ -223,12 +223,10 @@ Action units  & facial action-unit presence and intensity     & 35  \\
 \end{tabular}
 \end{table}
 
-This decomposition is the inductive prior of the method. The five subsystems have different dynamics, so each can be matched to an encoder whose temporal bias suits it: gaze and eye landmarks show rapid, noisy micro-saccades; head pose drifts slowly and smoothly; action units fire in brief, sparse bursts. Encoding all 709 features together, as the single-encoder baselines of Section~\ref{sec:baselines} do, forces a single bias on all of them at once.
-
 \FloatBarrier
-\subsection{Model architecture}
+\subsection{Proposed model architecture}
 
-The proposed hybrid model, shown in Figure~\ref{fig:hybrid}, encodes each stream independently, fuses the resulting embeddings, and supervises every stream with its own auxiliary head. It is built from the same three encoder families as the OpenFace baselines of Section~\ref{sec:baselines} (TCN, Transformer, LSTM), but where a baseline applies one encoder to the full $T\times709$ sequence, the proposed model assigns an independently chosen encoder to each of the five feature groups defined above, so any difference in performance is attributable to the decomposition rather than to a different kind of encoder.
+The proposed hybrid model is shown in Figure~\ref{fig:hybrid}. It keeps the three encoder families used by the OpenFace baselines --- the TCN, the LSTM, and the Transformer --- but instead of applying one of them to the whole $T\times709$ descriptor, it gives each of the five feature groups its own encoder, combines the results, and supervises every stream with its own auxiliary head. Reusing the same three families is a deliberate choice: it ensures that any gain over the baselines can be traced to the grouping alone, and not to a more powerful kind of encoder.
 
 \begin{figure}[htbp]
 \centering
@@ -270,12 +268,7 @@ The proposed hybrid model, shown in Figure~\ref{fig:hybrid}, encodes each stream
 \label{fig:hybrid}
 \end{figure}
 
-Each group is encoded by a \texttt{GroupEncoder}, one of three interchangeable temporal encoders (Figure~\ref{fig:group_encoders}), followed by temporal mean-pooling and a layer normalisation, producing a 64-dimensional embedding:
-\begin{enumerate}
-  \item a TCN: two residual blocks of dilated causal 1-D convolutions (channel widths $64,64$; kernel size 3; dropout 0.2);
-  \item a Transformer encoder: a linear projection to 64 dimensions, a sinusoidal positional encoding, and two encoder layers (4 heads, feed-forward width 128, GELU, dropout 0.2);
-  \item an LSTM: a two-layer recurrent encoder of hidden width 64 (dropout 0.2).
-\end{enumerate}
+Each group is read by its own \texttt{GroupEncoder}, one of the three interchangeable encoders drawn in Figure~\ref{fig:group_encoders}. Whichever encoder a group is assigned, its per-frame outputs are averaged over time and layer-normalised, so that every group leaves a 64-dimensional embedding of the same width regardless of how many raw features it began with. Fixing one common width matters because the groups differ greatly in size, from eight features for gaze to 340 for the face landmarks, and a shared width lets each contribute to the fused representation on an equal footing rather than in proportion to its raw dimensionality.
 
 \begin{figure}[htbp]
 \centering
@@ -329,16 +322,10 @@ Each group is encoded by a \texttt{GroupEncoder}, one of three interchangeable t
 \label{fig:group_encoders}
 \end{figure}
 
-The five 64-d group embeddings are concatenated into a 320-d vector and passed through a two-layer MLP classifier ($320\!\to\!128\!\to\!4$, ReLU, dropout 0.3) that produces the main logits. Each group additionally feeds an auxiliary classification head ($\mathrm{dropout}\to\mathrm{Linear}(64\!\to\!4)$). The total loss is the main-head loss plus $\texttt{aux\_weight}=0.2$ times the mean of the per-group losses (Section~\ref{sec:losses-method}); the auxiliary supervision makes each stream individually discriminative.
+The five 64-dimensional embeddings are concatenated into a single 320-dimensional vector, which a two-layer classifier ($320\!\to\!128\!\to\!4$) maps to the four engagement logits. Each group also feeds a small auxiliary classifier of its own, and the training objective adds a fraction of the averaged auxiliary losses --- weighted at $0.2$ --- to the main loss (Section~\ref{sec:losses-method}). These auxiliary heads keep every stream discriminative on its own, so that no single group can be ignored while the others carry the prediction.
 
-The I3D-stream-enabled variant adds a sixth stream: the single 1024-d I3D clip vector is encoded by an MLP ($1024\!\to\!256\!\to\!128$, ReLU, dropout 0.3) and layer-normalised to a 128-d embedding with its own auxiliary head, so the fusion MLP takes a 448-d input ($5\times64 + 128$). The I3D stream uses an MLP rather than a temporal encoder because the provided I3D feature is a single pooled vector, not a sequence.
+An optional sixth stream carries the I3D feature. Because I3D supplies a single pooled vector for the whole clip rather than a per-frame sequence, it is read by an MLP ($1024\!\to\!256\!\to\!128$) instead of a temporal encoder, and layer-normalised to a 128-dimensional embedding with its own auxiliary head. Enabling this stream widens the fused vector to 448 dimensions ($5\times64+128$); disabling it leaves the model on the five OpenFace groups alone, and both variants are carried forward for evaluation.
 
-A configuration of the proposed hybrid model is fully specified by the encoder chosen for each of the five groups, written as an \texttt{arch\_key} of five tokens in group order, for example \texttt{TCN\_T\_TCN\_LSTM\_T} (\texttt{T}~=~Transformer, \texttt{TCN}~=~TCN, \texttt{LSTM}~=~LSTM). With three choices per group there are $3^{5}=243$ configurations, each evaluated with the I3D stream enabled and disabled (Section~\ref{sec:ablation}).
-
-\FloatBarrier
-\section{Chapter Summary}
-\label{sec:method-summary}
-
-This chapter specified the methodology end to end: the pipeline and its two model paradigms (Figure~\ref{fig:overview_models}); the three training datasets and their imbalance, the test-only private set and its collection, and the leak-free preprocessing; the five single-encoder baselines; the five-group decomposition of the OpenFace descriptor; and the proposed hybrid model (Figure~\ref{fig:hybrid}) that reuses the baselines' encoder families per group, with its fusion and auxiliary heads, I3D variant, and 243-configuration design space. The experimental apparatus that applies this methodology, its loss forms, training regime, and 3$\times$3 evaluation protocol with its single primary metric (QWK) and secondary metrics, is set out in the experimental-results chapter (Chapter~\ref{chap:results}); the supporting single-encoder baseline study is given in Appendix~\ref{chap:baseline}.
+A single configuration of the model is therefore fixed by the encoder chosen for each of the five groups, written as an \texttt{arch\_key} of five tokens in group order --- for example \texttt{TCN\_T\_TCN\_LSTM\_T} (\texttt{T}~=~Transformer, \texttt{TCN}~=~TCN, \texttt{LSTM}~=~LSTM). With three encoders available to each group this gives $3^{5}=243$ possible configurations, and each can run with the I3D stream enabled or disabled.
 
 \end{document}

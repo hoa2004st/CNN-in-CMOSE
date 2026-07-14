@@ -19,7 +19,6 @@ import pandas as pd
 
 from src.analysis import aggregate as ag
 from src.visualization.figbase import TABLE_DIR
-from src.visualization.style import display_model_name
 
 # All six reported metrics in display order: the single primary/selection metric (QWK)
 # first, then the five secondary metrics. Only QWK ever selects a model; the rest are
@@ -52,11 +51,15 @@ def _spec(frame: pd.DataFrame, name: str, caption: str) -> tuple[str, pd.DataFra
 
 
 def table_dataset_stats() -> tuple[str, pd.DataFrame, str]:
+    """The three datasets used in the thesis: the two public training sources (CMOSE, DAiSEE)
+    and the self-collected, test-only Private set (no train/val split, so those columns are 0)."""
     overall = ag.load_class_distribution_overall()
     by_split = ag.load_class_distribution_by_split()
     totals = by_split.groupby(["dataset", "split"])["split_total"].first().unstack().fillna(0).astype(int)
+    class_cols = [("Highly Disengage", "E0%"), ("Disengage", "E1%"),
+                  ("Engage", "E2%"), ("Highly Engage", "E3%")]
     rows = []
-    for dataset in ["CMOSE", "DAiSEE", "Combined"]:
+    for dataset in ["CMOSE", "DAiSEE"]:
         if dataset not in set(overall["dataset"]):
             continue
         sub = overall[overall["dataset"] == dataset].set_index("class_label")
@@ -67,12 +70,22 @@ def table_dataset_stats() -> tuple[str, pd.DataFrame, str]:
             "Val": int(totals.loc[dataset].get("unlabel", 0)) if dataset in totals.index else 0,
             "Test": int(totals.loc[dataset].get("test", 0)) if dataset in totals.index else 0,
         }
-        for cls, short in [("Highly Disengage", "E0%"), ("Disengage", "E1%"),
-                           ("Engage", "E2%"), ("Highly Engage", "E3%")]:
+        for cls, short in class_cols:
             row[short] = round(float(sub.loc[cls, "proportion"]) * 100, 1) if cls in sub.index else 0.0
         rows.append(row)
+
+    priv = ag.load_private_class_distribution()
+    if priv is not None:
+        priv = priv.set_index("class")
+        total = int(priv["count"].sum())
+        row = {"Dataset": "Private", "Total": total, "Train": 0, "Val": 0, "Test": total}
+        for cls, short in class_cols:
+            row[short] = round(float(priv.loc[cls, "proportion"]) * 100, 1) if cls in priv.index else 0.0
+        rows.append(row)
+
     frame = pd.DataFrame(rows)
-    return _spec(frame, "T3_1_dataset_stats", "Dataset statistics and class balance (%).")
+    return _spec(frame, "T3_1_dataset_stats",
+                 "Dataset statistics and class balance (%); the Private set is test-only.")
 
 
 def table_base_indomain() -> tuple[str, pd.DataFrame, str]:
@@ -195,52 +208,6 @@ def table_group_marginal_combined() -> tuple[str, pd.DataFrame, str]:
                  "(CMOSE) and pooled over the unseen-target cells.")
 
 
-def table_private_by_source() -> tuple[str, pd.DataFrame, str]:
-    """Private-set (test-only) best base vs best hybrid per training source."""
-    m = ag.load_matrix()
-    h = ag.load_hybrid_matrix()
-    rows = []
-    for src in ["cmose", "daisee", "combined"]:
-        cb = m[(m["train_group"] == src) & (m["test_set"] == "private")]
-        ch = h[(h["train_group"] == src) & (h["test_set"] == "private")]
-        bb = cb.loc[cb["quadratic_weighted_kappa"].idxmax()]
-        bh = ch.loc[ch["quadratic_weighted_kappa"].idxmax()]
-        rows.append({
-            "Train source": ag.TRAIN_GROUP_DISPLAY[src],
-            "Best baseline (model/loss)": f"{display_model_name(bb['model'])}/{bb['loss']}",
-            "Baseline QWK": round(float(bb["quadratic_weighted_kappa"]), 3),
-            "Baseline macro-MAE": round(float(bb["macro_mae"]), 3),
-            "Best proposed model (arch)": f"{bh['variant']}, {bh['arch_key']}",
-            "Proposed QWK": round(float(bh["quadratic_weighted_kappa"]), 3),
-            "Proposed macro-acc": round(float(bh["macro_accuracy"]), 3),
-            "Proposed macro-MAE": round(float(bh["macro_mae"]), 3),
-        })
-    frame = pd.DataFrame(rows)
-    return _spec(frame, "T5_4_private_by_source",
-                 "Private set (test-only): best baseline vs best proposed hybrid model by training source.")
-
-
-def table_indomain_cmose_vs_daisee() -> tuple[str, pd.DataFrame, str]:
-    """Best in-domain result per dataset (justifies CMOSE-centric ablation)."""
-    m = ag.load_matrix()
-    rows = []
-    for tr, te, label in [("cmose", "cmose_test", "CMOSE"), ("daisee", "daisee_test", "DAiSEE")]:
-        cell = m[(m["train_group"] == tr) & (m["test_set"] == te)]
-        best = cell.loc[cell["quadratic_weighted_kappa"].idxmax()]
-        rows.append({
-            "In-domain dataset": label,
-            "Best model": display_model_name(best["model"]),
-            "Loss": best["loss_display"],
-            "QWK": round(float(best["quadratic_weighted_kappa"]), 3),
-            "Macro-Acc": round(float(best["macro_accuracy"]), 3),
-            "Macro-MAE": round(float(best["macro_mae"]), 3),
-            "Accuracy": round(float(best["accuracy"]), 3),
-        })
-    frame = pd.DataFrame(rows)
-    return _spec(frame, "T4_2_indomain_datasets",
-                 "Best in-domain result per dataset (CMOSE vs DAiSEE).")
-
-
 def table_per_metric_winner() -> tuple[str, pd.DataFrame, str]:
     """Which (model, loss) each of the six metrics declares best, in-domain CMOSE.
 
@@ -299,34 +266,6 @@ def table_agreement_stats() -> tuple[str, pd.DataFrame, str]:
                  "configurations (in-domain CMOSE).")
 
 
-def table_openface_vs_i3d() -> tuple[str, pd.DataFrame, str]:
-    """Best OpenFace encoder vs the I3D MLP on QWK and the balanced secondary metrics (in-domain CMOSE, CE).
-
-    Replaces the former bar chart: two rows x three metrics (QWK plus the two balanced
-    secondary metrics) read more honestly as a table. The contrast (complementary feature
-    families) motivates fusing the two streams. The OpenFace winner is selected on QWK.
-    """
-    m = ag.load_matrix()
-    cell = m[(m["train_group"] == "cmose") & (m["test_set"] == "cmose_test")
-             & (m["loss"] == "ce")]
-    of = cell[cell["model"].isin(["openface_mlp", "temporal_cnn", "lstm", "transformer"])]
-    best_of = of.loc[of["quadratic_weighted_kappa"].idxmax()]
-    i3d = cell[cell["model"] == "i3d_mlp"].iloc[0]
-    rows = []
-    for family, row in [("OpenFace (behaviour descriptors)", best_of),
-                        ("I3D (appearance/motion)", i3d)]:
-        rows.append({
-            "Feature family": family,
-            "Model": display_model_name(row["model"]),
-            "QWK": round(float(row["quadratic_weighted_kappa"]), 3),
-            "Macro-Acc": round(float(row["macro_accuracy"]), 3),
-            "Macro-MAE": round(float(row["macro_mae"]), 3),
-        })
-    frame = pd.DataFrame(rows)
-    return _spec(frame, "T4_3_openface_vs_i3d",
-                 "Best OpenFace encoder versus the I3D MLP (in-domain CMOSE, cross-entropy).")
-
-
 def table_group_marginal_unseen() -> tuple[str, pd.DataFrame, str]:
     """T5's marginal recomputed on the unseen-target cells (does the preference transfer?)."""
     h = ag.load_hybrid_matrix()
@@ -344,11 +283,8 @@ def build_all() -> list[tuple[str, pd.DataFrame, str]]:
         table_hybrid_topk(),
         table_i3d_fusion_effect(),
         table_group_marginal_combined(),
-        table_private_by_source(),
-        table_indomain_cmose_vs_daisee(),
         table_per_metric_winner(),
         table_agreement_stats(),
-        table_openface_vs_i3d(),
     ]
 
 

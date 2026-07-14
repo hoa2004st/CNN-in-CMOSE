@@ -2,17 +2,14 @@
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {3.1}{\ignorespaces Dataset statistics and class balance (\%).}}{17}{table.caption.12}%
-\contentsline {table}{\numberline {3.2}{\ignorespaces Grouping of the 709-dimensional OpenFace descriptor into five feature groups by meaning.}}{21}{table.caption.16}%
+\contentsline {table}{\numberline {3.1}{\ignorespaces Dataset statistics and class balance (\%); the Private set is test-only.}}{17}{table.caption.12}%
+\contentsline {table}{\numberline {3.2}{\ignorespaces Grouping of the 709-dimensional OpenFace descriptor into five feature groups~by~meaning.}}{22}{table.caption.16}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {4.1}{\ignorespaces Per-group marginal effect of encoder choice on mean QWK, in-domain (CMOSE) and pooled over the unseen-target cells.}}{29}{table.caption.20}%
-\contentsline {table}{\numberline {4.2}{\ignorespaces Paired effect of the I3D stream on QWK, by evaluation regime.}}{29}{table.caption.21}%
-\contentsline {table}{\numberline {4.3}{\ignorespaces Top-5 configurations of the proposed hybrid model, in-domain (CMOSE), sorted by QWK.}}{30}{table.caption.22}%
-\contentsline {table}{\numberline {4.4}{\ignorespaces Private set (test-only): best baseline vs best proposed hybrid model by training source.}}{32}{table.caption.25}%
+\contentsline {table}{\numberline {4.1}{\ignorespaces Per-group marginal effect of encoder choice on mean QWK, in-domain (CMOSE) and pooled over the unseen-target cells.}}{28}{table.caption.20}%
+\contentsline {table}{\numberline {4.2}{\ignorespaces Top-5 configurations of the proposed hybrid model, in-domain (CMOSE), sorted~by~QWK.}}{29}{table.caption.21}%
+\contentsline {table}{\numberline {4.3}{\ignorespaces Paired effect of the I3D stream on QWK, by evaluation regime.}}{31}{table.caption.24}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {A.1}{\ignorespaces Winning baseline configuration by metric (in-domain CMOSE).}}{46}{table.caption.30}%
-\contentsline {table}{\numberline {A.2}{\ignorespaces Best in-domain result per dataset (CMOSE vs DAiSEE).}}{47}{table.caption.32}%
-\contentsline {table}{\numberline {A.3}{\ignorespaces Best OpenFace encoder versus the I3D MLP (in-domain CMOSE, cross-entropy).}}{51}{table.caption.36}%
+\contentsline {table}{\numberline {A.1}{\ignorespaces Winning baseline configuration by metric (in-domain CMOSE).}}{43}{table.caption.30}%
 \contentsfinish 
 \contentsfinish 

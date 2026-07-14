@@ -31,6 +31,8 @@ max-pool) is a technical term and keeps the word "pool". The rule only bans
   two words; move the rest after the noun with "of", "for", "that".
 - **One idea per sentence** where a chain of clauses is doing the work of a
   list.
+- **No thousands separators in numbers.** Write digits plain, with no comma or
+  `{,}` grouping: `1500`, `1221`, `10000` — never `1{,}500` or `1,500`.
 
 ## 3. Banned words and phrases (AI tells)
 

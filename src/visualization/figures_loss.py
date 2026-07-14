@@ -59,8 +59,6 @@ def fig_loss_metric_tradeoff(directory: Path | None = None) -> Path:
     axes[0].set_ylabel("Score")
     handles, labels = axes[0].get_legend_handles_labels()
     fig.legend(handles, labels, title="Baseline", loc="center left", bbox_to_anchor=(1.0, 0.5))
-    fig.suptitle("Loss trade-offs: QWK versus the balanced secondary metrics across losses (in-domain CMOSE)",
-                 y=1.04, fontweight="bold")
     return save(fig, "loss_metric_tradeoff", directory=directory)
 
 

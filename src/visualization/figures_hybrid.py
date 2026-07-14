@@ -78,8 +78,6 @@ def fig_ablation_all_metrics(directory: Path | None = None) -> Path:
         _ablation_panel(ax, frame, metric, variants, base_row)
     for row in axes:
         row[0].set_ylabel("Score (in-domain CMOSE)")
-    fig.suptitle("Proposed hybrid model on all six metrics (in-domain CMOSE)",
-                 y=1.01, fontweight="bold")
     fig.tight_layout()
     return save(fig, "hybrid_ablation_all_metrics", directory=directory)
 
